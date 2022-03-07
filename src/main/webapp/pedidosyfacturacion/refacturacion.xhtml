@@ -1,0 +1,377 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Refacturación</ui:define>
+
+    <ui:define name="viewname">
+        <li>Refacturación</li>
+        <li>/</li>
+        <li>
+            <p:link outcome="/crud">Crud</p:link>
+        </li>
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="form">
+            <p:outputPanel id="manage-product-content1" rendered="#{refacturacionBean.mostarPantallaInicial}">
+                <div class="p-grid crud-demo">
+                    <div class="p-col-12">
+                        <p:growl id="messages" showDetail="true" />
+
+                        <p:toolbar styleClass="p-mb-4">
+                            <p:toolbarGroup>
+                                <p:commandButton value="Refacturar" icon="pi pi-plus" actionListener="#{refacturacionBean.refacturar()}" update="form :formNuevo" 
+                                                 styleClass="ui-button-success" style="margin-right: .5rem" immediate="true"/>
+                            </p:toolbarGroup>
+                        </p:toolbar>
+
+                        <h2 style="color:#87ea2a">BUSCAR FACTURAS REFACTURADAS</h2>
+                        <div class="ui-fluid p-formgrid p-grid">
+                            <div class="p-field p-col-12 p-md-4">
+                                <div class="ui-inputgroup">
+                                    <span class="ui-inputgroup-addon">
+                                        <i class="fa fa-shopping-cart"></i>
+                                    </span>
+                                    <p:selectOneMenu id="comercializadora" value="#{refacturacionBean.comercializadora}" title="Comercializadora"
+                                                     panelStyle="width:175px" style="min-width: 80%;" 
+                                                     autoWidth="false" converter="converterg" disabled="#{!refacturacionBean.habilitarComer}" required="true">
+                                        <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+                                        <f:selectItems value="#{refacturacionBean.listaComercializadora}"
+                                                       var="comer"
+                                                       itemLabel="#{comer.objRelacionado}"
+                                                       itemValue="#{comer}" />
+                                        <p:ajax event="change" listener="#{refacturacionBean.seleccionarComer()}"/>
+                                    </p:selectOneMenu> 
+                                </div>
+                            </div>
+                            <div class="p-field p-col-12 p-md-4">
+                                <div class="ui-inputgroup">
+                                    <span class="ui-inputgroup-addon">
+                                        <i class="fa fa-shopping-cart"></i>
+                                    </span>
+                                    <p:selectOneMenu id="terminal" value="#{refacturacionBean.terminal}" title="Terminal"
+                                                     panelStyle="width:175px" style="min-width: 80%;" 
+                                                     autoWidth="false" converter="converterg"
+                                                     disabled="#{!refacturacionBean.habilitarTerminal}" required="true">
+                                        <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
+                                        <f:selectItems value="#{refacturacionBean.listaTermianles}"
+                                                       var="terminal"
+                                                       itemLabel="#{terminal.objRelacionado}"
+                                                       itemValue="#{terminal}" />
+                                        <p:ajax event="change" listener="#{refacturacionBean.seleccionarTerminal}"/>
+                                    </p:selectOneMenu> 
+                                </div>
+                            </div>
+                            <div class="p-field p-col-12 p-md-4"></div>
+                            <!--<div class="p-field p-col-12 p-md-4">
+                                <div class="ui-inputgroup">
+                                    <span class="ui-inputgroup-addon">
+                                        <i class="fa fa-shopping-cart"></i>
+                                    </span>
+                                    <p:selectOneMenu id="cli" value="#{refacturacionBean.cliente}" title="Cliente"
+                                                     panelStyle="width:175px" style="min-width: 80%;" 
+                                                     autoWidth="false" converter="converterg"
+                                                     disabled="#{!refacturacionBean.habilitarCli}">
+                                        <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
+                                        <f:selectItems value="#{refacturacionBean.listaClientes}"
+                                                       var="cliente"
+                                                       itemLabel="#{cliente.codigo} - #{cliente.nombrecomercial}"
+                                                       itemValue="#{cliente}" />
+                                    </p:selectOneMenu> 
+                                </div>
+                            </div>-->
+                            <div class="p-field p-col-12 p-md-4">  
+                                <p:outputLabel for="tipoBus">Tipo de Fecha</p:outputLabel>
+                                <p:selectOneRadio id="tipoBus" value="#{refacturacionBean.tipoFecha}" layout="responsive" columns="2" required="true">
+                                    <f:selectItem itemLabel="Fecha Venta" itemValue="1" />
+                                    <f:selectItem itemLabel="Fecha Despacho" itemValue="2" />                                    
+                                </p:selectOneRadio>
+                            </div>
+                            <div class="p-field p-col-12 p-md-4">                                  
+                                <p:outputLabel for="fechaI" value="Fecha Inicio"/>
+                                <p:datePicker id="fechaI" value="#{refacturacionBean.fechaI}" showIcon="true" pattern="dd/MM/yyyy" required="true">
+                                    <p:ajax event="dateSelect" update="fechaF"/>
+                                </p:datePicker>
+                            </div>
+                            <div class="p-field p-col-12 p-md-4">                                  
+                                <p:outputLabel for="fechaF" value="Fecha Fin" />
+                                <p:datePicker id="fechaF" value="#{refacturacionBean.fechaf}" showIcon="true" pattern="dd/MM/yyyy" mindate="#{facturacionBean.fechaI}" required="true"/>                                   
+                            </div>
+
+                            <div class="p-field p-col-12 p-md-2">
+                                <div class="ui-inputgroup">
+                                    <p:commandButton value="Buscar" icon="pi pi-search-plus" actionListener="#{refacturacionBean.obtenerFacturasRefacturar()}" update="form"/>
+                                </div>
+                            </div>
+
+                        </div>                              
+
+
+                        <p:dataTable id="dt-products" widgetVar="dtProducts" var="envF" value="#{refacturacionBean.listaEnvRefac}" reflow="true" styleClass="products-table"
+                                     paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
+                            <f:facet name="header">
+                                <div class="products-table-header">
+                                    <span style="font-weight: bold">Facturas</span>
+
+                                    <span class="filter-container ui-input-icon-left">
+                                        <i class="pi pi-search"></i>
+                                        <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar" />
+                                    </span>
+                                </div>
+                            </f:facet>
+
+                            <p:ajax event="rowToggle" listener="#{refacturacionBean.onRowToggle}" />                                
+                            <p:column exportable="false" width="5%">
+                                <p:rowToggler />
+                            </p:column>
+                            <p:column headerText="Cliente" filterBy="#{envF.factura.codigocliente}" width="7%">
+                                <h:outputText value="#{envF.factura.codigocliente}" />
+                            </p:column>
+                            <p:column headerText="Número" sortBy="#{envF.factura.facturaPK.numero}" filterBy="#{envF.factura.facturaPK.numero}" width="12%">
+                                <h:outputText value="#{envF.factura.facturaPK.numero}" />
+                            </p:column>
+                            <p:column headerText="Número NP" sortBy="#{envF.factura.facturaPK.numeronotapedido}" filterBy="#{envF.factura.facturaPK.numeronotapedido}" width="11%">
+                                <h:outputText style="color:#87ea2a" value="#{envF.factura.facturaPK.numeronotapedido}" />
+                            </p:column>
+                            <p:column headerText="Valor" filterBy="#{envF.factura.valortotal}" width="5%">
+                                <h:outputText value="#{envF.factura.valortotal}" />
+                            </p:column>
+                            <p:column headerText="Estado" width="8%">
+                                <h:outputText styleClass="product-badge status-#{estilos.tipoActivoBool(envF.factura.activa)}" value="#{estilos.valorBoolActivo(envF.factura.activa)}" />
+                            </p:column>
+                            <p:column headerText="Refacturada" width="8%">
+                                <h:outputText styleClass="product-badge status-#{estilos.tipoActivoBool(envF.factura.refacturada)}" value="#{estilos.valorBoolActivoPago(envF.factura.refacturada)}" />
+                            </p:column>
+                            <p:column headerText="O.E. PETRO" width="8%">
+                                <p:commandButton styleClass="product-badge status-#{estilos.tipoActivoBool(envF.factura.oeenpetro)}" value="#{estilos.valorBoolActivoPago(envF.factura.oeenpetro)}" actionListener="#{facturacionBean.verificarOeenpetro(envF)}" update="form">
+                                    <f:setPropertyActionListener value="#{envF}" target="#{refacturacionBean.envF}" />
+                                </p:commandButton>
+                            </p:column>
+                            <p:column headerText="EN SRI" width="8%">
+                                <p:commandButton styleClass="product-badge status-#{estilos.tipoActivo(envF.ensri)}" value="#{estilos.valorActivoFactura(envF.ensri)}" actionListener="#{refacturacionBean.verificarSri(envF)}" update="form"/>
+                            </p:column>
+                            <p:column headerText="Anu OE EPP" exportable="false" width="8%">                               
+                                <p:commandButton styleClass="product-badge status-#{estilos.tipoActivoBool(envF.factura.oeanuladaenpetro)}" value="#{estilos.valorBoolActivoPago(envF.factura.oeanuladaenpetro)}" actionListener="#{refacturacionBean.verificarAnulacion(envF)}" update="form">
+                                    <f:setPropertyActionListener value="#{envF}" target="#{refacturacionBean.envF}" />
+                                </p:commandButton>
+                            </p:column>
+                            <!--<p:column headerText="Anular" exportable="false" width="5%">                               
+                                <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-times" process="@this" actionListener="#{refacturacionBean.diaglogoAnulacion(envF)}" update="form">
+                                    <f:setPropertyActionListener value="{envF}" target="{refacturacionBean.envF}" />
+                                </p:commandButton>
+                            </p:column>-->
+                            <p:column style="width: 3.5rem">
+                                <p:commandButton icon="pi pi-print" actionListener="#{refacturacionBean.generarReporteRef(envF)}" ajax="false"
+                                                 onstart="PF('blockUIWidget').block()" 
+                                                 oncomplete="PF('blockUIWidget').unblock()"
+                                                 onclick="PrimeFaces.monitorDownload(start, stop);"
+                                                 update="@form" styleClass="edit-button rounded-button ui-button-success">
+                                    <p:fileDownload value="#{refacturacionBean.pdfStream}"/>
+                                </p:commandButton>
+                            </p:column> 
+                            <p:rowExpansion>
+                                <div class="orders-subtable">
+                                    <h5>Factura Generada de orden N.: #{envF.factura.facturaPK.numeronotapedido}</h5>
+                                    <p:dataTable var="termP" value="#{refacturacionBean.listaEnvRefacNueva}" reflow="true">
+                                        <p:column headerText="Cliente" filterBy="#{termP.factura.codigocliente}" width="7%">
+                                            <h:outputText value="#{termP.factura.codigocliente}" />
+                                        </p:column>
+                                        <p:column headerText="Número" sortBy="#{termP.factura.facturaPK.numero}" filterBy="#{termP.factura.facturaPK.numero}" width="10%">
+                                            <h:outputText value="#{termP.factura.facturaPK.numero}" />
+                                        </p:column>
+                                        <p:column headerText="Número NP" sortBy="#{termP.factura.facturaPK.numeronotapedido}" filterBy="#{termP.factura.facturaPK.numeronotapedido}" width="10%">
+                                            <h:outputText style="color:#87ea2a" value="#{termP.factura.facturaPK.numeronotapedido}" />
+                                        </p:column>
+                                        <p:column headerText="Valor" filterBy="#{termP.factura.valortotal}" width="5%">
+                                            <h:outputText value="#{termP.factura.valortotal}" />
+                                        </p:column>
+                                        <p:column headerText="Estado" width="8%">
+                                            <h:outputText styleClass="product-badge status-#{estilos.tipoActivoBool(termP.factura.activa)}" value="#{estilos.valorBoolActivo(termP.factura.activa)}" />
+                                        </p:column>    
+                                        <p:column headerText="O.E. PETRO" width="8%">
+                                            <p:commandButton styleClass="product-badge status-#{estilos.tipoActivoBool(termP.factura.oeenpetro)}" value="#{estilos.valorBoolActivoPago(termP.factura.oeenpetro)}" actionListener="#{facturacionBean.verificarOeenpetro(termP)}" update="form">
+                                                <f:setPropertyActionListener value="#{termP}" target="#{refacturacionBean.envF}" />
+                                            </p:commandButton>
+                                        </p:column>
+                                        <p:column headerText="EN SRI" width="8%">
+                                            <p:commandButton styleClass="product-badge status-#{estilos.tipoActivo(envF.ensri)}" value="#{estilos.valorActivoFactura(envF.ensri)}" actionListener="#{refacturacionBean.verificarSri(termP)}" update="form"/>
+                                        </p:column>
+                                        <p:column headerText="Anu OE EPP" exportable="false" width="8%">                               
+                                            <p:commandButton styleClass="product-badge status-#{estilos.tipoActivoBool(termP.factura.oeanuladaenpetro)}" value="#{estilos.valorBoolActivoPago(termP.factura.oeanuladaenpetro)}" actionListener="#{refacturacionBean.verificarAnulacion(termP)}" update="form">
+                                                <f:setPropertyActionListener value="#{termP}" target="#{refacturacionBean.envF}" />
+                                            </p:commandButton>
+                                        </p:column>                                        
+                                        <p:column style="width: 3.5rem">
+                                            <p:commandButton icon="pi pi-print" actionListener="#{refacturacionBean.generarReporteRef(termP)}" ajax="false"
+                                                             onstart="PF('blockUIWidget').block()" 
+                                                             oncomplete="PF('blockUIWidget').unblock()"
+                                                             onclick="PrimeFaces.monitorDownload(start, stop);"
+                                                             update="@form" styleClass="edit-button rounded-button ui-button-success">
+                                                <p:fileDownload value="#{refacturacionBean.pdfStream}"/>
+                                            </p:commandButton>
+                                        </p:column> 
+                                    </p:dataTable>
+                                </div>
+                            </p:rowExpansion>
+                        </p:dataTable>
+                        <p:confirmDialog id="anulacion" widgetVar="deleteProductDialog" showEffect="fade" width="300" message="Anular Factura?" header="Confirm" severity="warn">
+                            <p:commandButton value="Si" icon="pi pi-check" actionListener="#{refacturacionBean.verficarAnulacion()}" process="@this" oncomplete="PF('deleteProductDialog').hide()"/>
+                            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('deleteProductDialog').hide()" />
+                        </p:confirmDialog>
+
+                        <p:confirmDialog id= "mensajePetro" widgetVar="verificarPetro" showEffect="fade" width="300" message="#{refacturacionBean.errorPetro}" header="Confirm" severity="warn">
+                            <p:commandButton value="OK" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('verificarPetro').hide()" />
+                        </p:confirmDialog>
+
+                        <p:confirmDialog id= "mensajeAulacion" widgetVar="verificarAnulacion" showEffect="fade" width="300" message="#{refacturacionBean.mensajeAnulacion}" header="Confirm" severity="warn">
+                            <p:commandButton value="OK" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('verificarAnulacion').hide()" />
+                        </p:confirmDialog>
+
+                        <p:confirmDialog id= "mensajeSRI" widgetVar="verificarSri" showEffect="fade" width="400" message="#{refacturacionBean.sriMensaje}" header="Confirm" severity="warn">
+                            <p:commandButton value="OK" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('verificarSri').hide()" />
+                        </p:confirmDialog>
+                    </div>
+                </div>
+            </p:outputPanel>
+        </h:form>
+
+        <!--        <p:dialog header="Generación de Facturas sobre Notas de Pedido" width="80%" showEffect="fade" modal="true" widgetVar="manageProductDialog" responsive="true">-->
+        <h:form id="formNuevo">
+            <p:outputPanel  id="manage-product-content" rendered="#{refacturacionBean.mostarFactura}">     
+                <p:growl id="messages" showDetail="true" />
+                <h2 style="color:#87ea2a">REFACTURAR</h2>
+                <div class="ui-fluid p-formgrid p-grid">                            
+                    <div class="p-field p-col-12 p-md-6">
+                        <div class="ui-inputgroup">
+                            <span class="ui-inputgroup-addon">
+                                <i class="fa fa-shopping-cart"></i>
+                            </span>
+                            <p:selectOneMenu id="comercializadora2" value="#{refacturacionBean.comercializadora}" title="Comercializadora"
+                                             panelStyle="width:175px" style="min-width: 80%;" 
+                                             autoWidth="false" converter="converterg" disabled="#{!refacturacionBean.habilitarComer}" required="true">
+                                <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+                                <f:selectItems value="#{refacturacionBean.listaComercializadora}"
+                                               var="comer"
+                                               itemLabel="#{comer.objRelacionado}"
+                                               itemValue="#{comer}" />
+                                <p:ajax event="change" listener="#{refacturacionBean.seleccionarComercializdora}"
+                                        update="formNuevo"/>
+                            </p:selectOneMenu> 
+                        </div>
+                    </div>
+                    <div class="p-field p-col-12 p-md-6">
+                        <div class="ui-inputgroup">
+                            <span class="ui-inputgroup-addon">
+                                <i class="fa fa-shopping-cart"></i>
+                            </span>
+                            <p:selectOneMenu id="terminal2" value="#{refacturacionBean.terminal}" title="Terminal"
+                                             panelStyle="width:175px" style="min-width: 80%;" 
+                                             autoWidth="false" converter="converterg" 
+                                             disabled="#{!refacturacionBean.habilitarTerminal}" required="true">
+                                <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
+                                <f:selectItems value="#{refacturacionBean.listaTermianles}"
+                                               var="terminal"
+                                               itemLabel="#{terminal.objRelacionado}"
+                                               itemValue="#{terminal}" />
+                                <p:ajax event="change" listener="#{refacturacionBean.seleccionarTerminal}"/>
+                            </p:selectOneMenu> 
+                        </div>
+                    </div>
+                    <div class="p-field p-col-12 p-md-4">  
+                        <p:outputLabel for="tipoBus">Tipo de Fecha</p:outputLabel>
+                        <p:selectOneRadio id="tipoBus" value="#{refacturacionBean.tipoFecha}" layout="responsive" columns="2" required="true">
+                            <f:selectItem itemLabel="Fecha Venta" itemValue="1" />
+                            <f:selectItem itemLabel="Fecha Despacho" itemValue="2" />                                    
+                        </p:selectOneRadio>
+                    </div>
+                    <div class="p-field p-col-12 p-md-4">                                          
+                        <p:outputLabel for="fecha1" value="Fecha"/>
+                        <p:datePicker id="fecha1" value="#{refacturacionBean.fechaI}" showIcon="true" pattern="dd/MM/yyyy" required="true"/>                                               
+                    </div>
+                    <div class="p-field p-col-12 p-md-2">
+                        <p:outputLabel for="search" value="."/>
+                        <p:commandButton id="search" value="Buscar" icon="pi pi-search-plus" actionListener="#{refacturacionBean.obtenerFacturasRefacturar()}" update="formNuevo" />
+                    </div>
+                </div>                              
+
+                <p:dataTable id="dt-products1" widgetVar="dtProducts1" var="fact" value="#{refacturacionBean.listaEnvRefac}" reflow="true" styleClass="products-table"
+                             paginator="true" rows="5" rowSelectMode="add" paginatorPosition="bottom" >
+                    <f:facet name="header">
+                        <div class="products-table-header">
+                            <span style="font-weight: bold">FACTURAS</span>
+
+                            <span class="filter-container ui-input-icon-left">
+                                <i class="pi pi-search"></i>
+                                <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar" />
+                            </span>
+                        </div>
+                    </f:facet>
+
+                    <p:column headerText="Cliente"  width="10%">
+                        <h:outputText value="#{fact.factura.codigocliente}" />
+                    </p:column>                         
+                    <p:column headerText="Factura"  width="15%" sortBy="#{fact.factura.facturaPK.numero}">
+                        <h:outputText value="#{fact.factura.facturaPK.numero}" />
+                    </p:column>
+               <!--     <p:column headerText="N. Factura"  width="15%">
+                        <h:outputText value="{fact.numeroFacNueva}" />
+                    </p:column>-->
+                    <p:column headerText="Número NP"  width="12%">
+                        <h:outputText value="#{fact.factura.facturaPK.numeronotapedido}" />
+                    </p:column>
+                    <p:column headerText="Producto" width="12%">
+                        <h:outputText value="#{fact.detalleFactura.detallefacturaPK.codigoproducto}" />
+                    </p:column>
+                    <p:column headerText="Vol. Facturado"  width="12%">
+                        <h:outputText value="#{fact.detalleFactura.volumennaturalautorizado}" />
+                    </p:column>
+                    <p:column headerText="Vol. a Facturar"  width="12%">                                 
+                        <p:inputText id="volAutori" value="#{fact.detalleFactura.volumennaturalautorizado}" />
+                    </p:column>
+                    <p:column headerText="Fecha Venta"  width="15%">
+                        <h:outputText value="#{fact.factura.fechaventa}" >
+                            <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
+                        </h:outputText>
+                    </p:column>  
+                    <p:column headerText="Fecha Despacho"  width="12%">
+                        <h:outputText value="#{fact.factura.fechadespacho}" >
+                            <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
+                        </h:outputText>
+                    </p:column>  
+                    <p:column headerText="Refacturar"  width="10%">
+                        <p:selectBooleanCheckbox id="procesar" value="#{fact.factura.seleccionar}" >
+                            <p:ajax event="change" listener="#{refacturacionBean.seleccionarRefactura()}" update="@([id$=btnPro]) @([id$=procesar]) @([id$=messages])" ></p:ajax>
+                        </p:selectBooleanCheckbox>    
+                    </p:column> 
+                </p:dataTable>                                                                                         
+            </p:outputPanel>
+            <p:outputPanel rendered="#{refacturacionBean.mostarFactura}"> 
+                <div class="p-grid">   
+                    <div class="p-field p-col-12 p-md-12"></div>
+                    <div class="p-field p-col-12 p-md-6">
+                        <p:commandButton id="btnPro" value="Procesar" icon="pi pi-check" actionListener="#{refacturacionBean.guardar()}" update=":formNuevo" styleClass="p-mr-2" disabled="#{!refacturacionBean.process}"/>
+                        <p:commandButton value="Regresar" icon="pi pi-arrow-left" actionListener="#{refacturacionBean.regresarRefac()}" update=":formNuevo :form" styleClass="ui-button-help p-mr-2" immediate="true"/>
+                        <p:commandButton value="Cancelar" icon="pi pi-times" class="ui-button-secondary" actionListener="#{refacturacionBean.init()}" update=":form :formNuevo" immediate="true"/>
+                    </div>
+                </div>
+            </p:outputPanel>
+        </h:form>
+
+
+        <p:confirmDialog global="true" showEffect="fade" width="300">
+            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+        </p:confirmDialog>    
+
+
+
+        <p:confirmDialog global="true" showEffect="fade" width="300">
+            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+        </p:confirmDialog> 
+    </ui:define>
+</ui:composition>

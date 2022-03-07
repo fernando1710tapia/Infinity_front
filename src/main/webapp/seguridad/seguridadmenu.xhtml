@@ -1,0 +1,154 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Seguridad Menú</ui:define>
+
+    <ui:define name="viewname">
+        <li>Seguridad Menú</li>
+        <li>/</li>
+        <li>
+            <p:link outcome="/crud">Crud</p:link>
+        </li>
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="form">
+            <p:outputPanel rendered="true">
+                <div class="p-grid crud-demo">
+                    <div class="p-col-12">
+                        <div class="card">
+                            <p:growl id="messages" showDetail="true" />
+                            <p:toolbar styleClass="p-mb-4">
+                                <p:toolbarGroup>
+                                    <p:commandButton value="Nuevo" icon="pi pi-plus" actionListener="#{seguridadmenuBean.nuevoMenu()}" update="formNuevo" 
+                                                     styleClass="ui-button-success" style="margin-right: .5rem" />
+                                </p:toolbarGroup>
+                                <p:toolbarGroup>
+                                    <p:commandButton value="Export" icon="pi pi-upload" styleClass="ui-button-help" ajax="false">
+                                        <p:dataExporter type="pdf" target="dt-products" fileName="products"/>
+                                    </p:commandButton>
+                                </p:toolbarGroup>
+                            </p:toolbar>
+
+                            <p:dataTable id="dt-products" widgetVar="dtProducts" var="menu" value="#{seguridadmenuBean.listaSeguridadmenuBean}" reflow="true" styleClass="products-table"
+                                         paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
+                                <f:facet name="header">
+                                    <div class="products-table-header">
+                                        <span style="font-weight: bold">Lista Seguridad Menú</span>
+
+                                        <span class="filter-container ui-input-icon-left">
+                                            <i class="pi pi-search"></i>
+                                            <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar" />
+                                        </span>
+                                    </div>
+                                </f:facet>
+
+                                <p:ajax event="rowToggle" listener="#{crudDemoView.onRowToggle}" />
+                                
+                                <p:column headerText="Código" sortBy="#{menu.codigo}" filterBy="#{menu.codigo}" width="35%">
+                                    <h:outputText value="#{menu.codigo}" />
+                                </p:column>
+                                <p:column headerText="Nombre" sortBy="#{menu.nombre}" filterBy="#{menu.nombre}" width="40%">
+                                    <h:outputText value="#{menu.nombre}" />
+                                </p:column>                                
+                                <p:column exportable="false">
+                                    <p:commandButton icon="pi pi-pencil" update="form :formNuevo" actionListener="#{seguridadmenuBean.editarSeguridad(menu)}"
+                                                     styleClass="edit-button rounded-button ui-button-success" process="@this">
+                                        <f:setPropertyActionListener value="#{menu}" target="#{seguridadmenuBean.seguridad}" />
+                                    </p:commandButton>
+                                    <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash" process="@this" oncomplete="PF('deleteProductDialog').show()" >
+                                        <f:setPropertyActionListener value="#{menu}" target="#{seguridadmenuBean.seguridad}" />
+                                    </p:commandButton>
+                                </p:column>                              
+                            </p:dataTable>
+                        </div>
+                    </div>
+                </div>
+            </p:outputPanel>
+        </h:form>
+
+        <p:dialog header="Seguridad Menú" width="40%" showEffect="fade" modal="true" widgetVar="nuevo" responsive="true">
+            <h:form id="formNuevo">
+                <p:outputPanel rendered ="true" class="ui-fluid">
+                    <div class="ui-fluid p-formgrid p-grid">
+                        <div class="p-field p-col-12 p-md-6">
+                            <span class="ui-float-label"> 
+                                <p:inputText id="codigo" value="#{seguridadmenuBean.seguridad.codigo}" required="true" maxlength="6" disabled="true">
+                                    <p:keyFilter mask="num" />
+                                </p:inputText>
+                                <p:outputLabel for="codigo">Código</p:outputLabel>
+                            </span>
+                        </div>  
+                        <div class="p-field p-col-12 p-md-6"></div>
+                        <div class="p-field p-col-12 p-md-6">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon">
+                                    <i class="fa fa-money"></i>
+                                </span>
+                                <p:selectOneMenu id="nivel" value="#{seguridadmenuBean.seguridad.nivel}" title="Nivel"
+                                                 panelStyle="width:175px" style="min-width: 80%;" 
+                                                 autoWidth="false" 
+                                                 required="true" requiredMessage="Seleccione Nivel">
+                                    <f:selectItem noSelectionOption="true" itemLabel="Nivel" itemValue="#{null}"/>
+                                    <f:selectItem itemLabel="Acción" itemValue="CCC"/>
+                                    <f:selectItem itemLabel="Menú Principal" itemValue="AAA"/>
+                                    <p:ajax event="change" listener="#{seguridadmenuBean.validacionMenu()}" update="formNuevo" />
+                                </p:selectOneMenu>
+                            </div>
+                        </div>
+                        <div class="p-field p-col-12 p-md-6">                            
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon">
+                                    <i class="fa fa-money"></i>
+                                </span>
+                                <p:selectOneMenu id="menuPadre" value="#{seguridadmenuBean.seguridad.menuPadre}" title="Nivel"
+                                                 panelStyle="width:175px" style="min-width: 80%;" 
+                                                 autoWidth="false" disabled="#{seguridadmenuBean.mostrarMenuP}"
+                                                 required="true" requiredMessage="Seleccione Menu">
+                                    <f:selectItem noSelectionOption="true" itemLabel="Menú Padre" itemValue="#{null}"/>
+                                    <f:selectItems value="#{seguridadmenuBean.listaMenuPadre}"
+                                                   var="menuP"
+                                                   itemLabel="#{menuP.objRelacionado}"
+                                                   itemValue="#{menuP.codigo}" />                                             
+                                </p:selectOneMenu>
+                            </div>
+                        </div>
+                                                         
+                        <div class="p-field p-col-12 p-md-12">
+                            <span class="ui-float-label"> 
+                                <p:inputText id="nombre" value="#{seguridadmenuBean.seguridad.nombre}" required="true" maxlength="50"/>
+                                <p:outputLabel for="nombre">Nombre Menú</p:outputLabel>
+                            </span>
+                        </div>                                                                                                
+                        <div class="p-field p-col-12 p-md-12" >
+                            <span class="ui-float-label" > 
+                                <p:inputText id="url" value="#{seguridadmenuBean.seguridad.urlAccion}" maxlength="50" required="#{seguridadmenuBean.activarMenuP}" rendered="#{seguridadmenuBean.activarMenuP}"/>
+                                <p:outputLabel for="url" rendered="#{seguridadmenuBean.activarMenuP}">Url Ubicación</p:outputLabel>
+                            </span>
+                        </div>   
+                        <div class="p-field p-col-12 p-md-12" ></div>
+                    </div>
+                </p:outputPanel>
+                <div class="p-grid p-justify-end">
+                    <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{seguridadmenuBean.save()}" 
+                                     update=":form formNuevo" styleClass="p-mr-2"/>
+                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('nuevo').hide()" class="ui-button-secondary" />
+                </div>
+            </h:form>
+        </p:dialog>
+        <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300" message="Eliminar Seguridad Menú?" header="Confirm" severity="warn">
+            <p:commandButton value="Si" icon="pi pi-check" actionListener="#{seguridadmenuBean.deleteItems()}" process="@this" oncomplete="PF('deleteProductDialog').hide()"
+                             update=":form"/>
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('deleteProductDialog').hide()" />
+        </p:confirmDialog>
+
+        <p:confirmDialog global="true" showEffect="fade" width="300">
+            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+        </p:confirmDialog>                    
+    </ui:define>
+</ui:composition>

@@ -1,0 +1,60 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Ver clave</ui:define>
+
+    <ui:define name="viewname">
+        <li>UI Kit</li>
+        <li>/</li>
+        <li>
+            <p:link outcome="/messages">Ver clave</p:link>
+        </li>
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="form">
+            <p:outputPanel rendered="true">
+
+                <p:tooltip />
+
+                <p:growl id="growl" showDetail="true"/> 
+
+                <div class="p-grid messages-demo">            
+
+                    <div class="p-col-12 p-lg-8">
+                        <div class="card">
+                            <h5>Usuario</h5>
+
+                            <div class="p-field p-grid p-align-start">
+                                <p:outputLabel for="codigo" styleClass="p-col-fixed" value="Usuario" />
+                                <div class="p-col">
+                                    <p:inputText id="codigo" required="true" value="#{loginBean.usuarioLog}"/>
+                                    <p:message for="codigo" />
+                                </div>
+                            </div>
+                            <div class="p-field p-grid">
+                                <p:outputLabel for="clave" styleClass="p-col-fixed" value="Clave" />
+                                <div class="p-col">
+                                    <p:inputText id="clave" value="#{loginBean.usuarioL.clave}"/>
+                                    <p:message for="clave" display="icon" />
+                                </div>                                
+                            </div>                            
+
+                            <p:commandButton value="Buscar" icon="pi pi-search-plus" actionListener="#{loginBean.buscar()}" immediate="true" update=":form">                                                    
+                            </p:commandButton>                         
+
+                        </div>
+                    </div>
+
+                </div>
+            </p:outputPanel>
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>

@@ -1,0 +1,213 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Rubro Tercero</ui:define>
+
+    <ui:define name="viewname">
+        <li>Rubro Tercero</li>
+        <li>/</li>
+        <li>
+            <p:link outcome="/crud">Crud</p:link>
+        </li>
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="form">
+            <p:outputPanel rendered="true">
+                <div class="p-grid crud-demo">
+                    <div class="p-col-12">
+                        <div class="card">
+                            <p:growl id="messages" showDetail="true" />
+
+                            <p:toolbar styleClass="p-mb-4">
+                                <p:toolbarGroup>
+                                    <p:commandButton value="Nuevo" icon="pi pi-plus" actionListener="#{rubroterceroBean.nuevoRubro()}" update="formNuevo"
+                                                     styleClass="ui-button-success" style="margin-right: .5rem" />                                    
+                                </p:toolbarGroup>
+                                <p:toolbarGroup>
+                                    <p:commandButton value="Export" icon="pi pi-upload" styleClass="ui-button-help" ajax="false">
+                                        <p:dataExporter type="pdf" target="dt-products" fileName="products"/>
+                                    </p:commandButton>
+                                </p:toolbarGroup>
+                            </p:toolbar>     
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-4">
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-money"></i>
+                                        </span>
+                                        <p:selectOneMenu id="comercializadora" value="#{rubroterceroBean.comercializadora}" title="Comercializadora"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         filter="true" filterMatchMode="startsWith"
+                                                         disabled="#{!rubroterceroBean.habilitarComer}">     
+                                            <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}" />   
+                                            <f:selectItems value="#{rubroterceroBean.listaComercializadora}"
+                                                           var="comer"
+                                                           itemLabel="#{comer.objRelacionado}"
+                                                           itemValue="#{comer}" />     
+                                            <p:ajax event="change" listener="#{rubroterceroBean.seleccionarComer()}"/>
+                                        </p:selectOneMenu>
+                                    </div>                            
+                                </div>                                                                
+                                <div class="p-field p-col-12 p-md-2">                
+                                    <p:commandButton value="Buscar" icon="pi pi-search-plus" actionListener="#{rubroterceroBean.actualizarLista()}" immediate="true" update="dt-products"/>
+                                </div>
+                            </div>                            
+                            <p:dataTable id="dt-products" widgetVar="dtProducts" var="rubro" value="#{rubroterceroBean.listaRubrotercero}" reflow="true" styleClass="products-table"
+                                         paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
+                                <f:facet name="header">
+                                    <div class="products-table-header">
+                                        <span style="font-weight: bold">Lista de Rubros</span>
+
+                                        <span class="filter-container ui-input-icon-left">
+                                            <i class="pi pi-search"></i>
+                                            <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar" />
+                                        </span>
+                                    </div>
+                                </f:facet>
+
+                                <p:ajax event="rowToggle" listener="#{rubroterceroBean.onRowToggle}" />                                
+                                <p:column exportable="false" width="5%">
+                                    <p:rowToggler  />
+                                </p:column>
+                                <p:column headerText="Código" sortBy="#{rubro.rubroterceroPK.codigo}" filterBy="#{rubro.rubroterceroPK.codigo}" width="15%">
+                                    <h:outputText value="#{rubro.rubroterceroPK.codigo}" />
+                                </p:column>
+                                <p:column headerText="Nombre" sortBy="#{rubro.nombre}" filterBy="#{rubro.nombre}" width="15%">
+                                    <h:outputText value="#{rubro.nombre}" />                                                                            
+                                </p:column>
+                                <p:column headerText="Tipo" sortBy="#{rubro.tipo}" filterBy="#{rubro.tipo}" width="15%">
+                                    <h:outputText value="#{rubro.tipo}" />                                                                                                         
+                                </p:column>
+                                <p:column headerText="Estado" sortBy="#{rubro.activo}" filterBy="#{rubro.activo}" width="15%">
+                                    <h:outputText styleClass="product-badge status-#{estilos.tipoActivoBool(rubro.activo)}" value="#{estilos.valorBoolActivo(rubro.activo)}" />
+                                </p:column>                                
+                                <p:column exportable="false">
+                                    <p:commandButton icon="pi pi-pencil" update="form :formNuevo" actionListener="#{rubroterceroBean.editarRubro(rubro)}"
+                                                     styleClass="edit-button rounded-button ui-button-success" process="@this">
+                                        <f:setPropertyActionListener value="#{rubro}" target="#{rubroterceroBean.rubrotercero}" />
+                                    </p:commandButton>
+                                    <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash" process="@this" oncomplete="PF('deleteProductDialog').show()" disabled="false">
+                                        <f:setPropertyActionListener value="#{rubro}" target="#{rubroterceroBean.rubrotercero}" />
+                                    </p:commandButton>
+                                </p:column>                                
+
+                                <p:rowExpansion>
+                                    <div class="detalleRubro" >
+                                        <h5>Cliente Rubro Tercero #{rubro.rubroterceroPK.codigo}</h5>
+                                        <p:dataTable var="rubCli" value="#{rubroterceroBean.listaClienterubrotercero}" reflow="true">
+                                            <p:column headerText="Cliente" sortBy="#{rubCli.clienterubroterceroPK.codigocliente}">
+                                                <h:outputText value="#{rubCli.clienterubroterceroPK.codigocliente}" />
+                                            </p:column>
+                                            <p:column headerText="Valor" sortBy="#{rubCli.valor}">
+                                                <h:outputText value="#{rubCli.valor}">
+                                                    <f:convertNumber currencySymbol="$" type="currency" />
+                                                </h:outputText>
+                                            </p:column>                                            
+                                            <p:column headerText="Cuotas" sortBy="#{rubCli.cuotas}">
+                                                <h:outputText value="#{rubCli.cuotas}" />
+                                            </p:column>                                            
+                                            <p:column headerText="Tipo Cobro" sortBy="#{rubCli.tipocobro}">
+                                                <h:outputText value="#{rubCli.tipocobro}" />
+                                            </p:column>
+                                            <p:column headerText="Fecha Inicio Cobro" sortBy="#{rubCli.fechainiciocobro}">
+                                                <h:outputText value="#{rubCli.fechainiciocobro}">
+                                                    <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
+                                                </h:outputText>
+                                            </p:column>
+                                        </p:dataTable>
+                                    </div>
+                                </p:rowExpansion>
+                            </p:dataTable>
+                        </div>
+                    </div>
+                </div>
+            </p:outputPanel>
+        </h:form>
+
+        <p:dialog header="Rubros" width="40%" showEffect="fade" modal="true" widgetVar="nuevo" responsive="true">
+            <h:form id="formNuevo">
+                <p:outputPanel rendered="true">                    
+                    <div class="ui-fluid p-formgrid p-grid">
+                        <div class="p-field p-col-12 p-md-6">                            
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon">
+                                    <i class="fa fa-money"></i>
+                                </span>
+                                <p:selectOneMenu id="comercializadora1" value="#{rubroterceroBean.comercializadora}" title="Comercializadora"
+                                                 panelStyle="width:175px" style="min-width: 80%;" 
+                                                 autoWidth="false" converter="converterg"
+                                                 filter="true" filterMatchMode="startsWith"
+                                                 required="true" requiredMessage="Seleccione Comercializadora"
+                                                 disabled="#{rubroterceroBean.editarRubro}">                                                 
+                                    <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+                                    <f:selectItems value="#{rubroterceroBean.listaComercializadora}"
+                                                   var="comer"
+                                                   itemLabel="#{comer.codigo} - #{comer.nombre}"
+                                                   itemValue="#{comer}" /> 
+                                </p:selectOneMenu>
+                            </div>                            
+                        </div>                        
+                        <div class="p-field p-col-12 p-md-6"></div>
+                        <div class="p-field p-col-12 p-md-6"></div>
+                        <div class="p-field p-col-12 p-md-12">
+                            <span class="ui-float-label">                                            
+                                <p:inputText id="nombre" value="#{rubroterceroBean.rubrotercero.nombre}" required="true" maxlength="50"/>
+                                <p:outputLabel for="nombre">Nombre</p:outputLabel>
+                            </span>
+                        </div>
+                        <div class="p-field p-col-12 p-md-12"></div>
+                        <div class="p-field p-col-12 p-md-6">
+                            <span class="ui-float-label">                                            
+                                <p:inputText id="cuenta" value="#{rubroterceroBean.rubrotercero.codigocontable}" required="true" maxlength="50"/>
+                                <p:outputLabel for="cuenta">Cuenta Contable</p:outputLabel>
+                            </span>
+                        </div>
+                        <div class="p-field p-col-12 p-md-6">                            
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon">
+                                    <i class="fa fa-money"></i>
+                                </span>
+                                <p:selectOneMenu id="tipo" value="#{rubroterceroBean.rubrotercero.tipo}" title="Tipo"
+                                                 panelStyle="width:175px" style="min-width: 80%;" 
+                                                 autoWidth="false" 
+                                                 filter="true" filterMatchMode="startsWith"
+                                                 required="true" requiredMessage="Seleccione Tipo"
+                                                 disabled="#{rubroterceroBean.soloLectura}">
+                                    <f:selectItem noSelectionOption="true" itemLabel="Tipo" itemValue="#{null}"/>
+                                    <f:selectItem itemLabel="VFI - Valor Fijo" itemValue="VFI"/>
+                                    <f:selectItem itemLabel="VXG - Valor por Galón" itemValue="VXG"/>                                                
+                                </p:selectOneMenu>
+                            </div>                            
+                        </div>
+                        <div class="p-field p-col-12 p-md-6">
+                            <p:outputLabel for="estado"  value="Activo"/>
+                            <div class="ui-inputgroup">
+                                <p:toggleSwitch id="estado" value="#{rubroterceroBean.estadoRubro}" > </p:toggleSwitch>
+                            </div>
+                        </div>    
+                    </div>                                                                                                                   
+                </p:outputPanel>
+                <div class="p-grid p-justify-end">                     
+                    <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{rubroterceroBean.save()}"
+                                     update=":form" styleClass="p-mr-2" />                      
+                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('nuevo').hide()" class="ui-button-secondary" />
+                </div>
+            </h:form>
+        </p:dialog>       
+        <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300" message="Eliminar Rubro tercero?" header="Confirm" severity="warn">
+            <p:commandButton value="Si" icon="pi pi-check" actionListener="#{rubroterceroBean.deleteItems()}" process="@this" oncomplete="PF('deleteProductDialog').hide()"
+                             update=":form"/>
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('deleteProductDialog').hide()" />
+        </p:confirmDialog>       
+        <p:confirmDialog global="true" showEffect="fade" width="300">
+            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+        </p:confirmDialog>
+    </ui:define>
+</ui:composition>

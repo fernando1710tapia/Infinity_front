@@ -1,0 +1,322 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Precio</ui:define>
+
+    <ui:define name="viewname">
+        <li>Precio</li>
+        <li>/</li>
+        <li>
+            <p:link outcome="/crud">Crud</p:link>
+        </li>
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="form">
+            <p:outputPanel rendered="true">
+                <div class="p-grid crud-demo">
+                    <div class="p-col-12">
+                        <div class="card">
+                            <p:growl id="messages" showDetail="true" />
+
+                            <p:toolbar styleClass="p-mb-4">
+                                <p:toolbarGroup>
+                                    <p:commandButton value="Nuevo" icon="pi pi-plus" ajax="false"
+                                                     action="gestionprecios.xhtml?faces-redirect=true"
+                                                     styleClass="ui-button-success" style="margin-right: .5rem" immediate="true"/>
+                                </p:toolbarGroup>
+                                <p:toolbarGroup>
+                                    <p:commandButton value="Actualización Personalizada" icon="pi pi-plus" ajax="false"
+                                                     action="actualizarprecio.xhtml?faces-redirect=true"
+                                                     styleClass="ui-button-success" style="margin-right: .5rem" immediate="true"/>
+                                </p:toolbarGroup>
+                                <p:toolbarGroup>
+                                    <p:commandButton value="Export" icon="pi pi-upload" styleClass="ui-button-help" ajax="false">
+                                        <p:dataExporter type="pdf" target="dt-products" fileName="products"/>
+                                    </p:commandButton>
+                                </p:toolbarGroup>
+                            </p:toolbar>       
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-4">
+                                    <p:outputLabel for="comercializadora" value="Comercializadora"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-money"></i>
+                                        </span>
+                                        <p:selectOneMenu id="comercializadora" value="#{precioBean.comercializadora}" title="Comercializadora"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         filter="true" filterMatchMode="startsWith"
+                                                         required="true" requiredMessage="Seleccione Ambiente"
+                                                         disabled="#{!precioBean.habilitarComer}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}" />   
+                                            <f:selectItems value="#{precioBean.listaComercializadora}"
+                                                           var="comer"
+                                                           itemLabel="#{comer.objRelacionado}"
+                                                           itemValue="#{comer}" />    
+                                            <p:ajax event="change" listener="#{precioBean.seleccionarComer()}"/>
+                                        </p:selectOneMenu>
+                                    </div>                            
+                                </div>
+                                <div class="p-field p-col-12 p-md-2">
+                                    <p:outputLabel for="vigentes"  value="Solo Vigentes"/>
+                                    <div class="ui-inputgroup">
+                                        <p:toggleSwitch id="vigentes" value="#{precioBean.soloVigente}" > 
+                                            <p:ajax event="change" listener="#{precioBean.soloVigentes()}"
+                                            update="form dt-products"/>
+                                        </p:toggleSwitch>
+                                    </div>
+                                </div>
+                                <div class="p-field p-col-12 p-md-2">  
+                                    <p:outputLabel for="bus"  value="."/>
+                                    <p:commandButton id="bus" value="Buscar" icon="pi pi-search-plus" actionListener="#{precioBean.actualizarLista()}" immediate="true" update="dt-products"/>
+                                </div>
+                            </div>
+                            <p:dataTable id="dt-products" widgetVar="dtProducts" var="precio" value="#{precioBean.listaPrecios}" reflow="true" styleClass="products-table"
+                                         paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
+                                <f:facet name="header">
+                                    <div class="products-table-header">
+                                        <span style="font-weight: bold">Lista de Precios</span>
+
+                                        <span class="filter-container ui-input-icon-left">
+                                            <i class="pi pi-search"></i>
+                                            <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar" />
+                                        </span>
+                                    </div>
+                                </f:facet>
+
+                                <p:ajax event="rowToggle" listener="#{precioBean.onRowToggle}" />                                
+                                <p:column exportable="false" width="5%">
+                                    <p:rowToggler  />
+                                </p:column>
+                                <p:column headerText="Código" sortBy="#{precio.precioPK.codigoPrecio}" filterBy="#{precio.precioPK.codigoPrecio}" width="7%">
+                                    <h:outputText value="#{precio.precioPK.codigoPrecio}" />
+                                </p:column>
+                                <p:column headerText="Código Producto" width="7%">
+                                    <h:outputText value="#{precio.precioPK.codigoproducto}" />
+                                </p:column>
+                                <p:column headerText="Fecha Inicio" sortBy="#{precio.precioPK.fechainicio}" filterBy="#{precio.precioPK.fechainicio}" width="12%">
+                                    <h:outputText value="#{precio.precioPK.fechainicio}">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
+                                    </h:outputText>
+                                </p:column>
+                                <p:column headerText="Fecha Fin" sortBy="#{precio.fechafin}" filterBy="#{precio.fechafin}" width="12%">
+                                    <h:outputText value="#{precio.fechafin}" >
+                                        <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
+                                    </h:outputText>                                                   
+                                </p:column>
+                                <p:column headerText="Estado" width="12%">
+                                    <h:outputText styleClass="product-badge status-#{estilos.tipoActivoBool(precio.activo)}" value="#{estilos.valorBoolActivo(precio.activo)}" />
+                                </p:column>
+                                <p:column headerText="Precio" sortBy="#{precio.precioproducto}" filterBy="#{precio.precioproducto}" width="12%">
+                                    <h:outputText value="#{precio.precioproducto}" />
+                                </p:column>
+                                <p:rowExpansion>
+                                    <div class="detallePrecio" >
+                                        <h5>Detalle de precio #{precio.precioPK.codigoPrecio}</h5>
+                                        <p:dataTable var="detalle" value="#{precioBean.listaDetallePrecios}" reflow="true">
+                                            <p:column headerText="Terminal" sortBy="#{detalle.detalleprecioPK.codigoterminal}">
+                                                <h:outputText value="#{detalle.detalleprecioPK.codigoterminal}" />
+                                            </p:column>
+                                            <p:column headerText="Producto" sortBy="#{detalle.detalleprecioPK.codigoproducto}">
+                                                <h:outputText value="#{detalle.detalleprecioPK.codigoproducto}" />
+                                            </p:column>
+                                            <p:column headerText="Medida" sortBy="#{detalle.detalleprecioPK.codigomedida}">
+                                                <h:outputText value="#{detalle.detalleprecioPK.codigomedida}" />
+                                            </p:column>
+                                            <p:column headerText="Gravamen" sortBy="#{detalle.gravamen.nombre}">
+                                                <h:outputText value="#{detalle.gravamen.nombre}" />                                                                                                    
+                                            </p:column>
+                                            <p:column headerText="Valor" sortBy="#{detalle.valor}">
+                                                <h:outputText value="#{detalle.valor}">
+                                                    <f:convertNumber currencySymbol="$" type="currency" pattern="#0.000000"/>
+                                                </h:outputText>
+                                            </p:column>
+                                        </p:dataTable>
+                                    </div>
+                                </p:rowExpansion>
+                            </p:dataTable>
+                        </div>
+                    </div>
+                </div>
+            </p:outputPanel>
+        </h:form>
+
+        <p:dialog header="Lista de Precios" width="50%" showEffect="fade" modal="true" widgetVar="nuevo" responsive="true">
+            <h:form id="formNuevo">
+                <p:outputPanel rendered="true">
+                    <div class="p-grid crud-demo">
+                        <p:tabView id="informacion">
+                            <p:tab title="Información General" disabled="#{listaPrecioBean.agregarTerminal}">
+                                <div class="ui-fluid p-formgrid p-grid">
+                                    <div class="p-field p-col-12 p-md-6">
+                                        <p:outputLabel for="comercializadora1" value="Comercializadora"/>
+                                        <div class="ui-inputgroup">
+                                            <span class="ui-inputgroup-addon">
+                                                <i class="fa fa-money"></i>
+                                            </span>
+                                            <p:selectOneMenu id="comercializadora1" value="#{listaPrecioBean.comercializadora}" title="Comercializadora"
+                                                             panelStyle="width:175px" style="min-width: 80%;" 
+                                                             autoWidth="false" converter="converterg"
+                                                             filter="true" filterMatchMode="startsWith"
+                                                             required="true" requiredMessage="Seleccione Ambiente">
+                                                <f:selectItem noSelectionOption="true" itemLabel="selecciona" itemValue="000"/>
+                                                <f:selectItems value="#{listaPrecioBean.listaComercializadora}"
+                                                               var="comer"
+                                                               itemLabel="#{comer.objRelacionado}"
+                                                               itemValue="#{comer}" />
+                                            </p:selectOneMenu>
+                                        </div>                            
+                                    </div>
+                                    <div class="p-field p-col-12 p-md-6"></div>
+                                    <div class="p-field p-col-12 p-md-6">
+                                        <span class="ui-float-label">
+                                            <p:inputText id="codigo" value="#{listaPrecioBean.listaListapreciobean.codigo}" required="#{!listaPrecioBean.agregarTerminal}" maxlength="4">
+                                                <p:keyFilter mask="num" />
+                                            </p:inputText> 
+                                            <p:outputLabel for="codigo">Código</p:outputLabel>
+                                        </span>
+                                    </div>
+                                    <div class="p-field p-col-12 p-md-12">
+                                        <span class="ui-float-label">                                            
+                                            <p:inputText id="nombre" value="#{listaPrecioBean.listaListapreciobean.nombre}" required="#{!listaPrecioBean.agregarTerminal}" maxlength="50"/>
+                                            <p:outputLabel for="nombre">Nombre</p:outputLabel>
+                                        </span>
+                                    </div>
+                                    <div class="p-field p-col-12 p-md-12">
+                                        <p:outputLabel for="tipoMargen" value="Tipo de Margen"/>
+                                        <div class="ui-inputgroup">
+                                            <span class="ui-inputgroup-addon">
+                                                <i class="fa fa-money"></i>
+                                            </span>
+                                            <p:selectOneMenu id="tipoMargen" value="#{listaPrecioBean.listaListapreciobean.tipo}" title="Tipo de Margen"
+                                                             panelStyle="width:175px" style="min-width: 80%;" 
+                                                             autoWidth="false" 
+                                                             filter="true" filterMatchMode="startsWith"
+                                                             required="true" requiredMessage="Seleccione Ambiente">
+                                                <f:selectItem noSelectionOption="true" itemLabel="Selecciona" itemValue="#{null}"/>
+                                                <f:selectItem itemLabel="MPO - Margen sobre el precio en terminal" itemValue="MPO"/>
+                                                <f:selectItem itemLabel="MCO - Margen sobre el margen de comercializacion" itemValue="MCO"/>                                                
+                                            </p:selectOneMenu>
+                                        </div>                            
+                                    </div>
+                                    <div class="p-field p-col-12 p-md-6">
+                                        <p:outputLabel for="estado"  value="Activo"/>
+                                        <div class="ui-inputgroup">
+                                            <p:toggleSwitch id="estado" value="#{listaPrecioBean.estadoPrecio}" > </p:toggleSwitch>
+                                        </div>
+                                    </div>    
+                                </div>
+                            </p:tab>
+                            <p:tab title="Información Terminal Producto">                                            
+                                <p:panel id="terminal" visible="#{listaPrecioBean.agregarTerminal}" > 
+                                    <p:panel> 
+                                        <div class="p-m">
+                                            <p:outputLabel>Comercializadora: </p:outputLabel>
+                                            <p:outputLabel value="#{listaPrecioBean.comercializadoraNombreT}"></p:outputLabel>                                                      
+                                        </div>                                               
+                                        <div class="p-m">
+                                            <p:outputLabel>Precio: </p:outputLabel>
+                                            <p:outputLabel value="#{listaPrecioBean.listaPrecioT}"></p:outputLabel>     
+                                        </div>                                                
+                                        <div class="p-m">
+                                            <p:outputLabel>Tipo: </p:outputLabel> 
+                                            <p:outputLabel value="#{listaPrecioBean.tipoT}"></p:outputLabel>
+                                        </div>                                                
+                                    </p:panel> 
+                                    <div class="ui-fluid p-formgrid p-grid">
+                                        <div class="p-field p-col-12 p-md-12"></div>
+                                        <div class="p-field p-col-12 p-md-12">
+                                            <p:outputLabel for="margen">Margen del Porcentaje</p:outputLabel>
+                                            <p:selectOneRadio id="margen" value="#{listaPrecioBean.tipoBusquedaDocumento}">
+                                                <f:selectItem itemLabel="Por terminal" itemValue="N"/>
+                                                <f:selectItem itemLabel="Todos los terminales" itemValue="T"/>
+                                                <p:ajax update="form terminal" listener="#{listaPrecioBean.actualizarTipoBusqueda}" process="@this"/>
+                                            </p:selectOneRadio>
+                                        </div>
+                                        <div class="p-field p-col-12 p-md-12" rendered="#{listaPrecioBean.mostrarMsj}">
+                                            <p:outputLabel id="msj" rendered="#{listaPrecioBean.mostrarMsj}">Opción no disponible</p:outputLabel>                                            
+                                        </div>
+                                        <p:dataTable id="dt-margen" rendered="#{listaPrecioBean.mostrarTabla}" widgetVar="dtMargen" var="margen" value="#{listaPrecioBean.listaProductosComer}" reflow="true" styleClass="margen-table"
+                                                     selection="#{crudDemoView.selectedProducts}" rowKey="#{margen.comercializadoraproductoPK}" rows="10" rowSelectMode="add" paginatorPosition="bottom">                                                    
+                                            <p:ajax event="rowToggle" listener="#{crudDemoView.onRowToggle}" />                                                                                                    
+                                            <p:column headerText="Código" sortBy="#{margen.comercializadoraproductoPK.codigoproducto}" filterBy="#{margen.comercializadoraproductoPK.codigoproducto}" width="15%">
+                                                <h:outputText value="#{margen.comercializadoraproductoPK.codigoproducto}" />
+                                            </p:column>
+                                            <p:column headerText="Producto" sortBy="#{margen.producto.nombre}" filterBy="#{margen.producto.nombre}" width="25%">
+                                                <h:outputText value="#{margen.producto.nombre}" />
+                                            </p:column>
+                                            <p:column headerText="Medida" sortBy="#{margen.medida.abreviacion}" filterBy="#{margen.medida.abreviacion}">
+                                                <h:outputText value="#{margen.medida.abreviacion}" />
+                                            </p:column>
+                                            <!--<p:column headerText="Margen" sortBy="{margen.margenValorAux}" filterBy="{margen.margenValorAux}">
+                                                <h:outputText value="{margen.margenValorAux}" />
+                                            </p:column>-->
+                                            <p:column exportable="false">
+                                                <p:commandButton icon="pi pi-pencil" update="form :formEditMargen" actionListener="#{listaPrecioBean.editarMargen(margen)}"
+                                                                 styleClass="edit-button rounded-button ui-button-success" process="@this">
+                                                    <f:setPropertyActionListener value="#{precio}" target="#{listaPrecioBean.listaListapreciobean}" />
+                                                </p:commandButton>                                              
+                                            </p:column>                                                        
+                                        </p:dataTable>                                                
+                                    </div>
+                                    <p:commandButton value="Guardar Precios" icon="pi pi-check" actionListener="#{listaPrecioBean.save}"  
+                                                     styleClass="p-mr-2" process="@this"></p:commandButton>
+                                </p:panel> 
+                            </p:tab>
+                        </p:tabView>
+
+                    </div>
+                </p:outputPanel>
+                <div class="p-grid p-justify-end">                     
+                    <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{listaPrecioBean.save}" oncomplete="PF('configTermDialog').show()"  
+                                     update="@([id$=terminal])" styleClass="p-mr-2" />                    
+                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('nuevo').hide()" class="ui-button-secondary" />
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <p:dialog header="Margen" width="20%" showEffect="fade" modal="true" widgetVar="margen" responsive="true">
+            <h:form id="formEditMargen">
+                <p:outputPanel rendered="true">
+                    <div class="p-grid crud-demo">                        
+                        <div class="ui-fluid p-formgrid p-grid">                            
+                            <div class="p-field p-col-12 p-md-12"></div>
+                            <div class="p-field p-col-12 p-md-6">
+                                <!--<span class="ui-float-label">
+                                    <p:inputText id="margenV" value="{listaPrecioBean.productosComerAux.margenValorAux}" required="true" maxlength="4">                                        
+                                    </p:inputText> 
+                                    <p:outputLabel for="margenV">Margen</p:outputLabel>
+                                </span>-->
+                            </div>                                
+                        </div>
+                    </div>
+                </p:outputPanel>
+                <div class="p-grid p-justify-end">                     
+                    <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{listaPrecioBean.guardarMargen()}"  
+                                     update="@([id$=dt-margen]) :form formEditMargen" styleClass="p-mr-2"/>
+                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('margen').hide()" class="ui-button-secondary" />
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300" message="Eliminar Lista de Precios?" header="Confirm" severity="warn">
+            <p:commandButton value="Si" icon="pi pi-check" actionListener="#{listaPrecioBean.deleteItems()}" process="@this" oncomplete="PF('deleteProductDialog').hide()"/>
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('deleteProductDialog').hide()" />
+        </p:confirmDialog>
+
+        <p:confirmDialog widgetVar="configTermDialog" showEffect="fade" width="300" message="Requiere configurar Terminal?" header="Confirm" severity="warn">
+            <p:commandButton value="Si" icon="pi pi-check" process="@this" oncomplete="PF('configTermDialog').hide()" actionListener="#{listaPrecioBean.configTerminal(1)}"/>
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('configTermDialog').hide()" />
+        </p:confirmDialog>
+
+        <p:confirmDialog global="true" showEffect="fade" width="300">
+            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+        </p:confirmDialog>                    
+    </ui:define>
+</ui:composition>

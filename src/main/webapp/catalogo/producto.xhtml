@@ -1,0 +1,157 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Producto</ui:define>
+
+    <ui:define name="viewname">
+        <li>Producto</li>
+        <li>/</li>
+        <li>
+            <p:link outcome="/crud">Crud</p:link>
+        </li>
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="form">
+            <p:outputPanel rendered="true">
+                <div class="p-grid crud-demo">
+                    <div class="p-col-12">
+                        <div class="card">
+                            <p:growl id="messages" showDetail="true" />
+
+                            <p:toolbar styleClass="p-mb-4">
+                                <p:toolbarGroup>
+                                    <p:commandButton value="Nuevo" icon="pi pi-plus" actionListener="#{productoBean.nuevoProducto()}" update="formNuevo"
+                                                     styleClass="ui-button-success" style="margin-right: .5rem"/>
+                                </p:toolbarGroup>
+                                <p:toolbarGroup>
+                                    <p:commandButton value="Export" icon="pi pi-upload" styleClass="ui-button-help" ajax="false">
+                                        <p:dataExporter type="pdf" target="dt-products" fileName="products"/>
+                                    </p:commandButton>
+                                </p:toolbarGroup>
+                            </p:toolbar>
+
+                            <p:dataTable id="dt-products" widgetVar="dtProducts" var="producto" value="#{productoBean.listaProductosBeanAux}" reflow="true" styleClass="products-table"
+                                         paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
+                                <f:facet name="header">
+                                    <div class="products-table-header">
+                                        <span style="font-weight: bold">Lista Productos</span>
+
+                                        <span class="filter-container ui-input-icon-left">
+                                            <i class="pi pi-search"></i>
+                                            <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar" />
+                                        </span>
+                                    </div>
+                                </f:facet>
+
+                                <p:ajax event="rowToggle" listener="#{crudDemoView.onRowToggle}" />
+
+                                <p:column headerText="Código" sortBy="#{producto.codigo}" filterBy="#{producto.codigo}" width="20%">
+                                    <h:outputText value="#{producto.codigo}" />
+                                </p:column>
+                                <p:column headerText="Nombre" sortBy="#{producto.nombre}" filterBy="#{producto.nombre}" width="25%">
+                                    <h:outputText value="#{producto.nombre}" />
+                                </p:column>
+                                <p:column headerText="Area Mercadeo" sortBy="#{producto.objRelacionado}" filterBy="#{producto.objRelacionado}" width="25%">
+                                    <h:outputText value="#{producto.objRelacionado}" />
+                                </p:column>                                
+                                <p:column exportable="false">
+                                    <p:commandButton icon="pi pi-pencil" update="form :formNuevo" actionListener="#{productoBean.editarProducto(producto)}"
+                                                     styleClass="edit-button rounded-button ui-button-success" process="@this">
+                                        <f:setPropertyActionListener value="#{producto}" target="#{productoBean.producto}" />
+                                    </p:commandButton>
+                                    <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash" process="@this" oncomplete="PF('deleteProductDialog').show()" >
+                                        <f:setPropertyActionListener value="#{producto}" target="#{productoBean.producto}" />
+                                    </p:commandButton>
+                                </p:column>
+                            </p:dataTable>
+                        </div>
+                    </div>
+                </div>
+            </p:outputPanel>
+        </h:form>
+        <p:dialog header="Producto" width="40%" showEffect="fade" modal="true" widgetVar="nuevo" responsive="true">
+            <h:form id="formNuevo">
+                <p:outputPanel rendered = "true">
+                    <div class="ui-fluid p-formgrid p-grid">
+                        <div class="p-field p-col-12 p-md-6">
+                            <span class="ui-float-label">
+                                <p:inputText id="codigo" value="#{productoBean.producto.codigo}" required="true" maxlength="4" disabled="#{productoBean.editarProducto}">
+                                    <p:keyFilter mask="num" />
+                                </p:inputText> 
+                                <p:outputLabel for="codigo">Código</p:outputLabel>
+                            </span>
+                        </div>
+                        <div class="p-field p-col-12 p-md-12">
+                            <span class="ui-float-label">                                            
+                                <p:inputText id="nombre" value="#{productoBean.producto.nombre}" required="true" maxlength="50"/>
+                                <p:outputLabel for="nombre">Nombre</p:outputLabel>
+                            </span>
+                        </div>
+                        <div class="p-field p-col-12 p-md-6">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon">
+                                    <i class="fa fa-shopping-cart"></i>
+                                </span>
+                                <p:selectOneMenu id="areaM" value="#{productoBean.producto.codigoAreaM}" title="Area Mercadeo"
+                                                 panelStyle="width:175px" style="min-width: 80%;" 
+                                                 autoWidth="false">
+                                    <f:selectItem noSelectionOption="true" itemLabel="Area Mercadeo" itemValue="#{null}"/>
+                                    <f:selectItems value="#{productoBean.listaAreaMercadeo}"
+                                                   var="aream"
+                                                   itemLabel="#{aream.objRelacionado}"
+                                                   itemValue="#{aream.codigo}" />
+                                </p:selectOneMenu> 
+                            </div>
+                        </div>
+                        <div class="p-field p-col-12 p-md-6">
+                            <span class="ui-float-label">
+                                <p:inputNumber id="ivaPresun" value="#{productoBean.producto.porcentajeivapresuntivo}" required="true" maxlength="7" decimalPlaces="3">
+                                    <p:keyFilter mask="num" />
+                                </p:inputNumber>
+                                <p:outputLabel for="ivaPresun">% iva presuntivo</p:outputLabel>
+                            </span>
+                        </div>
+                        <div class="p-field p-col-12 p-md-6">
+                            <span class="ui-float-label">
+                                <p:inputText id="codigoSTC" value="#{productoBean.producto.codigoSTC}" required="true" maxlength="7">
+                                    <p:keyFilter mask="num" />
+                                </p:inputText> 
+                                <p:outputLabel for="codigoSTC">Código STC</p:outputLabel>
+                            </span>
+                        </div>
+                        <div class="p-field p-col-12 p-md-6">
+                            <span class="ui-float-label">
+                                <p:inputText id="codigoARCH" value="#{productoBean.producto.codigoARCH}" required="true" maxlength="3">
+                                    <p:keyFilter mask="num" />
+                                </p:inputText> 
+                                <p:outputLabel for="codigoARCH">Código ARCH</p:outputLabel>
+                            </span>
+                        </div>
+                        <div class="p-field p-col-12 p-md-12"></div>                            
+                    </div>
+                </p:outputPanel>
+                <div class="p-grid p-justify-end">
+                    <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{productoBean.save()}"
+                                     update=":form formNuevo" styleClass="p-mr-2"/>
+                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('nuevo').hide()" class="ui-button-secondary" />
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300" message="Eliminar Producto?" header="Confirm" severity="warn">
+            <p:commandButton value="Si" icon="pi pi-check" actionListener="#{productoBean.deleteItems()}" process="@this" oncomplete="PF('deleteProductDialog').hide()"
+                             update=":form"/>
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('deleteProductDialog').hide()" />
+        </p:confirmDialog>
+
+        <p:confirmDialog global="true" showEffect="fade" width="300">
+            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+        </p:confirmDialog>
+    </ui:define>
+</ui:composition>

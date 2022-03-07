@@ -1,0 +1,506 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Widgets</ui:define>
+
+    <ui:define name="viewname">
+        <li>Utilities</li>
+        <li>/</li>
+        <li>
+            <p:link outcome="/widgets">Widgets</p:link>
+        </li>
+    </ui:define>
+
+    <ui:define name="head">
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form>
+            <div class="layout-widgets">
+                <div class="p-grid">
+                    <div class="p-col-12 p-md-3">
+                        <div class="overview-box blue">
+                            <div class="overview-top">
+                                <div class="overview-info">
+                                    <h6>SALES</h6>
+                                    <div class="overview-value">$25,620</div>
+                                </div>
+                                <div class="overview-ratio">
+                                    <div class="overview-direction">
+                                        <i class="pi pi-arrow-up" />
+                                    </div>
+                                    <div class="overview-ratio-value">
+                                        51%
+                                    </div>
+                                </div>
+                            </div>
+                            <p:graphicImage name="images/dashboard/graph-blue.svg" library="apollo-layout"/>
+                        </div>
+                    </div>
+                    <div class="p-col-12 p-md-3">
+                        <div class="overview-box green">
+                            <div class="overview-top">
+                                <div class="overview-info">
+                                    <h6>VIEWS</h6>
+                                    <div class="overview-value">9521</div>
+                                </div>
+                                <div class="overview-ratio">
+                                    <div class="overview-direction">
+                                        <i class="pi pi-arrow-up" />
+                                    </div>
+                                    <div class="overview-ratio-value">
+                                        36%
+                                    </div>
+                                </div>
+                            </div>
+                            <p:graphicImage name="images/dashboard/graph-green.svg" library="apollo-layout"/>
+                        </div>
+                    </div>
+                    <div class="p-col-12 p-md-3">
+                        <div class="overview-box orange">
+                            <div class="overview-top">
+                                <div class="overview-info">
+                                    <h6>USERS</h6>
+                                    <div class="overview-value">452</div>
+                                </div>
+                                <div class="overview-ratio">
+                                    <div class="overview-direction">
+                                        <i class="pi pi-arrow-up" />
+                                    </div>
+                                    <div class="overview-ratio-value">
+                                        19%
+                                    </div>
+                                </div>
+                            </div>
+                            <p:graphicImage name="images/dashboard/graph-yellow.svg" library="apollo-layout"/>
+                        </div>
+                    </div>
+                    <div class="p-col-12 p-md-3">
+                        <div class="overview-box red">
+                            <div class="overview-top">
+                                <div class="overview-info">
+                                    <h6>SOCIAL</h6>
+                                    <div class="overview-value">65922</div>
+                                </div>
+                                <div class="overview-ratio">
+                                    <div class="overview-direction">
+                                        <i class="pi pi-arrow-up" />
+                                    </div>
+                                    <div class="overview-ratio-value">
+                                        25%
+                                    </div>
+                                </div>
+                            </div>
+                            <p:graphicImage name="images/dashboard/graph-red.svg" library="apollo-layout"/>
+                        </div>
+                    </div>
+                    <div class="p-col-12 p-md-3">
+                        <div class="overview-box-nobg blue">
+                            <div class="overview-top">
+                                <div class="overview-info">
+                                    <h6>SALES</h6>
+                                    <div class="overview-value">$25,620</div>
+                                </div>
+                                <div class="overview-ratio">
+                                    <div class="overview-direction">
+                                        <i class="pi pi-arrow-up" />
+                                    </div>
+                                    <div class="overview-ratio-value">
+                                        51%
+                                    </div>
+                                </div>
+                            </div>
+                            <p:graphicImage name="images/dashboard/graph-blue.svg" library="apollo-layout"/>
+                        </div>
+                    </div>
+                    <div class="p-col-12 p-md-3">
+                        <div class="overview-box-nobg green">
+                            <div class="overview-top">
+                                <div class="overview-info">
+                                    <h6>VIEWS</h6>
+                                    <div class="overview-value">9521</div>
+                                </div>
+                                <div class="overview-ratio">
+                                    <div class="overview-direction">
+                                        <i class="pi pi-arrow-up" />
+                                    </div>
+                                    <div class="overview-ratio-value">
+                                        36%
+                                    </div>
+                                </div>
+                            </div>
+                            <p:graphicImage name="images/dashboard/graph-green.svg" library="apollo-layout"/>
+                        </div>
+                    </div>
+                    <div class="p-col-12 p-md-3">
+                        <div class="overview-box-nobg orange">
+                            <div class="overview-top">
+                                <div class="overview-info">
+                                    <h6>USERS</h6>
+                                    <div class="overview-value">452</div>
+                                </div>
+                                <div class="overview-ratio">
+                                    <div class="overview-direction">
+                                        <i class="pi pi-arrow-up" />
+                                    </div>
+                                    <div class="overview-ratio-value">
+                                        19%
+                                    </div>
+                                </div>
+                            </div>
+                            <p:graphicImage name="images/dashboard/graph-yellow.svg" library="apollo-layout"/>
+                        </div>
+                    </div>
+                    <div class="p-col-12 p-md-3">
+                        <div class="overview-box-nobg red">
+                            <div class="overview-top">
+                                <div class="overview-info">
+                                    <h6>SOCIAL</h6>
+                                    <div class="overview-value">65922</div>
+                                </div>
+                                <div class="overview-ratio">
+                                    <div class="overview-direction">
+                                        <i class="pi pi-arrow-up" />
+                                    </div>
+                                    <div class="overview-ratio-value">
+                                        25%
+                                    </div>
+                                </div>
+                            </div>
+                            <p:graphicImage name="images/dashboard/graph-red.svg" library="apollo-layout"/>
+                        </div>
+                    </div>
+                    <div class="p-col-12 p-lg-4">
+                        <div class="card timeline ui-fluid">
+                            <div class="p-grid">
+                                <div class="p-col-3">
+                                    <span class="event-time">just now</span>
+                                    <i class="pi pi-map-marker" style="color:#147df0"/>
+                                </div>
+                                <div class="p-col-9">
+                                    <span class="event-owner" style="color:#147df0">Katherine May</span>
+                                    <span class="event-text">Lorem ipsun dolor amet</span>
+                                    <div class="event-content">
+                                        <p:graphicImage name="images/dashboard/bridge.jpg" library="apollo-layout" width="100"/>
+                                    </div>
+                                </div>
+        
+                                <div class="p-col-3">
+                                    <span class="event-time">12h ago</span>
+                                    <i class="pi pi-star" style="color:#ed3c76"/>
+                                </div>
+                                <div class="p-col-9">
+                                    <span class="event-owner" style="color:#ed3c76">Brandon Santos</span>
+                                    <span class="event-text">Ab nobis, magnam sunt eum. Laudantium, repudiandae, similique!.</span>
+                                </div>
+        
+                                <div class="p-col-3">
+                                    <span class="event-time">15h ago</span>
+                                    <i class="pi pi-comment" style="color:#3e9018"/>
+                                </div>
+                                <div class="p-col-9">
+                                    <span class="event-owner" style="color:#2EB872">Stephan Ward</span>
+                                    <span class="event-text">Omnis veniam quibusdam ratione est repellat qui nam quisquam ab mollitia dolores ullam voluptates, similique, dignissimos.</span>
+                                </div>
+        
+                                <div class="p-col-3">
+                                    <span class="event-time">2d ago</span>
+                                    <i class="pi pi-map-marker" style="color:#ffb200"/>
+                                </div>
+                                <div class="p-col-9">
+                                    <span class="event-owner" style="color:#ffb200">Jason Smith</span>
+                                    <span class="event-text">Laudantium, repudiandae, similique!</span>
+                                    <div class="event-content">
+                                        <p:graphicImage name="images/dashboard/map.png" library="apollo-layout" />
+                                    </div>
+                                </div>
+        
+                                <div class="p-col-3">
+                                    <span class="event-time">1w ago</span>
+                                    <i class="pi pi-heart" style="color:#633ea5"/>
+                                </div>
+                                <div class="p-col-9">
+                                    <span class="event-owner">Kevin Cox</span>
+                                    <span class="event-text">Quibusdam ratione est repellat qui nam quisquam veniam quibusdam ratione.</span>
+                                </div>
+        
+                                <div class="p-col-3">
+                                    <span class="event-time">2w ago</span>
+                                    <i class="pi pi-list" style="color:#599597"/>
+                                </div>
+                                <div class="p-col-9">
+                                    <span class="event-owner" style="color:#599597">Walter White</span>
+                                    <span class="event-text">I am the one who knocks!</span>
+                                </div>
+        
+                                <div class="p-col-12">
+                                    <p:commandButton type="button" value="Refresh" icon="pi pi-refresh" styleClass="ui-button-raised rounded-button"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-col-12 p-lg-8">
+                        <div class="p-grid">
+                            <div class="p-col-12 p-md-6">
+                                <div class="user-card card">
+                                    <div class="user-card-header">
+                                        <div class="user-card-name">
+                                            <p:graphicImage name="images/avatar.png" library="apollo-layout" />
+                                            <span>Sarah Miller</span>
+                                        </div>
+                                        <p:commandButton id="user-button" type="button" icon="pi pi-plus" styleClass="ui-button-secondary"/>
+                                        <p:menu overlay="true" trigger="user-button" my="left top" at="left bottom">
+                                            <p:menuitem value="Save" icon="pi pi-check" url="#"/>
+                                            <p:menuitem value="Update" icon="pi pi-refresh" url="#"/>
+                                            <p:menuitem value="Delete" icon="pi pi-times" url="#"/>
+                                        </p:menu>
+                                    </div>
+                                    <div class="user-card-content">
+                                        <div class="user-detail">
+                                           <ul>
+                                             <li class="clearfix">
+                                                 <i class="pi pi-list "/>
+                                                 <span class="project-title">Tasks</span>
+                                                 <span class="project-detail">3 open</span>
+                                                 <div class="project-progressbar">
+                                                     <div class="project-progressbar-value" style="width: 50%"></div>
+                                                 </div>
+                                             </li>
+                                             <li class="clearfix">
+                                                 <i class="pi pi-dollar "/>
+                                                 <span class="project-title">Revenue</span>
+                                                 <span class="project-detail">+20%</span>
+                                                 <div class="project-progressbar">
+                                                     <div class="project-progressbar-value" style="width: 20%"></div>
+                                                 </div>
+                                             </li>
+                                             <li class="clearfix">
+                                                 <i class="pi pi-money-bill "/>
+                                                 <span class="project-title">Payments</span>
+                                                 <span class="project-detail">24 new</span>
+                                                 <div class="project-progressbar">
+                                                     <div class="project-progressbar-value" style="width: 65%"></div>
+                                                 </div>
+                                             </li>
+                                             <li class="clearfix">
+                                                 <i class="pi pi-users "/>
+                                                 <span class="project-title">Clients</span>
+                                                 <span class="project-detail">+80%</span>
+                                                 <div class="project-progressbar">
+                                                     <div class="project-progressbar-value" style="width: 80%"></div>
+                                                 </div>
+                                             </li>
+                                             <li class="clearfix">
+                                                 <i class="pi pi-users "/>
+                                                 <span class="project-title">Turnover</span>
+                                                 <span class="project-detail">+40%</span>
+                                                 <div class="project-progressbar">
+                                                     <div class="project-progressbar-value" style="width: 40%"></div>
+                                                 </div>
+                                             </li>
+                                           </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-col-12 p-md-6 task-list">
+                                <p:panel header="Tasks">
+                                    <ul>
+                                        <li>
+                                            <p:selectBooleanCheckbox />
+                                            <span class="task-name">Sales Reports</span>
+                                            <i class="pi pi-briefcase"/>
+                                        </li>
+                                        <li>
+                                            <p:selectBooleanCheckbox />
+                                            <span class="task-name">Pay Invoices</span>
+                                            <i class="pi pi-money-bill"/>
+                                        </li>
+                                        <li>
+                                            <p:selectBooleanCheckbox />
+                                            <span class="task-name">Dinner with Tony</span>
+                                            <i class="pi pi-users"/>
+                                        </li>
+                                        <li>
+                                            <p:selectBooleanCheckbox />
+                                            <span class="task-name">Client Meeting</span>
+                                            <i class="pi pi-user"/>
+                                        </li>
+                                        <li>
+                                            <p:selectBooleanCheckbox />
+                                            <span class="task-name">New Theme</span>
+                                            <i class="pi pi-palette"/>
+                                        </li>
+                                        <li>
+                                            <p:selectBooleanCheckbox />
+                                            <span class="task-name">Flight Ticket</span>
+                                            <i class="pi pi-ticket"/>
+                                        </li>
+                                        <li>
+                                            <p:selectBooleanCheckbox />
+                                            <span class="task-name">Generate Charts</span>
+                                            <i class="pi pi-chart-bar"/>
+                                        </li>
+                                        <li>
+                                            <p:selectBooleanCheckbox />
+                                            <span class="task-name">Call Client</span>
+                                            <i class="pi pi-mobile"/>
+                                        </li>
+                                    </ul>
+                                </p:panel>
+                            </div>
+                            <div class="p-col-12 p-md-6 ui-fluid contact-form">
+                                <p:panel header="Message">
+                                    <div class="p-grid">
+                                        <div class="p-col-12">
+                                            <p:selectOneMenu id="console" value="#{selectOneMenuView.console}" autoWidth="false">
+                                                <f:selectItem itemLabel="Select One" itemValue="" />
+                                                <f:selectItem itemLabel="Sales" itemValue="Sales" />
+                                                <f:selectItem itemLabel="Support" itemValue="Support" />
+                                                <f:selectItem itemLabel="Finance" itemValue="Finance" />
+                                            </p:selectOneMenu>
+                                        </div>
+                                        <div class="p-col-12">
+                                            <p:inputText placeholder="Name"/>
+                                        </div>
+                                        <div class="p-col-12">
+                                            <p:inputText placeholder="Email"/>
+                                        </div>
+                                        <div class="p-col-12">
+                                            <p:inputText placeholder="Location"/>
+                                        </div>
+                                        <div class="p-col-12">
+                                            <p:inputTextarea placeholder="Message" cols="5" autoResize="false"/>
+                                        </div>
+                                        <div class="p-col-12">
+                                            <p:commandButton type="button" value="Send" icon="pi pi-arrow-right"/>
+                                        </div>
+                                    </div>
+                                </p:panel>
+                            </div>
+                            <div class="p-col-12 p-md-6 contacts">
+                                <p:panel header="Contacts">
+                                    <ul>
+                                        <li class="clearfix">
+                                            <p:graphicImage name="images/avatar.png" library="apollo-layout" width="45"/>
+                                            <div class="contact-info">
+                                                <span class="name">Sarah Miller (me)</span>
+                                                <span class="location">sarah@pf-apollo.com</span>
+                                            </div>
+                                            <div class="contact-actions">
+                                                <p:commandButton type="button" icon="pi pi-arrow-right" styleClass="ui-button-info"/>
+                                                <p:commandButton type="button" icon="pi pi-mobile" styleClass="ui-button-success"/>
+                                            </div>
+                                        </li>
+                                        <li class="clearfix">
+                                            <p:graphicImage name="images/avatar1.png" library="apollo-layout" width="45"/>
+                                            <div class="contact-info">
+                                                <span class="name">Joshua Williams</span>
+                                                <span class="location">joshua@pf-apollo.com</span>
+                                            </div>
+                                            <div class="contact-actions">
+                                                <p:commandButton type="button" icon="pi pi-arrow-right" styleClass="ui-button-info"/>
+                                                <p:commandButton type="button" icon="pi pi-mobile" styleClass="ui-button-success"/>
+                                            </div>
+                                        </li>
+                                        <li class="clearfix">
+                                            <p:graphicImage name="images/avatar2.png" library="apollo-layout" width="45"/>
+                                            <div class="contact-info">
+                                                <span class="name">Emily Clark</span>
+                                                <span class="location">emily@pf-apollo.com</span>
+                                            </div>
+                                            <div class="contact-actions">
+                                                <p:commandButton type="button" icon="pi pi-arrow-right" styleClass="ui-button-info"/>
+                                                <p:commandButton type="button" icon="pi pi-mobile" styleClass="ui-button-success"/>
+                                            </div>
+                                        </li>
+                                        <li class="clearfix">
+                                            <p:graphicImage name="images/avatar3.png" library="apollo-layout" width="45"/>
+                                            <div class="contact-info">
+                                                <span class="name">Tim Johnson</span>
+                                                <span class="location">tim@pf-apollo.com</span>
+                                            </div>
+                                            <div class="contact-actions">
+                                                <p:commandButton type="button" icon="pi pi-arrow-right" styleClass="ui-button-info"/>
+                                                <p:commandButton type="button" icon="pi pi-mobile" styleClass="ui-button-success"/>
+                                            </div>
+                                        </li>
+                                        <li class="clearfix">
+                                            <p:graphicImage name="images/avatar4.png" library="apollo-layout" width="45"/>
+                                            <div class="contact-info">
+                                                <span class="name">David Stark</span>
+                                                <span class="location">kelly@pf-apollo.com</span>
+                                            </div>
+                                            <div class="contact-actions">
+                                                <p:commandButton type="button" icon="pi pi-arrow-right" styleClass="ui-button-info"/>
+                                                <p:commandButton type="button" icon="pi pi-mobile" styleClass="ui-button-success"/>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </p:panel>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-col-12 p-lg-8 chat">
+                        <p:panel header="Chat">
+                            <ul>
+                                <li class="clearfix message-from">
+                                    <p:graphicImage name="images/avatar2.png" library="apollo-layout" />
+                                    <span>Retro occupy organic, stumptown shabby chic pour-over roof party DIY normcore.</span>
+                                </li>
+                                <li class="clearfix message-own">
+                                    <p:graphicImage name="images/avatar.png" library="apollo-layout" />
+                                    <span>Actually artisan organic occupy, Wes Anderson ugh whatever pour-over gastropub selvage.</span>
+                                </li>
+                                <li class="clearfix message-from">
+                                    <p:graphicImage name="images/avatar2.png" library="apollo-layout" />
+                                    <span>Chillwave craft beer tote bag stumptown quinoa hashtag.</span>
+                                </li>
+                                <li class="clearfix message-own">
+                                    <p:graphicImage name="images/avatar.png" library="apollo-layout" />
+                                    <span>Dreamcatcher locavore iPhone chillwave, occupy trust fund slow-carb distillery art party narwhal.</span>
+                                </li>
+                                <li class="clearfix message-own">
+                                    <span>Sed ut perspiciatis unde omnis iste natus.</span>
+                                </li>
+                                <li class="clearfix message-from">
+                                    <p:graphicImage name="images/avatar2.png" library="apollo-layout" />
+                                    <span>Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse.</span>
+                                </li>
+                                <li class="clearfix message-own">
+                                    <p:graphicImage name="images/avatar.png" library="apollo-layout" />
+                                    <span>At vero eos et accusamus.</span>
+                                </li>
+                            </ul>
+                            <div class="new-message">
+                                <div class="message-attachment">
+                                    <i class="pi pi-paperclip" />
+                                </div>
+                                <div class="message-input">
+                                    <input type="text" placeholder="Write a message" class="ui-inputfield" />
+                                </div>
+                            </div>
+                        </p:panel>
+                    </div>
+                    <div class="p-col-12 p-lg-4 disk-spaces">
+                        <p:panel header="Disk Spaces" >
+                            <span>4.2 TB Used</span>
+                            <p:progressBar value="75" widgetVar="pb1"/>
+        
+                            <span>2.9 TB Used</span>
+                            <p:progressBar value="45" widgetVar="pb2" />
+        
+                            <span>5.9 TB Used</span>
+                            <p:progressBar value="85" widgetVar="pb3" />
+                        </p:panel>
+                    </div>
+                </div>
+            </div>
+        </h:form>
+    </ui:define>
+
+</ui:composition>
