@@ -1,0 +1,173 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Factura Despachador</ui:define>
+
+    <ui:define name="viewname">
+        <li>Factura Despachador</li>
+        <li>/</li>
+        <li>
+            <p:link outcome="/crud">Crud</p:link>
+        </li>
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="form">
+            <p:outputPanel id="manage-product-content1" rendered="true">
+                <div class="p-grid crud-demo">
+                    <div class="p-col-12">
+                        <div class="card">
+                            <p:growl id="messages" showDetail="true" />
+                            <p:toolbar styleClass="p-mb-4">
+                                <p:toolbarGroup>
+                                    <p:commandButton value="Nuevo" icon="pi pi-plus" actionListener="#{facturadorDespachadorBean.nuevoFacDesp()}" update="formNuevo"
+                                                     styleClass="ui-button-success" style="margin-right: .5rem" />
+                                </p:toolbarGroup>
+                                <p:toolbarGroup>
+                                    <p:commandButton value="Export" icon="pi pi-upload" styleClass="ui-button-help" ajax="false">
+                                        <p:dataExporter type="pdf" target="dt-products" fileName="products"/>
+                                    </p:commandButton>
+                                </p:toolbarGroup>
+                            </p:toolbar>
+
+                            <p:dataTable id="dt-products" widgetVar="dtProducts" var="desp" value="#{facturadorDespachadorBean.listaFactDesp}" reflow="true" styleClass="products-table"
+                                         paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
+                                <f:facet name="header">
+                                    <div class="products-table-header">
+                                        <span style="font-weight: bold">Lista Factura Despachador</span>
+
+                                        <span class="filter-container ui-input-icon-left">
+                                            <i class="pi pi-search"></i>
+                                            <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar" />
+                                        </span>
+                                    </div>
+                                </f:facet>
+
+                                <p:column headerText="Comercializadora" sortBy="#{desp.facturadordespachadorPK.codigocomercializadora}" filterBy="#{desp.facturadordespachadorPK.codigocomercializadora}" width="15%">
+                                    <h:outputText value="#{desp.facturadordespachadorPK.codigocomercializadora}" />
+                                </p:column>
+                                <p:column headerText="Terminal" sortBy="#{desp.facturadordespachadorPK.codigoterminal}" filterBy="#{desp.facturadordespachadorPK.codigoterminal}" width="15%">
+                                    <h:outputText value="#{desp.facturadordespachadorPK.codigoterminal}" />
+                                </p:column>   
+                                <p:column headerText="Usuario" sortBy="#{desp.facturadordespachadorPK.codigousuario}" filterBy="#{desp.facturadordespachadorPK.codigousuario}" width="15%">
+                                    <h:outputText value="#{desp.facturadordespachadorPK.codigousuario}" />
+                                </p:column>   
+                                <p:column headerText="Estado" sortBy="#{desp.activo}" filterBy="#{desp.activo}">
+                                    <h:outputText styleClass="product-badge status-#{estilos.tipoActivoBool(desp.activo)}" value="#{estilos.valorBoolActivo(desp.activo)}" />
+                                </p:column>
+                                <p:column exportable="false">
+                                    <p:commandButton icon="pi pi-pencil" update="form :formNuevo" actionListener="#{facturadorDespachadorBean.editarDespa(desp)}"
+                                                     styleClass="edit-button rounded-button ui-button-success" process="@this">
+                                        <f:setPropertyActionListener value="#{desp}" target="#{facturadorDespachadorBean.facturadordespachador}" />
+                                    </p:commandButton>
+                                    <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash" process="@this" oncomplete="PF('deleteProductDialog').show()" >
+                                        <f:setPropertyActionListener value="#{desp}" target="#{facturadorDespachadorBean.facturadordespachador}" />
+                                    </p:commandButton>
+                                </p:column>
+                            </p:dataTable>
+                        </div>
+                    </div>
+                </div>
+            </p:outputPanel>
+        </h:form>
+
+        <p:dialog header="Factura Despachador" width="40%" showEffect="fade" modal="true" widgetVar="nuevo" responsive="true">
+            <h:form id="formNuevo">
+                <p:outputPanel rendered="true">
+                    <div class="ui-fluid p-formgrid p-grid">
+                        <div class="p-field p-col-12 p-md-6">
+                            <p:outputLabel for="comercializadora1" value="Comercializadora"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon">
+                                    <i class="fa fa-money"></i>
+                                </span>
+                                <p:selectOneMenu id="comercializadora1" value="#{facturadorDespachadorBean.comercializadora}" title="Comercializadora"
+                                                 panelStyle="width:175px" style="min-width: 80%;" 
+                                                 autoWidth="false" converter="converterg"
+                                                 filter="true" filterMatchMode="startsWith"
+                                                 disabled="#{facturadorDespachadorBean.soloLectura}"
+                                                 required="true" requiredMessage="Seleccione Comercializadora">
+                                    <f:selectItem noSelectionOption="true" itemLabel="Selecciona" itemValue="#{null}"/>
+                                    <f:selectItems value="#{facturadorDespachadorBean.listaComercializadoras}"
+                                                   var="comer"
+                                                   itemLabel="#{comer.codigo} - #{comer.nombre}"
+                                                   itemValue="#{comer}" /> 
+                                </p:selectOneMenu>
+                            </div>                            
+                        </div>
+
+                        
+                        <div class="p-field p-col-12 p-md-6">
+                            <p:outputLabel for="terminal" value="Terminal"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon">
+                                    <i class="fa fa-money"></i>
+                                </span>
+                                <p:selectOneMenu id="terminal" value="#{facturadorDespachadorBean.terminal}" title="Terminal"
+                                                 panelStyle="width:175px" style="min-width: 80%;" 
+                                                 autoWidth="false" converter="converterg"
+                                                 disabled="#{facturadorDespachadorBean.soloLectura}"
+                                                 required="true" requiredMessage="Seleccione Terminal">
+                                    <f:selectItem noSelectionOption="true" itemLabel="Selecciona" itemValue="#{null}"/>
+                                    <f:selectItems value="#{facturadorDespachadorBean.listaTerminal}"
+                                                   var="term"
+                                                   itemLabel="#{term.codigo} - #{term.nombre}"
+                                                   itemValue="#{term}" />                                               
+                                </p:selectOneMenu>
+                            </div>
+                        </div> 
+                        <div class="p-field p-col-12 p-md-6">
+                            <p:outputLabel for="usuario" value="Usuario"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon">
+                                    <i class="fa fa-money"></i>
+                                </span>
+                                <p:selectOneMenu id="usuario" value="#{facturadorDespachadorBean.usuarioD}" title="Usuario"
+                                                 panelStyle="width:175px" style="min-width: 80%;" 
+                                                 autoWidth="false" converter="converterg"
+                                                 filter="true" filterMatchMode="startsWith"
+                                                 disabled="#{facturadorDespachadorBean.soloLectura}"
+                                                 required="true" requiredMessage="Seleccione Usuario">
+                                    <f:selectItem noSelectionOption="true" itemLabel="Selecciona" itemValue="#{null}"/>
+                                    <f:selectItems value="#{facturadorDespachadorBean.listaUsuario}"
+                                                   var="usua"
+                                                   itemLabel="#{usua.codigo} - #{usua.nombre}"
+                                                   itemValue="#{usua}" />                                                        
+                                </p:selectOneMenu>
+                            </div>
+
+                        </div>
+                        <div class="p-field p-col-12 p-md-6"></div>
+                        <div class="p-field p-col-12 p-md-6">
+                            <p:outputLabel for="estado"  value="Activo"/>
+                            <div class="ui-inputgroup">
+                                <p:toggleSwitch id="estado" value="#{facturadorDespachadorBean.estadoDespProd}" > </p:toggleSwitch>
+                            </div>
+                        </div> 
+                    </div>
+                </p:outputPanel>
+                <div class="p-grid p-justify-end">
+                    <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{facturadorDespachadorBean.save()}" 
+                                     update=":form formNuevo" styleClass="p-mr-2" />
+                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('manageProductDialog').hide()" class="ui-button-secondary" />
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300" message="Eliminar Facturador Despachador?" header="Confirm" severity="warn">
+            <p:commandButton value="Si" icon="pi pi-check" actionListener="#{facturadorDespachadorBean.deleteItems()}" process="@this" oncomplete="PF('deleteProductDialog').hide()"
+                             update=":form"/>
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('deleteProductDialog').hide()" />
+        </p:confirmDialog>
+
+        <p:confirmDialog global="true" showEffect="fade" width="300">
+            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+        </p:confirmDialog>
+
+    </ui:define>
+</ui:composition>

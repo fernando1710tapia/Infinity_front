@@ -1,0 +1,326 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+  
+
+    <ui:define name="title">Creación Precios</ui:define>
+
+    <ui:define name="viewname">
+        <li>Creación Nuevos Precios</li>
+    </ui:define>
+    
+    <ui:define name="content">
+        <h:form id="form">
+            <p:outputPanel id="manage-product-content" rendered="true">    
+                <div class="card">
+                    <p:growl id="messages" showDetail="true" />
+                    <p:tabView widgetVar="tabPanelWidget">
+                        <p:tab id="tab1" title="PASO 1" >
+                            <div class="ui-fluid p-formgrid p-grid">                                        
+                                <div class="p-field p-col-12 p-md-6">
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>
+                                        <p:selectOneMenu id="comercializadora" value="#{actualizarGestionarPreciosBean.comercializadora}" title="Comercializadora"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg" disabled="#{!actualizarGestionarPreciosBean.habilitarComer}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+                                            <f:selectItems value="#{actualizarGestionarPreciosBean.listaComercializadora}"
+                                                           var="comer"
+                                                           itemLabel="#{comer.objRelacionado}"
+                                                           itemValue="#{comer}" />
+                                            <p:ajax event="change" listener="#{actualizarGestionarPreciosBean.seleccionarComercializdora}"
+                                                    update="dt-products"/>
+                                        </p:selectOneMenu> 
+                                    </div>  
+                                </div>
+                                <div class="p-field p-col-12 p-md-6">  
+                                    <span class="ui-float-label">
+                                        <p:datePicker id="fechaVenc" value="#{actualizarGestionarPreciosBean.fechaVencimiento}" showIcon="true" pattern="dd/MM/yyyy"/>
+                                        <p:outputLabel for="fechaVenc" value="Fecha Inicio de Vigencia "/>
+                                    </span>
+                                </div>
+                                <div class="p-field p-col-12 p-md-12"> </div>
+                                <div class="p-field p-col-12 p-md-12">  
+                                    <span class="ui-float-label">
+                                        <p:inputTextarea id="observacion" value="#{actualizarGestionarPreciosBean.observacion}"/>
+                                        <p:outputLabel for="observacion" value="Observación"/>
+                                    </span>
+                                </div>
+                                <div class="p-field p-col-12 p-md-12"></div>
+                                <div class="p-field p-col-12 p-md-12">
+                                    <h5 class="p-mt-0">Elija la configuración del Terminal</h5>
+                                </div>
+                                <div class="p-field p-col-12 p-md-12">
+                                    <div class="ui-inputgroup">
+                                        <p:selectOneRadio id="console" value="#{actualizarGestionarPreciosBean.confTerminal}" unselectable="true">
+                                            <f:selectItem itemLabel="Para todos los terminarles" itemValue="1"/>
+                                            <f:selectItem itemLabel="Configuración por terminal" itemValue="2"/>
+                                            <p:ajax event="change" listener="#{actualizarGestionarPreciosBean.configuracionTerminal()}"/>
+                                        </p:selectOneRadio>
+                                    </div>                            
+                                </div>   
+                                <div class="p-field p-col-12 p-md-12"></div>
+                                <div class="p-grid crud-demo">
+                                    <div class="p-field p-col-12 p-md-12">
+                                        <div class="card">
+                                            <p:dataTable id="dt-products" widgetVar="dtProducts" var="product" value="#{actualizarGestionarPreciosBean.listaComerProductos}" reflow="true" styleClass="products-table"
+                                                         paginator="true" rows="5" rowSelectMode="add" paginatorPosition="bottom">
+                                                <f:facet name="header">
+                                                    <div class="products-table-header">
+                                                        <span style="font-weight: bold">PRODUCTOS</span>
+
+                                                        <span class="filter-container ui-input-icon-left">
+                                                            <i class="pi pi-search"></i>
+                                                            <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar" />
+                                                        </span>
+                                                    </div>
+                                                </f:facet>
+
+                                                <p:column headerText="Seleccionar" width="10%">
+                                                    <p:selectBooleanCheckbox id="seleccionar" value="#{product.procesar}"/>
+                                                </p:column>
+                                                <p:column headerText="Producto" sortBy="#{product.producto.nombre}" filterBy="#{product.producto.nombre}" width="10%">
+                                                    <h:outputText value="#{product.producto.nombre}" />
+                                                </p:column>
+                                                <p:column headerText="Medida" sortBy="#{product.medida.abreviacion}" filterBy="#{product.medida.abreviacion}" width="7%">
+                                                    <h:outputText value="#{product.medida.abreviacion}" />
+                                                </p:column>
+                                                <p:column headerText="Margen Total" sortBy="#{product.margencomercializacion}">
+                                                    <p:inputText value="#{product.margencomercializacion}" />
+                                                </p:column>
+                                                <p:column headerText="Precio EPP" sortBy="#{product.precioepp}">
+                                                    <p:inputText value="#{product.precioepp}" />
+                                                </p:column>
+                                                <p:column headerText="Precio Sugerido" filterBy="#{product.pvpsugerido}" >
+                                                    <p:inputText value="#{product.pvpsugerido}" />
+                                                </p:column>
+                                                <p:column headerText="Solo IVA">
+                                                    <p:selectBooleanCheckbox id="iva" value="#{product.soloaplicaiva}"/>
+                                                </p:column>
+                                            </p:dataTable>
+                                        </div>
+                                    </div>
+                                </div>    
+                                <div class="p-grid">   
+                                    <div class="p-field p-col-12 p-md-6">
+                                        <p:commandButton value="Procesar" icon="pi pi-check"  actionListener="#{actualizarGestionarPreciosBean.paso1()}" update=":form tab2"/>
+                                    </div>
+                                    <div class="p-field p-col-12 p-md-6">
+                                        <p:commandButton value="Cancelar" icon="pi pi-times" class="ui-button-secondary"  actionListener="#{notapedidoBean.init()}" update=":form"/>
+                                    </div>
+                                </div>
+                            </div>  
+                        </p:tab>
+                        <p:tab id="tab2" title="PASO 2" >
+                            <div class="ui-fluid p-formgrid p-grid"> 
+                                <div class="p-field p-col-12 p-md-12"></div>
+                                <div class="p-field p-col-12 p-md-12">
+                                    <h5 class="p-mt-0">
+                                        <span style="font-weight: bold">
+                                            Por favor, verificar los valores PV Cliente final y Precio EPP deben ser los correctos para este perÃ­odo
+                                        </span>
+                                    </h5>
+                                </div>
+                                <div class="p-field p-col-12 p-md-6">
+                                    <h6 class="p-mt-0">
+                                        <span style="font-weight: bold">
+                                            Comercializadora: 
+                                        </span>
+                                        <h:outputText value="#{actualizarGestionarPreciosBean.comercializadora.nombre}"/>
+                                    </h6>
+                                </div>
+                                <div class="p-field p-col-12 p-md-6">
+                                    <h6 class="p-mt-0">
+                                        <span style="font-weight: bold">
+                                            Terminales:
+                                        </span>
+                                        <h:outputText value="#{actualizarGestionarPreciosBean.terminalValor}"/>
+                                    </h6>
+                                </div>
+                                <div class="p-field p-col-12 p-md-6">
+                                    <h6 class="p-mt-0">
+                                        <span style="font-weight: bold">
+                                            Fecha Inicio: 
+                                        </span>
+                                        <h:outputText value="#{actualizarGestionarPreciosBean.fechaVencimiento}">
+                                            <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
+                                        </h:outputText>
+                                    </h6>
+                                </div>
+                                <div class="p-grid crud-demo">
+                                    <div class="p-field p-col-12 p-md-12">
+                                        <div class="card">
+                                            <p:dataTable id="dt-precios" widgetVar="dtProducts" var="price" value="#{actualizarGestionarPreciosBean.listaPrecio}" reflow="true" styleClass="products-table"
+                                                         paginator="true" rows="5" rowSelectMode="add" paginatorPosition="bottom">
+                                                <f:facet name="header">
+                                                    <div class="products-table-header">
+                                                        <span style="font-weight: bold">PRECIOS</span>
+
+                                                        <span class="filter-container ui-input-icon-left">
+                                                            <i class="pi pi-search"></i>
+                                                            <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar" />
+                                                        </span>
+                                                    </div>
+                                                </f:facet>
+
+                                                <p:column headerText="Producto" sortBy="#{price.precio.comercializadoraproducto.producto.nombre}" filterBy="#{price.precio.comercializadoraproducto.producto.nombre}" width="10%">
+                                                    <h:outputText value="#{price.precio.comercializadoraproducto.producto.nombre}" />
+                                                </p:column>
+                                                <p:column headerText="Medida" sortBy="#{price.precio.comercializadoraproducto.medida.abreviacion}" filterBy="#{price.precio.comercializadoraproducto.medida.abreviacion}" width="10%">
+                                                    <h:outputText value="#{price.precio.comercializadoraproducto.medida.abreviacion}" />
+                                                </p:column>
+                                                <p:column headerText="Código Lista Precio">
+                                                    <h:outputText value="#{price.precio.listaprecio.listaprecioPK.codigo}" />
+                                                </p:column>    
+                                                <p:column headerText="Lista Precio" sortBy="#{price.precio.listaprecio.nombre}">
+                                                    <h:outputText value="#{price.precio.listaprecio.nombre}" />
+                                                </p:column>
+                                                <p:column headerText="Tipo" sortBy="#{price.precio.listaprecio.tipo}">
+                                                    <h:outputText value="#{price.precio.listaprecio.tipo}" />
+                                                </p:column>
+                                                <p:column headerText="Precio Sugerido" filterBy="#{price.pvpsugerido}" >
+                                                    <h:outputText value="#{price.pvpsugerido}" />
+                                                </p:column>
+                                                <p:column headerText="Precio EPP">
+                                                    <h:outputText value="#{price.precioepp}" />
+                                                </p:column>
+                                            </p:dataTable>
+                                        </div>
+                                    </div>
+                                </div>   
+                                <div class="p-grid">   
+                                    <div class="p-field p-col-12 p-md-6">
+                                        <p:commandButton value="Siguiente" icon="pi pi-check"  actionListener="#{actualizarGestionarPreciosBean.paso2()}" update=":form tab3"/>
+                                    </div>
+                                    <div class="p-field p-col-12 p-md-6">
+                                        <p:commandButton value="Cancelar" icon="pi pi-times" class="ui-button-secondary"  actionListener="#{notapedidoBean.init()}" update=":form"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </p:tab>
+                        <p:tab id="tab3" title="PASO 3" >
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-12">
+                                    <h5 class="p-mt-0">
+                                        <span style="font-weight: bold">
+                                            Por favor, verificar los valores PV Cliente final y Precio EPP deben ser los correctos para este perÃ­odo
+                                        </span>
+                                    </h5>
+                                </div>
+                                <div class="p-field p-col-12 p-md-6">
+                                    <h6 class="p-mt-0">
+                                        <span style="font-weight: bold">
+                                            Comercializadora: 
+                                        </span>
+                                        <h:outputText value="#{actualizarGestionarPreciosBean.comercializadora.nombre}"/>
+                                    </h6>
+                                </div>
+                                <div class="p-field p-col-12 p-md-6">
+                                    <h6 class="p-mt-0">
+                                        <span style="font-weight: bold">
+                                            Terminales:
+                                        </span>
+                                        <h:outputText value="#{actualizarGestionarPreciosBean.terminalValor}"/>
+                                    </h6>
+                                </div>
+                                <div class="p-field p-col-12 p-md-6">
+                                    <h6 class="p-mt-0">
+                                        <span style="font-weight: bold">
+                                            Fecha Inicio: 
+                                        </span>
+                                        <h:outputText value="#{actualizarGestionarPreciosBean.fechaVencimiento}">
+                                            <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
+                                        </h:outputText>
+                                    </h6>
+                                </div>
+                                <div class="p-grid crud-demo">
+                                    <div class="p-field p-col-12 p-md-12">
+                                        <div class="card">
+                                            <p:dataTable id="dt-preciosProd" widgetVar="dtProductsP" var="det" value="#{actualizarGestionarPreciosBean.listaObjDetalle}" reflow="true" styleClass="products-table"
+                                                         paginator="true" rows="5" rowSelectMode="add" paginatorPosition="bottom">
+                                                <f:facet name="header">
+                                                    <div class="products-table-header">
+                                                        <span style="font-weight: bold">PRECIOS PRODUCTO</span>
+
+                                                        <span class="filter-container ui-input-icon-left">
+                                                            <i class="pi pi-search"></i>
+                                                            <p:inputText id="globalFilter" onkeyup="PF('dtProductsP').filter()" placeholder="Buscar" />
+                                                        </span>
+                                                    </div>
+                                                </f:facet>
+                                                
+                                                <p:column headerText="Terminal" filterBy="#{det.precio.terminal.codigo}" width="5%">
+                                                    <h:outputText value="#{det.precio.terminal.codigo}" />
+                                                </p:column>
+                                                <p:column headerText="Producto" filterBy="#{det.precio.comercializadoraproducto.producto.nombre}" width="5%">
+                                                    <h:outputText value="#{det.precio.comercializadoraproducto.producto.nombre}" />
+                                                </p:column>
+                                                <p:column headerText="Medida" filterBy="#{det.precio.comercializadoraproducto.medida.abreviacion}" width="5%">
+                                                    <h:outputText value="#{det.precio.comercializadoraproducto.medida.abreviacion}" />
+                                                </p:column>
+<!--                                                <p:column headerText="Código Lista Precio">
+                                                    <h:outputText value="{det.precio.listaprecio.listaprecioPK.codigo}" />
+                                                </p:column>    -->
+                                                <p:column headerText="Lista Precio">
+                                                    <h:outputText value="#{det.precio.listaprecio.nombre}" />
+                                                </p:column>                                               
+                                                <p:column headerText="Precio Sugerido" filterBy="#{det.pvpsugerido}" >
+                                                    <h:outputText value="#{det.pvpsugerido}" />
+                                                </p:column>
+                                                <p:column headerText="Precio Terminal EPP">
+                                                    <h:outputText value="#{det.precioTerminalEpp}" />
+                                                </p:column>
+                                                <p:column headerText="IVA">
+                                                    <h:outputText value="#{det.iva}" />
+                                                </p:column>
+                                                <p:column headerText="Margen X Cliente">
+                                                    <h:outputText value="#{det.margenxcliente}" />
+                                                </p:column>
+                                                <p:column headerText="IVA Presuntivo">
+                                                    <h:outputText value="#{det.ivaPresuntivo}" />
+                                                </p:column>
+                                                <p:column headerText="Tres Por Mil">
+                                                    <h:outputText value="#{det.tresPorMil}" />
+                                                </p:column>
+                                                <p:column headerText="Precio Producto">
+                                                    <h:outputText value="#{det.precioProducto}" />
+                                                </p:column>
+                                            </p:dataTable>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-grid">   
+                                    <div class="p-field p-col-12 p-md-6">
+                                        <p:commandButton value="Guardar" icon="pi pi-check"  actionListener="#{actualizarGestionarPreciosBean.savePrice()}" update=":form tab2"/>
+                                    </div>
+                                    <div class="p-field p-col-12 p-md-6">
+                                        <p:commandButton value="Cancelar" icon="pi pi-times" class="ui-button-secondary"  actionListener="#{actualizarGestionarPreciosBean.init()}" update=":form"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </p:tab>
+                    </p:tabView>
+                </div>
+            </p:outputPanel>
+
+        </h:form>
+        <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300" message="Eliminar Ã�rea MercadÃ©o?" header="Confirm" severity="warn">
+            <p:commandButton value="Si" icon="pi pi-check" actionListener="#{crudDemoView.deleteProduct}" process="@this" oncomplete="PF('deleteProductDialog').hide()"/>
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('deleteProductDialog').hide()" />
+        </p:confirmDialog>
+
+        <p:confirmDialog global="true" showEffect="fade" width="300">
+            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+        </p:confirmDialog>    
+
+        <p:confirmDialog widgetVar="termialDialogo" showEffect="fade" width="300" message="ESTA OPCIÃ“N NO ESTA DISPONIBLE" header="Confirm" severity="warn">
+            <p:commandButton value="OK" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('termialDialogo').hide()" />
+        </p:confirmDialog>
+    </ui:define>
+</ui:composition>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <f:facet name="first">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+            <meta name="apple-mobile-web-app-capable" content="yes" />
+        </f:facet>
+        <title>Infinity One - Login</title>
+    </h:head>
+
+    <h:body styleClass="login-body">
+        <div class="body-container">
+            <h:form id="form">
+                <p:growl id="messages" showDetail="true" />
+                <p:outputPanel rendered = "true">
+
+                    <div class="p-grid">                                                                   
+                        <div class="p-col-12 p-lg-6 left-side">                            
+                            <div class="p-col-12">
+                                <p:graphicImage name="images/Supertech.png" library="apollo-layout" style="width:60%" />                                    
+                            </div>
+                            <div class="p-col-12">
+                                <h1>Bienvenido</h1>
+                                <p>
+                                    Registrese para iniciar sesión
+                                </p>
+                            </div>
+
+                        </div>
+                        <div class="p-col-12 p-lg-6 right-side">
+                            <div class="login-wrapper">
+                                <div class="login-container">
+                                    <p:graphicImage name="#{guestPreferences.darkMode != 'light'? 'images/infinity_logo2.png' : 'images/infinity_logo2.png'}" width="30%" library="apollo-layout"/>
+                                    <span class="title">Iniciar Sesión</span>
+
+                                    <div class="p-grid ui-fluid">
+                                        <div class="p-col-12">
+                                            <p:inputText id="login" placeholder="Usuario" 
+                                                         value="#{loginBean.login.usuarioLog}" required="true" 
+                                                         >
+                                            </p:inputText>
+                                        </div>
+                                        <div class="p-col-12">
+                                            <p:password id="password" placeholder="Contraseña" 
+                                                        value="#{loginBean.login.claveLog}" required="true" 
+                                                        />                                    
+                                        </div>
+                                        <div class="p-col-6">
+                                            <p:commandButton                                         
+                                                value="Iniciar Sesión" 
+                                                actionListener="#{loginBean.validarUsuario()}"                                                                                                                   
+                                                icon="pi pi-check" 
+                                                immediate="true"
+                                                />
+
+                                            <!--<p:button outcome="dashboard" value="Iniciar Sesión" icon="pi pi-check" />-->
+                                        </div>                                    
+                                        <div class="p-col-6 password-container">
+                                            <p:link outcome="recoverpassword">Olvidaste la contreseña?</p:link>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>                        
+                    </div>
+                </p:outputPanel>
+            </h:form>
+        </div>
+        <h:outputStylesheet name="css/primeicons.css" library="apollo-layout" />
+        <h:outputStylesheet name="css/primeflex.min.css" library="apollo-layout" />
+        <h:outputStylesheet name="css/layout-#{guestPreferences.theme}.css" library="apollo-layout" />
+    </h:body>
+
+</html>

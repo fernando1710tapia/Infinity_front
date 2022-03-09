@@ -1,0 +1,227 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Gravamen</ui:define>
+
+    <ui:define name="viewname">
+        <li>Gravamen</li>
+        <li>/</li>
+        <li>
+            <p:link outcome="/crud">Crud</p:link>
+        </li>
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="form">
+            <p:outputPanel id="manage-product-content1" rendered="true">
+                <div class="p-grid crud-demo">
+                    <div class="p-col-12">
+                        <div class="card">
+                            <p:growl id="messages" showDetail="true" />
+
+                            <p:toolbar styleClass="p-mb-4">
+                                <p:toolbarGroup>
+                                    <p:commandButton value="Nuevo" icon="pi pi-plus" actionListener="#{gravamenBean.nuevoFacDesp()}" update="formNuevo"
+                                                     styleClass="ui-button-success" style="margin-right: .5rem" />
+                                </p:toolbarGroup>
+                                <p:toolbarGroup>
+                                    <p:commandButton value="Export" icon="pi pi-upload" styleClass="ui-button-help" ajax="false">
+                                        <p:dataExporter type="pdf" target="dt-products" fileName="products"/>
+                                    </p:commandButton>
+                                </p:toolbarGroup>
+                            </p:toolbar>  
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-4">
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-money"></i>
+                                        </span>
+                                        <p:selectOneMenu id="comercializadora" value="#{gravamenBean.comercializadora}" title="Comercializadora"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         filter="true" filterMatchMode="startsWith"
+                                                         disabled="#{!gravamenBean.habilitarComer}">    
+                                            <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+                                            <f:selectItems value="#{gravamenBean.listaComercializadora}"
+                                                           var="comer"
+                                                           itemLabel="#{comer.objRelacionado}"
+                                                           itemValue="#{comer}" />     
+                                            <p:ajax event="change" listener="#{gravamenBean.seleccionarComer()}"/>
+                                        </p:selectOneMenu>
+                                    </div>                            
+                                </div>                                                                
+                                <div class="p-field p-col-12 p-md-2">                
+                                    <p:commandButton value="Buscar" icon="pi pi-search-plus" actionListener="#{gravamenBean.actualizarLista()}" immediate="true" update="dt-products"/>
+                                </div>
+                            </div>                            
+                            <p:dataTable id="dt-products" widgetVar="dtProducts" var="grav" value="#{gravamenBean.listaGravamen}" reflow="true" styleClass="products-table"
+                                         paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
+                                <f:facet name="header">
+                                    <div class="products-table-header">
+                                        <span style="font-weight: bold">Lista Gravamen</span>
+
+                                        <span class="filter-container ui-input-icon-left">
+                                            <i class="pi pi-search"></i>
+                                            <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar" />
+                                        </span>
+                                    </div>
+                                </f:facet>
+
+                                <!--<p:ajax event="rowToggle" listener="#{crudDemoView.onRowToggle}" />                                
+                                <p:column exportable="false" width="15%">
+                                    <p:rowToggler />
+                                </p:column>-->
+                                <p:column headerText="Código" sortBy="#{grav.gravamenPK.codigo}" filterBy="#{grav.gravamenPK.codigo}" width="15%">
+                                    <h:outputText value="#{grav.gravamenPK.codigo}" />
+                                </p:column>
+                                <p:column headerText="Nombre" sortBy="#{grav.nombre}" filterBy="#{grav.nombre}" width="25%">
+                                    <h:outputText value="#{grav.nombre}" />
+                                </p:column>
+                                <p:column headerText="Estado" sortBy="#{grav.activo}" filterBy="#{grav.activo}">
+                                    <h:outputText styleClass="product-badge status-#{estilos.tipoActivoBool(grav.activo)}" value="#{estilos.valorBoolActivo(grav.activo)}" />
+                                </p:column>
+                                <p:column exportable="false">
+                                    <p:commandButton icon="pi pi-pencil" update="form :formNuevo" actionListener="#{gravamenBean.editarGravamen(grav)}"
+                                                     styleClass="edit-button rounded-button ui-button-success" process="@this">
+                                        <f:setPropertyActionListener value="#{grav}" target="#{gravamenBean.gravamen}" />
+                                    </p:commandButton>
+                                    <!--<p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash" process="@this" oncomplete="PF('deleteProductDialog').show()" >
+                                        <f:setPropertyActionListener value="#{grav}" target="#{gravamenBean.gravamen}" />
+                                    </p:commandButton>-->
+                                </p:column>
+
+                                <p:rowExpansion>
+                                    <div class="orders-subtable">
+                                        <h5>Orders for #{product.name}</h5>
+                                        <p:dataTable var="order" value="#{product.orders}" reflow="true">
+                                            <p:column headerText="Id" sortBy="#{order.id}">
+                                                <h:outputText value="#{order.id}" />
+                                            </p:column>
+
+                                            <p:column headerText="Customer" sortBy="#{order.customer}">
+                                                <h:outputText value="#{order.customer}" />
+                                            </p:column>
+
+                                            <p:column headerText="Date" sortBy="#{order.date}">
+                                                <h:outputText value="#{order.date}" />
+                                            </p:column>
+
+                                            <p:column headerText="Amount" sortBy="#{order.amount}">
+                                                <h:outputText value="#{order.amount}">
+                                                    <f:convertNumber currencySymbol="$" type="currency" />
+                                                </h:outputText>
+                                            </p:column>
+
+                                            <p:column headerText="Status" sortBy="#{order.status}">
+                                                <span class="order-badge order-#{order.status.name().toLowerCase()}">#{order.status}</span>
+                                            </p:column>
+
+                                            <p:column style="width: 3.5rem">
+                                                <p:commandButton icon="pi pi-search" />
+                                            </p:column>
+                                        </p:dataTable>
+                                    </div>
+                                </p:rowExpansion>
+                            </p:dataTable>
+                        </div>
+                    </div>
+                </div>
+            </p:outputPanel>
+        </h:form>
+
+        <p:dialog header="Gravamen" width="40%" showEffect="fade" modal="true" widgetVar="nuevo" responsive="true">
+            <h:form id="formNuevo">
+                <p:outputPanel rendered="true">
+                    <div class="ui-fluid p-formgrid p-grid">
+                        <div class="p-field p-col-12 p-md-6">
+                            <p:outputLabel for="comercializadora1" value="Comercializadora"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon">
+                                    <i class="fa fa-money"></i>
+                                </span>
+                                <p:selectOneMenu id="comercializadora1" value="#{gravamenBean.comercializadora}" title="Comercializadora"
+                                                 panelStyle="width:175px" style="min-width: 80%;" 
+                                                 autoWidth="false" converter="converterg"
+                                                 filter="true" filterMatchMode="startsWith"
+                                                 required="true" requiredMessage="Seleccione Comercializadora"
+                                                 disabled="#{gravamenBean.soloLectura}">                                                 
+                                    <f:selectItem noSelectionOption="true" itemLabel="Selecciona" itemValue="#{null}"/>
+                                    <f:selectItems value="#{gravamenBean.listaComercializadora}"
+                                                   var="comer"
+                                                   itemLabel="#{comer.codigo} - #{comer.nombre}"
+                                                   itemValue="#{comer}" /> 
+                                </p:selectOneMenu>
+                            </div>                            
+                        </div> 
+                        <div class="p-field p-col-12 p-md-6"></div>
+                        <div class="p-field p-col-12 p-md-6">
+                            <span class="ui-float-label">
+                                <p:inputText id="codigo" value="#{gravamenBean.gravamenPK.codigo}" required="true" maxlength="4" disabled="#{gravamenBean.soloLectura}">
+                                    <p:keyFilter mask="num" />
+                                </p:inputText> 
+                                <p:outputLabel for="codigo">Código</p:outputLabel>
+                            </span>
+                        </div>
+                        <div class="p-field p-col-12 p-md-12">
+                            <span class="ui-float-label">                                            
+                                <p:inputText id="nombre" value="#{gravamenBean.gravamen.nombre}" required="true" maxlength="50"/>
+                                <p:outputLabel for="nombre">Nombre</p:outputLabel>
+                            </span>
+                        </div>                                                                         
+                        <div class="p-field p-col-12 p-md-6">
+                            <span class="ui-float-label">                                            
+                                <p:inputText id="formulaValor" value="#{gravamenBean.gravamen.formulavalor}" required="true" maxlength="50"/>
+                                <p:outputLabel for="formulaValor">Fórmula de Valor</p:outputLabel>
+                            </span>
+                        </div>
+                        <div class="p-field p-col-12 p-md-6">
+                            <span class="ui-float-label">                                            
+                                <p:inputNumber id="valorDefecto" value="#{gravamenBean.gravamen.valordefecto}" required="true" maxlength="50" decimalPlaces="3"/>
+                                <p:outputLabel for="valorDefecto">Valor Defecto</p:outputLabel>
+                            </span>
+                        </div>
+                        <div class="p-field p-col-12 p-md-6">
+                            <span class="ui-float-label">                                            
+                                <p:inputNumber id="secuencial" value="#{gravamenBean.gravamen.secuencial}" required="true" maxlength="50" disabled="#{gravamenBean.soloLectura}" />
+                                <p:outputLabel for="secuencial">Secuencial</p:outputLabel>
+                            </span>
+                        </div>
+                        <div class="p-field p-col-12 p-md-6"></div>
+                        <div class="p-field p-col-12 p-md-6">
+                            <p:outputLabel for="estado"  value="Activo"/>
+                            <div class="ui-inputgroup">
+                                <p:toggleSwitch id="estado" value="#{gravamenBean.estadoGravamen}" > </p:toggleSwitch>
+                            </div>
+                        </div>    
+                        <div class="p-field p-col-12 p-md-6">
+                            <p:outputLabel for="imprime"  value="Se Imprime"/>
+                            <div class="ui-inputgroup">
+                                <p:toggleSwitch id="imprime" value="#{gravamenBean.seImprime}" > </p:toggleSwitch>
+                            </div>
+                        </div> 
+                    </div>
+                </p:outputPanel>
+                <div class="p-grid p-justify-end">
+                    <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{gravamenBean.save}" 
+                                     update=":form formNuevo" styleClass="p-mr-2"/>
+                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('manageProductDialog').hide()" class="ui-button-secondary" />
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300" message="Eliminar Gravamen?" header="Confirm" severity="warn">
+            <p:commandButton value="Si" icon="pi pi-check" actionListener="#{gravamenBean.deleteItems()}" process="@this" oncomplete="PF('deleteProductDialog').hide()"
+                             update=":form"/>
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('deleteProductDialog').hide()" />
+        </p:confirmDialog>
+
+        <p:confirmDialog global="true" showEffect="fade" width="300">
+            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+        </p:confirmDialog>                    
+    </ui:define>
+</ui:composition>

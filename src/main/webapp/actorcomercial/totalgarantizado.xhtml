@@ -1,0 +1,196 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Total Garantizado</ui:define>
+
+    <ui:define name="viewname">
+        <li>Total Garantizado</li>
+        <li>/</li>
+        <li>
+            <p:link outcome="/crud">Crud</p:link>
+        </li>
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="form">
+            <p:outputPanel rendered="true">
+                <div class="p-grid crud-demo">
+                    <div class="p-col-12">
+                        <div class="card">
+                            <p:growl id="messages" showDetail="true" />
+                            <p:toolbar styleClass="p-mb-4">
+                                <p:toolbarGroup>
+                                    <p:commandButton value="Nuevo" icon="pi pi-plus" actionListener="#{totalGarantizadoBean.nuevaTotalG()}" update=":formNuevo"
+                                                     styleClass="ui-button-success" style="margin-right: .5rem"/>
+                                </p:toolbarGroup>
+                            </p:toolbar>
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-4">
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>
+                                        <p:selectOneMenu id="comercializadora" value="#{totalGarantizadoBean.comercializadora}" title="Comercializadora"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         disabled="#{!totalGarantizadoBean.habilitarComer}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+                                            <f:selectItems value="#{totalGarantizadoBean.listaComercializadora}"
+                                                           var="comer"
+                                                           itemLabel="#{comer.objRelacionado}"
+                                                           itemValue="#{comer}" />
+                                            <p:ajax event="change" listener="#{totalGarantizadoBean.seleccionarComercializadora()}" update="cliente"/>
+                                        </p:selectOneMenu> 
+                                    </div>                          
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>
+                                        <p:selectOneMenu id="cliente" value="#{totalGarantizadoBean.cliente}" title="Cliente"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         disabled="#{!totalGarantizadoBean.habilitarCli}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
+                                            <f:selectItems value="#{totalGarantizadoBean.listaClientes}"
+                                                           var="cli"
+                                                           itemLabel="#{cli.codigo} - #{cli.nombrecomercial}"
+                                                           itemValue="#{cli}" />
+                                            <p:ajax event="change" listener="#{totalGarantizadoBean.seleccionarCliente()}"/>
+                                        </p:selectOneMenu> 
+                                    </div> 
+                                </div>  
+                                <div class="p-field p-col-12 p-md-2">
+                                    <p:commandButton value="Buscar" icon="pi pi-search"  actionListener="#{totalGarantizadoBean.obtenerTotaleGarantizado()}" update="form"/>
+                                </div>
+                            </div> 
+
+                            <p:dataTable id="dt-products" widgetVar="dtProducts" var="totalG" value="#{totalGarantizadoBean.listaTotalG}" reflow="true" styleClass="products-table"
+                                         paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
+                                <f:facet name="header">
+                                    <div class="products-table-header">
+                                        <span style="font-weight: bold">Lista Totales Garantizados</span>
+
+                                        <span class="filter-container ui-input-icon-left">
+                                            <i class="pi pi-search"></i>
+                                            <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar" />
+                                        </span>
+                                    </div>
+                                </f:facet>
+
+                                <p:ajax event="rowToggle" listener="#{crudDemoView.onRowToggle}" />
+
+                                <p:column headerText="Código" sortBy="#{totalG.totalgarantizadoPK.codigocliente}" filterBy="#{totalG.totalgarantizadoPK.codigocliente}" width="15%">
+                                    <h:outputText value="#{totalG.totalgarantizadoPK.codigocliente}" />
+                                </p:column>
+                                <p:column headerText="Cliente" sortBy="#{totalG.cliente.nombre}" filterBy="#{totalG.cliente.nombre}" width="20%">
+                                    <h:outputText value="#{totalG.cliente.nombre}" />
+                                </p:column>
+                                <p:column headerText="Total Deuda" sortBy="#{totalG.totaldeuda}" filterBy="#{totalG.totaldeuda}" width="20%">
+                                    <h:outputText value="#{totalG.totaldeuda}" />
+                                </p:column>
+                                <p:column headerText="Total Garantizado" sortBy="#{totalG.totalgarantizado}" filterBy="#{totalG.totalgarantizado}">
+                                    <h:outputText value="#{totalG.totalgarantizado}" />
+                                </p:column>
+                                <p:column exportable="false">
+                                    <p:commandButton icon="pi pi-pencil" update=":formNuevo" actionListener="#{totalGarantizadoBean.editarTotalGarantizado(totalG)}"
+                                                     styleClass="edit-button rounded-button ui-button-success" process="@this">
+                                        <f:setPropertyActionListener value="#{totalG}" target="#{totalGarantizadoBean.totalGaran}" />
+                                    </p:commandButton>
+                                    <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash" 
+                                                     process="@this" oncomplete="PF('deleteProductDialog').show()" >
+                                        <f:setPropertyActionListener value="#{totalG}" target="#{totalGarantizadoBean.totalGaran}" />
+                                    </p:commandButton>
+                                </p:column>
+                            </p:dataTable>
+                            <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300" message="Eliminar Total Garantizado?" header="Confirm" severity="warn">
+                                <p:commandButton value="Si" icon="pi pi-check" actionListener="#{totalGarantizadoBean.eliminarTotalG()}" process="@this" oncomplete="PF('deleteProductDialog').hide()"
+                                                 update="form"/>
+                                <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('deleteProductDialog').hide()" />
+                            </p:confirmDialog>
+                        </div>
+                    </div>
+                </div>
+            </p:outputPanel>
+        </h:form>
+        <p:dialog header="Total Garantizado" width="40%" showEffect="fade" modal="true" widgetVar="nuevoTotal" responsive="true">
+            <h:form id="formNuevo">
+                <p:outputPanel rendered = "true">
+                    <div class="ui-fluid p-formgrid p-grid">
+                        <div class="p-field p-col-12 p-md-6">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon">
+                                    <i class="fa fa-money"></i>
+                                </span>
+                                <p:selectOneMenu id="comercializadora" value="#{totalGarantizadoBean.comercializadora}" title="Comercializadora"
+                                                 panelStyle="width:175px" style="min-width: 80%;" 
+                                                 autoWidth="false" converter="converterg"
+                                                 filter="true" filterMatchMode="startsWith"
+                                                 disabled="#{totalGarantizadoBean.soloLectura}">   
+                                    <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+                                    <f:selectItems value="#{totalGarantizadoBean.listaComercializadora}"
+                                                   var="comer"
+                                                   itemLabel="#{comer.objRelacionado}"
+                                                   itemValue="#{comer}" />     
+                                    <p:ajax event="change" listener="#{totalGarantizadoBean.seleccionarComercializadora()}"
+                                            update="cli"/>
+                                </p:selectOneMenu>
+                            </div>                            
+                        </div>
+                        <div class="p-field p-col-12 p-md-6">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon">
+                                    <i class="fa fa-shopping-cart"></i>
+                                </span>
+                                <p:selectOneMenu id="cli" value="#{totalGarantizadoBean.cliente}" title="Cliente"
+                                                 panelStyle="width:175px" style="min-width: 80%;" 
+                                                 autoWidth="false" converter="converterg"
+                                                 disabled="#{totalGarantizadoBean.soloLectura}">
+                                    <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
+                                    <f:selectItems value="#{totalGarantizadoBean.listaClientes}"
+                                                   var="cliente"
+                                                   itemLabel="#{cliente.codigo} - #{cliente.nombrecomercial}"  
+                                                   itemValue="#{cliente}" />
+                                    <p:ajax event="change" listener="#{totalGarantizadoBean.seleccionarCliente()}"/>
+                                </p:selectOneMenu> 
+                            </div>
+                        </div>
+                        <div class="p-field p-col-12 p-md-12"></div>
+                        <div class="p-field p-col-6 p-md-6">
+                            <span class="ui-float-label">                                            
+                                <p:inputText id="totalD" value="#{totalGarantizadoBean.totalGaran.totaldeuda}" required="true" maxlength="50"/>
+                                <p:outputLabel for="totalD">Total Deuda</p:outputLabel>
+                            </span>
+                        </div>
+                        <div class="p-field p-col-6 p-md-6">
+                            <span class="ui-float-label">                                            
+                                <p:inputText id="totalG" value="#{totalGarantizadoBean.totalGaran.totalgarantizado}" required="true" maxlength="50"/>
+                                <p:outputLabel for="totalG">Total Garantizado</p:outputLabel>
+                            </span>
+                        </div>   
+                        <div class="p-field p-col-12 p-md-12"></div>
+                    </div>
+                    <div class="p-grid p-justify-end">
+                        <p:toolbar>
+                            <p:toolbarGroup>
+                                <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{totalGarantizadoBean.save()}"
+                                                 update=":form formNuevo" styleClass="p-mr-2"/>
+                                <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('nuevoTotal').hide()" class="ui-button-secondary" />
+                            </p:toolbarGroup>
+                        </p:toolbar> 
+                    </div>
+                </p:outputPanel>
+            </h:form>
+        </p:dialog>
+        
+        <p:confirmDialog global="true" showEffect="fade" width="300">
+            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+        </p:confirmDialog>
+    </ui:define>
+</ui:composition>

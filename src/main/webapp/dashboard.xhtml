@@ -1,0 +1,346 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Dashboard</ui:define>
+    <ui:define name="viewname">
+        <li><i class="pi pi-home"/></li>
+        <li>/</li>
+        <li>
+            <p:link outcome="/dashboard">Dashboard</p:link>
+        </li>
+    </ui:define>
+    <ui:define name="head">
+        <h:outputScript name="chartjs/chart.js" library="demo" />
+        <script type="text/javascript">
+            //<![CDATA[
+            Chart.defaults.global.defaultFontColor = '#8FA6B8';
+            setInterval(function () {
+                setAnimation(PF('knob1'));
+                setAnimation(PF('knob2'));
+                setAnimation(PF('knob3'));
+                setAnimation(PF('knob4'));
+                PF('pb1').setValue(generateRandomNumber());
+                PF('pb2').setValue(generateRandomNumber());
+                PF('pb3').setValue(generateRandomNumber());
+                PF('pb4').setValue(generateRandomNumber());
+            }, 2000);
+
+            function setAnimation(widget) {
+                widget.jq.animate({value: generateRandomNumber()}, {
+                    duration: 1000,
+                    easing: 'linear',
+                    progress: function ()
+                    {
+                        widget.setValue(Math.floor(this.value));
+                    }
+                });
+            }
+
+            function generateRandomNumber() {
+                return Math.floor(Math.random() * 100) + 1;
+            }
+            $(function () {
+                var ordersChart = new Chart(document.getElementById("order-chart").getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio'],
+                        datasets: [{
+                                label: 'Compra',
+                                data: [20, 40, 20, 70, 20, 49, 30],
+                                backgroundColor: 'rgba(57, 163, 244, .7)',
+                                borderWidth: 0,
+                                fill: false,
+                            }, {
+                                label: 'Venta',
+                                data: [5, 19, 10, 10, 22, 14, 10],
+                                backgroundColor: 'rgba(222, 162, 66, .7)',
+                                borderWidth: 0,
+                                fill: false,
+                            },
+                            {
+                                label: 'Utilidad',
+                                data: [45, 80, 70, 90, 30, 90, 50],
+                                backgroundColor: 'rgba(118, 190, 69, .8)',
+                                borderWidth: 0,
+                                fill: false,
+                            }]
+                    },
+                    options: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                fontColor: '#8FA6B8'
+                            }
+                        },
+                        maintainAspectRatio: false,
+                        hover: {
+                            mode: 'index'
+                        },
+                        scales: {
+                            xAxes: [{
+                                    display: true,
+                                    stacked: true,
+                                    barPercentage: 0.4,
+                                    gridLines: {
+                                        color: 'rgba(143, 166, 184, .3)',
+                                    }
+                                }],
+                            yAxes: [{
+                                    display: true,
+                                    stacked: true,
+                                    gridLines: {
+                                        color: 'rgba(143, 166, 184, .3)',
+                                    }
+                                }]
+                        }
+                    }
+                });
+            });
+            //]]>
+        </script>
+
+        <style type="text/css">
+            .jqplot-xaxis-label {
+                color: #9fadb7;
+                display: none;
+            }
+            .jqplot-yaxis-label {
+                color: #9fadb7;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="p-grid dashboard">
+            <div class="p-col-12 p-md-3">
+                <div class="overview-box blue">
+                    <div class="overview-top">
+                        <div class="overview-info">
+                            <h6>MEJOR CLIENTE</h6>
+                            <div class="overview-value">#{dashboardBean.nombrecliente}</div>
+                            <h6>Facturas Procesadas</h6>
+                            <div class="overview-value">#{dashboardBean.facturas}</div>
+                            <h6>Monto Facturado</h6>
+                            <div class="overview-value">$ #{dashboardBean.sumatotal}</div>
+                        </div>
+                        <div class="overview-ratio">
+                            <div class="overview-direction">
+                                <i class="pi pi-arrow-up" />
+                            </div>
+                            <div class="overview-ratio-value">
+                                51%
+                            </div>
+                        </div>
+                    </div>
+                    <p:graphicImage name="images/dashboard/graph-blue.svg" library="apollo-layout"/>
+                </div>
+            </div>
+            <div class="p-col-12 p-md-3">
+                <div class="overview-box green">
+                    <div class="overview-top">
+                        <div class="overview-info">
+                            <h6>Mejor Producto</h6>
+                            <div class="overview-value">9521</div>
+                        </div>
+                        <div class="overview-ratio">
+                            <div class="overview-direction">
+                                <i class="pi pi-arrow-up" />
+                            </div>
+                            <div class="overview-ratio-value">
+                                36%
+                            </div>
+                        </div>
+                    </div>
+                    <p:graphicImage name="images/dashboard/graph-green.svg" library="apollo-layout"/>
+                </div>
+            </div>
+            <div class="p-col-12 p-md-3">
+                <div class="overview-box orange">
+                    <div class="overview-top">
+                        <div class="overview-info">
+                            <h6>Por definir</h6>
+                            <div class="overview-value">452</div>
+                        </div>
+                        <div class="overview-ratio">
+                            <div class="overview-direction">
+                                <i class="pi pi-arrow-up" />
+                            </div>
+                            <div class="overview-ratio-value">
+                                19%
+                            </div>
+                        </div>
+                    </div>
+                    <p:graphicImage name="images/dashboard/graph-yellow.svg" library="apollo-layout"/>
+                </div>
+            </div>
+            <div class="p-col-12 p-md-3">
+                <div class="overview-box red">
+                    <div class="overview-top">
+                        <div class="overview-info">
+                            <h6>Por definir</h6>
+                            <div class="overview-value">65922</div>
+                        </div>
+                        <div class="overview-ratio">
+                            <div class="overview-direction">
+                                <i class="pi pi-arrow-up" />
+                            </div>
+                            <div class="overview-ratio-value">
+                                25%
+                            </div>
+                        </div>
+                    </div>
+                    <p:graphicImage name="images/dashboard/graph-red.svg" library="apollo-layout"/>
+                </div>
+            </div>            
+            <div class="p-col-12 ">
+                <p:panel header="Status" styleClass="knobs ">
+                    <div class="p-grid">
+                        <div class="p-col-12 p-lg-4 p-md-6 knob-sales">
+                            <div class="knob-title" style="color:#2C9BF0">Ventas en Galones</div>
+                            <p:knob foregroundColor="#2C9BF0" backgroundColor="rgba(0,0,0,.3)" value="44" height="150" width="150" widgetVar="knob4" thickness=".1"/>
+                            <i class="pi pi-dollar" />
+                        </div>
+                        <div class="p-col-12 p-lg-4 p-md-6 knob-mobile">
+                            <div class="knob-title">Ventas en Dinero</div>
+                            <p:knob foregroundColor="#6EBA3B" backgroundColor="rgba(0,0,0,.3)" value="57" height="150" width="150" widgetVar="knob2" thickness=".1"/>
+                            <i class="pi pi-mobile" />
+                        </div>
+                        <div class="p-col-12 p-lg-4 p-md-6 knob-users">
+                            <div class="knob-title">Pagos en Dinero</div>
+                            <p:knob foregroundColor="#DA9B36" backgroundColor="rgba(0,0,0,.3)" value="25" height="150" width="150" widgetVar="knob1" thickness=".1"/>
+                            <i class="pi pi-user" />
+                        </div>
+                        <!--<div class="p-col-12 p-lg-3 p-md-6 knob-pageviews">
+                            <div class="knob-title">Pageviews</div>
+                            <p:knob foregroundColor="#d67161" backgroundColor="rgba(0,0,0,.3)" value="85" height="150" width="150" widgetVar="knob3" thickness=".1"/>
+                            <i class="pi pi-eye" />
+                        </div>-->
+                    </div>
+                </p:panel>
+            </div>           
+
+            <div class="p-col-12 p-lg-7 ">
+                <div class="p-grid">
+                    <div class="p-col-12">
+                        <p:panel header="Ventas Totales" styleClass="chart">
+                            <canvas id="order-chart" style="min-height: 400px;"/>
+                        </p:panel>
+
+                    </div>
+                    <!--<div class="p-col-12">
+                        <div class="sales-panel">
+                            <h:form id="form">
+                                <p:dataTable id="ordersTable" var="order" value="#{dashboardView.orders}" selectionMode="single" reflow="true" paginatorPosition="bottom"
+                                             rowKey="#{order.id}" paginator="true" rows="5" sortBy="#{order.date}">
+                                    <p:column headerText="Id" sortBy="#{order.id}">
+                                        <h:outputText value="#{order.id}" />
+                                    </p:column>
+
+                                    <p:column headerText="Date" sortBy="#{order.date}">
+                                        <h:outputText value="#{order.date}" />
+                                    </p:column>
+
+                                    <p:column headerText="Amount" sortBy="#{order.amount}">
+                                        <h:outputText value="#{order.amount}">
+                                            <f:convertNumber currencySymbol="$" type="currency" />
+                                        </h:outputText>
+                                    </p:column>
+
+                                    <p:column headerText="Status" sortBy="#{order.status}">
+                                        <span class="order-badge order-#{order.status.name().toLowerCase()}">#{order.status}</span>
+                                    </p:column>
+
+                                    <p:column style="width: 3.5rem">
+                                        <p:commandButton icon="pi pi-search" />
+                                    </p:column>
+                                </p:dataTable>
+                            </h:form>
+                        </div>
+                    </div>-->
+                </div>
+            </div>
+
+            <div class="p-col-12 p-md-5">
+                <p:panel header="Venta Total por Productos" styleClass="disk-spaces">
+                    <span>4.2 TB Used</span>
+                    <p:progressBar value="75" widgetVar="pb1"/>
+
+                    <span>2.9 TB Used</span>
+                    <p:progressBar value="45" widgetVar="pb2" />
+
+                    <span>5.9 TB Used</span>
+                    <p:progressBar value="85" widgetVar="pb3" />
+
+                    <span>1.9 TB Used</span>
+                    <p:progressBar value="25" widgetVar="pb4" />
+                </p:panel>
+            </div>
+            <div class="p-field p-col-12 p-md-6">
+
+                <div class="p-field p-col-12 p-md-4">
+                    <div class="ui-inputgroup">
+                        <span class="ui-inputgroup-addon">
+                            <i class="fa fa-money"></i>
+                        </span>
+                        <p:selectOneMenu id="comercializadora" value="#{clienteGarantiaBean.codComer}" title="Comercializadora"
+                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                         autoWidth="false" 
+                                         filter="true" filterMatchMode="startsWith"
+                                         >                                            
+                            <f:selectItems value="#{clienteGarantiaBean.listaComercializadora}"
+                                           var="comer"
+                                           itemLabel="#{comer.objRelacionado}"
+                                           itemValue="#{comer.codigo}" />  
+                            <p:ajax event="change" listener="#{clienteGarantiaBean.seleccionarComercializadora(1)}"
+                                    update="cliente" />
+                        </p:selectOneMenu>
+                    </div>                            
+                </div>
+                <div class="p-field p-col-12 p-md-4">
+                    <div class="ui-inputgroup">
+                        <span class="ui-inputgroup-addon">
+                            <i class="fa fa-money"></i>
+                        </span>
+                        <p:selectOneMenu id="cliente" value="#{clienteGarantiaBean.codCliente}" title="Cliente"
+                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                         autoWidth="false" 
+                                         filter="true" filterMatchMode="startsWith"
+                                         >
+                            <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
+                            <f:selectItems value="#{clienteGarantiaBean.listaClientes}"
+                                           var="cli"
+                                           itemLabel="#{cli.codigo} - #{cli.nombre}"
+                                           itemValue="#{cli.codigo}" />                                            
+                        </p:selectOneMenu>
+                    </div>                                                
+                </div>
+
+
+                <p:panel  header="Última actualización: #{clienteGarantiaBean.formattedDate}" styleClass="disk-spaces" id="panelGarantia">
+                    <!--<h4 align="center">Garantía: {monitorcomercialBean.usoActualS} %</h4>-->
+                    <br></br>
+                    <span >Valor Total Garantizado: $ #{clienteGarantiaBean.totalGaranS} </span> 
+                    <p:progressBar value="#{clienteGarantiaBean.porcentajeValores(clienteGarantiaBean.totalGaran)}" widgetVar="pb2"/>
+
+                    <span >Deuda Total: $ #{clienteGarantiaBean.totalDeudaS} </span> 
+                    <p:progressBar value="#{clienteGarantiaBean.porcentajeValores(clienteGarantiaBean.totalDeuda)}" widgetVar="pb1"/>                               
+
+                    <span>Saldo Disponible: $ #{clienteGarantiaBean.saldoDispS}</span>
+                    <p:progressBar value="#{clienteGarantiaBean.porcentajeValores(clienteGarantiaBean.saldoDisp)}" widgetVar="pb3" />
+                    <f:facet name="actions">                        
+                        <p:commandLink styleClass="ui-panel-titlebar-icon ui-corner-all ui-state-default" actionListener="#{clienteGarantiaBean.mostrarGarantia}" update="panelGarantia">
+                            <h:outputText styleClass="ui-icon pi pi-replay"/>
+                        </p:commandLink>
+                    </f:facet>
+                </p:panel>
+            </div>                                        
+
+
+        </div>
+    </ui:define>
+
+</ui:composition>
