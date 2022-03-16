@@ -188,19 +188,19 @@ public class RecoverpasswordBean extends ReusableBean implements Serializable {
                     usuarioL.setPregunta1(user.getString("pregunta1"));
                 }
                 if (!user.isNull("respuesta1")) {
-                    usuarioL.setRespuesta1(user.getString("respuesta1"));
+                    usuarioL.setRespuesta1(user.getString("respuesta1").toUpperCase());
                 }
                 if (!user.isNull("pregunta2")) {
                     usuarioL.setPregunta2(user.getString("pregunta2"));
                 }
                 if (!user.isNull("respuesta2")) {
-                    usuarioL.setRespuesta2(user.getString("respuesta2"));
+                    usuarioL.setRespuesta2(user.getString("respuesta2").toUpperCase());
                 }
                 if (!user.isNull("pregunta3")) {
                     usuarioL.setPregunta3(user.getString("pregunta3"));
                 }
                 if (!user.isNull("respuesta3")) {
-                    usuarioL.setRespuesta3(user.getString("respuesta3"));
+                    usuarioL.setRespuesta3(user.getString("respuesta3").toUpperCase());
                 }
             }
             Usuario obj = (Usuario) usuarioL;
@@ -227,7 +227,7 @@ public class RecoverpasswordBean extends ReusableBean implements Serializable {
             respuesta = params.get("formNuevoPass:respuesta3");
         }
         if (!respuesta.isEmpty()) {
-            if (respuesta.equals(usuarioL.getRespuesta1()) || respuesta.equals(usuarioL.getRespuesta2()) || respuesta.equals(usuarioL.getRespuesta3())) {
+            if (respuesta.toUpperCase().equals(usuarioL.getRespuesta1()) || respuesta.toUpperCase().equals(usuarioL.getRespuesta2()) || respuesta.toUpperCase().equals(usuarioL.getRespuesta3())) {
                 PrimeFaces.current().executeScript("PF('nuevo').hide()");
                 PrimeFaces.current().executeScript("PF('nuevoPass').show()");
             } else {
