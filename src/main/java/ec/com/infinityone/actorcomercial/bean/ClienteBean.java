@@ -20,11 +20,14 @@ import ec.com.infinityone.modeloWeb.Direccioninen;
 import ec.com.infinityone.modeloWeb.Formapago;
 import ec.com.infinityone.modeloWeb.Listaprecio;
 import ec.com.infinityone.modeloWeb.ListaprecioPK;
+import ec.com.infinityone.modeloWeb.ObjetoNivel1;
 import ec.com.infinityone.modeloWeb.Terminal;
 import ec.com.infinityone.preciosyfacturacion.servicios.ListaprecioServicio;
 import ec.com.infinityone.reusable.ReusableBean;
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
@@ -37,6 +40,8 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import org.primefaces.PrimeFaces;
+import org.primefaces.shaded.json.JSONArray;
+import org.primefaces.shaded.json.JSONObject;
 
 /**
  *
@@ -92,6 +97,8 @@ public class ClienteBean extends ReusableBean implements Serializable {
     private List<Terminal> listaTerminales;
 
     private List<Listaprecio> listaListaprecios;
+
+    private List<ObjetoNivel1> listaTipoclientes;
     /*
     Objeto formapago
      */
@@ -123,6 +130,7 @@ public class ClienteBean extends ReusableBean implements Serializable {
     Variable para almacenar el código de la comercializadora
      */
     private String codComer;
+
     /**
      * Constructor por defecto
      */
@@ -156,6 +164,7 @@ public class ClienteBean extends ReusableBean implements Serializable {
         obtenerFormapago();
         obtenerBanco();
         obtenerTerminal();
+        obtenerTipocliente();
         //obtenerPrecio();
         //getURL();
     }
@@ -204,14 +213,69 @@ public class ClienteBean extends ReusableBean implements Serializable {
             listaListaprecios = this.listaPrecioServicio.getListaprecioPorComer(codComer);
         }
     }
-    
-    public void  seleccionarComerParaBusqueda(){
+
+    public void seleccionarComerParaBusqueda() {
         if (comercializadora != null) {
             listaClientes = new ArrayList<>();
             listaClientes = this.clienteServicio.obtenerClientesPorComercializadora(comercializadora.getCodigo());
         }
     }
-    
+
+    public void obtenerTipocliente() {
+        try {
+            String token = "Infinity eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwYXVsIiwiaXNzIjoiZWMuY29tLmluZmluaXR5b25lIiwiaWF0IjoxNjI1ODUyOTIyLCJleHAiOjE2MjU4NTY1MjJ9.zlpXPvsZeHrmnPdQ_cINdd6SBPoNqF0Sq6Wuin3P6HdriDHoPRkhCYcJNYlfnAb8yUTrCPc9OHFIVjF35wTcaw";
+            //byte[] bytes = token.getBytes();
+            //String basicAuth = "Basic : " + new String(Base64.getEncoder().encode(bytes));  
+            url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.tipocliente");
+            System.out.println("FT:: obtenerTipocliente() URL del servicio: " + url.getPath());
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+            //connection.setRequestProperty("Authorization", token);
+            //connection.setRequestProperty("Access-Control-Allow-Headers", "Authorization");
+            //connection.setRequestProperty("Accept-Charset", "utf-8");
+            //connection.setRequestProperty("Accept-Encoding", "gzip");
+            //connection.setRequestProperty("Accept-Language", "en-US");
+            //connection.setRequestProperty("Access-Control-Allow-Origin", "*");
+
+            listaTipoclientes = new ArrayList<>();
+            objeto = new ObjetoNivel1();
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+
+            BufferedReader br = new BufferedReader(reader);
+            String tmp = null;
+            String respuesta = "";
+            while ((tmp = br.readLine()) != null) {
+                System.out.println("FT:: obtenerTipocliente() dentro del while SI HAY DATOS " + url.getPath());
+                respuesta += tmp;
+            }
+            JSONObject objetoJson = new JSONObject(respuesta);
+            JSONArray retorno = objetoJson.getJSONArray("retorno");
+            System.out.println("FT:: obtenerTipocliente() json retorno: " + retorno.length());
+            for (int indice = 0; indice < retorno.length(); indice++) {
+                JSONObject areaM = retorno.getJSONObject(indice);
+                objeto.setCodigo(areaM.getString("codigo"));
+                objeto.setNombre(areaM.getString("nombre"));
+                if (areaM.getBoolean("activo") == true) {
+                    objeto.setActivo("S");
+                } else {
+                    objeto.setActivo("N");
+                }
+                objeto.setUsuario(areaM.getString("usuarioactual"));
+                listaTipoclientes.add(objeto);
+                objeto = new ObjetoNivel1();
+            }
+
+            if (connection.getResponseCode() != 200) {
+                System.out.println(connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
+            }
+        } catch (IOException e) {
+            System.out.println("FT:: Error al obtener tipos de clientes: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
     public void save() {
         if (editarCliente) {
@@ -360,7 +424,7 @@ public class ClienteBean extends ReusableBean implements Serializable {
         soloLectura = false;
         cliente = new Cliente();
         habilitarBusqueda();
-        if(habilitarComer){
+        if (habilitarComer) {
             comercializadora = new ComercializadoraBean();
         }
         direccioninen = new Direccioninen();
@@ -435,15 +499,15 @@ public class ClienteBean extends ReusableBean implements Serializable {
         PrimeFaces.current().executeScript("PF('nuevo').show()");
         return cliente;
     }
-    
-    public void controlaGarantia(){
-        if(cliente.getControlagarantia() == true){
-            this.dialogo(FacesMessage.SEVERITY_INFO, "Control de garantía acaba de ser encendido, verificar la \n" +
-            "inicialización adecuada de información en el módulo TOTAL GARANTIZADO. Recordar que desde este momento la faturación será contolada por lo valores que se ingresen,\n" +
-            "y se modifiquen en este módulo");
-        }else{
-            this.dialogo(FacesMessage.SEVERITY_INFO, "Control de garantía acaba de ser apagado, ningun valor de garntías, facturación o pagos serán controlados\n" +
-            "para este cliente");
+
+    public void controlaGarantia() {
+        if (cliente.getControlagarantia() == true) {
+            this.dialogo(FacesMessage.SEVERITY_INFO, "Control de garantía acaba de ser encendido, verificar la \n"
+                    + "inicialización adecuada de información en el módulo TOTAL GARANTIZADO. Recordar que desde este momento la faturación será contolada por lo valores que se ingresen,\n"
+                    + "y se modifiquen en este módulo");
+        } else {
+            this.dialogo(FacesMessage.SEVERITY_INFO, "Control de garantía acaba de ser apagado, ningun valor de garntías, facturación o pagos serán controlados\n"
+                    + "para este cliente");
         }
     }
 
@@ -574,7 +638,15 @@ public class ClienteBean extends ReusableBean implements Serializable {
     public void setComercializadora(ComercializadoraBean comercializadora) {
         this.comercializadora = comercializadora;
     }
-    
-    
+
+    public List<ObjetoNivel1> getListaTipoclientes() {
+        return listaTipoclientes;
+    }
+
+    public void setListaTipoclientes(List<ObjetoNivel1> listaTipoclientes) {
+        this.listaTipoclientes = listaTipoclientes;
+    }
+
+
 
 }

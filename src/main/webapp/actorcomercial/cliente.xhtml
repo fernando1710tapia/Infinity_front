@@ -403,10 +403,8 @@
                                             </p:selectOneMenu>
                                         </div>
                                     </div> 
-                                    <div class="p-field p-col-12 p-md-4">
+                                    <div class="p-field p-col-12 p-md-4">                                        
                                         <p:outputLabel for="codTipoCliente"  value="Tipo Cliente"/>
-                                        <p:inputText id="codTipoCliente" value="#{clienteBean.cliente.codigotipocliente}" disabled="#{clienteBean.soloLectura}" required="true"/> 
-                                        <!--<p:outputLabel for="codTipoCliente"  value="Tipo Cliente"/>
                                         <div class="ui-inputgroup">
                                             <span class="ui-inputgroup-addon">
                                                 <i class="fa fa-money"></i>
@@ -416,12 +414,12 @@
                                                              autoWidth="false" converter="converterg"
                                                              required="true" requiredMessage="Seleccione Tipo Cliente" disabled="#{clienteBean.soloLectura}">
                                                 <f:selectItem noSelectionOption="true" itemLabel="Seleccione" itemValue="#{null}"/>
-                                                <f:selectItems value="#{clienteBean.listaListaprecios}"
+                                                <f:selectItems value="#{clienteBean.listaTipoclientes}"
                                                                var="list"
-                                                               itemLabel="#{list.listaprecioPK.codigo} - #{list.nombre}"
-                                                               itemValue="#{list}" />
+                                                               itemLabel="#{list.codigo} - #{list.nombre}"
+                                                               itemValue="#{list.codigo}" />
                                             </p:selectOneMenu>
-                                        </div>-->
+                                        </div>
                                     </div> 
                                     <div class="p-field p-col-12 p-md-6">  
                                         <p:outputLabel for="fechaIns" value="Fecha de Inscripcion"/>
