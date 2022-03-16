@@ -85,7 +85,7 @@ public class ClienteServicio {
                 JSONObject fp = cliente.getJSONObject("codigoformapago");
                 JSONObject bn = cliente.getJSONObject("codigobancodebito");
                 JSONObject di = cliente.getJSONObject("codigodireccioninen");
-//                JSONObject tc = cliente.getJSONObject("codigotipocliente");
+                //JSONObject tc = cliente.getJSONObject("codigotipocliente");
 
                 termi.setCodigo(terminal.getString("codigo"));
                 termi.setNombre(terminal.getString("nombre"));
@@ -203,9 +203,9 @@ public class ClienteServicio {
                     fpago.setCodigo(fp.getString("codigo"));
                     cli.setCodigoformapago(fpago);
                 }
-//                if (!cliente.isNull("codigotipocliente")) {
-//                    cli.setCodigotipocliente(tc.getString("codigo"));
-//                }
+               // if (!cliente.isNull("codigotipocliente")) {
+                 //   cli.setCodigotipocliente(tc.getString("codigo"));
+               // }
                 //cli.setObjRelacionado(cliente.getString("codigo") + " - " + cliente.getString("nombre"));                                    
 
 //                if (cli.isEstado(true)) {
@@ -258,6 +258,7 @@ public class ClienteServicio {
                 JSONObject fp = cliente.getJSONObject("codigoformapago");
                 JSONObject bn = cliente.getJSONObject("codigobancodebito");
                 JSONObject di = cliente.getJSONObject("codigodireccioninen");
+                JSONObject tc = cliente.getJSONObject("codigotipocliente");
 
                 termi.setCodigo(terminal.getString("codigo"));
                 termi.setNombre(terminal.getString("nombre"));
@@ -376,6 +377,9 @@ public class ClienteServicio {
                 if (!cliente.isNull("codigoformapago")) {
                     fpago.setCodigo(fp.getString("codigo"));
                     cli.setCodigoformapago(fpago);
+                }
+                if (!cliente.isNull("codigotipocliente")) {
+                    cli.setCodigotipocliente(tc.getString("codigo"));
                 }
 
                 listaClientes.add(cli);
@@ -473,7 +477,7 @@ public class ClienteServicio {
                 cli.setNombre(cliente.getString("nombre"));
                 cli.setEstado(cliente.getBoolean("estado"));
                 if (cli.isEstado() == true) {
-                    esActivo++;                    
+                    esActivo++;
                 } else {
                     esActivo = 0;
                 }

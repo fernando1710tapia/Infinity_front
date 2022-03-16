@@ -31,6 +31,7 @@ public class Fichero {
     private static String CARPETAREPORTES;
     private static String PRODUCTOSINFE;
     private static String RUTACONEXIONBD;
+    private static String PREGUNTAS;
     
 
     public static void propiedades() {
@@ -41,7 +42,6 @@ public class Fichero {
             //Inicializa la aplicación, cargando las configuraciones iniciales
             //File confDir = new File("C:\\Users\\HP\\Documents\\David\\Infinity");
             File confDir = new File(System.getProperty("jboss.server.config.dir"));
-            System.out.println("FT::RUTA DE ARCHIVO DE CONFIGURACIONES CONFDIR::" +confDir.toString());
             File fileProp = new File(confDir, "ConfiguracionInfinity.properties");
             File rep= new File(confDir, "reportes");
             CARPETAREPORTES = rep.toString();
@@ -55,14 +55,16 @@ public class Fichero {
             RUTADASHBOARD = (String) propiedades.get("RUTADASHBOARD");
             PRODUCTOSINFE = (String) propiedades.get("PRODUCTOSINFE");
             RUTACONEXIONBD = (String) propiedades.get("CONEXIONBD");
+            PREGUNTAS = (String) propiedades.get("PREGUNTAS");
 
             //LOG.log(Level.INFO, "Ruta Reporte", RUTAREPORTE);
             //LOG.log(Level.INFO, "Ruta Servicios", RUTASERVICIOSPERSISTENCIA);
 
-        } catch (Throwable e) {
-            System.out.println("FT::ERROR EN propiedades " +e.getMessage());
+        } catch (IOException e) {
             LOG.log(Level.SEVERE, "Error al inicializar la aplicaci\u00f3n, {0}", e);
-        } 
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE, "Error al inicializar la aplicaci\u00f3n, {0}", e);
+        }
     }
 
     public Properties getPropiedades() {
@@ -120,8 +122,14 @@ public class Fichero {
     public static void setRUTACONEXIONBD(String RUTACONEXIONBD) {
         Fichero.RUTACONEXIONBD = RUTACONEXIONBD;
     }
-    
-    
+
+    public static String getPREGUNTAS() {
+        return PREGUNTAS;
+    }
+
+    public static void setPREGUNTAS(String PREGUNTAS) {
+        Fichero.PREGUNTAS = PREGUNTAS;
+    }        
 
 }
 

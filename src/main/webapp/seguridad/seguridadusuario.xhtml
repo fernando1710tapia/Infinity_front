@@ -208,53 +208,25 @@
                                             <p:inputText id="correo" value="#{seguridadusuarioBean.usuarioS.correo}" required="true"/>
                                             <p:outputLabel for="correo">Correo electrónico</p:outputLabel>
                                         </span>
-                                    </div>                                    
-                                    <div class="p-field p-col-12 p-md-12">
-                                        <p:outputLabel for="preg1" value="Pregunta N.1"/>
-                                        <div class="ui-inputgroup">
-                                            <span class="ui-inputgroup-addon">
-                                                <i class="fa fa-money"></i>
-                                            </span>
-                                            <p:selectOneMenu id="preg1" value="#{seguridadusuarioBean.pregunta1}" title="Pregunta N.1"
-                                                             panelStyle="width:175px" style="min-width: 80%;" 
-                                                             autoWidth="false" converter="converterg"
-                                                             filter="true" filterMatchMode="startsWith"
-                                                             required="false"
-                                                             disabled="#{!seguridadusuarioBean.soloLectura}" >   
-                                                <f:selectItem noSelectionOption="true" itemLabel="Pregunta N.1" itemValue="#{null}"/>
-                                                <f:selectItems value="#{seguridadusuarioBean.listaPreguntas}"
-                                                               var="p1"
-                                                               itemLabel="#{p1}"
-                                                               itemValue="#{p1}" />                                            
-                                            </p:selectOneMenu>
-                                        </div>                                                                             
-                                    </div>                                    
+                                    </div>                                                                        
                                     <div class="p-field p-col-12 p-md-12">
                                         <span class="ui-float-label"> 
-                                            <p:inputText id="respuesta1" value="#{seguridadusuarioBean.usuarioS.respuesta1}" required="false"/>
-                                            <p:outputLabel for="respuesta1">Respuesta 1</p:outputLabel>
+                                            <p:inputText id="pregunta1" value="#{seguridadusuarioBean.usuarioS.pregunta1}" required="false" readonly="true"/>
+                                            <p:outputLabel for="pregunta1">Pregunta N.1</p:outputLabel>
                                         </span>
                                     </div>  
                                     <div class="p-field p-col-12 p-md-12">
-                                        <p:outputLabel for="preg2" value="Pregunta N.2"/>
-                                        <div class="ui-inputgroup">
-                                            <span class="ui-inputgroup-addon">
-                                                <i class="fa fa-money"></i>
-                                            </span>
-                                            <p:selectOneMenu id="preg2" value="#{seguridadusuarioBean.pregunta2}" title="Pregunta N.2"
-                                                             panelStyle="width:175px" style="min-width: 80%;" 
-                                                             autoWidth="false" converter="converterg"
-                                                             filter="true" filterMatchMode="startsWith"
-                                                             required="false"
-                                                             disabled="#{!seguridadusuarioBean.soloLectura}" >   
-                                                <f:selectItem noSelectionOption="true" itemLabel="Pregunta N.1" itemValue="#{null}"/>
-                                                <f:selectItems value="#{seguridadusuarioBean.listaPreguntas}"
-                                                               var="p1"
-                                                               itemLabel="#{p1}"
-                                                               itemValue="#{p1}" />                                            
-                                            </p:selectOneMenu>
-                                        </div>                                                                             
-                                    </div>                                    
+                                        <span class="ui-float-label"> 
+                                            <p:inputText id="respuesta1" value="#{seguridadusuarioBean.usuarioS.respuesta1}" required="false"/>
+                                            <p:outputLabel for="respuesta1">Respuesta N.1</p:outputLabel>
+                                        </span>
+                                    </div>  
+                                    <div class="p-field p-col-12 p-md-12">
+                                        <span class="ui-float-label"> 
+                                            <p:inputText id="pregunta2" value="#{seguridadusuarioBean.usuarioS.pregunta2}" required="false" readonly="true"/>
+                                            <p:outputLabel for="pregunta2">Pregunta N.2</p:outputLabel>
+                                        </span>
+                                    </div>  
                                     <div class="p-field p-col-12 p-md-12">
                                         <span class="ui-float-label"> 
                                             <p:inputText id="respuesta2" value="#{seguridadusuarioBean.usuarioS.respuesta2}" required="false"/>
@@ -262,25 +234,11 @@
                                         </span>
                                     </div>  
                                     <div class="p-field p-col-12 p-md-12">
-                                        <p:outputLabel for="preg3" value="Pregunta N.3"/>
-                                        <div class="ui-inputgroup">
-                                            <span class="ui-inputgroup-addon">
-                                                <i class="fa fa-money"></i>
-                                            </span>
-                                            <p:selectOneMenu id="preg3" value="#{seguridadusuarioBean.pregunta3}" title="Pregunta N.3"
-                                                             panelStyle="width:175px" style="min-width: 80%;" 
-                                                             autoWidth="false" converter="converterg"
-                                                             filter="true" filterMatchMode="startsWith"
-                                                             required="false"
-                                                             disabled="#{!seguridadusuarioBean.soloLectura}" >   
-                                                <f:selectItem noSelectionOption="true" itemLabel="Pregunta N.1" itemValue="#{null}"/>
-                                                <f:selectItems value="#{seguridadusuarioBean.listaPreguntas}"
-                                                               var="p1"
-                                                               itemLabel="#{p1}"
-                                                               itemValue="#{p1}" />                                            
-                                            </p:selectOneMenu>
-                                        </div>                                                                             
-                                    </div>                                    
+                                        <span class="ui-float-label"> 
+                                            <p:inputText id="pregunta3" value="#{seguridadusuarioBean.usuarioS.pregunta3}" required="false" readonly="true"/>
+                                            <p:outputLabel for="pregunta3">Pregunta N.3</p:outputLabel>
+                                        </span>
+                                    </div>                               
                                     <div class="p-field p-col-12 p-md-12">
                                         <span class="ui-float-label"> 
                                             <p:inputText id="respuesta3" value="#{seguridadusuarioBean.usuarioS.respuesta3}" required="fasle"/>

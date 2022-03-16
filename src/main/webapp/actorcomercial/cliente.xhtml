@@ -403,7 +403,26 @@
                                             </p:selectOneMenu>
                                         </div>
                                     </div> 
-                                    <div class="p-field p-col-12 p-md-4"></div> 
+                                    <div class="p-field p-col-12 p-md-4">
+                                        <p:outputLabel for="codTipoCliente"  value="Tipo Cliente"/>
+                                        <p:inputText id="codTipoCliente" value="#{clienteBean.cliente.codigotipocliente}" disabled="#{clienteBean.soloLectura}" required="true"/> 
+                                        <!--<p:outputLabel for="codTipoCliente"  value="Tipo Cliente"/>
+                                        <div class="ui-inputgroup">
+                                            <span class="ui-inputgroup-addon">
+                                                <i class="fa fa-money"></i>
+                                            </span>
+                                            <p:selectOneMenu id="codTipoCliente" value="#{clienteBean.cliente.codigotipocliente}" title="Tipo Cliente"
+                                                             panelStyle="width:175px" style="min-width: 80%;" 
+                                                             autoWidth="false" converter="converterg"
+                                                             required="true" requiredMessage="Seleccione Tipo Cliente" disabled="#{clienteBean.soloLectura}">
+                                                <f:selectItem noSelectionOption="true" itemLabel="Seleccione" itemValue="#{null}"/>
+                                                <f:selectItems value="#{clienteBean.listaListaprecios}"
+                                                               var="list"
+                                                               itemLabel="#{list.listaprecioPK.codigo} - #{list.nombre}"
+                                                               itemValue="#{list}" />
+                                            </p:selectOneMenu>
+                                        </div>-->
+                                    </div> 
                                     <div class="p-field p-col-12 p-md-6">  
                                         <p:outputLabel for="fechaIns" value="Fecha de Inscripcion"/>
                                         <p:datePicker id="fechaIns" value="#{clienteBean.cliente.fehainscripcion}" showIcon="true" pattern="dd/MM/yyyy" disabled="#{clienteBean.soloLectura}"/>

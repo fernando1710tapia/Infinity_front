@@ -26,8 +26,11 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -102,6 +105,8 @@ public class SeguridadusuarioBean extends ReusableBean implements Serializable {
 
     private String clave;
 
+    private String[] preguntas;
+
     /**
      * Constructor por defecto
      */
@@ -125,6 +130,7 @@ public class SeguridadusuarioBean extends ReusableBean implements Serializable {
         activarComer = false;
         activarCli = false;
         estadoUsuario = true;
+        preguntas = Fichero.getPREGUNTAS().split(",");
         obtenerUsuario();
         obtenerComercializadora();
         obtenerTerminales();
@@ -267,20 +273,20 @@ public class SeguridadusuarioBean extends ReusableBean implements Serializable {
             obj.put("vigenciahash", usuarioS.getVigenciahash());
             obj.put("clave", DigestUtils.sha256Hex(usuarioS.getClave()));
             obj.put("usuarioactual", dataUser.getUser().getNombrever());
-            obj.put("correo", dataUser.getUser().getCorreo());
-            obj.put("pregunta1", dataUser.getUser().getPregunta1());
-            obj.put("respuesta1", dataUser.getUser().getRespuesta1());
-            obj.put("pregunta2", dataUser.getUser().getPregunta2());
-            obj.put("respuesta2", dataUser.getUser().getRespuesta2());
-            obj.put("pregunta3", dataUser.getUser().getPregunta3());
-            obj.put("respuesta3", dataUser.getUser().getRespuesta3());
+            obj.put("correo", usuarioS.getCorreo());
+            obj.put("pregunta1", usuarioS.getPregunta1());
+            obj.put("respuesta1", usuarioS.getRespuesta1());
+            obj.put("pregunta2", usuarioS.getPregunta2());
+            obj.put("respuesta2", usuarioS.getRespuesta2());
+            obj.put("pregunta3", usuarioS.getPregunta3());
+            obj.put("respuesta3", usuarioS.getRespuesta3());
 
             respuesta = obj.toString();
             writer.write(respuesta);
             writer.close();
             if (connection.getResponseCode() == 200) {
                 PrimeFaces.current().executeScript("PF('nuevo').hide()");
-                this.dialogo(FacesMessage.SEVERITY_INFO, "PERMISO REGISTRADO EXITOSAMENTE");
+                this.dialogo(FacesMessage.SEVERITY_INFO, "USUARIO REGISTRADO EXITOSAMENTE");
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
             }
@@ -326,13 +332,13 @@ public class SeguridadusuarioBean extends ReusableBean implements Serializable {
                 obj.put("clave", DigestUtils.sha256Hex(usuarioS.getClave()));
             }
             obj.put("usuarioactual", dataUser.getUser().getNombrever());
-            obj.put("correo", dataUser.getUser().getCorreo());
-            obj.put("pregunta1", dataUser.getUser().getPregunta1());
-            obj.put("respuesta1", dataUser.getUser().getRespuesta1());
-            obj.put("pregunta2", dataUser.getUser().getPregunta2());
-            obj.put("respuesta2", dataUser.getUser().getRespuesta2());
-            obj.put("pregunta3", dataUser.getUser().getPregunta3());
-            obj.put("respuesta3", dataUser.getUser().getRespuesta3());
+            obj.put("correo", usuarioS.getCorreo());
+            obj.put("pregunta1", usuarioS.getPregunta1());
+            obj.put("respuesta1", usuarioS.getRespuesta1());
+            obj.put("pregunta2", usuarioS.getPregunta2());
+            obj.put("respuesta2", usuarioS.getRespuesta2());
+            obj.put("pregunta3", usuarioS.getPregunta3());
+            obj.put("respuesta3", usuarioS.getRespuesta3());
             respuesta = obj.toString();
             writer.write(respuesta);
             writer.close();
@@ -379,6 +385,32 @@ public class SeguridadusuarioBean extends ReusableBean implements Serializable {
         permiteEdit = false;
         soloLectura = false;
         usuarioS = new Usuario();
+        listaPreguntas = new ArrayList<>();
+        Set<Integer> generados = new HashSet<>();
+        for (int i = 0; i < 3; i++) {
+//            int numero = (int)(Math.random()*2);
+//            listaPreguntas.add(preguntas[numero]);
+            int aleatorio = -1;
+            boolean generado = false;
+            while (!generado) {
+                int posible = (int) (Math.random() * preguntas.length - 1);
+                if (!generados.contains(posible)) {
+                    generados.add(posible);
+                    aleatorio = posible;
+                    listaPreguntas.add(preguntas[aleatorio]);
+                    if (i == 0) {
+                        usuarioS.setPregunta1(preguntas[aleatorio]);
+                    }
+                    if (i == 1) {
+                        usuarioS.setPregunta2(preguntas[aleatorio]);
+                    }
+                    if (i == 2) {
+                        usuarioS.setPregunta3(preguntas[aleatorio]);
+                    }
+                    generado = true;
+                }
+            }
+        }
         PrimeFaces.current().executeScript("PF('nuevo').show()");
     }
 
