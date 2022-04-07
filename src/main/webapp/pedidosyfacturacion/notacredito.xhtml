@@ -44,7 +44,7 @@
                                                        var="comer"
                                                        itemLabel="#{comer.objRelacionado}"
                                                        itemValue="#{comer}" />
-                                        <p:ajax event="change" listener="#{notaCreditoBean.seleccionarComer()}"/>
+                                        <p:ajax event="change" listener="#{notaCreditoBean.seleccionarComer()}" update="form cli"/>
                                     </p:selectOneMenu> 
                                 </div>
                             </div>
@@ -74,12 +74,15 @@
                                     <p:selectOneMenu id="cli" value="#{notaCreditoBean.cliente}" title="Cliente"
                                                      panelStyle="width:175px" style="min-width: 80%;" 
                                                      autoWidth="false" converter="converterg"
-                                                     disabled="#{!notaCreditoBean.habilitarCli}">
+                                                     disabled="#{!notaCreditoBean.habilitarCli}"
+                                                     filter="true" filterMatchMode="contains">
                                         <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
                                         <f:selectItems value="#{notaCreditoBean.listaClientes}"
                                                        var="cliente"
                                                        itemLabel="#{cliente.codigo} - #{cliente.nombrecomercial}"
                                                        itemValue="#{cliente}" />
+                                        <p:ajax event="change" listener="#{notaCreditoBean.seleccionarCliente()}"
+                                                update="terminal"/>
                                     </p:selectOneMenu> 
                                 </div>
                             </div>

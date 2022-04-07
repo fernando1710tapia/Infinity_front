@@ -80,13 +80,14 @@
                                                      panelStyle="width:175px" style="min-width: 80%;" 
                                                      autoWidth="false" converter="converterg"
                                                      disabled="#{!facturacionBean.habilitarCli}"
-                                                     filter="true" filterMatchMode="startsWith">
+                                                     filter="true" filterMatchMode="contains">
                                         <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
                                         <f:selectItems value="#{facturacionBean.listaClientes}"
                                                        var="cliente"
                                                        itemLabel="#{cliente.codigo} - #{cliente.nombrecomercial}"
                                                        itemValue="#{cliente}" />
-                                        <p:ajax event="change" listener="#{facturacionBean.seleccionarCliente()}"/>
+                                        <p:ajax event="change" listener="#{facturacionBean.seleccionarCliente()}"
+                                                update="terminal"/>
                                     </p:selectOneMenu> 
                                 </div>
                             </div>                            
@@ -167,10 +168,10 @@
                                 </p:commandButton>
                             </p:column>
                             <p:column style="width: 3.5rem">
-                                <p:commandButton icon="pi pi-print" actionListener="#{facturacionBean.generarReporte(envF)}" ajax="false"
+                                <p:commandButton icon="pi pi-print" actionListener="#{facturacionBean.generarReporte(envF)}" ajax="false" 
                                                  onstart="PF('blockUIWidget').block()" 
                                                  oncomplete="PF('blockUIWidget').unblock()"
-                                                 onclick="PrimeFaces.monitorDownload(start, stop);"
+                                                 onclick="PrimeFaces.monitorDownload(start, stop);" 
                                                  update="@form" styleClass="edit-button rounded-button ui-button-success">
                                     <p:fileDownload value="#{facturacionBean.pdfStream}"/>
                                 </p:commandButton>
@@ -315,7 +316,16 @@
                     </p:column>  
                     <p:column headerText="Facturar"  width="10%">
                         <p:selectBooleanCheckbox id="procesar" value="#{notaP.notapedido.procesar}" />
-                    </p:column>    
+                    </p:column>
+                    <p:column headerText="N.P." style="width: 3.5rem">
+                        <p:commandButton icon="pi pi-print" actionListener="#{facturacionBean.generarReporteNp(notaP)}" ajax="false"
+                                         onstart="PF('blockUIWidget').block()" 
+                                         oncomplete="PF('blockUIWidget').unblock()"
+                                         onclick="PrimeFaces.monitorDownload(start, stop);"
+                                         update="@form" styleClass="edit-button rounded-button ui-button-success">
+                            <p:fileDownload value="#{facturacionBean.pdfStream}"/>
+                        </p:commandButton>
+                    </p:column>
                 </p:dataTable>                                                                                         
             </p:outputPanel>
             <p:outputPanel rendered="#{facturacionBean.mostarFactura}"> 

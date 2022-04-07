@@ -52,14 +52,14 @@ public class RecoverpasswordBean extends ReusableBean implements Serializable {
     private RecoverpasswordBean recoverpassword;
     private String clave;
     private String respuesta;
-    private String claveNueva;    
+    private String claveNueva;
 
     @PostConstruct
     public void init() {
         String a = "1";
         Fichero.propiedades();
         recoverpassword = new RecoverpasswordBean();
-        usuarioL = new Usuario();       
+        usuarioL = new Usuario();
     }
 
     public void mostrarMensaje(FacesMessage.Severity severityMessage, String mensaje) {
@@ -124,7 +124,7 @@ public class RecoverpasswordBean extends ReusableBean implements Serializable {
             usuarioLog = params.get("form:login");
             correoLog = params.get("form:correo");
             obtenerUsuarioCorreo(usuarioLog, correoLog);
-            if (usuarioL.getCodigo() != null) {               
+            if (usuarioL.getCodigo() != null) {
                 PrimeFaces.current().executeScript("PF('nuevo').show()");
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "Usuario y/o Correo Incorrecto");
@@ -239,7 +239,7 @@ public class RecoverpasswordBean extends ReusableBean implements Serializable {
         }
     }
 
-    public void save() {
+    public void save() throws IOException {
         Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
         claveNueva = params.get("formNuevo:pwd1");
         if (!claveNueva.isEmpty()) {
@@ -247,6 +247,7 @@ public class RecoverpasswordBean extends ReusableBean implements Serializable {
             editItems();
             usuarioLog = "";
             correoLog = "";
+            FacesContext.getCurrentInstance().getExternalContext().redirect(Fichero.getRUTADASHBOARD());
         } else {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "Ingrese una respuesta");
         }
@@ -370,6 +371,6 @@ public class RecoverpasswordBean extends ReusableBean implements Serializable {
 
     public void setClaveNueva(String claveNueva) {
         this.claveNueva = claveNueva;
-    }   
+    }
 
 }

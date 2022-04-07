@@ -23,33 +23,37 @@
                         <div class="card">
                             <p:growl id="messages" showDetail="true" />
 
-                            <div class="ui-fluid p-formgrid p-grid">   
+                            <div class="ui-fluid p-formgrid p-grid">
                                 <div class="p-field p-col-12 p-md-4">
-                                    <p:outputLabel for="precio" value="Lista Precios"/>
                                     <div class="ui-inputgroup">
-                                        
                                         <span class="ui-inputgroup-addon">
                                             <i class="fa fa-shopping-cart"></i>
                                         </span>
-                                        <p:selectOneMenu id="precio" value="#{reportepreciosBean.listaPrecio}" title="Lista Precio"
+                                        <p:selectOneMenu id="comercializadora" value="#{reportepreciosBean.comercializadora}" title="Comercializadora"
                                                          panelStyle="width:175px" style="min-width: 80%;" 
-                                                         autoWidth="false" converter="converterg">
-                                            <f:selectItem noSelectionOption="true" itemLabel="Seleccionar" itemValue="#{null}"/>
-                                            <f:selectItems value="#{reportepreciosBean.listaListaprecios}"
-                                                           var="listaP"
-                                                           itemLabel="#{listaP.nombre}"
-                                                           itemValue="#{listaP}" />
-                                            <p:ajax event="change" listener="#{facturacionBean.seleccionarComercializdora}"/>
+                                                         autoWidth="false" converter="converterg"
+                                                         disabled="#{!reportepreciosBean.habilitarComer}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+                                            <f:selectItems value="#{reportepreciosBean.listaComercializadora}"
+                                                           var="comer"
+                                                           itemLabel="#{comer.objRelacionado}"
+                                                           itemValue="#{comer}" />
+                                            <p:ajax event="change" listener="#{reportepreciosBean.seleccionarComerc()}" update="form"/>
                                         </p:selectOneMenu> 
-                                    </div>
+                                    </div>                          
                                 </div>
+                                <div class="p-field p-col-12 p-md-2">
+                                    <p:commandButton icon="pi pi-print" actionListener="#{reportepreciosBean.generarReporte()}" ajax="false"
+                                                     onstart="PF('blockUIWidget').block()" 
+                                                     oncomplete="PF('blockUIWidget').unblock()"
+                                                     onclick="PrimeFaces.monitorDownload(start, stop);"
+                                                     update="@form" 
+                                                     value='Generar Reporte'>
+                                        <p:fileDownload value="#{reportepreciosBean.pdfStream}"/>
+                                    </p:commandButton>                                   
+                                </div>                                
                                 <div class="p-field p-col-12 p-md-4">
                                 </div>
-
-<!--                                <div class="p-field p-col-12 p-md-2">
-                                    <p:commandButton value="Buscar" icon="pi pi-search-plus" actionListener="{facturacionBean.obtenerFacturas()}" update="form"/>
-                                </div>-->
-
                             </div>                              
                         </div>
                     </div>

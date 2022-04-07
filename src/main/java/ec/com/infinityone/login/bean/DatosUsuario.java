@@ -32,9 +32,11 @@ public class DatosUsuario implements Serializable {
      */
     private String productoSinFe;
 
+    private boolean actualizarD;
+
     @PostConstruct
     public void init() {
-
+        actualizarD = false;
     }
 
     public Usuario getUser() {
@@ -60,7 +62,13 @@ public class DatosUsuario implements Serializable {
     public void setProductoSinFe(String productoSinFe) {
         this.productoSinFe = productoSinFe;
     }
-    
-    
+
+    public boolean isActualizarD() {
+        return actualizarD;
+    }
+
+    public void setActualizarD(boolean actualizarD) {
+        this.actualizarD = actualizarD;
+    }        
 
 }

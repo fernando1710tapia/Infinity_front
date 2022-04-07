@@ -80,23 +80,21 @@ import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import org.primefaces.PrimeFaces;
-import org.primefaces.event.ToggleEvent;
 import org.primefaces.model.DefaultStreamedContent;
 
 import org.primefaces.model.StreamedContent;
-import org.primefaces.model.Visibility;
 import org.primefaces.shaded.json.JSONArray;
 import org.primefaces.shaded.json.JSONObject;
 
 /**
  *
- * @author Andres
+ * @author David
  */
 @Named
 @ViewScoped
-public class ConsultaFacturasClienteBean extends ReusableBean implements Serializable {
+public class FacturacionCelBean extends ReusableBean implements Serializable {
 
-    protected static final Logger LOG = Logger.getLogger(ConsultaFacturasClienteBean.class.getName());
+    protected static final Logger LOG = Logger.getLogger(FacturacionCelBean.class.getName());
 
     /*
     Variable para acceder a los servicios de Comercialziadora
@@ -161,7 +159,7 @@ public class ConsultaFacturasClienteBean extends ReusableBean implements Seriali
     /*
     Variable para almacenar las notas de pedido
      */
-    protected List<ConsultaFacturasClienteBean> listaFacturas;
+    protected List<FacturacionCelBean> listaFacturas;
     /*
     Varaible para guardar la selección del radio button
      */
@@ -204,8 +202,6 @@ public class ConsultaFacturasClienteBean extends ReusableBean implements Seriali
     Variable para guardar una listda de Factura y Detalle Factura
      */
     protected List<EnvioFactura> listenvF;
-
-    protected List<EnvioFactura> listenvFNueva;
     /*
     Variable para guardar una lista deDeatllesFactura
      */
@@ -376,7 +372,7 @@ public class ConsultaFacturasClienteBean extends ReusableBean implements Seriali
     /**
      * Constructor por defecto
      */
-    public ConsultaFacturasClienteBean() {
+    public FacturacionCelBean() {
     }
 
     @PostConstruct
@@ -613,7 +609,13 @@ public class ConsultaFacturasClienteBean extends ReusableBean implements Seriali
                         }
                     }
                     seleccionarTerminal();
-
+                    List<Cliente> listaClientesAux = new ArrayList<>();
+                    listaClientesAux = listaClientes;
+                    for (int i = 0; i < listaClientesAux.size(); i++) {
+                        if (!listaClientes.get(i).getCodigoterminaldefecto().getCodigo().equals(codTerminal)) {
+                            listaClientes.remove(i);
+                        }
+                    }
                     break;
                 default:
                     break;
@@ -699,14 +701,22 @@ public class ConsultaFacturasClienteBean extends ReusableBean implements Seriali
                                 oeenpetro = "N";
                                 fact.setOeenpetro(false);
                             }
-                            if (fa.isNull("numeroautorizacion")) {
-                                ensri = "N";
+                            if (fa.getString("estado").equalsIgnoreCase("PENDIENTE")) {
+                                ensri = "P";
+                                envFac.setEnsri(ensri);
                             } else {
-                                fact.setNumeroautorizacion(fa.getString("numeroautorizacion"));
-                                if (fa.getString("numeroautorizacion").length() == 49) {
-                                    ensri = "S";
-                                } else {
+                                if (fa.isNull("numeroautorizacion")) {
                                     ensri = "N";
+                                    envFac.setEnsri(ensri);
+                                } else {
+                                    fact.setNumeroautorizacion(fa.getString("numeroautorizacion"));
+                                    if (fa.getString("numeroautorizacion").length() == 49) {
+                                        ensri = "S";
+                                        envFac.setEnsri(ensri);
+                                    } else {
+                                        ensri = "N";
+                                        envFac.setEnsri(ensri);
+                                    }
                                 }
                             }
                             fact.setFacturaPK(factPk);
@@ -755,20 +765,20 @@ public class ConsultaFacturasClienteBean extends ReusableBean implements Seriali
             DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
             //DateFormat date2 = new SimpleDateFormat("yyyy-MM-dd");
             String fechaS = date.format(this.fechaI);
-            String fechaF = date.format(this.fechaf);
             //String ur = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.notapedido/paraFactura?codigoabastecedora=0001&codigocomercializadora=0002&codigoterminal=07&tipofecha=1&fecha=2021/6/18";
-            //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.notapedido/paraFactura?";            
-            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura";
-            url = new URL(direcc + "/paraFactura?codigoabastecedora=" + this.codAbas + "&codigocomercializadora=" + this.codComer + "&codigoterminal=" + this.codTerminal + "&tipofecha=" + tipoFecha + "&fechaI=" + fechaS + "&fechaF=" + fechaF + "&codigocliente=" + this.codCliente);
+            //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.notapedido/paraFactura?";
+            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.notapedido/paraFactura?";
+            url = new URL(direcc + "codigoabastecedora=" + this.codAbas + "&codigocomercializadora=" + this.codComer + "&codigoterminal=" + this.codTerminal + "&tipofecha=" + tipoFecha + "&fecha=" + fechaS);
 
+            System.out.println("FT:: obtenerNotaPedidos:: URL: " + url.toString());
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
 
-            listenvF = new ArrayList<>();
-            listDet = new ArrayList<>();
-            EnvioFactura envFac = new EnvioFactura();
+            listenvNP = new ArrayList<>();
+            listDetNP = new ArrayList<>();
+            EnvioPedido envioPedido = new EnvioPedido();
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
             BufferedReader br = new BufferedReader(reader);
@@ -784,266 +794,140 @@ public class ConsultaFacturasClienteBean extends ReusableBean implements Seriali
             } else {
                 for (int indice = 0; indice < retorno.length(); indice++) {
                     if (!retorno.isNull(indice)) {
-                        JSONObject fa = retorno.getJSONObject(indice);
-                        JSONObject faPK = fa.getJSONObject("facturaPK");
+                        JSONObject nt = retorno.getJSONObject(indice);
+                        JSONObject ntPK = nt.getJSONObject("notapedidoPK");
+                        JSONObject cli = nt.getJSONObject("codigocliente");
+                        JSONObject term = nt.getJSONObject("codigoterminal");
+                        JSONObject ban = nt.getJSONObject("codigobanco");
+                        JSONObject formPago = cli.getJSONObject("codigoformapago");
+                        JSONObject com = nt.getJSONObject("comercializadora");
+                        JSONObject abastecedora = nt.getJSONObject("abastecedora");
 
-                        factPk.setNumero(faPK.getString("numero"));
-                        factPk.setNumeronotapedido(faPK.getString("numeronotapedido"));
-                        factPk.setCodigoabastecedora(faPK.getString("codigoabastecedora"));
-                        factPk.setCodigocomercializadora(faPK.getString("codigocomercializadora"));
-                        fact.setCodigocliente(fa.getString("codigocliente"));
-                        fact.setValortotal(fa.getBigDecimal("valortotal"));
-                        fact.setOeenpetro(fa.getBoolean("oeenpetro"));
-                        fact.setCodigobanco(fa.getString("codigobanco"));
-                        fact.setActiva(fa.getBoolean("activa"));
-                        fact.setOeanuladaenpetro(fa.getBoolean("oeanuladaenpetro"));
-                        Long dateStrFV = fa.getLong("fechaventa");
-                        Long dateStrFVen = fa.getLong("fechavencimiento");
-                        Long dateStrFD = fa.getLong("fechadespacho");
+                        /*----Varaibles para transformar formate json en fechas-----*/
+                        Long dateStrFV = nt.getLong("fechaventa");
+                        Long dateStrFD = nt.getLong("fechadespacho");
                         Date dateFV = new Date(dateStrFV);
-                        Date dateFVen = new Date(dateStrFVen);
                         Date dateFD = new Date(dateStrFD);
                         String fechaDescpacho = date.format(dateFD);
-                        String fechaVencimiento = date.format(dateFVen);
-                        String fechaVenta = date.format(dateFV);
-                        fact.setFechaventa(fechaVenta);
-                        fact.setFechavencimiento(fechaVencimiento);
-                        fact.setFechadespacho(fechaDescpacho);
-                        if (fa.getBoolean("activa") == true) {
-                            estadoAnulacion = false;
-                            //fact.setActiva(estadoAnulacion);
-                        } else {
-                            estadoAnulacion = true;
-                            //fact.setActiva(estadoAnulacion);
+                        String fechaVencimiento = date.format(dateFV);
+                        /*----Objeto Abastecedora----*/
+                        abas.setCodigo(abastecedora.getString("codigo"));
+
+                        /*----Objeto comercializadora----*/
+                        comerc.setCodigo(com.getString("codigo"));
+                        comerc.setNombre(com.getString("nombre"));
+                        comerc.setRuc(com.getString("ruc"));
+                        comerc.setDireccion(com.getString("direccion"));
+                        comerc.setAmbientesri(com.getString("ambientesri").charAt(0));
+                        comerc.setEsagenteretencion(com.getBoolean("esagenteretencion"));
+                        comerc.setEscontribuyenteespacial(com.getString("escontribuyenteespacial"));
+                        comerc.setTipoemision(com.getString("tipoemision").charAt(0));
+                        comerc.setObligadocontabilidad(com.getString("obligadocontabilidad"));
+                        comerc.setEstablecimientofac(com.getString("establecimientofac"));
+                        comerc.setPuntoventafac(com.getString("puntoventafac"));
+                        comerc.setClavewsepp(com.getString("clavewsepp"));
+
+                        /*----Objeto Fromapago----*/
+                        formap.setCodigo(formPago.getString("codigo"));
+
+                        /*----Objeto Cliente----*/
+                        cliente.setCodigo(cli.getString("codigo"));
+                        cliente.setNombre(cli.getString("nombre"));
+                        cliente.setRuc(cli.getString("ruc"));
+                        cliente.setCorreo1(cli.getString("correo1"));
+                        cliente.setTelefono1(cli.getString("telefono1"));
+                        cliente.setDireccion(cli.getString("direccion"));
+                        if (!cli.isNull("tipoplazocredito")) {
+                            cliente.setTipoplazocredito(cli.getString("tipoplazocredito"));
                         }
-                        if (fa.getBoolean("oeenpetro") == true) {
-                            oeenpetro = "S";
-                            fact.setOeenpetro(true);
-                        } else {
-                            oeenpetro = "N";
-                            fact.setOeenpetro(false);
+                        cliente.setCodigolistaprecio(cli.getLong("codigolistaprecio"));
+                        cliente.setCodigoformapago(formap);
+
+                        /*----Objeto Terminal----*/
+                        terminalT.setCodigo(term.getString("codigo"));
+
+                        /*----Objeto Banco----*/
+                        banco.setCodigo(ban.getString("codigo"));
+
+                        /*------Variable trasnformar de int a short-----*/
+                        int dp = cli.getInt("diasplazocredito");
+                        short diasplazo = (short) dp;
+                        cliente.setDiasplazocredito(diasplazo);
+
+                        /*----Guardando el cliente, termina y banco en Nota pedido---*/
+                        np.setCodigocliente(cliente);
+                        np.setCodigoterminal(terminalT);
+                        np.setCodigobanco(banco);
+                        np.setComercializadora(comerc);
+                        np.setAbastecedora(abas);
+
+                        np.setNumerofacturasri(nt.getString("numerofacturasri"));
+                        npPK.setNumero(ntPK.getString("numero"));
+                        npPK.setCodigoabastecedora(ntPK.getString("codigoabastecedora"));
+                        npPK.setCodigocomercializadora(ntPK.getString("codigocomercializadora"));
+                        np.setFechaventa(fechaVencimiento);
+                        np.setFechadespacho(fechaDescpacho);
+                        np.setAdelantar(true);
+                        try {
+                            np.setPrefijo(nt.getString("prefijo"));
+                            //System.out.println("NOTA DE PEDIDO OK: " + npPK.getNumero());
+                        } catch (Throwable e) {
+                            System.out.println("ERROR PREFIJO" + e.getMessage() + npPK.getNumero().getClass());
                         }
-                        if (fa.getString("estado").equalsIgnoreCase("PENDIENTE")) {
-                            ensri = "P";
-                            envFac.setEnsri(ensri);
-                        } else {
-                            if (fa.isNull("numeroautorizacion")) {
-                                ensri = "N";
-                                envFac.setEnsri(ensri);
-                            } else {
-                                fact.setNumeroautorizacion(fa.getString("numeroautorizacion"));
-                                if (fa.getString("numeroautorizacion").length() == 49) {
-                                    ensri = "S";
-                                    envFac.setEnsri(ensri);
-                                } else {
-                                    ensri = "N";
-                                    envFac.setEnsri(ensri);
-                                }
-                            }
+
+                        np.setNotapedidoPK(npPK);
+                        envioPedido.setNotapedido(np);
+                        JSONArray detalleNP = nt.getJSONArray("detallesNP");
+                        for (int i = 0; i < detalleNP.length(); i++) {
+                            JSONObject det = detalleNP.getJSONObject(i);
+                            JSONObject detnPK = det.getJSONObject("detallenotapedidoPK");
+                            JSONObject med = det.getJSONObject("medida");
+                            JSONObject prod = det.getJSONObject("producto");
+                            detNP.setVolumennaturalautorizado(det.getBigDecimal("volumennaturalautorizado"));
+                            detNP.setVolumennaturalrequerido(det.getBigDecimal("volumennaturalrequerido"));
+
+                            medida.setCodigo(med.getString("codigo"));
+                            medida.setNombre(med.getString("nombre"));
+                            detNP.setMedida(medida);
+
+                            producto.setCodigo(prod.getString("codigo"));
+                            producto.setNombre(prod.getString("nombre"));
+                            detNP.setProducto(producto);
+
+                            detNPK.setCodigoproducto(detnPK.getString("codigoproducto"));
+                            detNPK.setCodigomedida(detnPK.getString("codigomedida"));
+                            detNP.setDetallenotapedidoPK(detNPK);
+
+                            listDetNP.add(detNP);
+                            envioPedido.setDetalle(detNP);
+                            detNP = new Detallenotapedido();
+                            detNPK = new DetallenotapedidoPK();
                         }
-                        fact.setFacturaPK(factPk);
-                        envFac.setFactura(fact);
-                        JSONArray detalleList = fa.getJSONArray("detallefacturaList");
-                        for (int i = 0; i < detalleList.length(); i++) {
-                            JSONObject det = detalleList.getJSONObject(i);
-                            JSONObject detFpk = det.getJSONObject("detallefacturaPK");
-                            JSONObject medidaJ = det.getJSONObject("codigomedida");
-                            detFac.setVolumennaturalrequerido(det.getBigDecimal("volumennaturalrequerido"));
-                            detFac.setVolumennaturalautorizado(det.getBigDecimal("volumennaturalautorizado"));
-                            detFac.setPrecioproducto(det.getBigDecimal("precioproducto"));
-                            detFac.setSubtotal(det.getBigDecimal("subtotal"));
-                            if (!det.isNull("ruccomercializadora")) {
-                                detFac.setRuccomercializadora(det.getString("ruccomercializadora"));
-                            }
-                            detFac.setDetallefacturaPK(detFacPK);
-                            if (!det.isNull("nombreproducto")) {
-                                detFac.setNombreproducto(det.getString("nombreproducto"));
-                            }
-                            medida.setNombre(medidaJ.getString("nombre"));
-                            detFac.setCodigomedida(medida.getNombre());
-                            listDet.add(detFac);
-                            envFac.setDetalle(listDet);
-                            medida = new Medida();
-                            detFac = new Detallefactura();
-                            detFacPK = new DetallefacturaPK();
-                        }
-//if()
-                        listenvF.add(envFac);
-                        envFac = new EnvioFactura();
-                        fact = new Factura();
-                        factPk = new FacturaPK();
-                        listDet = new ArrayList<>();
+                        listenvNP.add(envioPedido);
+                        envioPedido = new EnvioPedido();
+                        np = new Notapedido();
+                        npPK = new NotapedidoPK();
+                        abas = new Abastecedora();
+                        comerc = new Comercializadora();
+                        formap = new Formapago();
+                        cliente = new Cliente();
+                        terminalT = new Terminal();
+                        banco = new Banco();
+                        listDetNP = new ArrayList<>();
                     }
                 }
-
-//            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.notapedido/paraFactura?";
-//            url = new URL(direcc + "codigoabastecedora=" + this.codAbas + "&codigocomercializadora=" + this.codComer + "&codigoterminal=" + this.codTerminal + "&tipofecha=" + tipoFecha + "&fecha=" + fechaS);
-//            System.out.println("FT:: obtenerNotaPedidos:: URL: " + url.toString());
-//            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-//            connection.setDoInput(true);
-//            connection.setRequestMethod("GET");
-//            connection.setRequestProperty("Accept", "application/json");
-//
-//            listenvNP = new ArrayList<>();
-//            listDetNP = new ArrayList<>();
-//            EnvioPedido envioPedido = new EnvioPedido();
-//            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-//
-//            BufferedReader br = new BufferedReader(reader);
-//            String tmp = null;
-//            String respuesta = "";
-//            while ((tmp = br.readLine()) != null) {
-//                respuesta += tmp;
-//            }
-//            JSONObject objetoJson = new JSONObject(respuesta);
-//            JSONArray retorno = objetoJson.getJSONArray("retorno");
-//            if (retorno.isEmpty()) {
-//                this.dialogo(FacesMessage.SEVERITY_ERROR, "NO SE ENCONTRARON REGISTROS");
-//            } else {
-//                for (int indice = 0; indice < retorno.length(); indice++) {
-//                    if (!retorno.isNull(indice)) {
-//                        JSONObject nt = retorno.getJSONObject(indice);
-//                        JSONObject ntPK = nt.getJSONObject("notapedidoPK");
-//                        JSONObject cli = nt.getJSONObject("codigocliente");
-//                        JSONObject term = nt.getJSONObject("codigoterminal");
-//                        JSONObject ban = nt.getJSONObject("codigobanco");
-//                        JSONObject formPago = cli.getJSONObject("codigoformapago");
-//                        JSONObject com = nt.getJSONObject("comercializadora");
-//                        JSONObject abastecedora = nt.getJSONObject("abastecedora");
-//
-//                        /*----Varaibles para transformar formate json en fechas-----*/
-//                        Long dateStrFV = nt.getLong("fechaventa");
-//                        Long dateStrFD = nt.getLong("fechadespacho");
-//                        Date dateFV = new Date(dateStrFV);
-//                        Date dateFD = new Date(dateStrFD);
-//                        String fechaDescpacho = date.format(dateFD);
-//                        String fechaVencimiento = date.format(dateFV);
-//                        /*----Objeto Abastecedora----*/
-//                        abas.setCodigo(abastecedora.getString("codigo"));
-//
-//                        /*----Objeto comercializadora----*/
-//                        comerc.setCodigo(com.getString("codigo"));
-//                        comerc.setNombre(com.getString("nombre"));
-//                        comerc.setRuc(com.getString("ruc"));
-//                        comerc.setDireccion(com.getString("direccion"));
-//                        comerc.setAmbientesri(com.getString("ambientesri").charAt(0));
-//                        comerc.setEsagenteretencion(com.getBoolean("esagenteretencion"));
-//                        comerc.setEscontribuyenteespacial(com.getString("escontribuyenteespacial"));
-//                        comerc.setTipoemision(com.getString("tipoemision").charAt(0));
-//                        comerc.setObligadocontabilidad(com.getString("obligadocontabilidad"));
-//                        comerc.setEstablecimientofac(com.getString("establecimientofac"));
-//                        comerc.setPuntoventafac(com.getString("puntoventafac"));
-//                        comerc.setClavewsepp(com.getString("clavewsepp"));
-//
-//                        /*----Objeto Fromapago----*/
-//                        formap.setCodigo(formPago.getString("codigo"));
-//
-//                        /*----Objeto Cliente----*/
-//                        cliente.setCodigo(cli.getString("codigo"));
-//                        cliente.setNombre(cli.getString("nombre"));
-//                        cliente.setRuc(cli.getString("ruc"));
-//                        cliente.setCorreo1(cli.getString("correo1"));
-//                        cliente.setTelefono1(cli.getString("telefono1"));
-//                        cliente.setDireccion(cli.getString("direccion"));
-//                        if (!cli.isNull("tipoplazocredito")) {
-//                            cliente.setTipoplazocredito(cli.getString("tipoplazocredito"));
-//                        }
-//                        cliente.setCodigolistaprecio(cli.getLong("codigolistaprecio"));
-//                        cliente.setCodigoformapago(formap);
-//
-//                        /*----Objeto Terminal----*/
-//                        terminalT.setCodigo(term.getString("codigo"));
-//
-//                        /*----Objeto Banco----*/
-//                        banco.setCodigo(ban.getString("codigo"));
-//
-//                        /*------Variable trasnformar de int a short-----*/
-//                        int dp = cli.getInt("diasplazocredito");
-//                        short diasplazo = (short) dp;
-//                        cliente.setDiasplazocredito(diasplazo);
-//
-//                        /*----Guardando el cliente, termina y banco en Nota pedido---*/
-//                        np.setCodigocliente(cliente);
-//                        np.setCodigoterminal(terminalT);
-//                        np.setCodigobanco(banco);
-//                        np.setComercializadora(comerc);
-//                        np.setAbastecedora(abas);
-//
-//                        np.setNumerofacturasri(nt.getString("numerofacturasri"));
-//                        npPK.setNumero(ntPK.getString("numero"));
-//                        npPK.setCodigoabastecedora(ntPK.getString("codigoabastecedora"));
-//                        npPK.setCodigocomercializadora(ntPK.getString("codigocomercializadora"));
-//                        np.setFechaventa(fechaVencimiento);
-//                        np.setFechadespacho(fechaDescpacho);
-//                        np.setAdelantar(true);
-//                        try {
-//                            np.setPrefijo(nt.getString("prefijo"));
-//                            //System.out.println("NOTA DE PEDIDO OK: " + npPK.getNumero());
-//                        } catch (Throwable e) {
-//                            System.out.println("ERROR PREFIJO" + e.getMessage() + npPK.getNumero().getClass());
-//                        }
-//
-//                        np.setNotapedidoPK(npPK);
-//                        envioPedido.setNotapedido(np);
-//                        JSONArray detalleNP = nt.getJSONArray("detallesNP");
-//                        for (int i = 0; i < detalleNP.length(); i++) {
-//                            JSONObject det = detalleNP.getJSONObject(i);
-//                            JSONObject detnPK = det.getJSONObject("detallenotapedidoPK");
-//                            JSONObject med = det.getJSONObject("medida");
-//                            JSONObject prod = det.getJSONObject("producto");
-//                            detNP.setVolumennaturalautorizado(det.getBigDecimal("volumennaturalautorizado"));
-//                            detNP.setVolumennaturalrequerido(det.getBigDecimal("volumennaturalrequerido"));
-//
-//                            medida.setCodigo(med.getString("codigo"));
-//                            medida.setNombre(med.getString("nombre"));
-//                            detNP.setMedida(medida);
-//
-//                            producto.setCodigo(prod.getString("codigo"));
-//                            producto.setNombre(prod.getString("nombre"));
-//                            detNP.setProducto(producto);
-//
-//                            detNPK.setCodigoproducto(detnPK.getString("codigoproducto"));
-//                            detNPK.setCodigomedida(detnPK.getString("codigomedida"));
-//                            detNP.setDetallenotapedidoPK(detNPK);
-//
-//                            listDetNP.add(detNP);
-//                            envioPedido.setDetalle(detNP);
-//                            detNP = new Detallenotapedido();
-//                            detNPK = new DetallenotapedidoPK();
-//                        }
-//                        listenvNP.add(envioPedido);
-//                        envioPedido = new EnvioPedido();
-//                        np = new Notapedido();
-//                        npPK = new NotapedidoPK();
-//                        abas = new Abastecedora();
-//                        comerc = new Comercializadora();
-//                        formap = new Formapago();
-//                        cliente = new Cliente();
-//                        terminalT = new Terminal();
-//                        banco = new Banco();
-//                        listDetNP = new ArrayList<>();
-//                    }
-//                }
-//            }
-//
-//            if (connection.getResponseCode() != 200) {
-//                System.out.println(connection.getResponseCode());
-//                System.out.println(connection.getResponseMessage());
-//                System.out.println("ERROR CON LA NOTA DE PEDIDO: " + np.getNotapedidoPK().getNumero());
-//            } else {
-//                soloporProcesar = false;
-//            }
-//
-//        } catch (IOException e) {
-//            System.out.println("FT:: ERROR EN obtenerNotaPedidos " + e.getMessage());
-//            e.printStackTrace();
-//        }
-                if (connection.getResponseCode() != 200) {
-                    System.out.println(connection.getResponseCode());
-                    System.out.println(connection.getResponseMessage());
-                }
             }
+
+            if (connection.getResponseCode() != 200) {
+                System.out.println(connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
+                System.out.println("ERROR CON LA NOTA DE PEDIDO: " + np.getNotapedidoPK().getNumero());
+            } else {
+                soloporProcesar = false;
+            }
+
         } catch (IOException e) {
+            System.out.println("FT:: ERROR EN obtenerNotaPedidos " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -1229,8 +1113,7 @@ public class ConsultaFacturasClienteBean extends ReusableBean implements Seriali
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "PARA PODER VISUALIZAR LAS FACTURAS POR PROCESAR, PRIMERO REALIZAR UNA BÚSQUEDA CON REGISTROS");
             }
         } catch (ParseException ex) {
-            Logger.getLogger(ConsultaFacturasClienteBean.class
-                    .getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(FacturacionCelBean.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -1248,11 +1131,13 @@ public class ConsultaFacturasClienteBean extends ReusableBean implements Seriali
             String respuesta;
             String numeroFactura = "";
             String mensajeError = "";
+            String usuario = dataUser.getUser().getNombrever().trim().replace(" ", "");
             url = new URL(direccion + tablaFactura + "/crearF?"
                     + "codigoabastecedora=" + envNP.getNotapedido().getNotapedidoPK().getCodigoabastecedora()
                     + "&codigocomercializadora=" + envNP.getNotapedido().getNotapedidoPK().getCodigocomercializadora()
                     + "&numeronotapedido=" + envNP.getNotapedido().getNotapedidoPK().getNumero()
-                    + "&numero=" + num);
+                    + "&numero=" + num
+                    + "&codigousuario=" + usuario);
 
             System.out.println("FT:: generarFacturaP - url:: " + url.toString());
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -1278,7 +1163,6 @@ public class ConsultaFacturasClienteBean extends ReusableBean implements Seriali
                             JSONObject factura = resultado.getJSONObject("factura");
                             JSONObject facturaPK = factura.getJSONObject("facturaPK");
                             numeroFactura = facturaPK.getString("numero");
-                            //numeroFactura = 
                         }
                     }
                     this.dialogo(FacesMessage.SEVERITY_INFO, "FACTURA REGISTRADA EXITOSAMENTE");
@@ -1297,7 +1181,9 @@ public class ConsultaFacturasClienteBean extends ReusableBean implements Seriali
                 }
 
             } catch (Throwable t) {
-                System.out.println("ERROR!!! " + t.getMessage());
+                System.out.println("AS:: ERROR Inicio!!! " + t.getMessage());
+                t.printStackTrace(System.out);
+                System.out.println("AS:: ERROR Fin!!! " + t.getMessage());
             }
 
 //            if (connection.getResponseCode() == 200) {
@@ -1811,6 +1697,10 @@ public class ConsultaFacturasClienteBean extends ReusableBean implements Seriali
 
             if (connection.getResponseCode() == 200) {
                 //this.dialogo(FacesMessage.SEVERITY_INFO, "FACTURA REGISTRADA EXITOSAMENTE");
+                envioPedido.getNotapedido().setTramaenviadagoe(trama);
+                envioPedido.getNotapedido().setNumerofacturasri(numFact);
+                envioPedido.getNotapedido().setActiva(true);
+                editarNotaPedido(envioPedido.getNotapedido());
                 enviarOrdenEntreEpp(envioPedido, trama);
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "NO SE LOGRÓ GENERAR LA TRAMA DE LA ORDEN DE ENTREGA PARA PETROECUADOR");
@@ -2079,8 +1969,7 @@ public class ConsultaFacturasClienteBean extends ReusableBean implements Seriali
                 enviarOrdenEntreEpp(envioPedidoAuxiliar, envioPedidoAuxiliar.getNotapedido().getTramaenviadagoe());
                 obtenerFacturas();
             } catch (ParseException ex) {
-                Logger.getLogger(ConsultaFacturasClienteBean.class
-                        .getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(FacturacionCelBean.class.getName()).log(Level.SEVERE, null, ex);
             }
         } else {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "HUBO UN ERROR EN LA OBTENCIÓN DE LOS DATOS PARA REALIZAR EL REENVIO");
@@ -2249,8 +2138,7 @@ public class ConsultaFacturasClienteBean extends ReusableBean implements Seriali
                     try {
                         obtenerFacturas();
                     } catch (ParseException ex) {
-                        Logger.getLogger(ConsultaFacturasClienteBean.class
-                                .getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(FacturacionCelBean.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 } else {
                     this.dialogo(FacesMessage.SEVERITY_ERROR, "LA FACTURA NO PUEDE SER ANULADA");
@@ -2332,7 +2220,9 @@ public class ConsultaFacturasClienteBean extends ReusableBean implements Seriali
                     facturaauxiliar.setFechavencimiento(facturaauxiliar.getFechavencimiento() + "T12:00:00");
                     facturaauxiliar.setFechaventa(facturaauxiliar.getFechaventa() + "T12:00:00");
                     facturaauxiliar.setActiva(false);
+                    facturaauxiliar.setEstado("ANULADA");
                     facturaauxiliar.setOeanuladaenpetro(true);
+                    facturaauxiliar.setUsuarioactual(dataUser.getUser().getNombrever());
                     writer = new OutputStreamWriter(connection.getOutputStream());
                     gson = new Gson();
                     JSON = gson.toJson(facturaauxiliar);
@@ -2481,11 +2371,11 @@ public class ConsultaFacturasClienteBean extends ReusableBean implements Seriali
     }
 
     public void generarReporte(EnvioFactura env) {
-//        String path = "C:\\archivos\\Template\\NuevaFactura.jrxml";
-//        String subreport = "C:\\archivos\\Template\\SubreporteFacturaRubros.jrxml";
+        String path = "C:\\archivos\\Template\\NuevaFactura.jrxml";
+        String subreport = "C:\\archivos\\Template\\SubreporteFacturaRubros.jrxml";
 
-        String path = Fichero.getCARPETAREPORTES() + "/NuevaFactura.jrxml";
-        String subreport = Fichero.getCARPETAREPORTES() + "/SubreporteFacturaRubros.jrxml";
+//        String path = Fichero.getCARPETAREPORTES() + "/NuevaFactura.jrxml";
+//        String subreport = Fichero.getCARPETAREPORTES() + "/SubreporteFacturaRubros.jrxml";
         System.out.println("PATH:" + path);
         InputStream file = null;
         try {
@@ -2495,11 +2385,11 @@ public class ConsultaFacturasClienteBean extends ReusableBean implements Seriali
             JasperReport subreporte = JasperCompileManager.compileReport(subreport);
 
             Map parametro = new HashMap();
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
-            BufferedImage imageBar = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/barras.jpeg"));
+//            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+//            BufferedImage imageBar = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/barras.jpeg"));
 
-//            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
-//            BufferedImage imageBar = ImageIO.read(new File("C:\\archivos\\Template\\barras.jpg"));
+            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
+            BufferedImage imageBar = ImageIO.read(new File("C:\\archivos\\Template\\barras.jpg"));
             parametro.put("numeroComercializadora", env.getFactura().getFacturaPK().getCodigocomercializadora());
             parametro.put("subReporte", subreporte);
             parametro.put("numeroFactura", env.getFactura().getFacturaPK().getNumero());
@@ -2511,10 +2401,54 @@ public class ConsultaFacturasClienteBean extends ReusableBean implements Seriali
 
             JasperPrint print = JasperFillManager.fillReport(reporte, parametro, conexion);
 
-            File directory = new File(Fichero.getCARPETAREPORTES());
-//            File directory = new File("C:\\archivos"); 
+//            File directory = new File(Fichero.getCARPETAREPORTES());
+            File directory = new File("C:\\archivos");
 
             String nombreDocumento = "reporteFactura";
+
+            File pdf = File.createTempFile(nombreDocumento + "_", ".pdf", directory);
+            JasperExportManager.exportReportToPdfStream(print, new FileOutputStream(pdf));
+            File initialFile = new File(pdf.getAbsolutePath());
+            InputStream targetStream = new FileInputStream(initialFile);
+            //pdfStream = new DefaultStreamedContent();
+            pdfStream = new DefaultStreamedContent(targetStream, "application/pdf", nombreDocumento + env.getFactura().getFacturaPK().getNumero() + ".pdf");
+            //DefaultStreamedContent.builder().contentType("application/pdf").name(nombreDocumento + ".pdf").stream(() -> new FileInputStream(targetStream)).build();
+            PrimeFaces.current().executeScript("window.open(" + directory + ",'" + nombreDocumento + "','fullscreen=yes');parent.opener=top;");
+            System.err.print(pdf.getAbsolutePath());
+            System.out.println(pdf.getAbsolutePath());
+        } catch (Exception ex) {
+            //ex.printStackTrace();
+            System.out.println("Excepcion: " + ex);
+        }
+    }
+
+    public void generarReporteNp(EnvioPedido envP) {
+        String path = "C:\\archivos\\Template\\notapedido.jrxml";
+        String rutaGuardar = Fichero.getCARPETAREPORTES();
+        //String path = Fichero.getCARPETAREPORTES() + "/notapedido.jrxml";
+        System.out.println("PATH:" + path);
+        InputStream file = null;
+        try {
+            file = new FileInputStream(new File(path));
+
+            JasperReport reporte = JasperCompileManager.compileReport(file);
+            //BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));            
+            Map parametro = new HashMap();
+
+            parametro.put("codComer", envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora());
+            parametro.put("numeroNotaPedido", envP.getNotapedido().getNotapedidoPK().getNumero());
+            parametro.put("logo", image);
+
+            //System.out.println("PARAMETROS: " + parametro);
+            Connection conexion = conexionJasperBD();
+
+            //System.out.println("CONEXIÓN: " + conexion);
+            JasperPrint print = JasperFillManager.fillReport(reporte, parametro, conexion);
+
+            File directory = new File("C:\\archivos");
+            //File directory = new File(rutaGuardar);
+            String nombreDocumento = "reporteNotaPedido";
 
             File pdf = File.createTempFile(nombreDocumento + "_", ".pdf", directory);
             JasperExportManager.exportReportToPdfStream(print, new FileOutputStream(pdf));
@@ -2531,20 +2465,37 @@ public class ConsultaFacturasClienteBean extends ReusableBean implements Seriali
         }
     }
 
-    public void onRowToggle(ToggleEvent event) throws ParseException {
-        if (event.getVisibility() == Visibility.VISIBLE) {
-            EnvioFactura listaEnvf = (EnvioFactura) event.getData();
-            if (listaEnvf.getFactura().getFacturaPK().getNumeronotapedido() != null) {
-                listenvFNueva = new ArrayList<>();
-                for (int i = 0; i < listenvF.size(); i++) {
-                    if (listaEnvf.getFactura().getFacturaPK().getNumeronotapedido().equals(listenvF.get(i).getFactura().getFacturaPK().getNumeronotapedido())) {
-                        if (!listenvF.get(i).getFactura().getActiva()) {
-                            listenvFNueva.add(listenvF.get(i));
-                            break;
-                        }
-                    }
-                }
+    public void editarNotaPedido(Notapedido notaPedidoAuxiliar) {
+        try {
+            String respuesta = "";
+            //String trama = "";
+            //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.notapedido/porId";
+            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.notapedido/porId";
+            url = new URL(direcc);
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("PUT");
+            connection.setRequestProperty("Content-type", "application/json");
+
+            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonStr = mapper.writeValueAsString(notaPedidoAuxiliar);
+            DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+            out.write(jsonStr.getBytes());
+            out.flush();
+            out.close();
+
+            if (connection.getResponseCode() == 200) {
+                //this.dialogo(FacesMessage.SEVERITY_INFO, "TRAMA INGRESADA EXITOSAMENTE");
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL INGRESAR TRAMA");
+                System.out.println(connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
             }
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -2826,14 +2777,6 @@ public class ConsultaFacturasClienteBean extends ReusableBean implements Seriali
 
     public void setProcess(boolean process) {
         this.process = process;
-    }
-
-    public List<EnvioFactura> getListenvFNueva() {
-        return listenvFNueva;
-    }
-
-    public void setListenvFNueva(List<EnvioFactura> listenvFNueva) {
-        this.listenvFNueva = listenvFNueva;
     }
 
 }

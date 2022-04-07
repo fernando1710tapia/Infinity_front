@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <f:facet name="first">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+            <meta name="apple-mobile-web-app-capable" content="yes" />
+        </f:facet>
+        <title>Actualizacion de Datos</title>
+    </h:head>
+
+    <h:body styleClass="login-body">
+        <div class="body-container">
+            <h:form id="form">
+                <p:growl id="messages" showDetail="true" />
+                <p:outputPanel rendered = "true">
+                    <div class="p-grid">                                                                   
+                        <div class="p-col-12 p-lg-6 left-side">                            
+                            <div class="p-col-12">
+                                <p:graphicImage name="images/Supertech.png" library="apollo-layout" style="width:60%" />                                    
+                            </div>
+                            <div class="p-col-12">
+                                <h1>Bienvenido</h1>
+                            </div>
+                            <div class="p-col-12"></div>
+                            <!--<p:button outcome="login" value="Iniciar Sesión" icon="pi pi-arrow-left" />-->
+
+                        </div>
+                        <div class="p-col-12 p-lg-6 right-side">
+                            <div class="login-wrapper">
+                                <div class="login-container-act">                                       
+                                    <div class="ui-fluid p-formgrid p-grid">
+                                        <div class="p-field p-col-12 p-md-12">
+                                            <h2 style="color:white">Primer Acceso</h2>
+                                        </div>  
+                                        <span class="title">Por favor complete los siguientes datos para actualizar su cuenta.</span>   
+                                        <div class="p-field p-col-12 p-md-12">
+                                            <h:outputLabel style="color:white" value="Datos Personales"/> 
+                                        </div>
+                                        <div class="p-field p-col-12 p-md-6">
+                                            <span class="ui-float-label"> 
+                                                <p:inputText id="cedula" required="true" value="#{loginBean.usuarioL.cedula}" maxlength="10"/>
+                                                <p:outputLabel for="cedula">Cédula</p:outputLabel>
+                                            </span>
+                                        </div>
+                                        <div class="p-field p-col-12 p-md-6">
+                                            <span class="ui-float-label"> 
+                                                <p:inputText id="nombreAbr" value="#{loginBean.usuarioL.nombrever}" required="true" maxlength="10">
+                                                    <p:keyFilter regEx="/[abcdefghijklmnñopqrstuvwxyzABCDEFGHIJKLMNÑOPQRSTUVWXYZ1234567890]/i"/>
+                                                </p:inputText>
+                                                <p:outputLabel for="nombreAbr">Nombre Corto</p:outputLabel>                                            
+                                            </span>                                            
+                                        </div>
+                                        <div class="p-field p-col-12 p-md-12">
+                                            <span class="ui-float-label"> 
+                                                <p:inputText id="correo" value="#{loginBean.usuarioL.correo}" required="true"/>
+                                                <p:outputLabel for="correo">Correo electrónico</p:outputLabel>
+                                            </span>                                            
+                                        </div>  
+                                        <div class="p-col-12">
+                                            <p:commandButton                                         
+                                                value="Preguntas de Control" 
+                                                onclick="PF('nuevo').show()"                                                
+                                                icon="pi pi-check"    
+                                                styleClass="ui-button-info"
+                                                update=":formNuevoPass"                                                
+                                                />                                           
+                                        </div>
+                                        <div class="p-col-12">
+                                            <p:commandButton                                         
+                                                value="Cambio de Contraseña" 
+                                                onclick="PF('nuevoPass').show()"                                                
+                                                icon="pi pi-check"    
+                                                styleClass="ui-button-info"
+                                                update=":formNuevo"                                                
+                                                />                                           
+                                        </div>     
+                                        <!--<div class="p-col-12">
+                                            <h:outputLabel style="color:white" value="Por favor, usted debe responder al menos una de las tres preguntas para poder avanzar"/> 
+                                        </div>   
+                                        <div class="p-field p-col-12 p-md-12">     
+                                            <h:outputLabel style="color:white" for="respuesta1" value="Pregunta N.1 - #{loginBean.usuarioL.pregunta1}"/> 
+                                            <p:inputText id="respuesta1" placeholder="Respuesta 1" 
+                                                         value="#{loginBean.usuarioL.respuesta1}"  
+                                                         >
+                                            </p:inputText>
+                                        </div>                                                                   
+                                        <div class="p-col-12">
+                                            <h:outputLabel style="color:white" for="respuesta2" value="Pregunta N.2 - #{loginBean.usuarioL.pregunta2}"/> 
+                                            <p:inputText id="respuesta2" placeholder="Respuesta 2" 
+                                                         value="#{loginBean.usuarioL.respuesta2}" 
+                                                         >                                    
+                                            </p:inputText>
+                                        </div>                                                                
+                                        <div class="p-col-12">
+                                            <h:outputLabel style="color:white" for="respuesta3" value="Pregunta N.3 - #{loginBean.usuarioL.pregunta3}"/> 
+                                            <p:inputText id="respuesta3" placeholder="Respuesta 3" 
+                                                         value="#{loginBean.usuarioL.respuesta3}" 
+                                                         >                                    
+                                            </p:inputText>
+                                        </div>
+                                         <div class="p-col-12">
+                                            <h:outputLabel style="color:white" for="pwd1" value="Ingrese la nueva contraseña"/> 
+                                        </div> 
+                                        <div class="p-col-12">        
+                                            <p:password id="pwd1" value="#{loginBean.usuarioL.clave}" match="pwd2" label="Contraseña nueva" required="true" placeholder="Contraseña nueva"/>                                                       
+                                        </div>
+                                        <div class="p-col-12">
+                                            <p:password id="pwd2" value="#{loginBean.usuarioL.clave}" label="Confirmar contraseña" required="true" placeholder="Confirmar contraseña"/>                                                              
+                                        </div>-->
+                                        <div class="p-col-12">
+                                            <p:commandButton                                         
+                                                value="Guardar" 
+                                                actionListener="#{loginBean.save()}"                                                                                                                   
+                                                icon="pi pi-save"                                                                                                 
+                                                />                                           
+                                        </div>                                                                            
+                                    </div>
+                                </div>
+                            </div>
+                        </div>                        
+                    </div>
+                </p:outputPanel>
+            </h:form>
+            <p:dialog header="Preguntas de control" width="40%" showEffect="fade" modal="true" widgetVar="nuevo" responsive="true">
+                <h:form id="formNuevoPass">
+                    <p:outputPanel rendered = "true">
+                        <div class="ui-fluid p-formgrid p-grid">
+                            <div class="p-field p-col-12 p-md-12">
+                                <p>
+                                    Responda correctamente al menos una de las siguientes preguntas para poder avanzar
+                                </p>
+                            </div>   
+                            <div class="p-field p-col-12 p-md-12">
+                                <h:outputLabel for="respuesta1" value="Pregunta N.1 - #{loginBean.usuarioL.pregunta1}"/> 
+                            </div>                            
+                            <div class="p-field p-col-12 p-md-12">
+                                <p:inputText id="respuesta1" placeholder="Respuesta 1" 
+                                             value="#{loginBean.usuarioL.respuesta1}"  
+                                             >
+                                </p:inputText>
+                            </div>
+                            <div class="p-field p-col-12 p-md-12">
+                                <h:outputLabel for="respuesta2" value="Pregunta N.2 - #{loginBean.usuarioL.pregunta2}"/> 
+                            </div>                            
+                            <div class="p-field p-col-12 p-md-12">
+                                <p:inputText id="respuesta2" placeholder="Respuesta 2" 
+                                             value="#{loginBean.usuarioL.respuesta2}" 
+                                             >                                    
+                                </p:inputText>
+                            </div>
+                            <div class="p-field p-col-12 p-md-12">
+                                <h:outputLabel for="respuesta3" value="Pregunta N.3 - #{loginBean.usuarioL.pregunta3}"/> 
+                            </div>                            
+                            <div class="p-field p-col-12 p-md-12">
+                                <p:inputText id="respuesta3" placeholder="Respuesta 3" 
+                                             value="#{loginBean.usuarioL.respuesta3}" 
+                                             >                                    
+                                </p:inputText>
+                            </div>
+                            <div class="p-field p-col-12 p-md-12"></div>
+                        </div>
+                    </p:outputPanel>
+                    <div class="p-grid p-justify-end">
+                        <p:commandButton value="Continuar" icon="pi pi-check" actionListener="#{loginBean.continuar()}"
+                                         update=":form formNuevo" styleClass="p-mr-2"/>
+                        <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('nuevo').hide()" class="ui-button-secondary" />
+                    </div>
+                </h:form>
+            </p:dialog>
+
+            <p:dialog header="Restablecer contraseña" width="30%" showEffect="fade" modal="true" widgetVar="nuevoPass" responsive="true">
+                <h:form id="formNuevo">
+                    <p:outputPanel rendered = "true">
+                        <div class="ui-fluid p-formgrid p-grid">
+                            <div class="p-field p-col-12 p-md-12">
+                                <p>
+                                    Ingrese la nueva contraseña
+                                </p>
+                            </div>                                                        
+                            <div class="p-field p-col-12 p-md-12">        
+                                <p:password id="pwd1" value="#{loginBean.usuarioL.clave}" match="pwd2" label="Contraseña nueva" required="true" placeholder="Contraseña nueva"/>                                                       
+                            </div>
+                            <div class="p-field p-col-12 p-md-12">
+
+                                <p:password id="pwd2" value="#{loginBean.usuarioL.clave}" label="Confirmar contraseña" required="true" placeholder="Confirmar contraseña"/>                                                              
+                            </div>
+                            <div class="p-field p-col-12 p-md-12"></div>
+                        </div>
+                    </p:outputPanel>
+                    <div class="p-grid p-justify-end">
+                        <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{loginBean.continuarClave()}"
+                                         update=":form formNuevo" styleClass="p-mr-2"/>
+                        <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('nuevoPass').hide()" class="ui-button-secondary" />
+                    </div>
+                </h:form>
+            </p:dialog>
+        </div>
+        <h:outputStylesheet name="css/primeicons.css" library="apollo-layout" />
+        <h:outputStylesheet name="css/primeflex.min.css" library="apollo-layout" />
+        <h:outputStylesheet name="css/layout-#{guestPreferences.theme}.css" library="apollo-layout" />
+    </h:body>    
+</html>

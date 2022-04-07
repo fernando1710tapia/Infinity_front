@@ -425,7 +425,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
     public void regresar() {
         mostarFactura = false;
         mostarPantallaInicial = true;
-        buscarFacturaXCliente = false;        
+        buscarFacturaXCliente = false;
     }
 
     public void reestablecer() {
@@ -532,7 +532,13 @@ public class FacturacionBean extends ReusableBean implements Serializable {
     public void seleccionarCliente() {
         if (cliente != null) {
             codCliente = cliente.getCodigo();
-            //factura.setCodTerminal(terminal.getCodigo());
+            for (int i = 0; i < listaTermianles.size(); i++) {
+                if (listaTermianles.get(i).getCodigo().equals(cliente.getCodigoterminaldefecto().getCodigo())) {
+                    terminal = listaTermianles.get(i);
+                    break;
+                }
+            }
+            seleccionarTerminal();
         }
     }
 
@@ -603,7 +609,13 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         }
                     }
                     seleccionarTerminal();
-
+                    List<Cliente> listaClientesAux = new ArrayList<>();
+                    listaClientesAux = listaClientes;
+                    for (int i = 0; i < listaClientesAux.size(); i++) {
+                        if (!listaClientes.get(i).getCodigoterminaldefecto().getCodigo().equals(codTerminal)) {
+                            listaClientes.remove(i);
+                        }
+                    }
                     break;
                 default:
                     break;
@@ -703,7 +715,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                                         envFac.setEnsri(ensri);
                                     } else {
                                         ensri = "N";
-                                        envFac.setEnsri(ensri); 
+                                        envFac.setEnsri(ensri);
                                     }
                                 }
                             }
@@ -1150,10 +1162,10 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                             JSONObject resultado = retorno.getJSONObject(indice);
                             JSONObject factura = resultado.getJSONObject("factura");
                             JSONObject facturaPK = factura.getJSONObject("facturaPK");
-                            numeroFactura = facturaPK.getString("numero");                            
+                            numeroFactura = facturaPK.getString("numero");
                         }
                     }
-                    this.dialogo(FacesMessage.SEVERITY_INFO, "FACTURA REGISTRADA EXITOSAMENTE");                    
+                    this.dialogo(FacesMessage.SEVERITY_INFO, "FACTURA REGISTRADA EXITOSAMENTE");
                     enviarOrdenPetro(envNP, numeroFactura);
                 } else if (connection.getResponseCode() == 299) {
                     for (int indice = 0; indice < retorno.length(); indice++) {
@@ -1168,7 +1180,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     System.out.println("getErrorStream: " + connection.getErrorStream());
                 }
 
-            } catch (Throwable t) {                
+            } catch (Throwable t) {
                 System.out.println("AS:: ERROR Inicio!!! " + t.getMessage());
                 t.printStackTrace(System.out);
                 System.out.println("AS:: ERROR Fin!!! " + t.getMessage());
@@ -2359,11 +2371,11 @@ public class FacturacionBean extends ReusableBean implements Serializable {
     }
 
     public void generarReporte(EnvioFactura env) {
-//        String path = "C:\\archivos\\Template\\NuevaFactura.jrxml";
-//        String subreport = "C:\\archivos\\Template\\SubreporteFacturaRubros.jrxml";
+        String path = "C:\\archivos\\Template\\NuevaFactura.jrxml";
+        String subreport = "C:\\archivos\\Template\\SubreporteFacturaRubros.jrxml";
 
-        String path = Fichero.getCARPETAREPORTES() + "/NuevaFactura.jrxml";
-        String subreport = Fichero.getCARPETAREPORTES() + "/SubreporteFacturaRubros.jrxml";
+//        String path = Fichero.getCARPETAREPORTES() + "/NuevaFactura.jrxml";
+//        String subreport = Fichero.getCARPETAREPORTES() + "/SubreporteFacturaRubros.jrxml";
         System.out.println("PATH:" + path);
         InputStream file = null;
         try {
@@ -2373,11 +2385,11 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             JasperReport subreporte = JasperCompileManager.compileReport(subreport);
 
             Map parametro = new HashMap();
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
-            BufferedImage imageBar = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/barras.jpeg"));
+//            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+//            BufferedImage imageBar = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/barras.jpeg"));
 
-//            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
-//            BufferedImage imageBar = ImageIO.read(new File("C:\\archivos\\Template\\barras.jpg"));
+            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
+            BufferedImage imageBar = ImageIO.read(new File("C:\\archivos\\Template\\barras.jpg"));
             parametro.put("numeroComercializadora", env.getFactura().getFacturaPK().getCodigocomercializadora());
             parametro.put("subReporte", subreporte);
             parametro.put("numeroFactura", env.getFactura().getFacturaPK().getNumero());
@@ -2389,10 +2401,54 @@ public class FacturacionBean extends ReusableBean implements Serializable {
 
             JasperPrint print = JasperFillManager.fillReport(reporte, parametro, conexion);
 
-            File directory = new File(Fichero.getCARPETAREPORTES());
-//            File directory = new File("C:\\archivos"); 
+//            File directory = new File(Fichero.getCARPETAREPORTES());
+            File directory = new File("C:\\archivos");
 
             String nombreDocumento = "reporteFactura";
+
+            File pdf = File.createTempFile(nombreDocumento + "_", ".pdf", directory);
+            JasperExportManager.exportReportToPdfStream(print, new FileOutputStream(pdf));
+            File initialFile = new File(pdf.getAbsolutePath());
+            InputStream targetStream = new FileInputStream(initialFile);
+            //pdfStream = new DefaultStreamedContent();
+            pdfStream = new DefaultStreamedContent(targetStream, "application/pdf", nombreDocumento + env.getFactura().getFacturaPK().getNumero() + ".pdf");
+            //DefaultStreamedContent.builder().contentType("application/pdf").name(nombreDocumento + ".pdf").stream(() -> new FileInputStream(targetStream)).build();
+            PrimeFaces.current().executeScript("window.open(" + directory + ",'" + nombreDocumento + "','fullscreen=yes');parent.opener=top;");
+            System.err.print(pdf.getAbsolutePath());
+            System.out.println(pdf.getAbsolutePath());
+        } catch (Exception ex) {
+            //ex.printStackTrace();
+            System.out.println("Excepcion: " + ex);
+        }
+    }
+
+    public void generarReporteNp(EnvioPedido envP) {
+        String path = "C:\\archivos\\Template\\notapedido.jrxml";
+        String rutaGuardar = Fichero.getCARPETAREPORTES();
+        //String path = Fichero.getCARPETAREPORTES() + "/notapedido.jrxml";
+        System.out.println("PATH:" + path);
+        InputStream file = null;
+        try {
+            file = new FileInputStream(new File(path));
+
+            JasperReport reporte = JasperCompileManager.compileReport(file);
+            //BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));            
+            Map parametro = new HashMap();
+
+            parametro.put("codComer", envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora());
+            parametro.put("numeroNotaPedido", envP.getNotapedido().getNotapedidoPK().getNumero());
+            parametro.put("logo", image);
+
+            //System.out.println("PARAMETROS: " + parametro);
+            Connection conexion = conexionJasperBD();
+
+            //System.out.println("CONEXIÓN: " + conexion);
+            JasperPrint print = JasperFillManager.fillReport(reporte, parametro, conexion);
+
+            File directory = new File("C:\\archivos");
+            //File directory = new File(rutaGuardar);
+            String nombreDocumento = "reporteNotaPedido";
 
             File pdf = File.createTempFile(nombreDocumento + "_", ".pdf", directory);
             JasperExportManager.exportReportToPdfStream(print, new FileOutputStream(pdf));

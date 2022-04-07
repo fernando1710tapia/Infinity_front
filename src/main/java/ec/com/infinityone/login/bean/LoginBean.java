@@ -11,12 +11,17 @@ import ec.com.infinityone.reusable.ReusableBean;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
@@ -30,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.primefaces.PrimeFaces;
 import org.primefaces.shaded.json.JSONArray;
 import org.primefaces.shaded.json.JSONObject;
 
@@ -52,6 +58,8 @@ public class LoginBean extends ReusableBean implements Serializable {
     private Usuario usuarioL;
     private LoginBean login;
     private String clave;
+    private String[] preguntas;
+    private List<String> listaPreguntas;
 
     private static final String secretKeyAES = "supertech-infinityonedigitoclave";
     private static final String saltAES = "super1234";
@@ -62,6 +70,14 @@ public class LoginBean extends ReusableBean implements Serializable {
         Fichero.propiedades();
         login = new LoginBean();
         usuarioL = new Usuario();
+        preguntas = Fichero.getPREGUNTAS().split(",");
+        cambiarP();
+    }
+
+    public void cambiarP() {
+        if (dataUser.isActualizarD()) {
+            usuarioL = dataUser.getUser();
+        }
     }
 
     public void mostrarMensaje(FacesMessage.Severity severityMessage, String mensaje) {
@@ -198,7 +214,7 @@ public class LoginBean extends ReusableBean implements Serializable {
             JSONArray retorno = objetoJson.getJSONArray("retorno");
             for (int indice = 0; indice < retorno.length(); indice++) {
                 JSONObject user = retorno.getJSONObject(indice);
-                usuarioL.setCodigo(user.getString("codigo"));                  
+                usuarioL.setCodigo(user.getString("codigo"));
                 usuarioL.setClave(user.getString("clave"));
             }
 
@@ -215,6 +231,7 @@ public class LoginBean extends ReusableBean implements Serializable {
     }
 
     public String validarUsuario() {
+        listaPreguntas = new ArrayList<>();
         try {
             Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
             usuarioLog = params.get("form:login");
@@ -232,10 +249,38 @@ public class LoginBean extends ReusableBean implements Serializable {
                         dataUser.setUserConected(x.getNombrever());
                         dataUser.setProductoSinFe(Fichero.getPRODUCTOSINFE());
                         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("login");
-                        //FacesContext.getCurrentInstance().getExternalContext().redirect("/infinityandres/dashboard.xhtml");
-                        FacesContext.getCurrentInstance().getExternalContext().redirect(Fichero.getRUTADASHBOARD());
+                        //FacesContext.getCurrentInstance().getExternalContext().redirect("/infinityandres/dashboard.xhtml");                        
                         LOG.log(Level.INFO, "Ingresa al sistema el usuario: {0}", usuarioLog);
-                        return "/dashboard.xhtml?faces-redirect=true";
+                        if (usuarioL.getClave().equals(DigestUtils.sha256Hex("xxxx"))) {
+                            dataUser.setActualizarD(true);
+                            Set<Integer> generados = new HashSet<>();
+                            for (int i = 0; i < 3; i++) {
+                                int aleatorio = -1;
+                                boolean generado = false;
+                                while (!generado) {
+                                    int posible = (int) (Math.random() * preguntas.length - 1);
+                                    if (!generados.contains(posible)) {
+                                        generados.add(posible);
+                                        aleatorio = posible;
+                                        listaPreguntas.add(preguntas[aleatorio]);
+                                        if (i == 0) {
+                                            usuarioL.setPregunta1(preguntas[aleatorio]);
+                                        }
+                                        if (i == 1) {
+                                            usuarioL.setPregunta2(preguntas[aleatorio]);
+                                        }
+                                        if (i == 2) {
+                                            usuarioL.setPregunta3(preguntas[aleatorio]);
+                                        }
+                                        generado = true;
+                                    }
+                                }
+                            }
+                            FacesContext.getCurrentInstance().getExternalContext().redirect(Fichero.getRUTAACTUALIZAR());
+                        } else {
+                            FacesContext.getCurrentInstance().getExternalContext().redirect(Fichero.getRUTADASHBOARD());
+                        }
+
                     }
                 }
 
@@ -245,6 +290,98 @@ public class LoginBean extends ReusableBean implements Serializable {
             LOG.log(Level.SEVERE, "Error al verificar usuario: {0}", ex);
         }
         return null;
+    }
+
+    public void save() {
+        try {
+            String respuesta = "";
+            if (usuarioL.getRespuesta1() != null || usuarioL.getRespuesta2() != null || usuarioL.getRespuesta3() != null) {
+                if (!usuarioL.getRespuesta1().isEmpty()) {
+                    respuesta = usuarioL.getRespuesta1();
+                }
+                if (!usuarioL.getRespuesta2().isEmpty()) {
+                    respuesta = usuarioL.getRespuesta2();
+                }
+                if (!usuarioL.getRespuesta3().isEmpty()) {
+                    respuesta = usuarioL.getRespuesta3();
+                }
+                if (!respuesta.isEmpty()) {
+                    if (!usuarioL.getClave().equals(DigestUtils.sha256Hex("xxxx"))) {
+                        url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.usuario/porId");
+                        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                        connection.setDoOutput(true);
+                        connection.setRequestMethod("PUT");
+                        connection.setRequestProperty("Content-type", "application/json");
+
+                        OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+                        JSONObject obj = new JSONObject();
+                        obj.put("codigo", usuarioL.getCodigo());
+                        obj.put("cedula", usuarioL.getCedula());
+                        obj.put("nombre", usuarioL.getNombre());
+                        obj.put("nombrever", usuarioL.getNombrever());
+                        obj.put("codigocliente", usuarioL.getCodigocliente());
+                        obj.put("activo", usuarioL.getActivo());
+                        obj.put("niveloperacion", usuarioL.getNiveloperacion());
+                        obj.put("codigocomercializadora", usuarioL.getCodigocomercializadora());
+                        obj.put("codigoterminal", usuarioL.getCodigoterminal());
+                        //obj.put("hash", usuarioL.getHash());
+                        obj.put("vigenciahash", usuarioL.getVigenciahash());
+                        obj.put("clave", DigestUtils.sha256Hex(usuarioL.getClave()));
+                        obj.put("usuarioactual", usuarioL.getNombrever());
+                        obj.put("correo", usuarioL.getCorreo());
+                        obj.put("pregunta1", usuarioL.getPregunta1());
+                        obj.put("respuesta1", usuarioL.getRespuesta1());
+                        obj.put("pregunta2", usuarioL.getPregunta2());
+                        obj.put("respuesta2", usuarioL.getRespuesta2());
+                        obj.put("pregunta3", usuarioL.getPregunta3());
+                        obj.put("respuesta3", usuarioL.getRespuesta3());
+                        respuesta = obj.toString();
+                        writer.write(respuesta);
+                        writer.close();
+                        if (connection.getResponseCode() == 200) {
+                            FacesContext.getCurrentInstance().getExternalContext().redirect(Fichero.getRUTADASHBOARD());
+                            this.dialogo(FacesMessage.SEVERITY_INFO, "USUARIO ACTUALIZADO EXITOSAMENTE");
+                        } else {
+                            this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ACTUALIZAR");
+                        }
+                        System.out.println(connection.getResponseCode());
+                        System.out.println(connection.getResponseMessage());
+                    } else {
+                        this.dialogo(FacesMessage.SEVERITY_ERROR, "Ingrese la nueva contraseña");
+                    }
+                } else {
+                    this.dialogo(FacesMessage.SEVERITY_ERROR, "Ingrese al menos una respuesta en las preguntas de control");
+                }
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "Ingrese al menos una respuesta en las preguntas de control");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void continuar() {
+        String respuesta;
+        respuesta = usuarioL.getRespuesta1();
+        if (respuesta.isEmpty()) {
+            respuesta = usuarioL.getRespuesta2();
+        }
+        if (respuesta.isEmpty()) {
+            respuesta = usuarioL.getRespuesta3();
+        }
+        if (!respuesta.isEmpty()) {
+            PrimeFaces.current().executeScript("PF('nuevo').hide()");
+        } else {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "Ingrese al menos una respuesta");
+        }
+    }
+
+    public void continuarClave() {
+        if (!usuarioL.getClave().equals("xxxx")) {
+            PrimeFaces.current().executeScript("PF('nuevoPass').hide()");
+        } else {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "Ingrese la nueva contraseña");
+        }
     }
 
     public void logout() {

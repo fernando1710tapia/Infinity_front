@@ -18,15 +18,15 @@ import javax.inject.Named;
  */
 @Named
 @ViewScoped
-public class NotaCreditoBean extends FacturacionBean implements Serializable{
-     
+public class NotaCreditoBean extends FacturacionBean implements Serializable {
+
     /**
      * Constructor por defecto
      */
     public NotaCreditoBean() {
     }
-    
-     public void refacturar() {
+
+    public void refacturar() {
         reestablecer();
         if (habilitarComer) {
             comercializadora = new ComercializadoraBean();
@@ -45,5 +45,5 @@ public class NotaCreditoBean extends FacturacionBean implements Serializable{
         mostarFactura = true;
         mostarPantallaInicial = false;
     }
-
+    
 }

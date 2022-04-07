@@ -80,13 +80,14 @@
                                                          panelStyle="width:175px" style="min-width: 80%;" 
                                                          autoWidth="false" converter="converterg"
                                                          disabled="#{!notapedidoBean.habilitarCli}"
-                                                         filter="true" filterMatchMode="startsWith">>
+                                                         filter="true" filterMatchMode="contains">>
                                             <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
                                             <f:selectItems value="#{notapedidoBean.listaClientes}"
                                                            var="cliente"
                                                            itemLabel="#{cliente.codigo} - #{cliente.nombrecomercial}"
                                                            itemValue="#{cliente}" />
-                                            <p:ajax event="change" listener="#{notapedidoBean.seleccCliente()}"/>
+                                            <p:ajax event="change" listener="#{notapedidoBean.seleccCliente()}"
+                                                    update="term"/>
                                         </p:selectOneMenu> 
                                     </div>
                                 </div>

@@ -939,6 +939,40 @@ a {
   width: 400px;
   margin: 0 auto;
   text-align: center; }
+  .login-wrapper .login-container-act {
+    box-sizing: border-box;
+    padding-top: 15%;
+    text-align: center;
+    color: #4f575b; }
+    .login-wrapper .login-container-act .title {
+      font-size: 20px;
+      color: rgba(255, 255, 255, 0.87);
+      display: block;
+      text-align: left;
+      margin-bottom: 10px;
+      margin-left: 12px; }
+    .login-wrapper .login-container-act .password-container {
+      text-align: right; }
+    .login-wrapper .login-container-act a {
+      color: #7cc64b;
+      text-decoration: none;
+      font-size: 16px;
+      line-height: 32px;
+      display: inline-block;
+      padding-bottom: 2px;
+      border-bottom: 1px solid transparent;
+      -moz-transition: border-bottom-color 0.3s;
+      -o-transition: border-bottom-color 0.3s;
+      -webkit-transition: border-bottom-color 0.3s;
+      transition: border-bottom-color 0.3s; }
+      .login-wrapper .login-container a:hover {
+        border-bottom-color: #7cc64b; }
+      .login-wrapper .login-container-act input {
+      font-size: 1em; }
+    .login-wrapper .login-container-act .p-col-12, .login-wrapper .login-container-act .p-col-6 {
+      padding: .8em; }
+    .login-wrapper .login-container-act .ui-button {
+      font-size: 16px; }
   .login-wrapper .login-container {
     box-sizing: border-box;
     padding-top: 50%;

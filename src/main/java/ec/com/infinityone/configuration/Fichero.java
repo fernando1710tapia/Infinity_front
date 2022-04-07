@@ -28,6 +28,7 @@ public class Fichero {
     private static String RUTAREPORTE;
     private static String RUTASERVICIOSPERSISTENCIA;
     private static String RUTADASHBOARD;
+    private static String RUTAACTUALIZAR;
     private static String CARPETAREPORTES;
     private static String PRODUCTOSINFE;
     private static String RUTACONEXIONBD;
@@ -53,6 +54,7 @@ public class Fichero {
             RUTAREPORTE = (String) propiedades.get("RUTAREPORTE");
             RUTASERVICIOSPERSISTENCIA = (String) propiedades.get("RUTASERVICIOSPERSISTENCIA");
             RUTADASHBOARD = (String) propiedades.get("RUTADASHBOARD");
+            RUTAACTUALIZAR = (String) propiedades.get("RUTAACTUALIZAR");
             PRODUCTOSINFE = (String) propiedades.get("PRODUCTOSINFE");
             RUTACONEXIONBD = (String) propiedades.get("CONEXIONBD");
             PREGUNTAS = (String) propiedades.get("PREGUNTAS");
@@ -130,6 +132,14 @@ public class Fichero {
     public static void setPREGUNTAS(String PREGUNTAS) {
         Fichero.PREGUNTAS = PREGUNTAS;
     }        
+
+    public static String getRUTAACTUALIZAR() {
+        return RUTAACTUALIZAR;
+    }
+
+    public static void setRUTAACTUALIZAR(String RUTAACTUALIZAR) {
+        Fichero.RUTAACTUALIZAR = RUTAACTUALIZAR;
+    }
 
 }
 

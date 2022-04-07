@@ -454,6 +454,13 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
     public void seleccCliente() {
         if (cliente != null) {
             codCliente = cliente.getCodigo();
+            for (int i = 0; i < listaTermianles.size(); i++) {
+                if (listaTermianles.get(i).getCodigo().equals(cliente.getCodigoterminaldefecto().getCodigo())) {
+                    terminal = listaTermianles.get(i);
+                    break;
+                }
+            }
+            seleccionarTerminal();
         }
 
     }
@@ -564,6 +571,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                     for (int i = 0; i < listaComercializadora.size(); i++) {
                         if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
                             comercializadora = listaComercializadora.get(i);
+                            break;
                         }
                     }
                     seleccionarComerc();
@@ -573,6 +581,13 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                         }
                     }
                     seleccionarTerminal();
+                    List<Cliente> listaClientesAux = new ArrayList<>();
+                    listaClientesAux = listaClientes;
+                    for (int i = 0; i < listaClientesAux.size(); i++) {
+                        if (!listaClientes.get(i).getCodigoterminaldefecto().getCodigo().equals(codTerminal)) {
+                            listaClientes.remove(i);
+                        }
+                    }
                     break;
                 default:
                     break;
@@ -834,6 +849,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             }
 
         } catch (IOException e) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR NOTA DE PEDIDO: " + e);
             e.printStackTrace();
         }
     }
@@ -843,26 +859,29 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             notaPedidoAuxiliar = new Notapedido();
             notaPedidoAuxiliarPK = new NotapedidoPK();
             notaPedidoAuxiliar = envNP.getNotapedido();
-            if (notaPedidoAuxiliar.getNumerofacturasri().trim().equals("0")) {
-                if (notaPedidoAuxiliar != null) {
-                    SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
-                    SimpleDateFormat formatoJS = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
-                    /*-----------------------Fecha descpaho---------------------------------------------*/
-                    Date dateD = format.parse(notaPedidoAuxiliar.getFechadespacho());
-                    String fechaD = formatoJS.format(dateD);
-                    /*-----------------------Fecha Venta------------------------------------------------*/
-                    Date dateV = format.parse(notaPedidoAuxiliar.getFechaventa());
-                    String fechaV = formatoJS.format(dateV);
-                    notaPedidoAuxiliar.setFechadespacho(fechaD);
-                    notaPedidoAuxiliar.setFechaventa(fechaV);
-                    notaPedidoAuxiliar.setActiva(false);
-                    consultaNotaPedidoPorId(envNP);
-
-                }
+            if (!notaPedidoAuxiliar.isActiva()) {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "NO SE PUEDE ANULAR ESTA NOTA DE PEDIDO, PORQUE YA SE ENCUENTRA ANULADA");
             } else {
-                this.dialogo(FacesMessage.SEVERITY_ERROR, "NO SE PUEDE ANULAR ESTA NOTA DE PEDIDO, PORQUE YA SE ENCUENTRA FACTURADA");
-            }
+                if (notaPedidoAuxiliar.getNumerofacturasri().trim().equals("0")) {
+                    if (notaPedidoAuxiliar != null) {
+                        SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
+                        SimpleDateFormat formatoJS = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
+                        /*-----------------------Fecha descpaho---------------------------------------------*/
+                        Date dateD = format.parse(notaPedidoAuxiliar.getFechadespacho());
+                        String fechaD = formatoJS.format(dateD);
+                        /*-----------------------Fecha Venta------------------------------------------------*/
+                        Date dateV = format.parse(notaPedidoAuxiliar.getFechaventa());
+                        String fechaV = formatoJS.format(dateV);
+                        notaPedidoAuxiliar.setFechadespacho(fechaD);
+                        notaPedidoAuxiliar.setFechaventa(fechaV);
+                        notaPedidoAuxiliar.setActiva(false);
+                        consultaNotaPedidoPorId(envNP);
 
+                    }
+                } else {
+                    this.dialogo(FacesMessage.SEVERITY_ERROR, "NO SE PUEDE ANULAR ESTA NOTA DE PEDIDO, PORQUE YA SE ENCUENTRA FACTURADA");
+                }
+            }
         } catch (ParseException ex) {
             Logger.getLogger(NotapedidoBean.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -871,6 +890,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
     public void consultaNotaPedidoPorId(EnvioPedido envNP) {
         try {
             DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
+            cliente = new Cliente();
 
             //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.notapedido/porId?";
             String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.notapedido/porId?";
@@ -1052,17 +1072,17 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
     }
 
     public void generarReporte(EnvioPedido envP) {
-        //String path = "C:\\Users\\HP\\JaspersoftWorkspace\\ReportesInfinity\\notapedido.jrxml";
+        String path = "C:\\archivos\\Template\\notapedido.jrxml";
         String rutaGuardar = Fichero.getCARPETAREPORTES();
-        String path = Fichero.getCARPETAREPORTES() + "/notapedido.jrxml";
+        //String path = Fichero.getCARPETAREPORTES() + "/notapedido.jrxml";
         System.out.println("PATH:" + path);
         InputStream file = null;
         try {
             file = new FileInputStream(new File(path));
 
             JasperReport reporte = JasperCompileManager.compileReport(file);
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
-            //BufferedImage image = ImageIO.read(new File("C:\\Users\\HP\\Documents\\David\\logo.jpeg"));
+            //BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
             Map parametro = new HashMap();
 
             parametro.put("codComer", envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora());
@@ -1075,8 +1095,8 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             //System.out.println("CONEXIÓN: " + conexion);
             JasperPrint print = JasperFillManager.fillReport(reporte, parametro, conexion);
 
-            //File directory = new File("C:\\Users\\HP\\Documents\\David\\Espe\\9no Semestre\\Arquitectura de Software\\Segundo Parcial\\PROYECTO\\proyectoMonster");
-            File directory = new File(rutaGuardar);
+            File directory = new File("C:\\Archivos");
+            //File directory = new File(rutaGuardar);
             String nombreDocumento = "reporteNotaPedido";
 
             File pdf = File.createTempFile(nombreDocumento + "_", ".pdf", directory);
@@ -1084,7 +1104,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             File initialFile = new File(pdf.getAbsolutePath());
             InputStream targetStream = new FileInputStream(initialFile);
             //pdfStream = new DefaultStreamedContent();
-            pdfStream = new DefaultStreamedContent(targetStream, "application/pdf", nombreDocumento + ".pdf");
+            pdfStream = new DefaultStreamedContent(targetStream, "application/pdf", nombreDocumento + envP.getNotapedido().getNotapedidoPK().getNumero() + ".pdf");
             //DefaultStreamedContent.builder().contentType("application/pdf").name(nombreDocumento + ".pdf").stream(() -> new FileInputStream(targetStream)).build();
             System.err.print(pdf.getAbsolutePath());
             System.out.println(pdf.getAbsolutePath());

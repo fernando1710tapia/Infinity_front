@@ -386,6 +386,9 @@ public class SeguridadusuarioBean extends ReusableBean implements Serializable {
         soloLectura = false;
         usuarioS = new Usuario();
         listaPreguntas = new ArrayList<>();
+        codComer = "";
+        cliente = new Cliente();
+        terminal = new Terminal();
         Set<Integer> generados = new HashSet<>();
         for (int i = 0; i < 3; i++) {
 //            int numero = (int)(Math.random()*2);
@@ -421,11 +424,15 @@ public class SeguridadusuarioBean extends ReusableBean implements Serializable {
         soloLectura = true;
         estadoUsuario = usuarioS.getActivo();
         clave = usuarioS.getClave();
+        codComer = "";
+        cliente = new Cliente();
+        terminal = new Terminal();
         seleccionarOperacion();
         if (usuarioS.getNiveloperacion().equals("adco")) {
             for (int i = 0; i < listaComercializadora.size(); i++) {
                 if (listaComercializadora.get(i).getCodigo().equals(usuarioS.getCodigocomercializadora())) {
-                    this.comercializadora = listaComercializadora.get(i);
+                    this.codComer = listaComercializadora.get(i).getCodigo();
+                    break;
                 }
             }
         }
@@ -434,11 +441,27 @@ public class SeguridadusuarioBean extends ReusableBean implements Serializable {
             for (int i = 0; i < listaComercializadora.size(); i++) {
                 if (listaComercializadora.get(i).getCodigo().equals(usuarioS.getCodigocomercializadora())) {
                     this.codComer = listaComercializadora.get(i).getCodigo();
+                    break;
                 }
             }
             for (int i = 0; i < listaCliente.size(); i++) {
                 if (listaCliente.get(i).getCodigo().equals(usuarioS.getCodigocliente())) {
                     this.cliente = listaCliente.get(i);
+                    break;
+                }
+            }
+        }
+        if (usuarioS.getNiveloperacion().equals("agco")) {
+            for (int i = 0; i < listaComercializadora.size(); i++) {
+                if (listaComercializadora.get(i).getCodigo().equals(usuarioS.getCodigocomercializadora())) {
+                    this.codComer = listaComercializadora.get(i).getCodigo();
+                    break;
+                }
+            }
+            for (int i = 0; i < listaTerminales.size(); i++) {
+                if (listaTerminales.get(i).getCodigo().equals(usuarioS.getCodigoterminal())) {
+                    this.terminal = listaTerminales.get(i);
+                    break;
                 }
             }
         }
