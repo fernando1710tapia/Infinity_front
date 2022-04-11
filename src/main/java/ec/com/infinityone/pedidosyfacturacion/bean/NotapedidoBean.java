@@ -1072,17 +1072,17 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
     }
 
     public void generarReporte(EnvioPedido envP) {
-        String path = "C:\\archivos\\Template\\notapedido.jrxml";
+//        String path = "C:\\archivos\\Template\\notapedido.jrxml";
         String rutaGuardar = Fichero.getCARPETAREPORTES();
-        //String path = Fichero.getCARPETAREPORTES() + "/notapedido.jrxml";
+        String path = Fichero.getCARPETAREPORTES() + "/notapedido.jrxml";
         System.out.println("PATH:" + path);
         InputStream file = null;
         try {
             file = new FileInputStream(new File(path));
 
             JasperReport reporte = JasperCompileManager.compileReport(file);
-            //BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
-            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+//            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
             Map parametro = new HashMap();
 
             parametro.put("codComer", envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora());
@@ -1095,8 +1095,8 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             //System.out.println("CONEXIÓN: " + conexion);
             JasperPrint print = JasperFillManager.fillReport(reporte, parametro, conexion);
 
-            File directory = new File("C:\\Archivos");
-            //File directory = new File(rutaGuardar);
+//            File directory = new File("C:\\Archivos");
+            File directory = new File(rutaGuardar);
             String nombreDocumento = "reporteNotaPedido";
 
             File pdf = File.createTempFile(nombreDocumento + "_", ".pdf", directory);

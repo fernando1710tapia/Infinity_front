@@ -76,8 +76,8 @@ public class ReusableBean extends ObjetoNivel1{
         
         try {
             Class.forName("org.postgresql.Driver");
-            conexion = DriverManager.getConnection("jdbc:postgresql://200.93.248.121/infinity_one", "postgres", "1nf1n1ty");
-//            conexion = DriverManager.getConnection("jdbc:postgresql://"+ Fichero.getRUTACONEXIONBD() +"/infinity_one", "postgres", "1nf1n1ty");
+            //conexion = DriverManager.getConnection("jdbc:postgresql://200.93.248.121/infinity_one", "postgres", "1nf1n1ty");
+            conexion = DriverManager.getConnection("jdbc:postgresql://"+ Fichero.getRUTACONEXIONBD() +"/infinity_one", "postgres", "1nf1n1ty");
             System.out.println("Conexion exitosa");
         } catch (Exception ex) {
             System.out.println("Excepcion: " + ex);

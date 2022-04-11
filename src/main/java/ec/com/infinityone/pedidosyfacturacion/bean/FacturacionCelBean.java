@@ -2378,11 +2378,11 @@ public class FacturacionCelBean extends ReusableBean implements Serializable {
     }
 
     public void generarReporte(EnvioFactura env) {
-        String path = "C:\\archivos\\Template\\NuevaFactura.jrxml";
-        String subreport = "C:\\archivos\\Template\\SubreporteFacturaRubros.jrxml";
+//        String path = "C:\\archivos\\Template\\NuevaFactura.jrxml";
+//        String subreport = "C:\\archivos\\Template\\SubreporteFacturaRubros.jrxml";
 
-//        String path = Fichero.getCARPETAREPORTES() + "/NuevaFactura.jrxml";
-//        String subreport = Fichero.getCARPETAREPORTES() + "/SubreporteFacturaRubros.jrxml";
+        String path = Fichero.getCARPETAREPORTES() + "/NuevaFactura.jrxml";
+        String subreport = Fichero.getCARPETAREPORTES() + "/SubreporteFacturaRubros.jrxml";
         System.out.println("PATH:" + path);
         InputStream file = null;
         try {
@@ -2392,11 +2392,11 @@ public class FacturacionCelBean extends ReusableBean implements Serializable {
             JasperReport subreporte = JasperCompileManager.compileReport(subreport);
 
             Map parametro = new HashMap();
-//            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
-//            BufferedImage imageBar = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/barras.jpeg"));
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+            BufferedImage imageBar = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/barras.jpeg"));
 
-            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
-            BufferedImage imageBar = ImageIO.read(new File("C:\\archivos\\Template\\barras.jpg"));
+//            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
+//            BufferedImage imageBar = ImageIO.read(new File("C:\\archivos\\Template\\barras.jpg"));
             parametro.put("numeroComercializadora", env.getFactura().getFacturaPK().getCodigocomercializadora());
             parametro.put("subReporte", subreporte);
             parametro.put("numeroFactura", env.getFactura().getFacturaPK().getNumero());
@@ -2408,8 +2408,8 @@ public class FacturacionCelBean extends ReusableBean implements Serializable {
 
             JasperPrint print = JasperFillManager.fillReport(reporte, parametro, conexion);
 
-//            File directory = new File(Fichero.getCARPETAREPORTES());
-            File directory = new File("C:\\archivos");
+            File directory = new File(Fichero.getCARPETAREPORTES());
+//            File directory = new File("C:\\archivos");
 
             String nombreDocumento = "reporteFactura";
 
@@ -2430,17 +2430,17 @@ public class FacturacionCelBean extends ReusableBean implements Serializable {
     }
 
     public void generarReporteNp(EnvioPedido envP) {
-        String path = "C:\\archivos\\Template\\notapedido.jrxml";
+//        String path = "C:\\archivos\\Template\\notapedido.jrxml";
         String rutaGuardar = Fichero.getCARPETAREPORTES();
-        //String path = Fichero.getCARPETAREPORTES() + "/notapedido.jrxml";
+        String path = Fichero.getCARPETAREPORTES() + "/notapedido.jrxml";
         System.out.println("PATH:" + path);
         InputStream file = null;
         try {
             file = new FileInputStream(new File(path));
 
             JasperReport reporte = JasperCompileManager.compileReport(file);
-            //BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
-            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+//            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
             Map parametro = new HashMap();
 
             parametro.put("codComer", envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora());
@@ -2453,8 +2453,8 @@ public class FacturacionCelBean extends ReusableBean implements Serializable {
             //System.out.println("CONEXIÓN: " + conexion);
             JasperPrint print = JasperFillManager.fillReport(reporte, parametro, conexion);
 
-            File directory = new File("C:\\archivos");
-            //File directory = new File(rutaGuardar);
+//            File directory = new File("C:\\archivos");
+            File directory = new File(rutaGuardar);
             String nombreDocumento = "reporteNotaPedido";
 
             File pdf = File.createTempFile(nombreDocumento + "_", ".pdf", directory);
