@@ -88,7 +88,7 @@ import org.primefaces.shaded.json.JSONObject;
 
 /**
  *
- * @author David
+ * @author Andres
  */
 @Named
 @ViewScoped
@@ -513,8 +513,8 @@ public class FacturacionCelBean extends ReusableBean implements Serializable {
                 fact.setFacturaPK(factPk);
                 codComer = comercializadora.getCodigo();
                 codAbas = comercializadora.getAbastecedora();
-                //factura.setCodComer(comercializadora.getCodigo());
-                //factura.setCodAbas(comercializadora.getAbastecedora());
+                listaClientes = new ArrayList<>();
+                listaClientes = clienteServicio.obtenerClientesPorComercializadora(codComer);
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "LA COMERCIALIZADORA SE ENCUENTRA INACTIVA");
             }
@@ -768,7 +768,7 @@ public class FacturacionCelBean extends ReusableBean implements Serializable {
             //String ur = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.notapedido/paraFactura?codigoabastecedora=0001&codigocomercializadora=0002&codigoterminal=07&tipofecha=1&fecha=2021/6/18";
             //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.notapedido/paraFactura?";
             String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.notapedido/paraFactura?";
-            url = new URL(direcc + "codigoabastecedora=" + this.codAbas + "&codigocomercializadora=" + this.codComer + "&codigoterminal=" + this.codTerminal + "&tipofecha=" + tipoFecha + "&fecha=" + fechaS);
+            url = new URL(direcc + "codigoabastecedora=" + this.codAbas + "&codigocomercializadora=" + this.codComer + "&codigoterminal=" + this.codTerminal + "&tipofecha=1" + "&fecha=" + fechaS);
 
             System.out.println("FT:: obtenerNotaPedidos:: URL: " + url.toString());
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -778,6 +778,7 @@ public class FacturacionCelBean extends ReusableBean implements Serializable {
 
             listenvNP = new ArrayList<>();
             listDetNP = new ArrayList<>();
+            Cliente cliente = new Cliente();
             EnvioPedido envioPedido = new EnvioPedido();
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
@@ -917,7 +918,13 @@ public class FacturacionCelBean extends ReusableBean implements Serializable {
                     }
                 }
             }
-
+            for (int i = 0; i < listenvNP.size(); i++) {
+                if (listenvNP.get(i).getNotapedido().getNumerofacturasri().trim().equals("0")) {
+                    listenvNPAuxilia.add(listenvNP.get(i));
+                }
+            }
+            listenvNP = listenvNPAuxilia;
+            listenvNPAuxilia = new ArrayList<>();
             if (connection.getResponseCode() != 200) {
                 System.out.println(connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
@@ -2433,7 +2440,7 @@ public class FacturacionCelBean extends ReusableBean implements Serializable {
 
             JasperReport reporte = JasperCompileManager.compileReport(file);
             //BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
-            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));            
+            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
             Map parametro = new HashMap();
 
             parametro.put("codComer", envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora());

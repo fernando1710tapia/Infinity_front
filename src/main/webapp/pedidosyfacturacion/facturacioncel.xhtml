@@ -215,7 +215,7 @@
                                 <i class="fa fa-shopping-cart"></i>
                             </span>
                             <p:selectOneMenu id="comercializadora2" value="#{facturacionCelBean.comercializadora}" title="Comercializadora"
-                                             panelStyle="width:175px" style="min-width: 80%;" 
+                                             panelStyle="width:175px" style="min-width: 80%;" required="true" requiredMessage="Seleccione Comercializadora"
                                              autoWidth="false" converter="converterg" disabled="#{!facturacionCelBean.habilitarComer}">
                                 <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
                                 <f:selectItems value="#{facturacionCelBean.listaComercializadora}"
@@ -264,29 +264,14 @@
                                         update="terminal2"/>
                             </p:selectOneMenu> 
                         </div>
-                    </div>                            
-                    <div class="p-field p-col-12 p-md-4">  
-                        <p:outputLabel for="tipoBus">Tipo de Fecha</p:outputLabel>
-                        <p:selectOneRadio id="tipoBus" value="#{facturacionCelBean.tipoFecha}" layout="responsive" columns="2" >
-                            <f:selectItem itemLabel="Fecha Venta" itemValue="1" />
-                            <f:selectItem itemLabel="Fecha Despacho" itemValue="2" />                                    
-                        </p:selectOneRadio>
-                    </div>
+                    </div>                                                
                     <div class="p-field p-col-12 p-md-4">                                          
                         <p:outputLabel for="fecha1" value="Fecha venta"/>
-                        <p:datePicker id="fecha1" value="#{facturacionCelBean.fechaI}" showIcon="true" pattern="dd/MM/yyyy"/>                                               
-                    </div>
-                    <div class="p-field p-col-12 p-md-4">
-                        <p:outputLabel for="procesar"  value="Solo por Procesar"/>
-                        <div class="ui-inputgroup">
-                            <p:toggleSwitch id="procesar" value="#{facturacionCelBean.soloporProcesar}" > 
-                                <p:ajax event="change" listener="#{facturacionCelBean.soloPorProcesar()}"
-                                        update="formNuevo dt-products1"/>
-                            </p:toggleSwitch>
-                        </div>
-                    </div>
+                        <p:datePicker id="fecha1" value="#{facturacionCelBean.fechaI}" showIcon="true" pattern="dd/MM/yyyy" required="true" requiredMessage="Seleccione Fecha"/>                                               
+                    </div>                    
                     <div class="p-field p-col-12 p-md-2">
-                        <p:commandButton value="Buscar" icon="pi pi-search-plus" actionListener="#{facturacionCelBean.obtenerNotaPedidos()}" update="formNuevo procesar" />
+                        <p:outputLabel value="&#160;"/>
+                        <p:commandButton value="Buscar" icon="pi pi-search-plus" actionListener="#{facturacionCelBean.obtenerNotaPedidos()}" update="formNuevo" />
                     </div>
                 </div>                              
 
