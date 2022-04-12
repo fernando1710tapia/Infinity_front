@@ -128,7 +128,7 @@ public class ReportepreciosBean extends ReusableBean implements Serializable {
     public void generarReporte() {
         //String path = "C:\\archivos\\Template\\reportePrecios.jrxml";
         String rutaGuardar = Fichero.getCARPETAREPORTES();
-        String path = Fichero.getCARPETAREPORTES() + "/notapedido.jrxml";
+        String path = Fichero.getCARPETAREPORTES() + "/reportePrecios.jrxml";
         System.out.println("PATH:" + path);
         InputStream file = null;
         try {

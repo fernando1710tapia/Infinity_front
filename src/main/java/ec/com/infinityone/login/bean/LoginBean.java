@@ -295,7 +295,7 @@ public class LoginBean extends ReusableBean implements Serializable {
     public void save() {
         try {
             String respuesta = "";
-            if (usuarioL.getRespuesta1() != null || usuarioL.getRespuesta2() != null || usuarioL.getRespuesta3() != null) {
+            if (usuarioL.getRespuesta1() != null || usuarioL.getRespuesta2() != null || usuarioL.getRespuesta3() != null){
                 if (!usuarioL.getRespuesta1().isEmpty()) {
                     respuesta = usuarioL.getRespuesta1();
                 }
@@ -352,7 +352,7 @@ public class LoginBean extends ReusableBean implements Serializable {
                 } else {
                     this.dialogo(FacesMessage.SEVERITY_ERROR, "Ingrese al menos una respuesta en las preguntas de control");
                 }
-            } else {
+            } else{
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "Ingrese al menos una respuesta en las preguntas de control");
             }
         } catch (IOException e) {

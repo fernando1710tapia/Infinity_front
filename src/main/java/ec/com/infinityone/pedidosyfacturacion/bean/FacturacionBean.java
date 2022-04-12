@@ -600,20 +600,23 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     for (int i = 0; i < listaComercializadora.size(); i++) {
                         if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
                             comercializadora = listaComercializadora.get(i);
+                            break;
                         }
                     }
                     seleccionarComer();
                     for (int i = 0; i < listaTermianles.size(); i++) {
                         if (listaTermianles.get(i).getCodigo().equals(dataUser.getUser().getCodigoterminal())) {
                             terminal = listaTermianles.get(i);
+                            break;
                         }
                     }
                     seleccionarTerminal();
                     List<Cliente> listaClientesAux = new ArrayList<>();
-                    listaClientesAux = listaClientes;
+                    listaClientesAux = clienteServicio.obtenerClientesPorComercializadora(codComer);
+                    listaClientes = new ArrayList<>();                    
                     for (int i = 0; i < listaClientesAux.size(); i++) {
-                        if (!listaClientes.get(i).getCodigoterminaldefecto().getCodigo().equals(codTerminal)) {
-                            listaClientes.remove(i);
+                        if (listaClientesAux.get(i).getCodigoterminaldefecto().getCodigo().equals(codTerminal)) {
+                            listaClientes.add(listaClientesAux.get(i));
                         }
                     }
                     break;

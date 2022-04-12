@@ -429,8 +429,8 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                 detNPK.setCodigoabastecedora(codAbas);
                 detNPK.setCodigocomercializadora(codComer);
                 detNP.setDetallenotapedidoPK(detNPK);
-                listaClientes = new ArrayList<>();
-                listaClientes = clienteServicio.obtenerClientesPorComercializadora(codComer);
+//                listaClientes = new ArrayList<>();
+//                listaClientes = clienteServicio.obtenerClientesPorComercializadora(codComer);
 //                if (dataUser.getUser().getNiveloperacion().equals("usac")) {
 //                    for (int i = 0; i < listaClientes.size(); i++) {
 //                        if (listaClientes.get(i).getCodigo().equals(dataUser.getUser().getCodigocliente())) {
@@ -578,14 +578,16 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                     for (int i = 0; i < listaTermianles.size(); i++) {
                         if (listaTermianles.get(i).getCodigo().equals(dataUser.getUser().getCodigoterminal())) {
                             terminal = listaTermianles.get(i);
+                            break;
                         }
                     }
                     seleccionarTerminal();
                     List<Cliente> listaClientesAux = new ArrayList<>();
-                    listaClientesAux = listaClientes;
+                    listaClientesAux = clienteServicio.obtenerClientesPorComercializadora(codComer);
+                    listaClientes = new ArrayList<>();
                     for (int i = 0; i < listaClientesAux.size(); i++) {
-                        if (!listaClientes.get(i).getCodigoterminaldefecto().getCodigo().equals(codTerminal)) {
-                            listaClientes.remove(i);
+                        if (listaClientesAux.get(i).getCodigoterminaldefecto().getCodigo().equals(codTerminal)) {
+                            listaClientes.add(listaClientesAux.get(i));
                         }
                     }
                     break;

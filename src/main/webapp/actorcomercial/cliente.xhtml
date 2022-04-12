@@ -397,9 +397,9 @@
                                                              required="true" requiredMessage="Seleccione Lista Precio" disabled="#{clienteBean.soloLectura}">
                                                 <f:selectItem noSelectionOption="true" itemLabel="Seleccione" itemValue="#{null}"/>
                                                 <f:selectItems value="#{clienteBean.listaListaprecios}"
-                                                               var="list"
-                                                               itemLabel="#{list.listaprecioPK.codigo} - #{list.nombre}"
-                                                               itemValue="#{list}" />
+                                                               var="lista"
+                                                               itemLabel="#{lista.listaprecioPK.codigo} - #{lista.nombre}"
+                                                               itemValue="#{lista}" />
                                             </p:selectOneMenu>
                                         </div>
                                     </div> 
@@ -411,7 +411,7 @@
                                             </span>
                                             <p:selectOneMenu id="codTipoCliente" value="#{clienteBean.cliente.codigotipocliente}" title="Tipo Cliente"
                                                              panelStyle="width:175px" style="min-width: 80%;" 
-                                                             autoWidth="false" converter="converterg"
+                                                             autoWidth="false" 
                                                              required="true" requiredMessage="Seleccione Tipo Cliente" disabled="#{clienteBean.soloLectura}">
                                                 <f:selectItem noSelectionOption="true" itemLabel="Seleccione" itemValue="#{null}"/>
                                                 <f:selectItems value="#{clienteBean.listaTipoclientes}"

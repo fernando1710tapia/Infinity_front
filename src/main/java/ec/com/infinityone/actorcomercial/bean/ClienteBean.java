@@ -280,10 +280,10 @@ public class ClienteBean extends ReusableBean implements Serializable {
     public void save() {
         if (editarCliente) {
             editItems();
-            obtenerClientes();
+            seleccionarComerParaBusqueda();
         } else {
             addItems();
-            obtenerClientes();
+            seleccionarComerParaBusqueda();
         }
     }
 
