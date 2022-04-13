@@ -917,14 +917,7 @@ public class FacturacionCelBean extends ReusableBean implements Serializable {
                         listDetNP = new ArrayList<>();
                     }
                 }
-            }
-            for (int i = 0; i < listenvNP.size(); i++) {
-                if (listenvNP.get(i).getNotapedido().getNumerofacturasri().trim().equals("0")) {
-                    listenvNPAuxilia.add(listenvNP.get(i));
-                }
-            }
-            listenvNP = listenvNPAuxilia;
-            listenvNPAuxilia = new ArrayList<>();
+            }            
             if (connection.getResponseCode() != 200) {
                 System.out.println(connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());

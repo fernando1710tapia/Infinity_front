@@ -268,7 +268,16 @@
                     <div class="p-field p-col-12 p-md-4">                                          
                         <p:outputLabel for="fecha1" value="Fecha venta"/>
                         <p:datePicker id="fecha1" value="#{facturacionCelBean.fechaI}" showIcon="true" pattern="dd/MM/yyyy" required="true" requiredMessage="Seleccione Fecha"/>                                               
-                    </div>                    
+                    </div>    
+                    <div class="p-field p-col-12 p-md-4">
+                        <p:outputLabel for="procesar"  value="Solo por Procesar"/>
+                        <div class="ui-inputgroup">
+                            <p:toggleSwitch id="procesar" value="#{facturacionCelBean.soloporProcesar}" > 
+                                <p:ajax event="change" listener="#{facturacionCelBean.soloPorProcesar()}"
+                                        update="formNuevo dt-products1"/>
+                            </p:toggleSwitch>
+                        </div>
+                    </div>
                     <div class="p-field p-col-12 p-md-2">
                         <p:outputLabel value="&#160;"/>
                         <p:commandButton value="Buscar" icon="pi pi-search-plus" actionListener="#{facturacionCelBean.obtenerNotaPedidos()}" update="formNuevo" />
