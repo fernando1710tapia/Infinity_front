@@ -5,7 +5,7 @@
                 xmlns:p="http://primefaces.org/ui"
                 template="/WEB-INF/template.xhtml">
 
-    <ui:define name="title">Precio</ui:define>
+    <ui:define name="title">Guias de Remisión</ui:define>
 
     <ui:define name="viewname">
         <li>Precio</li>
@@ -28,12 +28,7 @@
                                     <p:commandButton value="Nuevo" icon="pi pi-plus" ajax="false"
                                                      action="gestionprecios.xhtml?faces-redirect=true"
                                                      styleClass="ui-button-success" style="margin-right: .5rem" immediate="true"/>
-                                </p:toolbarGroup>
-                                <p:toolbarGroup>
-                                    <p:commandButton value="Actualización Personalizada" icon="pi pi-plus" ajax="false"
-                                                     action="actualizarprecio.xhtml?faces-redirect=true"
-                                                     styleClass="ui-button-success" style="margin-right: .5rem" immediate="true"/>
-                                </p:toolbarGroup>
+                                </p:toolbarGroup>                                
                                 <p:toolbarGroup>
                                     <p:commandButton value="Export" icon="pi pi-upload" styleClass="ui-button-help" ajax="false">
                                         <p:dataExporter type="pdf" target="dt-products" fileName="products"/>
@@ -41,46 +36,67 @@
                                 </p:toolbarGroup>
                             </p:toolbar>       
                             <div class="ui-fluid p-formgrid p-grid">
-                                <div class="p-field p-col-12 p-md-4">
+                                <div class="p-field p-col-12 p-md-6">
                                     <p:outputLabel for="comercializadora" value="Comercializadora"/>
                                     <div class="ui-inputgroup">
                                         <span class="ui-inputgroup-addon">
                                             <i class="fa fa-money"></i>
                                         </span>
-                                        <p:selectOneMenu id="comercializadora" value="#{precioBean.comercializadora}" title="Comercializadora"
+                                        <p:selectOneMenu id="comercializadora" value="#{guiasRemisionBean.comercializadora}" title="Comercializadora"
                                                          panelStyle="width:175px" style="min-width: 80%;" 
                                                          autoWidth="false" converter="converterg"
                                                          filter="true" filterMatchMode="startsWith"
                                                          required="true" requiredMessage="Seleccione Ambiente"
-                                                         disabled="#{!precioBean.habilitarComer}">
+                                                         disabled="#{!guiasRemisionBean.habilitarComer}">
                                             <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}" />   
-                                            <f:selectItems value="#{precioBean.listaComercializadora}"
+                                            <f:selectItems value="#{guiasRemisionBean.listaComercializadora}"
                                                            var="comer"
                                                            itemLabel="#{comer.objRelacionado}"
                                                            itemValue="#{comer}" />    
-                                            <p:ajax event="change" listener="#{precioBean.seleccionarComer()}"/>
+                                            <p:ajax event="change" listener="#{guiasRemisionBean.seleccionarComer()}"/>
                                         </p:selectOneMenu>
                                     </div>                            
                                 </div>
-                                <div class="p-field p-col-12 p-md-2">
-                                    <p:outputLabel for="vigentes"  value="Solo Vigentes"/>
+                                <div class="p-field p-col-12 p-md-6">
+                                    <p:outputLabel for="terminal" value="Terminal"/>
                                     <div class="ui-inputgroup">
-                                        <p:toggleSwitch id="vigentes" value="#{precioBean.soloVigente}" > 
-                                            <p:ajax event="change" listener="#{precioBean.soloVigentes()}"
-                                            update="form dt-products"/>
-                                        </p:toggleSwitch>
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>
+                                        <p:selectOneMenu id="terminal" value="#{guiasRemisionBean.terminal}" title="Terminal"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         disabled="#{!guiasRemisionBean.habilitarTerminal}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
+                                            <f:selectItems value="#{guiasRemisionBean.listaTermianles}"
+                                                           var="terminal"
+                                                           itemLabel="#{terminal.objRelacionado}"
+                                                           itemValue="#{terminal}" />
+                                            <p:ajax event="change" listener="#{guiasRemisionBean.seleccionarTerminal}"/>
+                                        </p:selectOneMenu> 
                                     </div>
                                 </div>
+                                <div class="p-field p-col-12 p-md-4">                                  
+                                    <p:outputLabel for="fechaI" value="Fecha Inicio"/>
+                                    <p:datePicker id="fechaI" value="#{guiasRemisionBean.fechaI}" showIcon="true" pattern="dd/MM/yyyy">
+                                        <p:ajax event="dateSelect" update="fechaF"/>
+                                    </p:datePicker>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">                                  
+                                    <p:outputLabel for="fechaF" value="Fecha Fin"/>
+                                    <p:datePicker id="fechaF" value="#{guiasRemisionBean.fechaf}" showIcon="true" pattern="dd/MM/yyyy" mindate="#{guiasRemisionBean.fechaI}"/>                                   
+                                </div>
+
                                 <div class="p-field p-col-12 p-md-2">  
                                     <p:outputLabel for="bus" value="&#160;"/>                                    
-                                    <p:commandButton id="bus" value="Buscar" icon="pi pi-search-plus" actionListener="#{precioBean.actualizarLista()}" immediate="true" update="dt-products"/>
+                                    <p:commandButton id="bus" value="Buscar" icon="pi pi-search-plus" actionListener="#{guiasRemisionBean.actualizarLista()}" immediate="true" update="dt-products"/>
                                 </div>
                             </div>
-                            <p:dataTable id="dt-products" widgetVar="dtProducts" var="precio" value="#{precioBean.listaPrecios}" reflow="true" styleClass="products-table"
+                            <p:dataTable id="dt-products" widgetVar="dtProducts" var="precio" value="#{guiasRemisionBean.listaPrecios}" reflow="true" styleClass="products-table"
                                          paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
                                 <f:facet name="header">
                                     <div class="products-table-header">
-                                        <span style="font-weight: bold">Lista de Precios</span>
+                                        <span style="font-weight: bold">Guias de Remisión</span>
 
                                         <span class="filter-container ui-input-icon-left">
                                             <i class="pi pi-search"></i>
@@ -89,7 +105,7 @@
                                     </div>
                                 </f:facet>
 
-                                <p:ajax event="rowToggle" listener="#{precioBean.onRowToggle}" />                                
+                                <p:ajax event="rowToggle" listener="#{guiasRemisionBean.onRowToggle}" />                                
                                 <p:column exportable="false" width="5%">
                                     <p:rowToggler  />
                                 </p:column>
@@ -118,7 +134,7 @@
                                 <p:rowExpansion>
                                     <div class="detallePrecio" >
                                         <h5>Detalle de precio #{precio.precioPK.codigoPrecio}</h5>
-                                        <p:dataTable var="detalle" value="#{precioBean.listaDetallePrecios}" reflow="true">
+                                        <p:dataTable var="detalle" value="#{guiasRemisionBean.listaDetallePrecios}" reflow="true">
                                             <p:column headerText="Terminal" sortBy="#{detalle.detalleprecioPK.codigoterminal}">
                                                 <h:outputText value="#{detalle.detalleprecioPK.codigoterminal}" />
                                             </p:column>

@@ -869,6 +869,7 @@ public class FacturacionCelBean extends ReusableBean implements Serializable {
                         np.setFechaventa(fechaVencimiento);
                         np.setFechadespacho(fechaDescpacho);
                         np.setAdelantar(true);
+                        np.setActiva(nt.getBoolean("activa"));
                         try {
                             np.setPrefijo(nt.getString("prefijo"));
                             //System.out.println("NOTA DE PEDIDO OK: " + npPK.getNumero());
@@ -904,7 +905,9 @@ public class FacturacionCelBean extends ReusableBean implements Serializable {
                             detNP = new Detallenotapedido();
                             detNPK = new DetallenotapedidoPK();
                         }
-                        listenvNP.add(envioPedido);
+                        if (np.isActiva()) {
+                            listenvNP.add(envioPedido);
+                        }                        
                         envioPedido = new EnvioPedido();
                         np = new Notapedido();
                         npPK = new NotapedidoPK();
@@ -917,7 +920,7 @@ public class FacturacionCelBean extends ReusableBean implements Serializable {
                         listDetNP = new ArrayList<>();
                     }
                 }
-            }            
+            }
             if (connection.getResponseCode() != 200) {
                 System.out.println(connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());

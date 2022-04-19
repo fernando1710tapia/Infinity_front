@@ -429,6 +429,10 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                 detNPK.setCodigoabastecedora(codAbas);
                 detNPK.setCodigocomercializadora(codComer);
                 detNP.setDetallenotapedidoPK(detNPK);
+                if (habilitarComer) {
+                    listaClientes = new ArrayList<>();
+                    listaClientes = clienteServicio.obtenerClientesPorComercializadora(codComer);
+                }
 //                listaClientes = new ArrayList<>();
 //                listaClientes = clienteServicio.obtenerClientesPorComercializadora(codComer);
 //                if (dataUser.getUser().getNiveloperacion().equals("usac")) {

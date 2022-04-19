@@ -613,7 +613,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     seleccionarTerminal();
                     List<Cliente> listaClientesAux = new ArrayList<>();
                     listaClientesAux = clienteServicio.obtenerClientesPorComercializadora(codComer);
-                    listaClientes = new ArrayList<>();                    
+                    listaClientes = new ArrayList<>();
                     for (int i = 0; i < listaClientesAux.size(); i++) {
                         if (listaClientesAux.get(i).getCodigoterminaldefecto().getCodigo().equals(codTerminal)) {
                             listaClientes.add(listaClientesAux.get(i));
@@ -871,6 +871,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         np.setFechaventa(fechaVencimiento);
                         np.setFechadespacho(fechaDescpacho);
                         np.setAdelantar(true);
+                        np.setActiva(nt.getBoolean("activa"));
                         try {
                             np.setPrefijo(nt.getString("prefijo"));
                             //System.out.println("NOTA DE PEDIDO OK: " + npPK.getNumero());
@@ -906,7 +907,9 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                             detNP = new Detallenotapedido();
                             detNPK = new DetallenotapedidoPK();
                         }
-                        listenvNP.add(envioPedido);
+                        if (np.isActiva()) {
+                            listenvNP.add(envioPedido);
+                        }
                         envioPedido = new EnvioPedido();
                         np = new Notapedido();
                         npPK = new NotapedidoPK();
@@ -2405,7 +2408,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             JasperPrint print = JasperFillManager.fillReport(reporte, parametro, conexion);
 
             File directory = new File(Fichero.getCARPETAREPORTES());
-           // File directory = new File("C:\\archivos");
+            // File directory = new File("C:\\archivos");
 
             String nombreDocumento = "reporteFactura";
 

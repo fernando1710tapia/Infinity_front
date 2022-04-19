@@ -141,6 +141,9 @@ public class ReportepreciosBean extends ReusableBean implements Serializable {
 
             parametro.put("codComer", codComer);
             parametro.put("logo", image);
+            parametro.put("Titulo", "Precios Petróleos y Servicios");
+            parametro.put("Subtitulo", "Precios Activos");
+            parametro.put("usuario", dataUser.getUser().getNombrever());
 
             //System.out.println("PARAMETROS: " + parametro);
             Connection conexion = conexionJasperBD();
