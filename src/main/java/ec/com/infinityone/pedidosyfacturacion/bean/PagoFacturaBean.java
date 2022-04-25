@@ -44,6 +44,7 @@ import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -68,6 +69,7 @@ import org.primefaces.model.Visibility;
 import org.primefaces.model.file.UploadedFile;
 import org.primefaces.shaded.json.JSONArray;
 import org.primefaces.shaded.json.JSONObject;
+import sun.awt.image.PixelConverter;
 
 /**
  *
@@ -714,14 +716,16 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
 //        }
 //    }
 
-    public void generarArchivos() throws IOException {
+    public void generarArchivos() throws Throwable {
 
         String usuario = dataUser.getUser().getNombrever().replace(" ", "");
-
+        String nombreArchivoGenerado = "";
         List<Factura> listaFacturaBancos = new ArrayList<>();
         InputStream file = null;
         String rutaGuardar = Fichero.getCARPETAREPORTES();
         String fechaHora = (fechaConvertida.replace(":", "")).substring(0, 16);
+        int numeroRegistros = 0;
+        BigDecimal valorTotalArchivo = new BigDecimal("0");
         if (listaFacturaSeleccionada != null) {
             if (!listaFacturaSeleccionada.isEmpty()) {
                 for (int i = 0; i < listaBancos.size(); i++) {
@@ -729,17 +733,27 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
                     for (int j = 0; j < listaFacturaSeleccionada.size(); j++) {
                         if (listaFacturaSeleccionada.get(j).getCodigobanco().equals(listaBancos.get(i).getCodigo())) {
                             listaFacturaBancos.add(listaFacturaSeleccionada.get(j));
-                            crearArchivo(listaFacturaBancos, listaFacturaSeleccionada.get(j).getCodigobanco());
+                            valorTotalArchivo.add(listaFacturaSeleccionada.get(j).getValorconrubro());
+                            numeroRegistros++;
                         }
+                    }
+                    if (!listaFacturaBancos.isEmpty()) {
+                        nombreArchivoGenerado = crearArchivo(listaFacturaBancos, listaBancos.get(i).getCodigo(), numeroRegistros, valorTotalArchivo);   
                     }
                 }
                 temporalServicios.eliminarRegistrosTemporales(fechaConvertida, dataUser.getUser().getNombrever().replace(" ", ""), codigoComer);
                 for (int j = 0; j < listaFacturaSeleccionada.size(); j++) {
                     if (j == 0) {
-                        file = new FileInputStream(new File(rutaGuardar + "/Facturas_Banco" + listaFacturaSeleccionada.get(j).getCodigobanco() + "_" + fechaHora + "_" + usuario + ".txt"));
+                        
+                        
+                        //FT file = new FileInputStream(new File(rutaGuardar + "/Facturas_Banco" + listaFacturaSeleccionada.get(j).getCodigobanco() + "_" + fechaHora + "_" + usuario + ".txt"));
+                        file = new FileInputStream(new File(nombreArchivoGenerado));
+                        
+                        
                         File directory = new File(rutaGuardar);
+                        //File txt = File.createTempFile("Facturas_Banco" + listaFacturaSeleccionada.get(j).getCodigobanco() + "_" + fechaHora + "_" + usuario, ".txt", directory);
                         File txt = File.createTempFile("Facturas_Banco" + listaFacturaSeleccionada.get(j).getCodigobanco() + "_" + fechaHora + "_" + usuario, ".txt", directory);
-                        if (copyFile(rutaGuardar + "/Facturas_Banco" + listaFacturaSeleccionada.get(j).getCodigobanco() + "_" + fechaHora + "_" + usuario + ".txt", txt.getAbsolutePath())) {
+                        if (copyFile(nombreArchivoGenerado,txt.getAbsolutePath())) {  // copyFile(rutaGuardar + "/Facturas_Banco" + listaFacturaSeleccionada.get(j).getCodigobanco() + "_" + fechaHora + "_" + usuario + ".txt", txt.getAbsolutePath()))
                             File initialFile = new File(txt.getAbsolutePath());
                             InputStream targetStream = new FileInputStream(initialFile);
                             txtStream = new DefaultStreamedContent(targetStream, "application/txt", "Facturas-Banco" + listaFacturaSeleccionada.get(j).getCodigobanco() + "_" + fechaHora + "_" + usuario + ".txt");
@@ -843,12 +857,208 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
 //            }
 //        }
 //    }
-    public void crearArchivo(List<Factura> listaFactura, String codBanco) {
+    
+        public String crearArchivo(List<Factura> listaFactura, String codBanco, int cantidadRegsitros, BigDecimal valorTotal) throws Throwable {
+        
+        String nombreArchivoGenerado = "";
+        
+        switch (codBanco){
+            case "36": nombreArchivoGenerado = crearArchivo36(listaFactura,  codBanco, cantidadRegsitros, valorTotal);
+                break;
+            case "37": nombreArchivoGenerado = crearArchivo37(listaFactura,  codBanco, cantidadRegsitros, valorTotal);
+                break;
+            default: throw new Throwable ("Error Capturado: PagoFacturaBean.crearArchivo Banco: "+codBanco + " NO tiene configuración para creación de archivo de pagos! ");
+        }
+        return nombreArchivoGenerado;
+
+    }
+        
+    /*
+    
+    Nombre      	Tipo        Contenido	Longitud	Pos ini	Pos fin	Descripción                                                                     Req
+Tipo registro           Alfanumérico	01          2               1	2	Indica el tipo de registro.  01 Encabezado o Control.                           Obl
+Identificación archivo	Alfanumérico	REC         3               3	5	Es el tipo de proceso: Recadaciones Empresariales archivo de Cobros.            Obl
+Código Banco            Alfanumérico	00017       5               6	10	Especifica entidad originadora del archivo, Banco de Guayaquil 00017            Obl
+Cod Empresa             Alfanumérico                5               11	15	Entidad receptora del archivo, Código empresa; lo suministra el banco.          Obl
+Contenido archivo	Numérico	01          2               16	17	Indica que es un archivo de Cobros o de facturación con novedades.              Obl
+Fecha generacion	Numérico	AAAAMMDD                    8	18	25	Fecha en la cual la Empresa genera el archivo                           Obl
+Fecha aplicación	Numérico	AAAAMMDD                    8	26	33	Fecha en la cual se debe cargar el archivo en el sistema del banco.	Obl
+Nro registros           Numérico                    8               34	41	Número total de registros tipo detalle enviados en el archivo.                  Obl
+Valor Total cobros	Numérico                    15              42	56	Valor total de todos los registros de cobros. 13 enteros y 2 decimales          Obl
+Espacios                Alfanumérico                68              57	124	Espacios.  Valores en "blanco".                                                 Obl
+
+    
+        
+        
+    */
+        
+        
+
+    /*
+
+Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin	Descripción                                                                                                                     Req
+1	Tipo registro           Alfanumérico	02                  2               1       2	Indica el tipo de registro.  02 Registro de detalle.                                                                            Obl
+2	Novedad                 Alfanumérico	01                  2               3       4	Tipo de novedad que afecta al registro.  01: Ingreso.  02: Modificación                                                         Obl
+3	Obligación Cliente	Alfanumérico                        15              5       19	Identificación u obligación del cliente ante la empresa.                                                                        Obl
+4	Nombre                  Alfanumérico                        40              20      59	Nombre del propietario del bien o del servicio ante la empresa                                                                  Obl
+5	Valor cobro             Numérico                            10              60      69	Valor total de la factura.  8 enteros, 2 decimales.                                                                             Obl
+6	Fecha Maxima de pago	Numérico	AAAAMMDD            8               70      77	Fecha máxima de pago en Banco                                                                                                   Obl
+7	Valor mínimo            Numérico                            10              78      87	Valor de pago mínimo.  8 enteros, 2 decimales.                                                                                  Op
+8	Valor RET               Numérico                            10              88      97	Valor con Base imponible o con Vlr a retener.  8 enteros, 2 decimales. Llenar con ceros en caso de no enviar el valor.          Obl
+9	Referencia      	Alfanumérico                        15              98      112	Campo opcional.  Podrá contener: código del cliente, nro de cédula, RUC, etc.                                                   Op
+9	Periodo                 Numérico	AAAAMM              6               113     118	Indica el periodo de recaudación. Formado por el año y el mes.                                                                  Obl
+10	Secuencia periodo	Numérico                            2               119     120	Es la secuencia de la Obligación dentro del periodo. Inicia en 01                                                               Obl
+11	Espacios                Alfanumérico                        4               121     124	Espacios.  Valores en "blanco".                                                                                                 Obl
+
+
+        Nombre del archivo.						
+        Es: REM_AAAAMMDD_CCCCC.TXT						
+        REM: indica Recaudaciones EMpresariales.						
+        AAAA: Año.  MM: Mes.  DD: Día.  Fecha de carga del archivo.						
+        CCCCC: Código de identificación de la empresa.  Asignado por el Banco (motivo).						
+
+        Ejemplo						
+        Archivo de facturación de la Empresa con código 980. Fecha de carga: 27 de febrero del 2012						
+        Es: REM_20120227_980.TXT						
+    */    
+        
+        public String crearArchivo37(List<Factura> listaFactura, String codBanco, int cantidadRegsitros, BigDecimal valorTotal) throws Throwable {
         FileWriter flwriter = null;
 
         String usuario = dataUser.getUser().getNombrever().replace(" ", "");
         String fechaHora = (fechaConvertida.replace(":", "")).substring(0, 16);
+        String nombreArchivo = "";
+        String lineaCabecera = "";
         try {
+            nombreArchivo = Fichero.getCARPETAREPORTES() + "/REM_" + fechaHora + "_" + "CCCC AQUI DEBE ESTAR CODIGOPYSSEGUNBANCO" + ".txt";
+            
+            //crea el flujo para escribir en el archivo
+            //flwriter = new FileWriter("C:\\archivos\\Facturas_Banco" + codBanco + "_" + fechaHora + "_" + usuario + ".txt");
+              flwriter = new FileWriter(nombreArchivo);
+            String linea = "";
+            long contadorFacturas = 1;
+            //crea un buffer o flujo intermedio antes de escribir directamente en el archivo
+            BufferedWriter bfwriter = new BufferedWriter(flwriter);
+            // Escribir la linea de Cabecera
+            lineaCabecera =  generarLineaCabecera(listaFactura, codBanco, cantidadRegsitros, valorTotal);
+            // Escribir la linea de Cabecera
+            
+            System.out.println("FT:: grabando lineacabecera.. "+nombreArchivo);
+            bfwriter.write(lineaCabecera+ "\n");
+            
+            for (Factura factura : listaFactura) {
+                
+                linea = linea+"0201";
+                linea = linea + String.format("%15s", factura.getRuccliente()).replace(' ','0');
+                linea = linea + String.format("%40s", factura.getNombrecliente()).replace(' ',' ');  
+                //System.out.println("FT::linea "+linea);
+                //System.out.println("FT::factura.getValorconrubro() "+factura.getValorconrubro());
+                DecimalFormat myFormatter = new DecimalFormat("00000000.00");
+                //System.out.println("FT::myFormatter "+myFormatter.toString());
+                String output = myFormatter.format(factura.getValorconrubro().doubleValue());
+                 
+                String dato = output.substring(0, 8) + output.substring(9, 11);
+                //System.out.println("FT::dato "+dato);
+                
+                linea = linea + dato;
+                
+                //System.out.println("FT::linea + dato"+linea);
+                 //fecha
+                //SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+                //System.out.println("FT::factura.getFechavencimiento() "+factura.getFechavencimiento());
+                
+                String f = factura.getFechavencimiento().replaceAll("/", "");
+                
+                //System.out.println("FT:: f = sdf.format(factura.getFechavencimiento()) "+f);
+                linea = linea + f;
+                //System.out.println("FT::linea + f "+f);
+                
+
+                //Valor mínimo            
+                linea = linea + dato;
+                //System.out.println("FT::linea + Valor mínimo dato"+linea);
+                //Valor RET            
+                linea = linea + dato;
+                //System.out.println("FT::linea + Valor RET dato"+linea);
+                //Referencia(15)
+                linea = linea + "NotaPe-"+factura.getFacturaPK().getNumeronotapedido();
+                //System.out.println("FT::linea + referencia"+linea);
+                //Periodo	Numérico	AAAAMM
+                linea = linea + f.substring(0, 6);
+                //System.out.println("FT::linea + Periodo	Numérico	AAAAMM: "+linea);
+                //Secuencia periodo	Numérico		2
+                DecimalFormat myFormatter1 = new DecimalFormat("00");
+                String output1 = myFormatter1.format(contadorFacturas);
+                //String dato1 = output1.substring(0, 8) + output.substring(9, 11);
+                 
+                linea = linea + output1;
+                //System.out.println("FT::linea + Secuencia periodo	Numérico		2 (linea + output1;): "+linea);
+                // Espacios	Alfanumérico		4
+                 linea = linea + "    ";   
+                 System.out.println("FT::linea: "+linea +"aqui se acaba la linea");
+                
+                //escribe los datos en el archivo
+                bfwriter.write(linea+ "\n");
+                contadorFacturas++;
+            }
+            //cierra el buffer intermedio
+            bfwriter.close();
+            this.dialogo(FacesMessage.SEVERITY_INFO, "Archivo creado satisfactoriamente..");
+            System.out.println("Archivo creado satisfactoriamente..");
+            return nombreArchivo;
+        } catch (Throwable e) {
+            System.out.println("FT:: error capturado "+this.getClass()+"::"+e.getMessage());
+            e.printStackTrace(System.out);
+        } finally {
+            if (flwriter != null) {
+                try {//cierra el flujo principal
+                    flwriter.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return nombreArchivo;
+    }
+     
+    public String generarLineaCabecera(List<Factura> listaFactura, String codBanco, int cantidadRegsitros, BigDecimal valorTotal) throws Throwable {
+         
+        String lineaCabecera = "";
+        try {
+            
+            lineaCabecera = lineaCabecera + "01REC00017-PYS-01";
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+            String dateI = sdf.format(new Date());
+            lineaCabecera = lineaCabecera + dateI + dateI;
+            
+            DecimalFormat myFormatter1 = new DecimalFormat("00000000");
+            String output1 = myFormatter1.format(cantidadRegsitros);
+            lineaCabecera = lineaCabecera + output1;
+            
+             DecimalFormat myFormatter = new DecimalFormat("0000000000000.00");
+                //System.out.println("FT::myFormatter "+myFormatter.toString());
+            String output = myFormatter.format(valorTotal.doubleValue());      
+            String dato = output.substring(0, 13) + output.substring(14, 16);
+            lineaCabecera = lineaCabecera + output;
+            
+            lineaCabecera = lineaCabecera + "00000000000000000000000000000000000000000000000000000000000000000000";
+            return lineaCabecera;
+        }catch (Throwable t){
+            System.out.println("FT:: error capturado "+this.getClass()+"::"+t.getMessage());
+            t.printStackTrace(System.out);
+             return lineaCabecera;
+        }
+    }    
+        
+    public String crearArchivo36(List<Factura> listaFactura, String codBanco, int cantidadRegsitros, BigDecimal valorTotal) throws Throwable { 
+        FileWriter flwriter = null;
+
+        String usuario = dataUser.getUser().getNombrever().replace(" ", "");
+        String fechaHora = (fechaConvertida.replace(":", "")).substring(0, 16);
+        String nombreArchivo = "";
+        try {
+            nombreArchivo = Fichero.getCARPETAREPORTES() + "/REM_" + fechaHora + "_" + "CCCC AQUI DEBE ESTAR CODIGOPYSSEGUNBANCO" + ".txt";
+
             //crea el flujo para escribir en el archivo
             //flwriter = new FileWriter("C:\\archivos\\Facturas_Banco" + codBanco + "_" + fechaHora + "_" + usuario + ".txt");
             flwriter = new FileWriter(Fichero.getCARPETAREPORTES() + "/Facturas_Banco" + codBanco + "_" + fechaHora + "_" + usuario + ".txt");
@@ -868,7 +1078,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
             bfwriter.close();
             this.dialogo(FacesMessage.SEVERITY_INFO, "Archivo creado satisfactoriamente..");
             System.out.println("Archivo creado satisfactoriamente..");
-
+            return nombreArchivo;
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -880,6 +1090,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
                 }
             }
         }
+        return nombreArchivo;
     }
 
     public void addItems() {

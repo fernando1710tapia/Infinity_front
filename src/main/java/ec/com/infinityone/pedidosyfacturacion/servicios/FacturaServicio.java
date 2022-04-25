@@ -40,7 +40,7 @@ public class FacturaServicio {
 
     private FacturaPK facturaPK;
 
-    public List<Factura> obtenerFacturas(String codigoComer, String tipoFecha, String fecha, boolean petro, boolean activa, boolean pagada) {
+  public List<Factura> obtenerFacturas(String codigoComer, String tipoFecha, String fecha, boolean petro, boolean activa, boolean pagada) {
         //urlInfinity = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.areamercadeo
         //https://www.supertech.ec:8443/infinityone1/resources/usuario/login?user=Ftapia&password=123456";
         try {
@@ -91,6 +91,7 @@ public class FacturaServicio {
                 factura.setFechadespacho(date.format(dateDesp));
                 factura.setActiva(fact.getBoolean("activa"));
                 factura.setValortotal(fact.getBigDecimal("valortotal"));
+                factura.setValorconrubro(fact.getBigDecimal("valorconrubro"));
                 factura.setIvatotal(fact.getBigDecimal("ivatotal"));
                 factura.setObservacion(fact.getString("observacion"));
                 factura.setPagada(fact.getBoolean("pagada"));
