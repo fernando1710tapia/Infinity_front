@@ -25,16 +25,19 @@
 
                             <p:toolbar styleClass="p-mb-4">
                                 <p:toolbarGroup>
-                                    <p:commandButton value="Gestionar Cobro" icon="pi pi-plus" actionListener="#{pagoFacturaBean.nuevoPagoFactura()}" update="form :formNuevo"
-                                                     styleClass="ui-button-success" style="margin-right: .5rem" />  
-                                    <p:commandButton value="Recibir Pagos" icon="pi pi-plus" actionListener="#{pagoFacturaBean.recibirPagos()}" update="form :recibopago"
-                                                     styleClass="ui-button-info" style="margin-right: .5rem" />                                                                        
+                                    <p:commandButton value="(Débito) Gestionar Cobro" icon="pi pi-plus" actionListener="#{pagoFacturaBean.nuevoPagoFactura()}" update="form :formNuevo"
+                                                     styleClass="ui-button-success" style="margin-right: .5rem" />
+                                    <p:commandButton value="(Débito) Recibir Pagos" icon="pi pi-plus" actionListener="#{pagoFacturaBean.recibirPagos()}" update="form :recibopago"
+                                                     styleClass="ui-button-info" style="margin-right: .5rem" />
+                                    <p:commandButton value="Gestión Directa" icon="pi pi-plus" actionListener="#{pagoFacturaBean.nuevoPagoDirecto()}" update="form :formPagoDirecto"
+                                                     styleClass="ui-button-succes" style="margin-right: .5rem" />
+                                                                        
                                 </p:toolbarGroup>
-                                <p:toolbarGroup>
+                                <!--<p:toolbarGroup>
                                     <p:commandButton value="Export" icon="pi pi-upload" styleClass="ui-button-help" ajax="false">
                                         <p:dataExporter type="pdf" target="dt-products" fileName="products"/>
                                     </p:commandButton>
-                                </p:toolbarGroup>
+                                </p:toolbarGroup>-->
                             </p:toolbar>       
                             <div class="ui-fluid p-formgrid p-grid">
                                 <div class="p-field p-col-12 p-md-4">
@@ -65,7 +68,7 @@
                                                                                                     showOn="button" showButtonPanel="true" style="min-width: 80%;"/>-->                                   
                                 </div>      
                                 <div class="p-field p-col-12 p-md-2">
-                                    <p:outputLabel>.</p:outputLabel>
+                                    <p:outputLabel value="&#160;"/>
                                     <p:commandButton value="Buscar" icon="pi pi-search-plus" actionListener="#{pagoFacturaBean.actualizarLista()}" update="dt-products"/>
                                 </div>
                             </div>
@@ -114,7 +117,7 @@
                                 <p:rowExpansion>
                                     <div class="detallePrecio" >
                                         <h5>Detalle de pago #{precio.pagofacturaPK.numero}</h5>
-                                        <p:dataTable var="detalle" value="#{pagoFacturaBean.listaDetallePago}" reflow="true">
+                                        <p:dataTable var="detalle" value="#{pagoFacturaBean.listaDetallePago}" reflow="true">                                            
                                             <p:column headerText="Abastacedora" sortBy="#{detalle.detallepagoPK.codigoabastecedora}">
                                                 <h:outputText value="#{detalle.detallepagoPK.codigoabastecedora}" />
                                             </p:column>
@@ -156,7 +159,7 @@
                             <h2 style="color:#87ea2a">GESTIONAR COBRO</h2>
                             <p:growl id="messages" showDetail="true" />
                             <div class="ui-fluid p-formgrid p-grid">                                    
-                                <div class="p-field p-col-12 p-md-6">
+                                <div class="p-field p-col-12 p-md-4">
                                     <p:outputLabel for="comercializadora" value="Comercializadora"/>
                                     <div class="ui-inputgroup">
                                         <span class="ui-inputgroup-addon">
@@ -175,25 +178,26 @@
                                             <p:ajax event="change" listener="#{pagoFacturaBean.seleccionarComer()}"/>                                            
                                         </p:selectOneMenu>
                                     </div>                            
-                                </div>                       
-                                <div class="p-field p-col-12 p-md-6"></div>
-                                <div class="p-field p-col-12 p-md-5">                                        
+                                </div>
+                                <div class="p-field p-col-12 p-md-4"> 
+                                    <p:outputLabel for="fechaBus" value="Tipo Fecha:"/>
                                     <p:selectOneRadio id="fechaBus" value="#{pagoFacturaBean.tipoBusquedaDocumento}">
                                         <f:selectItem itemLabel="Fecha Venta" itemValue="1"/>
                                         <f:selectItem itemLabel="Fecha Vencimiento" itemValue="2"/>
                                         <p:ajax update="form" listener="#{pagoFacturaBean.actualizarTipoBusqueda}" process="@this"/>                                            
                                     </p:selectOneRadio>
                                 </div>                                                                        
-                                <div class="p-field p-col-12 p-md-5">                                                                           
+                                <div class="p-field p-col-12 p-md-4"> 
+                                    <p:outputLabel for="fechaBusq" value="Fecha:"/>
                                     <p:datePicker id="fechaBusq" value="#{pagoFacturaBean.fecha}" showIcon="true" pattern="dd/MM/yyyy"/>
                                 </div>  
-                                <div class="p-field p-col-12 p-md-2">                                    
+                                <div class="p-field p-col-12 p-md-2">                                   
                                     <p:commandButton value="Buscar" icon="pi pi-search-plus" actionListener="#{pagoFacturaBean.actualizarListaCobros()}" update="dt-cobros"/>
                                 </div>    
 
                                 <p:dataTable id="dt-cobros" widgetVar="dtProducts" var="cobro" value="#{pagoFacturaBean.listaFactura}" reflow="true" styleClass="products-table"
-                                             selectionMode="multiple" selection="#{pagoFacturaBean.listaFacturaSeleccionada}" rowKey="#{cobro.facturaPK.codigoabastecedora}-#{cobro.facturaPK.codigocomercializadora}-#{cobro.facturaPK.numero}-#{cobro.facturaPK.numeronotapedido}" paginator="true" rows="5" rowSelectMode="add" paginatorPosition="bottom">                                        
-                                    <!--rowKey="{cobro.codigobanco}-{cobro.fechaventa}-{cobro.fechavencimiento}"-->
+                                             selection="#{pagoFacturaBean.listaFacturaSeleccionada}" rowKey="#{cobro.facturaPK.codigoabastecedora}-#{cobro.facturaPK.codigocomercializadora}-#{cobro.facturaPK.numero}-#{cobro.facturaPK.numeronotapedido}" paginator="true" rows="5" rowSelectMode="add" paginatorPosition="bottom">                                        
+                                    <!-- selectionMode="multiple" rowKey="{cobro.codigobanco}-{cobro.fechaventa}-{cobro.fechavencimiento}"-->
                                     <!--rowKey="{cobro.facturaPK.codigoabastecedora}-{cobro.facturaPK.codigocomercializadora}-{cobro.facturaPK.numero}-{cobro.facturaPK.numeronotapedido}"-->
                                     <f:facet name="header">
                                         <div class="products-table-header">
@@ -204,7 +208,8 @@
                                                 <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar" />
                                             </span>
                                         </div>
-                                    </f:facet>                                       
+                                    </f:facet>
+                                    <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
                                     <p:column headerText="Banco" sortBy="#{cobro.codigobanco}" filterBy="#{cobro.codigobanco}" width="20%">
                                         <h:outputText value="#{cobro.codigobanco}" />
                                     </p:column>
@@ -282,6 +287,146 @@
                                 <!--<p:commandButton value="Generar Archivos" icon="pi pi-check" actionListener="{pagoFacturaBean.generarArchivos}" styleClass="p-mr-2"/>-->
                                 <p:commandButton value="Regresar" icon="pi pi-arrow-left" actionListener="#{pagoFacturaBean.regresarGestionCobros()}" styleClass="ui-button-help p-mr-2" update=":form :formNuevo formValores"/>
                                 <p:commandButton value="Cancelar" icon="pi pi-times" class="ui-button-secondary"  actionListener="#{pagoFacturaBean.cancelar()}" update=":form :formNuevo formValores"/>
+                            </p:toolbarGroup>
+                        </p:toolbar> 
+                    </div>
+                </div>
+            </p:outputPanel>
+        </h:form>
+
+        <h:form id="formPagoDirecto">
+            <p:outputPanel rendered="#{pagoFacturaBean.pagoDirecto}">
+                <div class="p-grid crud-demo">
+                    <div class="p-col-12">
+                        <div class="card">
+                            <h2 style="color:#87ea2a">GESTIÓN DIRECTA</h2>
+                            <p:growl id="messages" showDetail="true" />
+                            <div class="ui-fluid p-formgrid p-grid">                                    
+                                <div class="p-field p-col-12 p-md-4">
+                                    <p:outputLabel for="comercializadora" value="Comercializadora"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-money"></i>
+                                        </span>
+                                        <p:selectOneMenu id="comercializadora" value="#{pagoFacturaBean.comercializadora}" title="Comercializadora"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         filter="true" filterMatchMode="startsWith"
+                                                         disabled="#{!pagoFacturaBean.habilitarComer}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+                                            <f:selectItems value="#{pagoFacturaBean.listaComercializadora}"
+                                                           var="comer"
+                                                           itemLabel="#{comer.objRelacionado}"
+                                                           itemValue="#{comer}" />
+                                            <p:ajax event="change" listener="#{pagoFacturaBean.seleccionarComer()}" update="form cli"/>                                            
+                                        </p:selectOneMenu>
+                                    </div>                            
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <p:outputLabel for="terminal" value="Terminal"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>
+                                        <p:selectOneMenu id="terminal" value="#{pagoFacturaBean.terminal}" title="Terminal"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         disabled="#{!pagoFacturaBean.habilitarComer}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
+                                            <f:selectItems value="#{pagoFacturaBean.listaTermianles}"
+                                                           var="terminal"
+                                                           itemLabel="#{terminal.objRelacionado}"
+                                                           itemValue="#{terminal}" />
+                                            <p:ajax event="change" listener="#{pagoFacturaBean.seleccionarTerminal}"/>
+                                        </p:selectOneMenu> 
+                                    </div>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <p:outputLabel for="cli" value="Cliente"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>
+                                        <p:selectOneMenu id="cli" value="#{pagoFacturaBean.cliente}" title="Cliente"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         disabled="#{!pagoFacturaBean.habilitarComer}"
+                                                         filter="true" filterMatchMode="contains">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
+                                            <f:selectItems value="#{pagoFacturaBean.listaClientes}"
+                                                           var="cliente"
+                                                           itemLabel="#{cliente.codigo} - #{cliente.nombrecomercial}"
+                                                           itemValue="#{cliente}" />
+                                            <p:ajax event="change" listener="#{pagoFacturaBean.seleccionarCliente()}"
+                                                    update="terminal"/>
+                                        </p:selectOneMenu> 
+                                    </div>
+                                </div>    
+                                <div class="p-field p-col-12 p-md-4"> 
+                                    <p:outputLabel for="fechaBus" value="Tipo Fecha:"/>
+                                    <p:selectOneRadio id="fechaBus" value="#{pagoFacturaBean.tipoBusquedaDocumento}">
+                                        <f:selectItem itemLabel="Fecha Venta" itemValue="1"/>
+                                        <f:selectItem itemLabel="Fecha Vencimiento" itemValue="2"/>
+                                        <p:ajax update="form" listener="#{pagoFacturaBean.actualizarTipoBusqueda}" process="@this"/>                                            
+                                    </p:selectOneRadio>
+                                </div>                                                                        
+                                <div class="p-field p-col-12 p-md-4"> 
+                                    <p:outputLabel for="fechaBusq" value="Fecha:"/>
+                                    <p:datePicker id="fechaBusq" value="#{pagoFacturaBean.fecha}" showIcon="true" pattern="dd/MM/yyyy"/>
+                                </div>  
+                                <div class="p-field p-col-12 p-md-2">
+                                    <p:outputLabel value="&#160;"/>                                    
+                                    <p:commandButton value="Buscar" icon="pi pi-search-plus" actionListener="#{pagoFacturaBean.actualizarListaCobros()}" update="dt-cobros"/>
+                                </div>    
+
+                                <p:dataTable id="dt-cobros" widgetVar="dtProducts" var="cobro" value="#{pagoFacturaBean.listaFactura}" reflow="true" styleClass="products-table"
+                                             selection="#{pagoFacturaBean.listaFacturaSeleccionada}" rowKey="#{cobro.facturaPK.codigoabastecedora}-#{cobro.facturaPK.codigocomercializadora}-#{cobro.facturaPK.numero}-#{cobro.facturaPK.numeronotapedido}" paginator="true" rows="5" rowSelectMode="add" paginatorPosition="bottom">                                        
+                                    <!-- selectionMode="multiple" rowKey="{cobro.codigobanco}-{cobro.fechaventa}-{cobro.fechavencimiento}"-->
+                                    <!--rowKey="{cobro.facturaPK.codigoabastecedora}-{cobro.facturaPK.codigocomercializadora}-{cobro.facturaPK.numero}-{cobro.facturaPK.numeronotapedido}"-->
+                                    <f:facet name="header">
+                                        <div class="products-table-header">
+                                            <span style="font-weight: bold">Facturas por Cobrar</span>
+
+                                            <span class="filter-container ui-input-icon-left">
+                                                <i class="pi pi-search"></i>
+                                                <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar" />
+                                            </span>
+                                        </div>
+                                    </f:facet>
+                                    <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
+                                    <p:column headerText="Banco" sortBy="#{cobro.codigobanco}" filterBy="#{cobro.codigobanco}" width="10%">
+                                        <h:outputText value="#{cobro.codigobanco}" />
+                                    </p:column>
+                                    <p:column headerText="Cliente" sortBy="#{cobro.codigocliente}" filterBy="#{cobro.codigocliente}" width="20%">
+                                        <h:outputText value="#{cobro.codigocliente}" />
+                                    </p:column>
+                                    <p:column headerText="Factura" sortBy="#{cobro.facturaPK.numero}" filterBy="#{cobro.facturaPK.numero}" width="20%">
+                                        <h:outputText value="#{cobro.facturaPK.numero}" />
+                                    </p:column>                                    
+                                    <p:column headerText="Fecha Venta" sortBy="#{cobro.fechaventa}" filterBy="#{cobro.fechaventa}" width="15%">                                            
+                                        <h:outputText value="#{cobro.fechaventa}">
+                                            <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column headerText="Fecha Vencimiento" sortBy="#{cobro.fechavencimiento}" filterBy="#{cobro.fechavencimiento}" width="15%">                                            
+                                        <h:outputText value="#{cobro.fechavencimiento}">
+                                            <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
+                                        </h:outputText>
+                                    </p:column>                                           
+                                    <p:column headerText="Valor" sortBy="#{cobro.valortotal}" filterBy="#{cobro.valortotal}" width="20%">
+                                        <h:outputText value="#{cobro.valortotal}">
+                                            <f:convertNumber currencySymbol="$" type="currency" />
+                                        </h:outputText>
+                                    </p:column>                                                                                                          
+                                </p:dataTable>
+                            </div>
+
+                        </div>
+                        <p:toolbar>
+                            <p:toolbarGroup>
+                                <p:commandButton value="Validar Cobros" icon="pi pi-check" actionListener="#{pagoFacturaBean.generarValoresPagoDirecto()}" update="formPagoDirecto ingresoDatos" styleClass="p-mr-2" />  
+                                <p:commandButton value="Regresar" icon="pi pi-arrow-left" actionListener="#{pagoFacturaBean.regresarPantallaInicial()}" styleClass="ui-button-help p-mr-2" update=":form formNuevo :formValores"/>
+                                <p:commandButton value="Cancelar" icon="pi pi-times" class="ui-button-secondary"  actionListener="#{pagoFacturaBean.cancelar()}" update=":form formNuevo"/>
                             </p:toolbarGroup>
                         </p:toolbar> 
                     </div>
@@ -384,6 +529,46 @@
                     <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{pagoFacturaBean.guardar}" process="@this"  
                                      update="@this" styleClass="p-mr-2" />                    
                     <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('nuevo').hide()" class="ui-button-secondary" />
+                </div>
+            </h:form>
+        </p:dialog>
+        
+        <p:dialog header="Ingreso Datos" width="20%" showEffect="fade" modal="true" widgetVar="ingresoDatos" responsive="true">
+            <h:form id="ingresoDatos">
+                <p:outputPanel rendered="true">
+                    <div class="p-grid crud-demo">                        
+                        <div class="ui-fluid p-col-12 p-formgrid p-grid">                                                        
+                            <div class="p-field p-col-12 p-md-12">
+                                <p:outputLabel for="banco" value="Banco Depósito"/>
+                                <div class="ui-inputgroup">
+                                    <span class="ui-inputgroup-addon">
+                                        <i class="fa fa-money"></i>
+                                    </span>
+                                    <p:selectOneMenu id="banco" value="#{pagoFacturaBean.banco}" title="Banco"
+                                                     panelStyle="width:175px" style="min-width: 80%;" 
+                                                     autoWidth="false" converter="converterg"
+                                                     required="true" requiredMessage="Seleccione Banco">
+                                        <f:selectItem noSelectionOption="true" itemLabel="Banco" itemValue="#{null}"/>
+                                        <f:selectItems value="#{pagoFacturaBean.listaBancos}"
+                                                       var="banco"
+                                                       itemLabel="#{banco.codigo}-#{banco.nombre}"
+                                                       itemValue="#{banco}" />
+                                        <p:ajax event="change" listener="#{pagoFacturaBean.seleccionarBanco}"/>
+                                    </p:selectOneMenu>
+                                </div>                 
+                            </div>
+                            <div class="p-field p-col-12 p-md-6"></div>
+                            <div class="p-field p-col-12 p-md-12">
+                                <p:outputLabel for="fechaDep" value="Fecha Depósito"/>
+                                <p:inputText id="numero" value="#{pagoFacturaBean.observ}" required="true" />
+                            </div>                            
+                        </div> 
+                    </div>
+                </p:outputPanel>
+                <div class="p-grid p-col-12 p-justify-end">                     
+                    <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{pagoFacturaBean.guardar}" process="@this"  
+                                     update="@this" styleClass="p-mr-2" />                    
+                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('ingresoDatos').hide()" class="ui-button-secondary" />
                 </div>
             </h:form>
         </p:dialog>

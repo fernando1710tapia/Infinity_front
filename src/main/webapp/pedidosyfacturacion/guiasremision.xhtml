@@ -74,6 +74,13 @@
                                         </p:selectOneMenu> 
                                     </div>
                                 </div>
+                                <div class="p-field p-col-12 p-md-4">  
+                                    <p:outputLabel for="tipoBus">Tipo de Fecha</p:outputLabel>
+                                    <p:selectOneRadio id="tipoBus" value="#{guiasRemisionBean.tipoFecha}" layout="responsive" columns="2">
+                                        <f:selectItem itemLabel="Fecha Guia" itemValue="1" />
+                                        <f:selectItem itemLabel="Fecha Recepcion" itemValue="2" />                                    
+                                    </p:selectOneRadio>
+                                </div>
                                 <div class="p-field p-col-12 p-md-4">                                  
                                     <p:outputLabel for="fechaI" value="Fecha Inicio"/>
                                     <p:datePicker id="fechaI" value="#{guiasRemisionBean.fechaI}" showIcon="true" pattern="dd/MM/yyyy">
@@ -85,17 +92,9 @@
                                     <p:datePicker id="fechaF" value="#{guiasRemisionBean.fechaf}" showIcon="true" pattern="dd/MM/yyyy" mindate="#{guiasRemisionBean.fechaI}">
                                         <p:ajax event="dateSelect"/>
                                     </p:datePicker>
-                                </div>
-                                <div class="p-field p-col-12 p-md-4">  
-                                    <p:outputLabel for="tipoBus">Tipo de Fecha</p:outputLabel>
-                                    <p:selectOneRadio id="tipoBus" value="#{guiasRemisionBean.tipoFecha}" layout="responsive" columns="2">
-                                        <f:selectItem itemLabel="Fecha Guia" itemValue="1" />
-                                        <f:selectItem itemLabel="Fecha Recepcion" itemValue="2" />                                    
-                                    </p:selectOneRadio>
-                                </div>
-
+                                </div>                                
                                 <div class="p-field p-col-12 p-md-2">  
-                                    <p:outputLabel for="bus" value="&#160;"/>                                    
+                                    <!--<p:outputLabel for="bus" value="&#160;"/>-->
                                     <p:commandButton id="bus" value="Buscar" icon="pi pi-search-plus" actionListener="#{guiasRemisionBean.obtenerGuia()}" immediate="true" update="dt-products"/>
                                 </div>
                             </div>

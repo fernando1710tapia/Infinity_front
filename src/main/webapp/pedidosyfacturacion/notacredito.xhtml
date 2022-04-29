@@ -8,7 +8,7 @@
     <ui:define name="title">Nota de Crédito</ui:define>
 
     <ui:define name="viewname">
-        <li>Refacturación</li>
+        <li>Nota de Crédito</li>
         <li>/</li>
         <li>
             <p:link outcome="/crud">Crud</p:link>
@@ -105,7 +105,7 @@
                             </div>
 
                             <div class="p-field p-col-12 p-md-2">
-                                <br/>
+                                <p:outputLabel value="&#160;"/>
                                 <p:commandButton value="Buscar" icon="pi pi-search-plus" actionListener="#{notaCreditoBean.obtenerFacturas()}" update="form"/>
                             </div>
 
