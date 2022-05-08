@@ -98,7 +98,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
 
     /*
     Varaible para guardar la selección del radio button
-    */
+     */
     protected String tipoFecha;
 
     private Boolean vigente;
@@ -260,13 +260,21 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
     public void regresar() {
         mostarGuia = false;
         mostarPantallaInicial = true;
+        listaConsultaGuia = new ArrayList<>();
+    }
+
+    public void actualizarTipoBusqueda() {       
     }
 
     public void obtenerGuia() throws ParseException {
         try {
             DateFormat date = new SimpleDateFormat("yyyyMMdd");
+            DateFormat dateIR = new SimpleDateFormat("yyyy-MM-dd%2000:00:00");
+            DateFormat dateFR = new SimpleDateFormat("yyyy-MM-dd%2023:59:59");
             String fechaS = date.format(this.fechaI);
             String fechaF = date.format(fechaf);
+            String fechaIR = dateIR.format(this.fechaI);
+            String fechaFR = dateFR.format(fechaf);
 
             /*fechas para comparar entre las dos y establecer un rango de 7 dias*/
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
@@ -283,8 +291,8 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "LA FECHA DE FIN NO PUEDE SER MAYOR A 7 DÍAS A LA FECHA DE INICIO");
             } else {
                 //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.precio/porComerEstado?codigocomercializadora=" + codigoComer + "&activo=" + vigente);
-                url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.consultaguiaremision/porComercializadorafechas?codigocomercializadora=" + codigoComer
-                        + "&codigoterminal=" + codTerminal + "&fechainicio=" + fechaS + "&fechafin=" + fechaF);
+                url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.consultaguiaremision/porFechas?codigocomercializadora=" + codigoComer
+                        + "&codigoterminal=" + codTerminal + "&tipofecha=" + tipoFecha + "&fechaI=" + fechaS + "&fechaF=" + fechaF + "&fechaIR=" + fechaIR + "&fechaFR=" + fechaFR);
 
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setDoInput(true);
@@ -366,7 +374,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
 //    }   
     public void save() throws ParseException {
         if (editarPrecio) {
-            editItems();            
+            editItems();
         }
     }
 
@@ -406,7 +414,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
 
             respuesta = obj.toString();
             writer.write(respuesta);
-            writer.close();            
+            writer.close();
             if (connection.getResponseCode() == 200) {
                 this.dialogo(FacesMessage.SEVERITY_INFO, "GUIA REGISTRADA EXITOSAMENTE");
                 return true;
@@ -457,7 +465,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
             obj.put("usuarioactual", consulGuia.getUsuarioactual());
             respuesta = obj.toString();
             writer.write(respuesta);
-            writer.close();            
+            writer.close();
             if (connection.getResponseCode() == 200) {
                 this.dialogo(FacesMessage.SEVERITY_INFO, "GUIA ACUTALIZADA EXITOSAMENTE");
                 PrimeFaces.current().executeScript("PF('nuevo').hide()");
@@ -477,15 +485,17 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
     public void deleteItems() {
         try {
             String respuesta;
-            url = new URL(direccion + "/porId?codigo=" + consulGuia.getConsultaguiaremisionPK().getCodigocomercializadora());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd%20hh:mm:ss.SSS");
+            String fechaRecep = sdf.format(consulGuia.getConsultaguiaremisionPK().getFecharecepcion());
+            url = new URL(direccion + "/porId?codigocomercializadora=" + consulGuia.getConsultaguiaremisionPK().getCodigocomercializadora() + "&numero=" + consulGuia.getConsultaguiaremisionPK().getNumero() + "&fecha=" + consulGuia.getConsultaguiaremisionPK().getFecha() + "&fecharecepcion=" + fechaRecep);
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
             connection.setRequestMethod("DELETE");
             connection.setRequestProperty("Content-type", "application/json");
-            
+
             if (connection.getResponseCode() == 200) {
-                this.dialogo(FacesMessage.SEVERITY_INFO, "GUIA ELIMINADA EXITOSAMENTE");                
+                this.dialogo(FacesMessage.SEVERITY_INFO, "GUIA ELIMINADA EXITOSAMENTE");
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ELIMINAR");
                 System.out.println(connection.getResponseCode());
@@ -645,7 +655,6 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
 
     public void guardar() throws ParseException {
 
-        
 //        StringBuilder cadenaInfo = new StringBuilder();
 //        StringBuilder cadenaErro = new StringBuilder();
         if (!listaConsultaGuiaArchivoSubida.isEmpty()) {
@@ -823,5 +832,5 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
     public void setTipoFecha(String tipoFecha) {
         this.tipoFecha = tipoFecha;
     }
-   
+
 }

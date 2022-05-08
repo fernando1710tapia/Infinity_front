@@ -211,7 +211,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
                         fact.setRefacturada(fa.getBoolean("refacturada"));
                         fact.setEstado(fa.getString("estado"));
                         fact.setPagada(fa.getBoolean("pagada"));
-                        fact.setRealquilada(fa.getBoolean("reliquidada"));
+                        fact.setReliquidada(fa.getBoolean("reliquidada"));
 
                         Long dateStrFV = fa.getLong("fechaventa");
                         Long dateStrFD = fa.getLong("fechadespacho");
@@ -313,7 +313,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
                             if (listaEnvRefac.get(i).getFactura().getActiva() == true) {
                                 if (listaEnvRefac.get(i).getFactura().getPagada() == false) {
                                     if (listaEnvRefac.get(i).getFactura().getOeenpetro() == true) {
-                                        if (listaEnvRefac.get(i).getFactura().getRealquilada() == false) {
+                                        if (listaEnvRefac.get(i).getFactura().getReliquidada() == false) {
                                             process = true;
                                         } else {
                                             this.dialogo(FacesMessage.SEVERITY_ERROR, "Esta factura ha sido reliquidada (NC), NO debe ser Refacturada");
@@ -605,7 +605,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
                         fact.setRefacturada(fa.getBoolean("refacturada"));
                         fact.setEstado(fa.getString("estado"));
                         fact.setPagada(fa.getBoolean("pagada"));
-                        fact.setRealquilada(fa.getBoolean("reliquidada"));
+                        fact.setReliquidada(fa.getBoolean("reliquidada"));
 
                         Long dateStrFV = fa.getLong("fechaventa");
                         Long dateStrFD = fa.getLong("fechadespacho");

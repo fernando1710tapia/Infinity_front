@@ -31,7 +31,7 @@
                                                      styleClass="ui-button-info" style="margin-right: .5rem" />
                                     <p:commandButton value="Gestión Directa" icon="pi pi-plus" actionListener="#{pagoFacturaBean.nuevoPagoDirecto()}" update="form :formPagoDirecto"
                                                      styleClass="ui-button-succes" style="margin-right: .5rem" />
-                                                                        
+
                                 </p:toolbarGroup>
                                 <!--<p:toolbarGroup>
                                     <p:commandButton value="Export" icon="pi pi-upload" styleClass="ui-button-help" ajax="false">
@@ -92,6 +92,14 @@
                                 <p:column headerText="Banco" sortBy="#{precio.pagofacturaPK.codigobanco}" filterBy="#{precio.pagofacturaPK.codigobanco}" width="10%">
                                     <h:outputText value="#{precio.pagofacturaPK.codigobanco}" />
                                 </p:column>
+                                <p:column headerText="Cliente" sortBy="#{pagoFacturaBean.nombreCliente(precio.pagofacturaPK.numero)}" filterBy="#{pagoFacturaBean.nombreCliente(precio.pagofacturaPK.numero)}" width="10%">
+                                    <h:outputText value="#{pagoFacturaBean.nombreCliente(precio.pagofacturaPK.numero)}" />
+                                </p:column>
+                                <p:column headerText="Fecha Pago"  width="15%">
+                                    <h:outputText value="#{precio.fecha}" >
+                                        <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
+                                    </h:outputText>
+                                </p:column>
                                 <p:column headerText="Numero Pago" sortBy="#{precio.pagofacturaPK.numero}" filterBy="#{precio.pagofacturaPK.numero}" width="15%">
                                     <h:outputText value="#{precio.pagofacturaPK.numero}" />
                                 </p:column>
@@ -117,21 +125,26 @@
                                 <p:rowExpansion>
                                     <div class="detallePrecio" >
                                         <h5>Detalle de pago #{precio.pagofacturaPK.numero}</h5>
-                                        <p:dataTable var="detalle" value="#{pagoFacturaBean.listaDetallePago}" reflow="true">                                            
-                                            <p:column headerText="Abastacedora" sortBy="#{detalle.detallepagoPK.codigoabastecedora}">
-                                                <h:outputText value="#{detalle.detallepagoPK.codigoabastecedora}" />
-                                            </p:column>
-                                            <p:column headerText="Nota Pedido" sortBy="#{detalle.detallepagoPK.numeronotapedido}">
-                                                <h:outputText value="#{detalle.detallepagoPK.numeronotapedido}" />
-                                            </p:column>
+                                        <p:dataTable var="detalle" value="#{pagoFacturaBean.listaDetallePago}" reflow="true">                                                                                        
                                             <p:column headerText="Numero Factura" sortBy="#{detalle.detallepagoPK.numerofactura}">
                                                 <h:outputText value="#{detalle.detallepagoPK.numerofactura}" />
+                                            </p:column>
+                                            <p:column headerText="Fecha Venta"  sortBy="#{detalle.factura.fechaventa}">
+                                                <h:outputText value="#{detalle.factura.fechaventa}" />                                                    
+                                            </p:column>
+                                            <p:column headerText="Fecha Vencimiento" sortBy="#{detalle.factura.fechavencimiento}">
+                                                <h:outputText value="#{detalle.factura.fechavencimiento}" />                                                    
                                             </p:column>
                                             <p:column headerText="Estado" sortBy="#{detalle.activoS}" >
                                                 <h:outputText styleClass="product-badge status-#{estilos.tipoActivo(detalle.activoS)}" value="#{estilos.valorActivo(detalle.activoS)}" />
                                             </p:column>                                            
-                                            <p:column headerText="Valor" sortBy="#{detalle.valor}">
-                                                <h:outputText value="#{detalle.valor}">
+                                            <p:column headerText="Valor" sortBy="#{detalle.factura.valortotal}">
+                                                <h:outputText value="#{detalle.factura.valortotal}">
+                                                    <f:convertNumber currencySymbol="$" type="currency" />
+                                                </h:outputText>
+                                            </p:column>
+                                            <p:column headerText="Valor con Rubro" sortBy="#{detalle.factura.valorconrubro}">
+                                                <h:outputText value="#{detalle.factura.valorconrubro}">
                                                     <f:convertNumber currencySymbol="$" type="currency" />
                                                 </h:outputText>
                                             </p:column>
@@ -376,7 +389,7 @@
                                 </div>  
                                 <div class="p-field p-col-12 p-md-2">
                                     <p:outputLabel value="&#160;"/>                                    
-                                    <p:commandButton value="Buscar" icon="pi pi-search-plus" actionListener="#{pagoFacturaBean.actualizarListaCobros()}" update="dt-cobros"/>
+                                    <p:commandButton value="Buscar" icon="pi pi-search-plus" actionListener="#{pagoFacturaBean.obtenerFacturas()}" update="dt-cobros"/>
                                 </div>    
 
                                 <p:dataTable id="dt-cobros" widgetVar="dtProducts" var="cobro" value="#{pagoFacturaBean.listaFactura}" reflow="true" styleClass="products-table"
@@ -413,8 +426,8 @@
                                             <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                         </h:outputText>
                                     </p:column>                                           
-                                    <p:column headerText="Valor" sortBy="#{cobro.valortotal}" filterBy="#{cobro.valortotal}" width="20%">
-                                        <h:outputText value="#{cobro.valortotal}">
+                                    <p:column headerText="Valor" sortBy="#{cobro.valorconrubro}" filterBy="#{cobro.valorconrubro}" width="20%">
+                                        <h:outputText value="#{cobro.valorconrubro}">
                                             <f:convertNumber currencySymbol="$" type="currency" />
                                         </h:outputText>
                                     </p:column>                                                                                                          
@@ -532,13 +545,13 @@
                 </div>
             </h:form>
         </p:dialog>
-        
-        <p:dialog header="Ingreso Datos" width="20%" showEffect="fade" modal="true" widgetVar="ingresoDatos" responsive="true">
+
+        <p:dialog header="Ingreso Datos" width="40%" showEffect="fade" modal="true" widgetVar="ingresoDatos" responsive="true">
             <h:form id="ingresoDatos">
                 <p:outputPanel rendered="true">
                     <div class="p-grid crud-demo">                        
                         <div class="ui-fluid p-col-12 p-formgrid p-grid">                                                        
-                            <div class="p-field p-col-12 p-md-12">
+                            <div class="p-field p-col-12 p-md-6">
                                 <p:outputLabel for="banco" value="Banco Depósito"/>
                                 <div class="ui-inputgroup">
                                     <span class="ui-inputgroup-addon">
@@ -556,18 +569,23 @@
                                         <p:ajax event="change" listener="#{pagoFacturaBean.seleccionarBanco}"/>
                                     </p:selectOneMenu>
                                 </div>                 
-                            </div>
-                            <div class="p-field p-col-12 p-md-6"></div>
-                            <div class="p-field p-col-12 p-md-12">
-                                <p:outputLabel for="fechaDep" value="Fecha Depósito"/>
-                                <p:inputText id="numero" value="#{pagoFacturaBean.observ}" required="true" />
                             </div>                            
+                            <div class="p-field p-col-12 p-md-6">
+                                <p:outputLabel for="fechaDep" value="Fecha Depósito"/>
+                                <p:datePicker id="fechaDep" value="#{pagoFacturaBean.fechaDep}" showIcon="true" pattern="dd/MM/yyyy">
+                                    <p:ajax event="dateSelect" />
+                                </p:datePicker>                                
+                            </div>                           
+                            <div class="p-field p-col-12 p-md-12">
+                                <p:outputLabel for="obs" value="Observación"/>
+                                <p:inputTextarea id="obs" value="#{pagoFacturaBean.observ}" required="true" />
+                            </div>
                         </div> 
                     </div>
                 </p:outputPanel>
                 <div class="p-grid p-col-12 p-justify-end">                     
-                    <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{pagoFacturaBean.guardar}" process="@this"  
-                                     update="@this" styleClass="p-mr-2" />                    
+                    <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{pagoFacturaBean.guardarPagoDirecto}" process="@this"  
+                                     update="@this :form formPagoDirecto" styleClass="p-mr-2" />                    
                     <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('ingresoDatos').hide()" class="ui-button-secondary" />
                 </div>
             </h:form>

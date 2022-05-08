@@ -7,10 +7,6 @@ package ec.com.infinityone.modeloWeb;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import javax.persistence.EmbeddedId;
-import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -122,7 +118,7 @@ public class Factura implements Serializable{
     
     private Boolean refacturada;
     
-    private Boolean realquilada;
+    private Boolean reliquidada;
     
     private boolean seleccionar;
 
@@ -586,13 +582,13 @@ public class Factura implements Serializable{
         this.refacturada = refacturada;
     }
 
-    public Boolean getRealquilada() {
-        return realquilada;
+    public Boolean getReliquidada() {
+        return reliquidada;
     }
 
-    public void setRealquilada(Boolean realquilada) {
-        this.realquilada = realquilada;
-    }
+    public void setReliquidada(Boolean reliquidada) {
+        this.reliquidada = reliquidada;
+    }    
 
     public boolean isSeleccionar() {
         return seleccionar;
