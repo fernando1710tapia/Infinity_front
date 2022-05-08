@@ -2377,13 +2377,13 @@ public class FacturacionBean extends ReusableBean implements Serializable {
     }
 
     public void generarReporte(EnvioFactura env) {
-        String path = "C:\\archivos\\Template\\NuevaFactura.jrxml";
-        String subreport = "C:\\archivos\\Template\\SubreporteFacturaRubros.jrxml";
-        String subreport1 = "C:\\archivos\\Template\\SubreporteFacturaImpuestos.jrxml";
+//        String path = "C:\\archivos\\Template\\NuevaFactura.jrxml";
+//        String subreport = "C:\\archivos\\Template\\SubreporteFacturaRubros.jrxml";
+//        String subreport1 = "C:\\archivos\\Template\\SubreporteFacturaImpuestos.jrxml";
 
-//        String path = Fichero.getCARPETAREPORTES() + "/NuevaFactura.jrxml";
-//        String subreport = Fichero.getCARPETAREPORTES() + "/SubreporteFacturaRubros.jrxml";
-//        String subreport1 = Fichero.getCARPETAREPORTES() + "/SubreporteFacturaImpuestos.jrxml";
+        String path = Fichero.getCARPETAREPORTES() + "/NuevaFactura.jrxml";
+        String subreport = Fichero.getCARPETAREPORTES() + "/SubreporteFacturaRubros.jrxml";
+        String subreport1 = Fichero.getCARPETAREPORTES() + "/SubreporteFacturaImpuestos.jrxml";
         System.out.println("PATH:" + path);
         InputStream file = null;
         try {
@@ -2394,11 +2394,11 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             JasperReport subreporte1 = JasperCompileManager.compileReport(subreport1);
 
             Map parametro = new HashMap();
-//            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
-//            BufferedImage imageBar = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/barras.jpeg"));
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+            BufferedImage imageBar = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/barras.jpeg"));
 
-            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
-            BufferedImage imageBar = ImageIO.read(new File("C:\\archivos\\Template\\barras.jpg"));
+//            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
+//            BufferedImage imageBar = ImageIO.read(new File("C:\\archivos\\Template\\barras.jpg"));
             parametro.put("numeroComercializadora", env.getFactura().getFacturaPK().getCodigocomercializadora());
             parametro.put("subReporte", subreporte);
             parametro.put("subReporte1", subreporte1);
@@ -2411,8 +2411,8 @@ public class FacturacionBean extends ReusableBean implements Serializable {
 
             JasperPrint print = JasperFillManager.fillReport(reporte, parametro, conexion);
 
-//            File directory = new File(Fichero.getCARPETAREPORTES());
-             File directory = new File("C:\\archivos");
+            File directory = new File(Fichero.getCARPETAREPORTES());
+//             File directory = new File("C:\\archivos");
 
             String nombreDocumento = "reporteFactura";
 
