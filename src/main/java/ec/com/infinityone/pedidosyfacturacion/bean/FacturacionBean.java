@@ -36,6 +36,8 @@ import ec.com.infinityone.modeloWeb.Producto;
 import ec.com.infinityone.modeloWeb.Terminal;
 import ec.com.infinityone.reusable.ReusableBean;
 import ec.com.infinityone.actorcomercial.bean.ComercializadoraBean;
+import ec.com.infinityone.catalogo.servicios.BancoServicio;
+import ec.com.infinityone.catalogo.servicios.FormapagoServicio;
 import ec.com.infinityone.configuration.Fichero;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -111,6 +113,16 @@ public class FacturacionBean extends ReusableBean implements Serializable {
      */
     @Inject
     protected ClienteServicio clienteServicio;
+    /*
+    Variable para acceder a los servicios de Forma de pago
+     */
+    @Inject
+    private FormapagoServicio formapagoServicio;
+    /*
+    Variable para acceder a los servicios de Banco
+     */
+    @Inject
+    private BancoServicio bancoServicio;
     /*
     Variable Comercializadora
      */
@@ -368,6 +380,18 @@ public class FacturacionBean extends ReusableBean implements Serializable {
     Opcion para habilitar el boton de procesar en refactura
      */
     protected boolean process;
+    /*
+    Objeto formapago
+     */
+    private Formapago formapago;
+    /*
+    Variable que almacena varios Formapagos
+     */
+    private List<Formapago> listaFormapagos;
+    /*
+    Lista Bancos
+     */
+    private List<Banco> listaBancos;
 
     /**
      * Constructor por defecto
@@ -386,6 +410,8 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         buscarFacturaXCliente = false;
         obtenerTerminales();
         obtenerComercializadora();
+        obtenerFormapago();
+        obtenerBancos();
         //obtenerClientes();
     }
 
@@ -473,9 +499,15 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         estadoAnulacion = false;
         facturaauxiliar = new Factura();
         facturaauxiliarPK = new FacturaPK();
+        formapago = new Formapago();
         //direccion = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo";
         direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo";
         process = false;
+    }
+
+    private void obtenerBancos() {
+        listaBancos = new ArrayList<>();
+        listaBancos = bancoServicio.obtenerBanco();
     }
 
     public void obtenerComercializadora() {
@@ -494,6 +526,11 @@ public class FacturacionBean extends ReusableBean implements Serializable {
     public void obtenerClientes() {
         listaClientes = new ArrayList<>();
         listaClientes = clienteServicio.obtenerClientes();
+    }
+
+    public void obtenerFormapago() {
+        listaFormapagos = new ArrayList<>();
+        listaFormapagos = this.formapagoServicio.obtenerFormapago();
     }
 
     public void seleccionarComer() {
@@ -680,16 +717,99 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                             JSONObject fa = retorno.getJSONObject(indice);
                             JSONObject faPK = fa.getJSONObject("facturaPK");
 
-                            factPk.setNumero(faPK.getString("numero"));
-                            factPk.setNumeronotapedido(faPK.getString("numeronotapedido"));
                             factPk.setCodigoabastecedora(faPK.getString("codigoabastecedora"));
                             factPk.setCodigocomercializadora(faPK.getString("codigocomercializadora"));
-                            fact.setCodigocliente(fa.getString("codigocliente"));
-                            fact.setValortotal(fa.getBigDecimal("valortotal"));
-                            fact.setOeenpetro(fa.getBoolean("oeenpetro"));
-                            fact.setCodigobanco(fa.getString("codigobanco"));
+                            factPk.setNumeronotapedido(faPK.getString("numeronotapedido"));
+                            factPk.setNumero(faPK.getString("numero"));
+                            fact.setFacturaPK(factPk);
+
+                            Long lDateVen = fa.getLong("fechaventa");
+                            Date dateVen = new Date(lDateVen);
+                            fact.setFechaventa(date.format(dateVen));
+                            Long lDateVenc = fa.getLong("fechavencimiento");
+                            Date dateVenc = new Date(lDateVenc);
+                            fact.setFechavencimiento(date.format(dateVenc));
+                            Long lDateAcre = fa.getLong("fechaacreditacion");
+                            Date dateAcre = new Date(lDateAcre);
+                            fact.setFechaacreditacion(date.format(dateAcre));
+                            Long lDateDesp = fa.getLong("fechadespacho");
+                            Date dateDesp = new Date(lDateDesp);
+                            fact.setFechadespacho(date.format(dateDesp));
                             fact.setActiva(fa.getBoolean("activa"));
+                            fact.setValortotal(fa.getBigDecimal("valortotal"));
+                            fact.setIvatotal(fa.getBigDecimal("ivatotal"));
+                            fact.setObservacion(fa.getString("observacion"));
+                            fact.setPagada(fa.getBoolean("pagada"));
+                            fact.setOeenpetro(fa.getBoolean("oeenpetro"));
+                            fact.setCodigocliente(fa.getString("codigocliente"));
+                            fact.setCodigoterminal(fa.getString("codigoterminal"));
+                            fact.setCodigobanco(fa.getString("codigobanco"));
+                            fact.setAdelantar(fa.getBoolean("adelantar"));
+                            fact.setUsuarioactual(fa.getString("usuarioactual"));
+                            fact.setNombrecomercializadora(fa.getString("nombrecomercializadora"));
+                            fact.setRuccomercializadora(fa.getString("ruccomercializadora"));
+                            fact.setDireccionmatrizcomercializadora(fa.getString("direccionmatrizcomercializadora"));
+                            fact.setNombrecliente(fa.getString("nombrecliente"));
+                            fact.setRuccliente(fa.getString("ruccliente"));
+                            fact.setValorsinimpuestos(fa.getBigDecimal("valorsinimpuestos"));
+                            if (!fa.isNull("correocliente")) {
+                                fact.setCorreocliente(fa.getString("correocliente"));
+                            }
+                            fact.setDireccioncliente(fa.getString("direccioncliente"));
+                            fact.setTelefonocliente(fa.getString("telefonocliente"));
+                            if (!fa.isNull("numeroautorizacion")) {
+                                fact.setNumeroautorizacion(fa.getString("numeroautorizacion"));
+                            }
+                            if (!fa.isNull("fechaautorizacion")) {
+                                fact.setFechaautorizacion(fa.getString("fechaautorizacion"));
+                            }
+                            fact.setClienteformapago(fa.getString("clienteformapago"));
+                            fact.setPlazocliente(fa.getInt("plazocliente"));
+                            fact.setClaveacceso(fa.getString("claveacceso"));
+                            if (!fa.isNull("campoadicional_campo1")) {
+                                fact.setCampoadicionalCampo1(fa.getString("campoadicional_campo1"));
+                            }
+                            if (!fa.isNull("campoadicional_campo2")) {
+                                fact.setCampoadicionalCampo2(fa.getString("campoadicional_campo2"));
+                            }
+                            if (!fa.isNull("campoadicional_campo3")) {
+                                fact.setCampoadicionalCampo3(fa.getString("campoadicional_campo3"));
+                            }
+                            if (!fa.isNull("campoadicional_campo4")) {
+                                fact.setCampoadicionalCampo4(fa.getString("campoadicional_campo4"));
+                            }
+                            if (!fa.isNull("campoadicional_campo5")) {
+                                fact.setCampoadicionalCampo5(fa.getString("campoadicional_campo5"));
+                            }
+                            if (!fa.isNull("campoadicional_campo6")) {
+                                fact.setCampoadicionalCampo6(fa.getString("campoadicional_campo6"));
+                            }
+                            fact.setEstado(fa.getString("estado"));
+                            Long error = fa.getLong("errordocumento");
+                            Short errorS = error.shortValue();
+                            fact.setErrordocumento(errorS);
+                            Long hospedado = fa.getLong("hospedado");
+                            Short hospedadoS = hospedado.shortValue();
+                            fact.setHospedado(hospedadoS);
+                            fact.setAmbientesri(fa.getString("ambientesri").charAt(0));
+                            if (!fa.isNull("tipoemision")) {
+                                fact.setTipoemision(fa.getString("tipoemision").charAt(0));
+                            }
+                            fact.setCodigodocumento(fa.getString("codigodocumento"));
+                            fact.setEsagenteretencion(fa.getBoolean("esagenteretencion"));
+                            fact.setEscontribuyenteespacial(fa.getString("escontribuyenteespacial"));
+                            fact.setObligadocontabilidad(fa.getString("obligadocontabilidad"));
+                            fact.setTipocomprador(fa.getString("tipocomprador"));
+                            fact.setMoneda(fa.getString("moneda"));
+                            fact.setSeriesri(fa.getString("seriesri"));
+                            if (!fa.isNull("tipoplazocredito")) {
+                                fact.setTipoplazocredito(fa.getString("tipoplazocredito"));
+                            }
+                            fact.setValorconrubro(fa.getBigDecimal("valorconrubro"));
                             fact.setOeanuladaenpetro(fa.getBoolean("oeanuladaenpetro"));
+                            //factura.setRefacturada(fact.getBoolean("refacturada"));
+                            //factura.setReliquidada(fact.getBigDecimal("reliquidada"));                            
+
                             if (fa.getBoolean("activa") == true) {
                                 estadoAnulacion = false;
                                 //fact.setActiva(estadoAnulacion);
@@ -2509,6 +2629,107 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         }
     }
 
+    public EnvioFactura editarFactura(EnvioFactura obj) {
+        envF = obj;
+        if (envF.getFactura().getActiva()) {
+            if (!envF.getFactura().getPagada()) {
+                if (envF.getFactura().getOeenpetro()) {
+                    for (int i = 0; i < listaFormapagos.size(); i++) {
+                        if (envF.getFactura().getClienteformapago().equals(listaFormapagos.get(i).getCodigo())) {
+                            formapago = listaFormapagos.get(i);
+                            break;
+                        }
+                    }
+                    for (int i = 0; i < listaBancos.size(); i++) {
+                        if (envF.getFactura().getCodigobanco().equals(listaBancos.get(i).getCodigo())) {
+                            banco = listaBancos.get(i);
+                            break;
+                        }
+                    }
+                    PrimeFaces.current().executeScript("PF('editar').show()");
+                    return envF;
+                } else {
+                    this.dialogo(FacesMessage.SEVERITY_WARN, "La factura no se encunetra en Petro");
+                    return null;
+                }
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_WARN, "La factura se encunetra pagada");
+                return null;
+            }
+        } else {
+            this.dialogo(FacesMessage.SEVERITY_WARN, "La factura no se encunetra Activa");
+            return null;
+        }
+
+    }
+
+    public void editarPagoFactura() throws ParseException {
+        if (envF != null) {
+            DateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
+            SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
+            if (envF.getFactura().getFechaacreditacion() != null) {
+                Date fechaA = formato.parse(envF.getFactura().getFechadespacho().replace("/", "-"));
+                envF.getFactura().setFechaacreditacion(date.format(fechaA));
+            }
+            if (envF.getFactura().getFechadespacho() != null) {
+                Date fechaA = formato.parse(envF.getFactura().getFechadespacho().replace("/", "-"));
+                envF.getFactura().setFechadespacho(date.format(fechaA));
+            }
+            if (envF.getFactura().getFechavencimiento() != null) {
+                Date fechaA = formato.parse(envF.getFactura().getFechavencimiento().replace("/", "-"));
+                envF.getFactura().setFechavencimiento(date.format(fechaA));
+            }
+            if (envF.getFactura().getFechaventa() != null) {
+                Date fechaA = formato.parse(envF.getFactura().getFechaventa().replace("/", "-"));
+                envF.getFactura().setFechaventa(date.format(fechaA));
+            }
+            envF.getFactura().setClienteformapago(formapago.getCodigo());
+            actualizarFactura(envF.getFactura());
+            obtenerFacturas();
+        }
+    }
+
+    public void seleccionarBanco() {
+        if (banco != null) {
+        }
+    }
+
+    public void actualizarFactura(Factura fact) {
+        try {
+            String respuesta;
+            //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura/porId");
+            url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura/porId");
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setConnectTimeout(1000 * 60);
+            connection.setReadTimeout(1000 * 60);
+            connection.setDoOutput(true);
+            connection.setRequestMethod("PUT");
+            connection.setRequestProperty("Content-type", "application/json");
+            //connection.setFixedLengthStreamingMode(1000000000);
+
+            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonStr = mapper.writeValueAsString(fact);
+            Gson gson = new Gson();
+            String JSON = gson.toJson(fact);
+            DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+            out.write(jsonStr.getBytes());
+            out.flush();
+            out.close();
+            if (connection.getResponseCode() == 200) {
+                PrimeFaces.current().executeScript("PF('editar').hide()");
+                this.dialogo(FacesMessage.SEVERITY_INFO, "FORMA DE PAGO ACUTALIZADA EXITOSAMENTE");
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ACTUALIZAR");
+            }
+            System.out.println(connection.getResponseCode());
+            System.out.println(connection.getResponseMessage());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public boolean isMostarFactura() {
         return mostarFactura;
     }
@@ -2787,6 +3008,38 @@ public class FacturacionBean extends ReusableBean implements Serializable {
 
     public void setProcess(boolean process) {
         this.process = process;
+    }
+
+    public Formapago getFormapago() {
+        return formapago;
+    }
+
+    public void setFormapago(Formapago formapago) {
+        this.formapago = formapago;
+    }
+
+    public List<Formapago> getListaFormapagos() {
+        return listaFormapagos;
+    }
+
+    public void setListaFormapagos(List<Formapago> listaFormapagos) {
+        this.listaFormapagos = listaFormapagos;
+    }
+
+    public Banco getBanco() {
+        return banco;
+    }
+
+    public void setBanco(Banco banco) {
+        this.banco = banco;
+    }
+
+    public List<Banco> getListaBancos() {
+        return listaBancos;
+    }
+
+    public void setListaBancos(List<Banco> listaBancos) {
+        this.listaBancos = listaBancos;
     }
 
 }

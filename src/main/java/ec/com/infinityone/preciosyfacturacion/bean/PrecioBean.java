@@ -431,7 +431,7 @@ public class PrecioBean extends ReusableBean implements Serializable {
             writer.close();
             PrimeFaces.current().executeScript("PF('nuevo').hide()");
             if (connection.getResponseCode() == 200) {
-                this.dialogo(FacesMessage.SEVERITY_INFO, "BANCO ACUTALIZADO EXITOSAMENTE");
+                this.dialogo(FacesMessage.SEVERITY_INFO, "PRECIO ACUTALIZADO EXITOSAMENTE");
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ACTUALIZAR");
             }
@@ -464,7 +464,7 @@ public class PrecioBean extends ReusableBean implements Serializable {
             writer.close();
             PrimeFaces.current().executeScript("PF('nuevo').hide()");
             if (connection.getResponseCode() == 200) {
-                this.dialogo(FacesMessage.SEVERITY_INFO, "BANCO ELIMINADO EXITOSAMENTE");
+                this.dialogo(FacesMessage.SEVERITY_INFO, "PRECIO ELIMINADO EXITOSAMENTE");
                 obtenerPrecio(comercializadora.getCodigo(), vigente);
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ELIMINAR");

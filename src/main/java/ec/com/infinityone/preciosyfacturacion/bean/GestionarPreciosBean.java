@@ -231,6 +231,14 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
     Lista que almacena varios detelles precios para ser mostrados en el paso 3
      */
     private List<ObjetoDetallePrecio> listaObjDetalle;
+
+    private List<Precio> precioError;
+
+    private List<Precio> precioGuardado;
+
+    private List<Detalleprecio> detPrecioError;
+
+    private List<Detalleprecio> detPrecioGuardado;
     /*
     Variable para verificar si se realiza o no la consultarPorIdPrecios
      */
@@ -659,11 +667,11 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                     comercializadoraProducto.setPrecioepp(comerProducto.getBigDecimal("precioepp"));
                     comercializadoraProducto.setPvpsugerido(comerProducto.getBigDecimal("pvpsugerido"));
                     comercializadoraProducto.setSoloaplicaiva(comerProducto.getBoolean("soloaplicaiva"));
-                    comercializadoraProducto.setUsuarioactual(comerProducto.getString("usuarioactual")); 
+                    comercializadoraProducto.setUsuarioactual(comerProducto.getString("usuarioactual"));
                     comercializadoraProducto.setProcesar(comerProducto.getBoolean("procesar"));
                     comercializadoraProducto.setProducto(product);
                     comercializadoraProducto.setMedida(medida);
-                    
+
                     comercializadoraProducto.setComercializadoraproductoPK(comercializadoraProductoPK);
                     /*------------------Precio Lista------------------------------*/
                     precioLista.setNombre(listPrecio.getString("nombre"));
@@ -1013,12 +1021,35 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
         }
     }
 
+    public void prueba() {
+        this.dialogo(FacesMessage.SEVERITY_INFO, "Se va a iniciar la creacion de precios, esto tomara un momento, por favor espere");      
+    }
+
     public void guardarPrice() {
+        //this.dialogo(FacesMessage.SEVERITY_INFO, "Se va a iniciar la creacion de precios, esto tomara un momento, por favor espere");
+        precioError = new ArrayList<>();
+        precioGuardado = new ArrayList<>();
+        detPrecioError = new ArrayList<>();
+        detPrecioGuardado = new ArrayList<>();
+        StringBuilder cadenaErro = new StringBuilder();
         for (int i = 0; i < listPrice.size(); i++) {
             obtenerTerminalesProducto(i, listPrice);
             for (int j = 0; j < listaTerminalProdAux.size(); j++) {
                 addItemsPrice(i, j, listPrice, listaTerminalProdAux);
             }
+        }
+        if (!precioGuardado.isEmpty()) {
+            this.dialogo(FacesMessage.SEVERITY_INFO, "SE HAN REGISTRADOS " + precioGuardado.size() + " PRECIOS, Y " + detPrecioGuardado.size() + " DETALLES PRECIOS EXITOSAMENTE");
+        }
+        if (!precioError.isEmpty()) {
+            cadenaErro.append("ERROR AL REGISTRAR PRECIOS\n").toString();
+            for (int i = 0; i < precioError.size(); i++) {
+                cadenaErro.append("Precio N." + precioError.get(i).getPrecioPK().getCodigoPrecio() + "\n").toString();
+            }
+            for (int i = 0; i < detPrecioError.size(); i++) {
+                cadenaErro.append("Detalle Precio N." + detPrecioError.get(i).getDetalleprecioPK().getCodigo() + "\n").toString();
+            }
+            this.dialogo(FacesMessage.SEVERITY_ERROR, cadenaErro.toString());
         }
         reestablecer();
     }
@@ -1041,6 +1072,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             JSONObject obj = new JSONObject();
             JSONObject objPK = new JSONObject();
+            Precio precioAux = new Precio();
 
             objPK.put("codigocomercializadora", precio.get(i).getPrecioPK().getCodigocomercializadora());
             objPK.put("codigoterminal", listaTerminalP.get(j).getListaprecioterminalproductoPK().getCodigoterminal());
@@ -1064,7 +1096,8 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
             writer.close();
 
             if (connection.getResponseCode() == 200) {
-                this.dialogo(FacesMessage.SEVERITY_INFO, "PRECIOS REGISTRADOS EXITOSAMENTE");
+                precioAux = precio.get(i);
+                precioGuardado.add(precioAux);
                 InputStreamReader reader = new InputStreamReader(connection.getInputStream());
                 String codigo = "";
                 BufferedReader br = new BufferedReader(reader);
@@ -1080,7 +1113,8 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                     saveDetailP(precio.get(i).getDetalleprecioList(), codigo, listaTerminalP.get(j).getListaprecioterminalproductoPK().getCodigoterminal());
                 }
             } else {
-                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR PRECIOS");
+                precioAux = precio.get(i);
+                precioError.add(precioAux);
                 System.out.println("Error al añadir:" + connection.getResponseCode());
                 System.out.println("Error:" + connection.getErrorStream());
                 System.out.println(connection.getResponseMessage());
@@ -1114,6 +1148,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             JSONObject detalle = new JSONObject();
             JSONObject detallePK = new JSONObject();
+            Detalleprecio detPrecioAux = new Detalleprecio();
 
             detallePK.put("codigocomercializadora", detalleP.get(j).getDetalleprecioPK().getCodigocomercializadora());
             detallePK.put("codigoterminal", codTerminal);
@@ -1134,9 +1169,11 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
             writer.close();
 
             if (connection.getResponseCode() == 200) {
-                this.dialogo(FacesMessage.SEVERITY_INFO, "DETALLES DE PRECIO REGISTRADOS EXITOSAMENTE");
+                detPrecioAux = detalleP.get(j);
+                detPrecioGuardado.add(detPrecioAux);
             } else {
-                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR DETALLES");
+                detPrecioAux = detalleP.get(j);
+                detPrecioError.add(detPrecioAux);
                 System.out.println("Error al añadir:" + connection.getResponseCode());
                 System.out.println("Error:" + connection.getErrorStream());
                 System.out.println(connection.getResponseMessage());

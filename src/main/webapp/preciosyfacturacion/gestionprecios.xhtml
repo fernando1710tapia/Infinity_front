@@ -221,7 +221,7 @@
                         <div class="p-field p-col-12 p-md-12">
                             <h5 class="p-mt-0">
                                 <span style="font-weight: bold">
-                                    Por favor, verificar los valores PV Cliente final y Precio EPP deben ser los correctos para este perÃ­odo
+                                    Por favor, verificar los valores PV Cliente final y Precio EPP deben ser los correctos para este período
                                 </span>
                             </h5>
                         </div>
@@ -309,8 +309,8 @@
                         </div>
                     </div>
                     <p:toolbar>
-                        <p:toolbarGroup>
-                            <p:commandButton value="Guardar" icon="pi pi-check"  actionListener="#{gestionarPreciosBean.guardarPrice()}" update=":form :step2 step3" styleClass="p-mr-2"/>
+                        <p:toolbarGroup>                       
+                            <p:commandButton value="Guardar" icon="pi pi-check" oncomplete="PF('confirmDialog').show()" process="@this" styleClass="p-mr-2"/>
                             <p:commandButton value="Regresar" icon="pi pi-arrow-left" actionListener="#{gestionarPreciosBean.regresarPaso2()}" update=":step2 step3" styleClass="ui-button-help p-mr-2"/>
                             <p:commandButton value="Cancelar" icon="pi pi-times" class="ui-button-secondary"  actionListener="#{gestionarPreciosBean.init()}" update=":step2 step3 :form"/>
                         </p:toolbarGroup>
@@ -319,20 +319,22 @@
             </p:outputPanel>
         </h:form>
 
-
-
-
-        <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300" message="Eliminar Ã�rea MercadÃ©o?" header="Confirm" severity="warn">
+        <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300" message="Eliminar Precio?" header="Confirm" severity="warn">
             <p:commandButton value="Si" icon="pi pi-check" actionListener="#{crudDemoView.deleteProduct}" process="@this" oncomplete="PF('deleteProductDialog').hide()"/>
             <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('deleteProductDialog').hide()" />
         </p:confirmDialog>
 
+        <p:confirmDialog widgetVar="confirmDialog" showEffect="fade" width="300" message="Se va a iniciar la creacion de precios. Esto tomara un momento. Continuar?" header="Confirm" severity="info">            
+            <p:commandButton value="Si" icon="pi pi-check" actionListener="#{gestionarPreciosBean.guardarPrice()}" process="@this" update=":form :step2 step3" oncomplete="PF('confirmDialog').hide()"/>
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('confirmDialog').hide()" />            
+        </p:confirmDialog>
+        
         <p:confirmDialog global="true" showEffect="fade" width="300">
             <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
             <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
         </p:confirmDialog>    
 
-        <p:confirmDialog widgetVar="termialDialogo" showEffect="fade" width="300" message="ESTA OPCIÃ“N NO ESTA DISPONIBLE" header="Confirm" severity="warn">
+        <p:confirmDialog widgetVar="termialDialogo" showEffect="fade" width="300" message="ESTA OPCIÓN NO ESTA DISPONIBLE" header="Confirm" severity="warn">
             <p:commandButton value="OK" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('termialDialogo').hide()" />
         </p:confirmDialog>
     </ui:define>

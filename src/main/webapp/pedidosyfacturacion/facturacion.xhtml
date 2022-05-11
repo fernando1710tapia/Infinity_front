@@ -168,6 +168,10 @@
                                 </p:commandButton>
                             </p:column>
                             <p:column style="width: 3.5rem">
+                                <p:commandButton icon="pi pi-pencil" update="form :formEditar" actionListener="#{facturacionBean.editarFactura(envF)}"
+                                                 styleClass="edit-button rounded-button ui-button-success" process="@this">
+                                    <f:setPropertyActionListener value="#{envF}" target="#{facturacionBean.envF}" />
+                                </p:commandButton>
                                 <p:commandButton icon="pi pi-print" actionListener="#{facturacionBean.generarReporte(envF)}" ajax="false" 
                                                  onstart="PF('blockUIWidget').block()" 
                                                  oncomplete="PF('blockUIWidget').unblock()"
@@ -457,6 +461,71 @@
             </p:outputPanel>
         </h:form>
 
+        <p:dialog header="Factura" width="50%" showEffect="fade" modal="true" widgetVar="editar" responsive="true">
+            <h:form id="formEditar">
+                <p:outputPanel rendered = "true">                               
+                    <div class="ui-fluid p-formgrid p-grid">
+                        <div class="p-field p-col-12 p-md-12"></div>
+                        <div class="p-field p-col-12 p-md-6">                            
+                            <p:outputLabel id="numNoPed">N. Nota de Pedido: #{facturacionBean.envF.factura.facturaPK.numeronotapedido}</p:outputLabel>                                                            
+                        </div>
+                        <div class="p-field p-col-12 p-md-6">                                                         
+                            <p:outputLabel id="numFac">N. Factura: #{facturacionBean.envF.factura.facturaPK.numero}</p:outputLabel>                            
+                        </div>                        
+                        <div class="p-field p-col-12 p-md-5">                                                           
+                            <p:outputLabel id="codigoClien">Código Cliente: #{facturacionBean.envF.factura.codigocliente}</p:outputLabel>                            
+                        </div>
+                        <div class="p-field p-col-12 p-md-7">                                                        
+                            <p:outputLabel id="nomClien">Nombre Cliente: #{facturacionBean.envF.factura.nombrecliente}</p:outputLabel>                            
+                        </div>                        
+                        <div class="p-field p-col-12 p-md-6">
+                            <p:outputLabel id="banco">Banco: #{facturacionBean.banco.codigo} - #{facturacionBean.banco.nombre}</p:outputLabel>                                                        
+                        </div>                         
+                        <div class="p-field p-col-12 p-md-6">                                                         
+                            <p:outputLabel id="terDesp">Terminal Despacho: #{facturacionBean.envF.factura.codigoterminal}</p:outputLabel>                           
+                        </div>                        
+                        <div class="p-field p-col-12 p-md-6">  
+                            <p:outputLabel id="fechaVent">Fecha Venta: #{facturacionBean.envF.factura.fechaventa}</p:outputLabel>
+                        </div>
+                        <div class="p-field p-col-12 p-md-6">  
+                            <p:outputLabel id="fechaVen">Fecha Vencimiento: #{facturacionBean.envF.factura.fechavencimiento}</p:outputLabel>                            
+                        </div>                        
+                        <div class="p-field p-col-12 p-md-4">                                                    
+                            <p:outputLabel id="valSimp">Valor sin Impuestos: #{facturacionBean.envF.factura.valorsinimpuestos}</p:outputLabel>                            
+                        </div>
+                        <div class="p-field p-col-12 p-md-4">                                                  
+                            <p:outputLabel id="valTot">Valor Total: #{facturacionBean.envF.factura.valortotal}</p:outputLabel>                            
+                        </div>
+                        <div class="p-field p-col-12 p-md-4">                                                        
+                            <p:outputLabel id="valRub">Valor con Rubro: #{facturacionBean.envF.factura.valorconrubro}</p:outputLabel>                            
+                        </div>                        
+                        <div class="p-field p-col-12 p-md-6">    
+                            <p:outputLabel for="formaPago">Forma Pago</p:outputLabel>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon">
+                                    <i class="fa fa-money"></i>
+                                </span>
+                                <p:selectOneMenu id="formaPago" value="#{facturacionBean.formapago}" title="Iva"
+                                                 panelStyle="width:175px" style="min-width: 80%;" 
+                                                 autoWidth="false" converter="converterg"
+                                                 required="true" requiredMessage="Seleccione Forma de Pago" >                                                                         
+                                    <f:selectItem noSelectionOption="true" itemLabel="Seleccione" itemValue="#{null}"/>
+                                    <f:selectItems value="#{facturacionBean.listaFormapagos}"
+                                                   var="fpago"
+                                                   itemLabel="#{fpago.codigo} - #{fpago.nombre}"
+                                                   itemValue="#{fpago}" />                                                  
+                                </p:selectOneMenu>
+                            </div>
+                        </div>                                                                    
+                    </div>                                                                                           
+                </p:outputPanel>
+                <div class="p-grid p-justify-end">
+                    <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{facturacionBean.editarPagoFactura}" 
+                                     update=":form formEditar" styleClass="p-mr-2"/>
+                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('editar').hide()" class="ui-button-secondary" />
+                </div>
+            </h:form>
+        </p:dialog>
 
         <p:confirmDialog global="true" showEffect="fade" width="300">
             <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
