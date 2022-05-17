@@ -1120,6 +1120,53 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
         }
     }
 
+    public void generarReporteAux(EnvioPedido envP) {
+        String path = "C:\\archivos\\Template\\FormatoNotaPedido.jrxml";
+        String subreport = "C:\\archivos\\Template\\notapedido.jrxml";
+        String rutaGuardar = Fichero.getCARPETAREPORTES();
+//        String subreport = Fichero.getCARPETAREPORTES() + "/notapedido.jrxml";
+//        String path = Fichero.getCARPETAREPORTES() + "/FormatoNotaPedido.jrxml";
+        System.out.println("PATH:" + path);
+        InputStream file = null;
+        try {
+            file = new FileInputStream(new File(path));
+
+            JasperReport reporte = JasperCompileManager.compileReport(file);
+            JasperReport subreporte = JasperCompileManager.compileReport(subreport);
+//            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
+            Map parametro = new HashMap();
+
+            parametro.put("subReporte", subreporte);            
+            parametro.put("codComer", envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora());
+            parametro.put("numeroNotaPedido", envP.getNotapedido().getNotapedidoPK().getNumero());
+            parametro.put("logo", image);
+
+            //System.out.println("PARAMETROS: " + parametro);
+            Connection conexion = conexionJasperBD();
+
+            //System.out.println("CONEXIÓN: " + conexion);
+            JasperPrint print = JasperFillManager.fillReport(reporte, parametro, conexion);
+
+            File directory = new File("C:\\Archivos");
+//            File directory = new File(rutaGuardar);
+            String nombreDocumento = "reporteNotaPedido";
+
+            File pdf = File.createTempFile(nombreDocumento + "_", ".pdf", directory);
+            JasperExportManager.exportReportToPdfStream(print, new FileOutputStream(pdf));
+            File initialFile = new File(pdf.getAbsolutePath());
+            InputStream targetStream = new FileInputStream(initialFile);
+            //pdfStream = new DefaultStreamedContent();
+            pdfStream = new DefaultStreamedContent(targetStream, "application/pdf", nombreDocumento + envP.getNotapedido().getNotapedidoPK().getNumero() + ".pdf");
+            //DefaultStreamedContent.builder().contentType("application/pdf").name(nombreDocumento + ".pdf").stream(() -> new FileInputStream(targetStream)).build();
+            System.err.print(pdf.getAbsolutePath());
+            System.out.println(pdf.getAbsolutePath());
+        } catch (Exception ex) {
+            //ex.printStackTrace();
+            System.out.println("Excepcion: " + ex);
+        }
+    }
+
     public boolean isMostarNotaPedido() {
         return mostarNotaPedido;
     }

@@ -145,7 +145,7 @@
                                     </p:commandButton>
                                 </p:column>
                                 <p:column style="width: 3.5rem">
-                                    <p:commandButton icon="pi pi-print" actionListener="#{notapedidoBean.generarReporte(notap)}" ajax="false"
+                                    <p:commandButton icon="pi pi-print" actionListener="#{notapedidoBean.generarReporteAux(notap)}" ajax="false"
                                                      onstart="PF('blockUIWidget').block()" 
                                                      oncomplete="PF('blockUIWidget').unblock()"
                                                      onclick="PrimeFaces.monitorDownload(start, stop);"
