@@ -1121,11 +1121,11 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
     }
 
     public void generarReporteAux(EnvioPedido envP) {
-        String path = "C:\\archivos\\Template\\FormatoNotaPedido.jrxml";
-        String subreport = "C:\\archivos\\Template\\notapedido.jrxml";
+//        String path = "C:\\archivos\\Template\\FormatoNotaPedido.jrxml";
+//        String subreport = "C:\\archivos\\Template\\notapedido.jrxml";
         String rutaGuardar = Fichero.getCARPETAREPORTES();
-//        String subreport = Fichero.getCARPETAREPORTES() + "/notapedido.jrxml";
-//        String path = Fichero.getCARPETAREPORTES() + "/FormatoNotaPedido.jrxml";
+        String subreport = Fichero.getCARPETAREPORTES() + "/notapedido.jrxml";
+        String path = Fichero.getCARPETAREPORTES() + "/FormatoNotaPedido.jrxml";
         System.out.println("PATH:" + path);
         InputStream file = null;
         try {
@@ -1133,8 +1133,8 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
 
             JasperReport reporte = JasperCompileManager.compileReport(file);
             JasperReport subreporte = JasperCompileManager.compileReport(subreport);
-//            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
-            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+//            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
             Map parametro = new HashMap();
 
             parametro.put("subReporte", subreporte);            
@@ -1148,8 +1148,8 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             //System.out.println("CONEXIÓN: " + conexion);
             JasperPrint print = JasperFillManager.fillReport(reporte, parametro, conexion);
 
-            File directory = new File("C:\\Archivos");
-//            File directory = new File(rutaGuardar);
+//            File directory = new File("C:\\Archivos");
+            File directory = new File(rutaGuardar);
             String nombreDocumento = "reporteNotaPedido";
 
             File pdf = File.createTempFile(nombreDocumento + "_", ".pdf", directory);
