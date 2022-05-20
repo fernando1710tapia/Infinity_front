@@ -793,6 +793,9 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                             if (!fa.isNull("fechaautorizacion")) {
                                 fact.setFechaautorizacion(fa.getString("fechaautorizacion"));
                             }
+                            if (!fa.isNull("fechaacreditacionprorrogada")) {
+                                fact.setFechaacreditacionprorrogada(fa.getString("fechaacreditacionprorrogada"));
+                            }
                             fact.setClienteformapago(fa.getString("clienteformapago"));
                             fact.setPlazocliente(fa.getInt("plazocliente"));
                             fact.setClaveacceso(fa.getString("claveacceso"));
@@ -2247,6 +2250,9 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     String fechaDespacho = dateAc.format(dateDes);
                     facturaauxiliar.setFechadespacho(fechaDespacho);
                     facturaauxiliar.setFechaautorizacion(fac.getString("fechaautorizacion"));
+                    if (!fac.isNull("fechaacreditacionprorrogada")) {
+                        fact.setFechaacreditacionprorrogada(fac.getString("fechaacreditacionprorrogada"));
+                    }
 
                     Number hospedado = fac.getNumber("hospedado");
                     facturaauxiliar.setHospedado(hospedado.shortValue());
@@ -2717,6 +2723,10 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                 Date fechaA = formato.parse(envF.getFactura().getFechaventa().replace("/", "-"));
                 envF.getFactura().setFechaventa(date.format(fechaA));
             }
+            if (envF.getFactura().getFechaacreditacionprorrogada()!= null) {
+                Date fechaA = formato.parse(envF.getFactura().getFechaacreditacionprorrogada().replace("/", "-"));
+                envF.getFactura().setFechaacreditacionprorrogada(date.format(fechaA));
+            }            
             envF.getFactura().setClienteformapago(formapago.getCodigo());
             actualizarFactura(envF.getFactura());
             obtenerFacturas();
