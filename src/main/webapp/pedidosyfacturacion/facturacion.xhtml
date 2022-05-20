@@ -330,6 +330,15 @@
                             <p:fileDownload value="#{facturacionBean.pdfStream}"/>
                         </p:commandButton>
                     </p:column>
+                    <p:column headerText="FAC." style="width: 3.5rem">
+                        <p:commandButton icon="pi pi-print" actionListener="#{facturacionBean.buscarFacturaPorNp(notaP)}" ajax="false"
+                                         onstart="PF('blockUIWidget').block()" 
+                                         oncomplete="PF('blockUIWidget').unblock()"
+                                         onclick="PrimeFaces.monitorDownload(start, stop);"
+                                         update="@form" styleClass="edit-button rounded-button ui-button-success">
+                            <p:fileDownload value="#{facturacionBean.pdfStream}"/>
+                        </p:commandButton>
+                    </p:column>
                 </p:dataTable>                                                                                         
             </p:outputPanel>
             <p:outputPanel rendered="#{facturacionBean.mostarFactura}"> 
@@ -472,10 +481,10 @@
                         <div class="p-field p-col-12 p-md-6">                                                         
                             <p:outputLabel id="numFac">N. Factura: #{facturacionBean.envF.factura.facturaPK.numero}</p:outputLabel>                            
                         </div>                        
-                        <div class="p-field p-col-12 p-md-5">                                                           
+                        <div class="p-field p-col-12 p-md-6">                                                           
                             <p:outputLabel id="codigoClien">Código Cliente: #{facturacionBean.envF.factura.codigocliente}</p:outputLabel>                            
                         </div>
-                        <div class="p-field p-col-12 p-md-7">                                                        
+                        <div class="p-field p-col-12 p-md-6">                                                        
                             <p:outputLabel id="nomClien">Nombre Cliente: #{facturacionBean.envF.factura.nombrecliente}</p:outputLabel>                            
                         </div>                        
                         <div class="p-field p-col-12 p-md-6">

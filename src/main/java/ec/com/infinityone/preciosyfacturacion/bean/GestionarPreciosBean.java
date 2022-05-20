@@ -348,6 +348,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
         step1 = false;
         step2 = true;
         step3 = false;
+        listaObjDetalle = new ArrayList<>();
     }
 
     public void obtenerComercializadora() {
@@ -760,197 +761,197 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
         }
 
         for (int i = 0; i < listaPrecio.size(); i++) {
-            objDetalle.setPrecio(listaPrecio.get(i).getPrecio());
-            objDetalle.setPrecioepp(listaPrecio.get(i).getPrecioepp());
-            objDetalle.setPvpsugerido(listaPrecio.get(i).getPvpsugerido());
-
             obtenerTerminalesPrecioProd(i, listaPrecio);
-            //for (int a = 0; a < listaTerminalProdAux.size(); a++) {
-
-            for (int j = 0; j < listaGravamen.size(); j++) {
-                switch (listaGravamen.get(j).getGravamenPK().getCodigo()) {
-                    //Precio Terminal EPP
-                    case "0001":
-                        dpcg1 = listaPrecio.get(i).getPrecioepp().divide(listaGravamen.get(j).getValordefecto(), 6, RoundingMode.HALF_UP);
-                        detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
-                        detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
-                        detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
-                        detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
-                        detallePrecioPK.setFechainicio(listaPrecio.get(i).getPrecio().getPrecioPK().getFechainicio());
-                        detallePrecioPK.setCodigo("");
-                        detallePrecioPK.setCodigogravamen(listaGravamen.get(j).getGravamenPK().getCodigo());
-                        detallePrecio.setDetalleprecioPK(detallePrecioPK);
-                        detallePrecio.setValor(dpcg1);
-                        detallePrecio.setUsuarioactual(dataUser.getUser().getNombrever());
-                        listaDetallePrecio.add(detallePrecio);
-                        detallePrecio = new Detalleprecio();
-                        detallePrecioPK = new DetalleprecioPK();
-                        objDetalle.setPrecioTerminalEpp(dpcg1);
-                        break;
-                    //Margen X cliente
-                    case "0005":
-                        if (listaPrecio.get(i).getPrecio().getListaprecio().getTipo().equals("MCO")) {
-                            BigDecimal mcsiva = (listaPrecio.get(i).getPrecio().getComercializadoraproducto().getMargencomercializacion().divide(valorIvaDividir, 6, RoundingMode.HALF_UP)).setScale(6, RoundingMode.HALF_UP);
-                            dpcg4 = (mcsiva.multiply((listaPrecio.get(i).getMargenvalorcomercializadora().divide(new BigDecimal(100))))).setScale(6, RoundingMode.HALF_UP);
-                            //dpcg4 = (listaPrecio.get(i).getPrecio().getComercializadoraproducto().getMargencomercializacion().multiply((listaPrecio.get(i).getMargenvalorcomercializadora().divide(new BigDecimal(100))))).setScale(6, RoundingMode.HALF_UP);
-                            detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
-                            detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
-                            detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
-                            detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
-                            detallePrecioPK.setFechainicio(listaPrecio.get(i).getPrecio().getPrecioPK().getFechainicio());
-                            detallePrecioPK.setCodigo("");
-                            detallePrecioPK.setCodigogravamen(listaGravamen.get(j).getGravamenPK().getCodigo());
-                            detallePrecio.setDetalleprecioPK(detallePrecioPK);
-                            detallePrecio.setValor(dpcg4);
-                            detallePrecio.setUsuarioactual(dataUser.getUser().getNombrever());
-                            listaDetallePrecio.add(detallePrecio);
-                            detallePrecio = new Detalleprecio();
-                            detallePrecioPK = new DetalleprecioPK();
-                            objDetalle.setMargenxcliente(dpcg4);
-                        } else {
-                            dpcg4 = (dpcg1.multiply((listaPrecio.get(i).getMargenporcentaje().divide(new BigDecimal(100))))).setScale(6, RoundingMode.HALF_UP);
-                            detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
-                            detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
-                            detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
-                            detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
-                            detallePrecioPK.setFechainicio(listaPrecio.get(i).getPrecio().getPrecioPK().getFechainicio());
-                            detallePrecioPK.setCodigo("");
-                            detallePrecioPK.setCodigogravamen(listaGravamen.get(j).getGravamenPK().getCodigo());
-                            detallePrecio.setDetalleprecioPK(detallePrecioPK);
-                            detallePrecio.setValor(dpcg4);
-                            detallePrecio.setUsuarioactual(dataUser.getUser().getNombrever());
-                            listaDetallePrecio.add(detallePrecio);
-                            detallePrecio = new Detalleprecio();
-                            detallePrecioPK = new DetalleprecioPK();
-                            objDetalle.setMargenxcliente(dpcg4);
-                        }
-                        break;
-                    //Precio Producto
-                    case "0009":
-                        dpcg9 = (dpcg1.add(dpcg4)).setScale(6, RoundingMode.HALF_UP);
-                        detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
-                        detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
-                        detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
-                        detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
-                        detallePrecioPK.setFechainicio(listaPrecio.get(i).getPrecio().getPrecioPK().getFechainicio());
-                        detallePrecioPK.setCodigo("");
-                        detallePrecioPK.setCodigogravamen(listaGravamen.get(j).getGravamenPK().getCodigo());
-                        detallePrecio.setDetalleprecioPK(detallePrecioPK);
-                        detallePrecio.setValor(dpcg9);
-                        detallePrecio.setUsuarioactual(dataUser.getUser().getNombrever());
-                        listaDetallePrecio.add(detallePrecio);
-                        detallePrecio = new Detalleprecio();
-                        detallePrecioPK = new DetalleprecioPK();
-                        objDetalle.setPrecioProducto(dpcg9);
-                        break;
-                    //Iva
-                    case "0002":
-                        dpcg2 = (dpcg9.multiply(listaGravamen.get(j).getValordefecto())).setScale(6, RoundingMode.HALF_UP);
-                        detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
-                        detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
-                        detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
-                        detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
-                        detallePrecioPK.setFechainicio(listaPrecio.get(i).getPrecio().getPrecioPK().getFechainicio());
-                        detallePrecioPK.setCodigo("");
-                        detallePrecioPK.setCodigogravamen(listaGravamen.get(j).getGravamenPK().getCodigo());
-                        detallePrecio.setDetalleprecioPK(detallePrecioPK);
-                        detallePrecio.setValor(dpcg2);
-                        detallePrecio.setUsuarioactual(dataUser.getUser().getNombrever());
-                        listaDetallePrecio.add(detallePrecio);
-                        detallePrecio = new Detalleprecio();
-                        detallePrecioPK = new DetalleprecioPK();
-                        objDetalle.setIva(dpcg2);
-                        break;
-                    //(componente cambiado 2022-02-01 pedido pys)Retencion Iva Presuntivo
-                    case "0004":
-                        if (listaPrecio.get(i).getPrecio().getComercializadoraproducto().getSoloaplicaiva()) {
-                            dpcg5 = new BigDecimal(0);
-                            detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
-                            detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
-                            detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
-                            detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
-                            detallePrecioPK.setFechainicio(listaPrecio.get(i).getPrecio().getPrecioPK().getFechainicio());
-                            detallePrecioPK.setCodigo("");
-                            detallePrecioPK.setCodigogravamen(listaGravamen.get(j).getGravamenPK().getCodigo());
-                            detallePrecio.setDetalleprecioPK(detallePrecioPK);
-                            detallePrecio.setValor(dpcg5);
-                            detallePrecio.setUsuarioactual(dataUser.getUser().getNombrever());
-                            listaDetallePrecio.add(detallePrecio);
-                            detallePrecio = new Detalleprecio();
-                            detallePrecioPK = new DetalleprecioPK();
-                            objDetalle.setIvaPresuntivo(dpcg5);
-                        } else {
-                            //dpcg5 = ((listaPrecio.get(i).getPvpsugerido().divide(new BigDecimal(1.12), 6, RoundingMode.HALF_UP)).subtract(dpcg9)).multiply(listaGravamen.get(j).getValordefecto()).setScale(6, RoundingMode.HALF_UP);
-                            //dpcg5F = dpcg5.multiply((listaPrecio.get(i).getPrecio().getComercializadoraproducto().getProducto().getPorcentajeivapresuntivo().divide(new BigDecimal(100)))).setScale(6, RoundingMode.HALF_UP);
-                            //iva * listaPrecio.get(i).getPrecio().getComercializadoraproducto().getProducto().getPorcentajeivapresuntivo().divide(new BigDecimal(100)
-                            dpcg5F = dpcg2.multiply(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getProducto().getPorcentajeivapresuntivo()).divide(new BigDecimal(100)).setScale(6, RoundingMode.HALF_UP);
-                            detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
-                            detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
-                            detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
-                            detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
-                            detallePrecioPK.setFechainicio(listaPrecio.get(i).getPrecio().getPrecioPK().getFechainicio());
-                            detallePrecioPK.setCodigo("");
-                            detallePrecioPK.setCodigogravamen(listaGravamen.get(j).getGravamenPK().getCodigo());
-                            detallePrecio.setDetalleprecioPK(detallePrecioPK);
-                            detallePrecio.setValor(dpcg5F);
-                            detallePrecio.setUsuarioactual(dataUser.getUser().getNombrever());
-                            listaDetallePrecio.add(detallePrecio);
-                            detallePrecio = new Detalleprecio();
-                            detallePrecioPK = new DetalleprecioPK();
-                            objDetalle.setIvaPresuntivo(dpcg5F);
-                        }
-                        break;
-                    //Tres X Mil
-                    case "0328":
-                        if (listaPrecio.get(i).getPrecio().getComercializadoraproducto().getSoloaplicaiva()) {
-                            dpcg6 = new BigDecimal(0);
-                            detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
-                            detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
-                            detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
-                            detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
-                            detallePrecioPK.setFechainicio(listaPrecio.get(i).getPrecio().getPrecioPK().getFechainicio());
-                            detallePrecioPK.setCodigo("");
-                            detallePrecioPK.setCodigogravamen(listaGravamen.get(j).getGravamenPK().getCodigo());
-                            detallePrecio.setDetalleprecioPK(detallePrecioPK);
-                            detallePrecio.setValor(dpcg6);
-                            detallePrecio.setUsuarioactual(dataUser.getUser().getNombrever());
-                            listaDetallePrecio.add(detallePrecio);
-                            detallePrecio = new Detalleprecio();
-                            detallePrecioPK = new DetalleprecioPK();
-                            objDetalle.setTresPorMil(dpcg6);
-                        } else {
-                            dpcg6 = (dpcg9.multiply(listaGravamen.get(j).getValordefecto())).setScale(6, RoundingMode.HALF_UP);
-                            detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
-                            detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
-                            detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
-                            detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
-                            detallePrecioPK.setFechainicio(listaPrecio.get(i).getPrecio().getPrecioPK().getFechainicio());
-                            detallePrecioPK.setCodigo("");
-                            detallePrecioPK.setCodigogravamen(listaGravamen.get(j).getGravamenPK().getCodigo());
-                            detallePrecio.setDetalleprecioPK(detallePrecioPK);
-                            detallePrecio.setValor(dpcg6);
-                            detallePrecio.setUsuarioactual(dataUser.getUser().getNombrever());
-                            listaDetallePrecio.add(detallePrecio);
-                            detallePrecio = new Detalleprecio();
-                            detallePrecioPK = new DetalleprecioPK();
-                            objDetalle.setTresPorMil(dpcg6);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-            //terminal = new Terminal();
-            //}
             for (int k = 0; k < listaTerminalProdAux.size(); k++) {
+                objDetalle.setPrecio(listaPrecio.get(i).getPrecio());
+                objDetalle.setPrecioepp(listaPrecio.get(i).getPrecioepp());
+                objDetalle.setPvpsugerido(listaPrecio.get(i).getPvpsugerido());
+
+                //for (int a = 0; a < listaTerminalProdAux.size(); a++) {
+                for (int j = 0; j < listaGravamen.size(); j++) {
+                    switch (listaGravamen.get(j).getGravamenPK().getCodigo()) {
+                        //Precio Terminal EPP
+                        case "0001":
+                            dpcg1 = listaPrecio.get(i).getPrecioepp().divide(listaGravamen.get(j).getValordefecto(), 6, RoundingMode.HALF_UP);
+                            detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
+                            detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
+                            detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
+                            detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
+                            detallePrecioPK.setFechainicio(listaPrecio.get(i).getPrecio().getPrecioPK().getFechainicio());
+                            detallePrecioPK.setCodigo("");
+                            detallePrecioPK.setCodigogravamen(listaGravamen.get(j).getGravamenPK().getCodigo());
+                            detallePrecio.setDetalleprecioPK(detallePrecioPK);
+                            detallePrecio.setValor(dpcg1);
+                            detallePrecio.setUsuarioactual(dataUser.getUser().getNombrever());
+                            listaDetallePrecio.add(detallePrecio);
+                            detallePrecio = new Detalleprecio();
+                            detallePrecioPK = new DetalleprecioPK();
+                            objDetalle.setPrecioTerminalEpp(dpcg1);
+                            break;
+                        //Margen X cliente
+                        case "0005":
+                            if (listaPrecio.get(i).getPrecio().getListaprecio().getTipo().equals("MCO")) {
+                                BigDecimal mcsiva = (listaPrecio.get(i).getPrecio().getComercializadoraproducto().getMargencomercializacion().divide(valorIvaDividir, 6, RoundingMode.HALF_UP)).setScale(6, RoundingMode.HALF_UP);
+                                dpcg4 = (mcsiva.multiply((listaPrecio.get(i).getMargenvalorcomercializadora().divide(new BigDecimal(100))))).setScale(6, RoundingMode.HALF_UP);
+                                //dpcg4 = (listaPrecio.get(i).getPrecio().getComercializadoraproducto().getMargencomercializacion().multiply((listaPrecio.get(i).getMargenvalorcomercializadora().divide(new BigDecimal(100))))).setScale(6, RoundingMode.HALF_UP);
+                                detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
+                                detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
+                                detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
+                                detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
+                                detallePrecioPK.setFechainicio(listaPrecio.get(i).getPrecio().getPrecioPK().getFechainicio());
+                                detallePrecioPK.setCodigo("");
+                                detallePrecioPK.setCodigogravamen(listaGravamen.get(j).getGravamenPK().getCodigo());
+                                detallePrecio.setDetalleprecioPK(detallePrecioPK);
+                                detallePrecio.setValor(dpcg4);
+                                detallePrecio.setUsuarioactual(dataUser.getUser().getNombrever());
+                                listaDetallePrecio.add(detallePrecio);
+                                detallePrecio = new Detalleprecio();
+                                detallePrecioPK = new DetalleprecioPK();
+                                objDetalle.setMargenxcliente(dpcg4);
+                            } else {
+                                dpcg4 = (dpcg1.multiply((listaPrecio.get(i).getMargenporcentaje().divide(new BigDecimal(100))))).setScale(6, RoundingMode.HALF_UP);
+                                detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
+                                detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
+                                detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
+                                detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
+                                detallePrecioPK.setFechainicio(listaPrecio.get(i).getPrecio().getPrecioPK().getFechainicio());
+                                detallePrecioPK.setCodigo("");
+                                detallePrecioPK.setCodigogravamen(listaGravamen.get(j).getGravamenPK().getCodigo());
+                                detallePrecio.setDetalleprecioPK(detallePrecioPK);
+                                detallePrecio.setValor(dpcg4);
+                                detallePrecio.setUsuarioactual(dataUser.getUser().getNombrever());
+                                listaDetallePrecio.add(detallePrecio);
+                                detallePrecio = new Detalleprecio();
+                                detallePrecioPK = new DetalleprecioPK();
+                                objDetalle.setMargenxcliente(dpcg4);
+                            }
+                            break;
+                        //Precio Producto
+                        case "0009":
+                            dpcg9 = (dpcg1.add(dpcg4)).setScale(6, RoundingMode.HALF_UP);
+                            detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
+                            detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
+                            detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
+                            detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
+                            detallePrecioPK.setFechainicio(listaPrecio.get(i).getPrecio().getPrecioPK().getFechainicio());
+                            detallePrecioPK.setCodigo("");
+                            detallePrecioPK.setCodigogravamen(listaGravamen.get(j).getGravamenPK().getCodigo());
+                            detallePrecio.setDetalleprecioPK(detallePrecioPK);
+                            detallePrecio.setValor(dpcg9);
+                            detallePrecio.setUsuarioactual(dataUser.getUser().getNombrever());
+                            listaDetallePrecio.add(detallePrecio);
+                            detallePrecio = new Detalleprecio();
+                            detallePrecioPK = new DetalleprecioPK();
+                            objDetalle.setPrecioProducto(dpcg9);
+                            break;
+                        //Iva
+                        case "0002":
+                            dpcg2 = (dpcg9.multiply(listaGravamen.get(j).getValordefecto())).setScale(6, RoundingMode.HALF_UP);
+                            detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
+                            detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
+                            detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
+                            detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
+                            detallePrecioPK.setFechainicio(listaPrecio.get(i).getPrecio().getPrecioPK().getFechainicio());
+                            detallePrecioPK.setCodigo("");
+                            detallePrecioPK.setCodigogravamen(listaGravamen.get(j).getGravamenPK().getCodigo());
+                            detallePrecio.setDetalleprecioPK(detallePrecioPK);
+                            detallePrecio.setValor(dpcg2);
+                            detallePrecio.setUsuarioactual(dataUser.getUser().getNombrever());
+                            listaDetallePrecio.add(detallePrecio);
+                            detallePrecio = new Detalleprecio();
+                            detallePrecioPK = new DetalleprecioPK();
+                            objDetalle.setIva(dpcg2);
+                            break;
+                        //(componente cambiado 2022-02-01 pedido pys)Retencion Iva Presuntivo
+                        case "0004":
+                            if (listaPrecio.get(i).getPrecio().getComercializadoraproducto().getSoloaplicaiva()) {
+                                dpcg5 = new BigDecimal(0);
+                                detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
+                                detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
+                                detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
+                                detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
+                                detallePrecioPK.setFechainicio(listaPrecio.get(i).getPrecio().getPrecioPK().getFechainicio());
+                                detallePrecioPK.setCodigo("");
+                                detallePrecioPK.setCodigogravamen(listaGravamen.get(j).getGravamenPK().getCodigo());
+                                detallePrecio.setDetalleprecioPK(detallePrecioPK);
+                                detallePrecio.setValor(dpcg5);
+                                detallePrecio.setUsuarioactual(dataUser.getUser().getNombrever());
+                                listaDetallePrecio.add(detallePrecio);
+                                detallePrecio = new Detalleprecio();
+                                detallePrecioPK = new DetalleprecioPK();
+                                objDetalle.setIvaPresuntivo(dpcg5);
+                            } else {
+                                //dpcg5 = ((listaPrecio.get(i).getPvpsugerido().divide(new BigDecimal(1.12), 6, RoundingMode.HALF_UP)).subtract(dpcg9)).multiply(listaGravamen.get(j).getValordefecto()).setScale(6, RoundingMode.HALF_UP);
+                                //dpcg5F = dpcg5.multiply((listaPrecio.get(i).getPrecio().getComercializadoraproducto().getProducto().getPorcentajeivapresuntivo().divide(new BigDecimal(100)))).setScale(6, RoundingMode.HALF_UP);
+                                //iva * listaPrecio.get(i).getPrecio().getComercializadoraproducto().getProducto().getPorcentajeivapresuntivo().divide(new BigDecimal(100)
+                                dpcg5F = dpcg2.multiply(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getProducto().getPorcentajeivapresuntivo()).divide(new BigDecimal(100)).setScale(6, RoundingMode.HALF_UP);
+                                detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
+                                detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
+                                detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
+                                detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
+                                detallePrecioPK.setFechainicio(listaPrecio.get(i).getPrecio().getPrecioPK().getFechainicio());
+                                detallePrecioPK.setCodigo("");
+                                detallePrecioPK.setCodigogravamen(listaGravamen.get(j).getGravamenPK().getCodigo());
+                                detallePrecio.setDetalleprecioPK(detallePrecioPK);
+                                detallePrecio.setValor(dpcg5F);
+                                detallePrecio.setUsuarioactual(dataUser.getUser().getNombrever());
+                                listaDetallePrecio.add(detallePrecio);
+                                detallePrecio = new Detalleprecio();
+                                detallePrecioPK = new DetalleprecioPK();
+                                objDetalle.setIvaPresuntivo(dpcg5F);
+                            }
+                            break;
+                        //Tres X Mil
+                        case "0328":
+                            if (listaPrecio.get(i).getPrecio().getComercializadoraproducto().getSoloaplicaiva()) {
+                                dpcg6 = new BigDecimal(0);
+                                detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
+                                detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
+                                detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
+                                detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
+                                detallePrecioPK.setFechainicio(listaPrecio.get(i).getPrecio().getPrecioPK().getFechainicio());
+                                detallePrecioPK.setCodigo("");
+                                detallePrecioPK.setCodigogravamen(listaGravamen.get(j).getGravamenPK().getCodigo());
+                                detallePrecio.setDetalleprecioPK(detallePrecioPK);
+                                detallePrecio.setValor(dpcg6);
+                                detallePrecio.setUsuarioactual(dataUser.getUser().getNombrever());
+                                listaDetallePrecio.add(detallePrecio);
+                                detallePrecio = new Detalleprecio();
+                                detallePrecioPK = new DetalleprecioPK();
+                                objDetalle.setTresPorMil(dpcg6);
+                            } else {
+                                dpcg6 = (dpcg9.multiply(listaGravamen.get(j).getValordefecto())).setScale(6, RoundingMode.HALF_UP);
+                                detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
+                                detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
+                                detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
+                                detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
+                                detallePrecioPK.setFechainicio(listaPrecio.get(i).getPrecio().getPrecioPK().getFechainicio());
+                                detallePrecioPK.setCodigo("");
+                                detallePrecioPK.setCodigogravamen(listaGravamen.get(j).getGravamenPK().getCodigo());
+                                detallePrecio.setDetalleprecioPK(detallePrecioPK);
+                                detallePrecio.setValor(dpcg6);
+                                detallePrecio.setUsuarioactual(dataUser.getUser().getNombrever());
+                                listaDetallePrecio.add(detallePrecio);
+                                detallePrecio = new Detalleprecio();
+                                detallePrecioPK = new DetalleprecioPK();
+                                objDetalle.setTresPorMil(dpcg6);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                //terminal = new Terminal();
+                //}
+
                 //DAVID AYALA verificar que el terminal se cambie en el objetoDetalle
                 terminal.setCodigo(listaTerminalProdAux.get(k).getListaprecioterminalproductoPK().getCodigoterminal());
                 objDetalle.setCodigoTerminal(terminal.getCodigo());
                 listaObjDetalle.add(objDetalle);
                 terminal = new Terminal();
+                objDetalle = new ObjetoDetallePrecio();
             }
 
-            objDetalle = new ObjetoDetallePrecio();
             listPrice.get(i).setDetalleprecioList(listaDetallePrecio);
             listPrice.get(i).setPrecioproducto(dpcg9);
             listaDetallePrecio = new ArrayList<>();
@@ -1022,7 +1023,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
     }
 
     public void prueba() {
-        this.dialogo(FacesMessage.SEVERITY_INFO, "Se va a iniciar la creacion de precios, esto tomara un momento, por favor espere");      
+        this.dialogo(FacesMessage.SEVERITY_INFO, "Se va a iniciar la creacion de precios, esto tomara un momento, por favor espere");
     }
 
     public void guardarPrice() {

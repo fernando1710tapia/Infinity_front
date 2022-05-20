@@ -61,6 +61,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -186,6 +187,11 @@ public class FacturacionBean extends ReusableBean implements Serializable {
      * de facturas
      */
     protected Date fechaf;
+    /**
+     * Variable que permite establecer la fecha prorroga para realizar la
+     * busqueda de facturas
+     */
+    protected Date fechaPro;
     /*
     Variable que isntacia el modelo Factura
      */
@@ -214,6 +220,14 @@ public class FacturacionBean extends ReusableBean implements Serializable {
     Variable para guardar una listda de Factura y Detalle Factura
      */
     protected List<EnvioFactura> listenvF;
+    /*
+    Variable para guardar una listda de Factura y Detalle Factura
+     */
+    protected List<Factura> listFact;
+    /*
+    Variable para guardar una listda de Factura y Detalle Factura
+     */
+    protected List<Factura> listFactSelec;
     /*
     Variable para guardar una lista deDeatllesFactura
      */
@@ -393,6 +407,8 @@ public class FacturacionBean extends ReusableBean implements Serializable {
      */
     private List<Banco> listaBancos;
 
+    protected Date fechaActual;
+
     /**
      * Constructor por defecto
      */
@@ -412,6 +428,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         obtenerComercializadora();
         obtenerFormapago();
         obtenerBancos();
+        fechaProrroga();
         //obtenerClientes();
     }
 
@@ -494,6 +511,8 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         listenvNP = new ArrayList<>();
         listenvNPAuxilia = new ArrayList<>();
         listenvF = new ArrayList<>();
+        listFact = new ArrayList<>();
+        listFactSelec = new ArrayList<>();
         anulacion = new NotaPedidoSOAP();
         soloporProcesar = false;
         estadoAnulacion = false;
@@ -503,6 +522,13 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         //direccion = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo";
         direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo";
         process = false;
+    }
+
+    private void fechaProrroga() {
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date());
+        c.add(Calendar.DATE, 1);
+        fechaActual = c.getTime();
     }
 
     private void obtenerBancos() {
@@ -697,6 +723,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                 connection.setRequestProperty("Accept", "application/json");
 
                 listenvF = new ArrayList<>();
+                listFact = new ArrayList();
                 listDet = new ArrayList<>();
                 EnvioFactura envFac = new EnvioFactura();
                 InputStreamReader reader = new InputStreamReader(connection.getInputStream());
@@ -723,6 +750,9 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                             factPk.setNumero(faPK.getString("numero"));
                             fact.setFacturaPK(factPk);
 
+                            if (!fa.isNull("fechaacreditacionprorroga")) {
+                                fact.setFechaacreditacionprorrogada(fa.getString("fechaacreditacionprorroga"));
+                            }
                             Long lDateVen = fa.getLong("fechaventa");
                             Date dateVen = new Date(lDateVen);
                             fact.setFechaventa(date.format(dateVen));
@@ -844,6 +874,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                             }
                             fact.setFacturaPK(factPk);
                             envFac.setFactura(fact);
+                            listFact.add(fact);
                             JSONArray detalleList = fa.getJSONArray("detallefacturaList");
                             for (int i = 0; i < detalleList.length(); i++) {
                                 JSONObject det = detalleList.getJSONObject(i);
@@ -2532,7 +2563,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             JasperPrint print = JasperFillManager.fillReport(reporte, parametro, conexion);
 
             File directory = new File(Fichero.getCARPETAREPORTES());
-//             File directory = new File("C:\\archivos");
+//            File directory = new File("C:\\archivos");
 
             String nombreDocumento = "reporteFactura";
 
@@ -2553,19 +2584,23 @@ public class FacturacionBean extends ReusableBean implements Serializable {
     }
 
     public void generarReporteNp(EnvioPedido envP) {
-        //String path = "C:\\archivos\\Template\\notapedido.jrxml";
+        //        String path = "C:\\archivos\\Template\\FormatoNotaPedido.jrxml";
+//        String subreport = "C:\\archivos\\Template\\notapedido.jrxml";
         String rutaGuardar = Fichero.getCARPETAREPORTES();
-        String path = Fichero.getCARPETAREPORTES() + "/notapedido.jrxml";
+        String subreport = Fichero.getCARPETAREPORTES() + "/notapedido.jrxml";
+        String path = Fichero.getCARPETAREPORTES() + "/FormatoNotaPedido.jrxml";
         System.out.println("PATH:" + path);
         InputStream file = null;
         try {
             file = new FileInputStream(new File(path));
 
             JasperReport reporte = JasperCompileManager.compileReport(file);
+            JasperReport subreporte = JasperCompileManager.compileReport(subreport);
             BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
-            //BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));            
+//            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
             Map parametro = new HashMap();
 
+            parametro.put("subReporte", subreporte);
             parametro.put("codComer", envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora());
             parametro.put("numeroNotaPedido", envP.getNotapedido().getNotapedidoPK().getNumero());
             parametro.put("logo", image);
@@ -2576,7 +2611,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             //System.out.println("CONEXIÓN: " + conexion);
             JasperPrint print = JasperFillManager.fillReport(reporte, parametro, conexion);
 
-            //File directory = new File("C:\\archivos");
+//            File directory = new File("C:\\Archivos");
             File directory = new File(rutaGuardar);
             String nombreDocumento = "reporteNotaPedido";
 
@@ -2585,7 +2620,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             File initialFile = new File(pdf.getAbsolutePath());
             InputStream targetStream = new FileInputStream(initialFile);
             //pdfStream = new DefaultStreamedContent();
-            pdfStream = new DefaultStreamedContent(targetStream, "application/pdf", nombreDocumento + ".pdf");
+            pdfStream = new DefaultStreamedContent(targetStream, "application/pdf", nombreDocumento + envP.getNotapedido().getNotapedidoPK().getNumero() + ".pdf");
             //DefaultStreamedContent.builder().contentType("application/pdf").name(nombreDocumento + ".pdf").stream(() -> new FileInputStream(targetStream)).build();
             System.err.print(pdf.getAbsolutePath());
             System.out.println(pdf.getAbsolutePath());
@@ -2649,18 +2684,17 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     PrimeFaces.current().executeScript("PF('editar').show()");
                     return envF;
                 } else {
-                    this.dialogo(FacesMessage.SEVERITY_WARN, "La factura no se encunetra en Petro");
+                    this.dialogo(FacesMessage.SEVERITY_WARN, "La factura no se encuentra en Petro");
                     return null;
                 }
             } else {
-                this.dialogo(FacesMessage.SEVERITY_WARN, "La factura se encunetra pagada");
+                this.dialogo(FacesMessage.SEVERITY_WARN, "La factura se encuentra pagada");
                 return null;
             }
         } else {
-            this.dialogo(FacesMessage.SEVERITY_WARN, "La factura no se encunetra Activa");
+            this.dialogo(FacesMessage.SEVERITY_WARN, "La factura no se encuentra Activa");
             return null;
         }
-
     }
 
     public void editarPagoFactura() throws ParseException {
@@ -2719,7 +2753,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             out.close();
             if (connection.getResponseCode() == 200) {
                 PrimeFaces.current().executeScript("PF('editar').hide()");
-                this.dialogo(FacesMessage.SEVERITY_INFO, "FORMA DE PAGO ACUTALIZADA EXITOSAMENTE");
+                this.dialogo(FacesMessage.SEVERITY_INFO, "FACTURA ACUTALIZADA EXITOSAMENTE");
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ACTUALIZAR");
             }
@@ -2727,6 +2761,100 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             System.out.println(connection.getResponseMessage());
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void buscarFacturaPorNp(EnvioPedido envP) {
+        if (!envP.getNotapedido().getNumerofacturasri().equals("0               ")) {
+            EnvioFactura env = new EnvioFactura();
+            Factura factura = new Factura();
+            FacturaPK facturaPK = new FacturaPK();
+            facturaPK.setCodigocomercializadora(envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora());
+            facturaPK.setNumero(envP.getNotapedido().getNumerofacturasri());
+            factura.setFacturaPK(facturaPK);
+            env.setFactura(factura);
+            generarReporte(env);
+        } else {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "NO SE HA GENERADO LA FACTURA");
+        }
+    }
+
+    public void editarFechaFactura() {
+        boolean bandera = true;
+        Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+
+        String codFacSelec = params.get("form:dt-products_selection");
+        String[] parts = codFacSelec.split(",");
+        String[] campos = new String[4];
+        listFactSelec = new ArrayList<>();
+        for (int i = 0; i < listFact.size(); i++) {
+            for (int cont = 0; cont < parts.length; cont++) {
+                campos = parts[cont].split("-");
+                if (campos[0].equals(listFact.get(i).getFacturaPK().getCodigoabastecedora()) && campos[1].equals(listFact.get(i).getFacturaPK().getCodigocomercializadora()) && campos[2].equals(listFact.get(i).getFacturaPK().getNumero()) && campos[3].equals(listFact.get(i).getFacturaPK().getNumeronotapedido())) {
+                    listFactSelec.add(listFact.get(i));
+                }
+            }
+        }
+        if (!listFactSelec.isEmpty()) {
+            for (int i = 0; i < listFactSelec.size(); i++) {
+                if (bandera) {
+                    if (listFactSelec.get(i).getActiva()) {
+                        if (!listFactSelec.get(i).getPagada()) {
+                            if (listFactSelec.get(i).getOeenpetro()) {
+                                if (fechaPro != null) {
+                                    bandera = true;
+                                } else {
+                                    bandera = false;
+                                    this.dialogo(FacesMessage.SEVERITY_ERROR, "Selecione una fecha de Prorroga");
+                                }
+                            } else {
+                                bandera = false;
+                                this.dialogo(FacesMessage.SEVERITY_WARN, "La factura N." + listFactSelec.get(i).getFacturaPK().getNumero() + " no se encuentra en Petro");
+                            }
+                        } else {
+                            bandera = false;
+                            this.dialogo(FacesMessage.SEVERITY_WARN, "La factura N." + listFactSelec.get(i).getFacturaPK().getNumero() + " se encuentra pagada");
+                        }
+                    } else {
+                        bandera = false;
+                        this.dialogo(FacesMessage.SEVERITY_WARN, "La factura N." + listFactSelec.get(i).getFacturaPK().getNumero() + " no se encuentra Activa");
+                    }
+                }
+            }
+            if (bandera) {
+                PrimeFaces.current().executeScript("PF('editFechaDialog').show()");
+            }
+        } else {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "No se han seleccionado facturas");
+        }
+    }
+
+    public void editarFechaProFactura() throws ParseException {
+        if (!listFactSelec.isEmpty()) {
+            for (int i = 0; i < listFactSelec.size(); i++) {
+                DateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
+                SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
+                if (listFactSelec.get(i).getFechaacreditacion() != null) {
+                    Date fechaA = formato.parse(listFactSelec.get(i).getFechadespacho().replace("/", "-"));
+                    listFactSelec.get(i).setFechaacreditacion(date.format(fechaA));
+                }
+                if (listFactSelec.get(i).getFechadespacho() != null) {
+                    Date fechaA = formato.parse(listFactSelec.get(i).getFechadespacho().replace("/", "-"));
+                    listFactSelec.get(i).setFechadespacho(date.format(fechaA));
+                }
+                if (listFactSelec.get(i).getFechavencimiento() != null) {
+                    Date fechaA = formato.parse(listFactSelec.get(i).getFechavencimiento().replace("/", "-"));
+                    listFactSelec.get(i).setFechavencimiento(date.format(fechaA));
+                }
+                if (listFactSelec.get(i).getFechaventa() != null) {
+                    Date fechaA = formato.parse(listFactSelec.get(i).getFechaventa().replace("/", "-"));
+                    listFactSelec.get(i).setFechaventa(date.format(fechaA));
+                }
+                listFactSelec.get(i).setFechaacreditacionprorrogada(date.format(fechaPro));
+                actualizarFactura(listFactSelec.get(i));
+            }
+
+            obtenerFacturas();
         }
     }
 
@@ -3040,6 +3168,38 @@ public class FacturacionBean extends ReusableBean implements Serializable {
 
     public void setListaBancos(List<Banco> listaBancos) {
         this.listaBancos = listaBancos;
+    }
+
+    public List<Factura> getListFactSelec() {
+        return listFactSelec;
+    }
+
+    public void setListFactSelec(List<Factura> listFactSelec) {
+        this.listFactSelec = listFactSelec;
+    }
+
+    public List<Factura> getListFact() {
+        return listFact;
+    }
+
+    public void setListFact(List<Factura> listFact) {
+        this.listFact = listFact;
+    }
+
+    public Date getFechaPro() {
+        return fechaPro;
+    }
+
+    public void setFechaPro(Date fechaPro) {
+        this.fechaPro = fechaPro;
+    }
+
+    public Date getFechaActual() {
+        return fechaActual;
+    }
+
+    public void setFechaActual(Date fechaActual) {
+        this.fechaActual = fechaActual;
     }
 
 }

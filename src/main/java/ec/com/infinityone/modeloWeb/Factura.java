@@ -122,6 +122,8 @@ public class Factura implements Serializable{
     
     private boolean seleccionar;
 
+    private String fechaacreditacionprorrogada;
+
     public Factura() {
     }
     
@@ -596,6 +598,14 @@ public class Factura implements Serializable{
 
     public void setSeleccionar(boolean seleccionar) {
         this.seleccionar = seleccionar;
+    }
+
+    public String getFechaacreditacionprorrogada() {
+        return fechaacreditacionprorrogada;
+    }
+
+    public void setFechaacreditacionprorrogada(String fechaacreditacionprorrogada) {
+        this.fechaacreditacionprorrogada = fechaacreditacionprorrogada;
     }
 
 

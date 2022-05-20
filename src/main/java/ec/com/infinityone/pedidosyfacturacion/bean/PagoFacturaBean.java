@@ -2054,7 +2054,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                 for (int indice = 0; indice < listaFacturaSeleccionada.size(); indice++) {
                     if (addDetPagoGestionDirecta(indice)) {
                         if (listaFacturaSeleccionada.get(indice).getFechaacreditacion() != null) {                            
-                            listaFacturaSeleccionada.get(indice).setFechaacreditacion(date.format(fechaDep));
+                            //listaFacturaSeleccionada.get(indice).setFechaacreditacion(date.format(fechaDep));
                         }                        
                         if (listaFacturaSeleccionada.get(indice).getFechadespacho() != null) {
                             Date fechaA = formato.parse(listaFacturaSeleccionada.get(indice).getFechadespacho().replace("/", "-"));
