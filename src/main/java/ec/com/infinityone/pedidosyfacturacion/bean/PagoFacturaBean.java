@@ -26,9 +26,6 @@ import ec.com.infinityone.bean.TerminalBean;
 import ec.com.infinityone.catalogo.servicios.TerminalServicio;
 import ec.com.infinityone.configuration.Fichero;
 import ec.com.infinityone.modeloWeb.Cliente;
-import ec.com.infinityone.modeloWeb.Detallefactura;
-import ec.com.infinityone.modeloWeb.DetallefacturaPK;
-import ec.com.infinityone.modeloWeb.EnvioFactura;
 import ec.com.infinityone.modeloWeb.Temporalparacobrar;
 import ec.com.infinityone.modeloWeb.TemporalparacobrarPK;
 import ec.com.infinityone.modeloWeb.TotalParaCobrar;
@@ -59,10 +56,8 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -78,7 +73,6 @@ import org.primefaces.model.Visibility;
 import org.primefaces.model.file.UploadedFile;
 import org.primefaces.shaded.json.JSONArray;
 import org.primefaces.shaded.json.JSONObject;
-import sun.awt.image.PixelConverter;
 
 /**
  *
@@ -304,8 +298,8 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
         facturaPK = new FacturaPK();
         //fecha = new Date();
         objFactura = new ObjFactura();
-        tipoBusquedaDocumento = "A";
-        mostrarBusTrans = tipoBusquedaDocumento.equals("A");
+        tipoBusquedaDocumento = "1";
+        mostrarBusTrans = tipoBusquedaDocumento.equals("1");
         banco = new Banco();
         listaBancos = new ArrayList<>();
         listaFacturaSeleccionada = new ArrayList<>();
@@ -327,7 +321,8 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
         obtenerBancos();
         observ = "";
         numero = "";
-        codCliente = "";
+        codCliente = "-1";
+        codTerminal = "-1";
         //habilitarBusqueda();
         //obtenerPagoFactura(listaComercializadora.get(0).getCodigo(), new Date());        
     }
@@ -347,8 +342,8 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
         facturaPK = new FacturaPK();
         fecha = new Date();
         objFactura = new ObjFactura();
-        tipoBusquedaDocumento = "A";
-        mostrarBusTrans = tipoBusquedaDocumento.equals("A");
+        tipoBusquedaDocumento = "1";
+        mostrarBusTrans = tipoBusquedaDocumento.equals("1");
         banco = new Banco();
         listaBancos = new ArrayList<>();
         listaFacturaSeleccionada = new ArrayList<>();
@@ -412,6 +407,8 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
         if (terminal != null) {
             codTerminal = terminal.getCodigo();
             //factura.setCodTerminal(terminal.getCodigo());
+        } else {
+            codTerminal = "-1";
         }
     }
 
@@ -425,6 +422,8 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
                 }
             }
             seleccionarTerminal();
+        } else {
+            codCliente = "-1";
         }
     }
 
@@ -479,32 +478,37 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
             }
             JSONObject precioJson = new JSONObject(respuesta);
             JSONArray retorno = precioJson.getJSONArray("retorno");
-            for (int indice = 0; indice < retorno.length(); indice++) {
-                JSONObject pagofac = retorno.getJSONObject(indice);
-                JSONObject pagoPK = pagofac.getJSONObject("pagofacturaPK");
-                pagofacturaPK.setCodigoabastecedora(pagoPK.getString("codigoabastecedora"));
-                pagofacturaPK.setCodigocomercializadora(pagoPK.getString("codigocomercializadora"));
-                pagofacturaPK.setNumero(pagoPK.getString("numero"));
-                pagofacturaPK.setCodigobanco(pagoPK.getString("codigobanco"));
-                pagofactura.setPagofacturaPK(pagofacturaPK);
-                Long lDateIni = pagofac.getLong("fecha");
-                Date dateIni = new Date(lDateIni);
-                pagofactura.setFecha(dateIni);
-                pagofactura.setActivo(pagofac.getBoolean("activo"));
-                if (pagofactura.getActivo()) {
-                    pagofactura.setActivoS("S");
-                } else {
-                    pagofactura.setActivoS("N");
-                }
-                pagofactura.setValor(pagofac.getBigDecimal("valor"));
-                Long lDateReg = pagofac.getLong("fecharegistro");
-                Date dateReg = new Date(lDateReg);
-                pagofactura.setFecharegistro(dateReg);
-                pagofactura.setUsuarioactual(pagofac.getString("usuarioactual"));
+            if (!retorno.isEmpty()) {
+                for (int indice = 0; indice < retorno.length(); indice++) {
+                    JSONObject pagofac = retorno.getJSONObject(indice);
+                    JSONObject pagoPK = pagofac.getJSONObject("pagofacturaPK");
+                    pagofacturaPK.setCodigoabastecedora(pagoPK.getString("codigoabastecedora"));
+                    pagofacturaPK.setCodigocomercializadora(pagoPK.getString("codigocomercializadora"));
+                    pagofacturaPK.setNumero(pagoPK.getString("numero"));
+                    pagofacturaPK.setCodigobanco(pagoPK.getString("codigobanco"));
+                    pagofactura.setPagofacturaPK(pagofacturaPK);
+                    Long lDateIni = pagofac.getLong("fecha");
+                    Date dateIni = new Date(lDateIni);
+                    pagofactura.setFecha(dateIni);
+                    pagofactura.setActivo(pagofac.getBoolean("activo"));
+                    if (pagofactura.getActivo()) {
+                        pagofactura.setActivoS("S");
+                    } else {
+                        pagofactura.setActivoS("N");
+                    }
+                    pagofactura.setValor(pagofac.getBigDecimal("valor"));
+                    pagofactura.setObservacion(pagofac.getString("observacion"));
+                    Long lDateReg = pagofac.getLong("fecharegistro");
+                    Date dateReg = new Date(lDateReg);
+                    pagofactura.setFecharegistro(dateReg);
+                    pagofactura.setUsuarioactual(pagofac.getString("usuarioactual"));
 
-                listaPagofactura.add(pagofactura);
-                pagofactura = new Pagofactura();
-                pagofacturaPK = new PagofacturaPK();
+                    listaPagofactura.add(pagofactura);
+                    pagofactura = new Pagofactura();
+                    pagofacturaPK = new PagofacturaPK();
+                }
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_INFO, "NO SE HAN ENCONTRADO REGISTROS");
             }
             System.out.println(connection.getResponseCode());
             System.out.println(connection.getResponseMessage());
@@ -628,7 +632,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
     }
 
     public void actualizarTipoBusqueda() {
-        mostrarBusTrans = tipoBusquedaDocumento.equals("A");
+        mostrarBusTrans = tipoBusquedaDocumento.equals("1");
     }
 
     public void generarValores() throws ParseException {
@@ -766,9 +770,13 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
 
     public void generarValoresPagoDirecto() {
         observ = "";
+        suma = new BigDecimal(0);
         if (!listaFacturaSeleccionada.isEmpty()) {
             if (habilitarComer) {
                 banco = new Banco();
+            }
+            for (int i = 0; i < listaFacturaSeleccionada.size(); i++) {
+                suma = suma.add(listaFacturaSeleccionada.get(i).getValorconrubro());
             }
             PrimeFaces.current().executeScript("PF('ingresoDatos').show()");
         } else {
@@ -1630,16 +1638,6 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             respuesta = obj.toString();
             writer.write(respuesta);
             writer.close();
-//                    obj = new JSONObject();
-//                    objPk = new JSONObject();
-//                    listObj.add(obj);
-//                    objPk = new JSONObject();
-//                    obj = new JSONObject();
-//                }
-//            }
-//            respuesta = listObj.toString();
-//            writer.write(respuesta);
-//            writer.close();
             if (connection.getResponseCode() == 200) {
                 this.dialogo(FacesMessage.SEVERITY_INFO, "LISTA DETALLES DE PAGOS REGISTRADA EXITOSAMENTE");
                 PrimeFaces.current().executeScript("PF('ingresoDatos').hide()");
@@ -1715,7 +1713,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         }
     }
 
-    public void editDetallePagoItems() {
+    public void editDetallePagoItems() throws ParseException {
         try {
             String respuesta;
             //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.detallepago/porId");
@@ -1747,6 +1745,76 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             PrimeFaces.current().executeScript("PF('nuevo').hide()");
             if (connection.getResponseCode() == 200) {
                 this.dialogo(FacesMessage.SEVERITY_INFO, "DETALLE PAGO ACUTALIZADO EXITOSAMENTE");
+                editarEstadoFactura();
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ACTUALIZAR");
+            }
+            System.out.println(connection.getResponseCode());
+            System.out.println(connection.getResponseMessage());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void editarEstadoFactura() throws ParseException {
+        List<Factura> facBus = new ArrayList<>();
+        facBus = facturaServicio.buscarFacturas(detallepago.getDetallepagoPK().getCodigoabastecedora(), detallepago.getDetallepagoPK().getCodigocomercializadora(), detallepago.getDetallepagoPK().getNumerofactura());
+        if (!facBus.isEmpty()) {
+            for (int i = 0; i < facBus.size(); i++) {
+                DateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
+                SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
+                if (facBus.get(i).getFechaacreditacion() != null) {
+                    Date fechaA = formato.parse(facBus.get(i).getFechadespacho().replace("/", "-"));
+                    facBus.get(i).setFechaacreditacion(date.format(fechaA));
+                }
+                if (facBus.get(i).getFechadespacho() != null) {
+                    Date fechaA = formato.parse(facBus.get(i).getFechadespacho().replace("/", "-"));
+                    facBus.get(i).setFechadespacho(date.format(fechaA));
+                }
+                if (facBus.get(i).getFechavencimiento() != null) {
+                    Date fechaA = formato.parse(facBus.get(i).getFechavencimiento().replace("/", "-"));
+                    facBus.get(i).setFechavencimiento(date.format(fechaA));
+                }
+                if (facBus.get(i).getFechaventa() != null) {
+                    Date fechaA = formato.parse(facBus.get(i).getFechaventa().replace("/", "-"));
+                    facBus.get(i).setFechaventa(date.format(fechaA));
+                }
+                if (facBus.get(i).getFechaacreditacionprorrogada() != null) {
+                    Date fechaA = formato.parse(facBus.get(i).getFechaacreditacionprorrogada().replace("/", "-"));
+                    facBus.get(i).setFechaacreditacionprorrogada(date.format(fechaA));
+                }
+                facBus.get(i).setPagada(false);
+                actualizarFactura(facBus.get(i));
+            }
+        }
+    }
+
+    public void actualizarFactura(Factura fact) {
+        try {
+            String respuesta;
+            //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura/porId");
+            url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura/porId");
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setConnectTimeout(1000 * 60);
+            connection.setReadTimeout(1000 * 60);
+            connection.setDoOutput(true);
+            connection.setRequestMethod("PUT");
+            connection.setRequestProperty("Content-type", "application/json");
+            //connection.setFixedLengthStreamingMode(1000000000);
+
+            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonStr = mapper.writeValueAsString(fact);
+            Gson gson = new Gson();
+            String JSON = gson.toJson(fact);
+            DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+            out.write(jsonStr.getBytes());
+            out.flush();
+            out.close();
+            if (connection.getResponseCode() == 200) {
+                PrimeFaces.current().executeScript("PF('editar').hide()");
+                this.dialogo(FacesMessage.SEVERITY_INFO, "FACTURA ACUTALIZADA EXITOSAMENTE");
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ACTUALIZAR");
             }
@@ -1800,7 +1868,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         listaFactura = new ArrayList<>();
         listaFacturaSeleccionada = new ArrayList<>();
         listaTotalCobros = new ArrayList<>();
-        tipoBusquedaDocumento = "";
+        tipoBusquedaDocumento = "1";
         fecha = new Date();
         PrimeFaces.current().executeScript("PF('nuevo').show()");
     }
@@ -1820,9 +1888,13 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
     }
 
     public void actualizarLista() {
-        if (comercializadora.getCodigo() != null) {
-            listaPagofactura = new ArrayList<>();
-            obtenerPagoFactura(comercializadora.getCodigo(), fecha);
+        if (comercializadora != null) {
+            if (comercializadora.getCodigo() != null) {
+                listaPagofactura = new ArrayList<>();
+                obtenerPagoFactura(comercializadora.getCodigo(), fecha);
+            }
+        } else {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "SELECCIONE LA COMERCIALIZADORA");
         }
     }
 
@@ -1832,7 +1904,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                 SimpleDateFormat fechV = new SimpleDateFormat("yyyy/MM/dd");
                 String fechaU = fechV.format(this.fecha);
                 listaFactura = new ArrayList<>();
-                listaFactura = facturaServicio.obtenerFacturas(codigoComer, tipoBusquedaDocumento, fechaU, true, true, false);
+                listaFactura = facturaServicio.obtenerFacturasPagos(codigoComer, tipoBusquedaDocumento, fechaU, true, true, false, "01");
                 if (listaFactura.isEmpty()) {
                     this.dialogo(FacesMessage.SEVERITY_WARN, "No existen registros en la fecha seleccionada");
                 }
@@ -1847,11 +1919,9 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 
             //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura";
             String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura";
-            if (codCliente.isEmpty()) {
-                url = new URL(direcc + "/paraCobrargd?codigocomercializadora=" + this.codigoComer + "&tipofecha=" + tipoBusquedaDocumento + "&oeenpetro=" + true + "&activa=" + true + "&pagada=" + false + "&clienteformapago=03" + "&fecha=" + fechaS + "&codigoterminal=" + this.codTerminal + "&codigocliente=-1");
-            } else {
-                url = new URL(direcc + "/paraCobrargd?codigocomercializadora=" + this.codigoComer + "&tipofecha=" + tipoBusquedaDocumento + "&oeenpetro=" + true + "&activa=" + true + "&pagada=" + false + "&clienteformapago=03" + "&fecha=" + fechaS + "&codigoterminal=" + this.codTerminal + "&codigocliente=" + this.codCliente);
-            }
+
+            url = new URL(direcc + "/paraCobrarxformapago?codigocomercializadora=" + this.codigoComer + "&tipofecha=" + tipoBusquedaDocumento + "&oeenpetro=" + true + "&activa=" + true + "&pagada=" + false + "&clienteformapago=03" + "&fecha=" + fechaS + "&codigoterminal=" + this.codTerminal + "&codigocliente=" + this.codCliente);
+
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
@@ -1881,6 +1951,11 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                 facturaPK.setNumero(factPK.getString("numero"));
                 factura.setFacturaPK(facturaPK);
 
+                if (!fact.isNull("fechaacreditacionprorrogada")) {
+                    Long lDatePro = fact.getLong("fechaacreditacionprorrogada");
+                    Date datePro = new Date(lDatePro);
+                    factura.setFechaacreditacionprorrogada(date.format(datePro));
+                }
                 Long lDateVen = fact.getLong("fechaventa");
                 Date dateVen = new Date(lDateVen);
                 factura.setFechaventa(date.format(dateVen));
@@ -2007,7 +2082,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         listaFactura = new ArrayList<>();
         listaFacturaSeleccionada = new ArrayList<>();
         listaTotalCobros = new ArrayList<>();
-        tipoBusquedaDocumento = "";
+        tipoBusquedaDocumento = "1";
         fecha = new Date();
         PrimeFaces.current().executeScript("PF('pagoDirecto').show()");
     }
@@ -2018,6 +2093,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         gestionarCobro = false;
         pagoDirecto = false;
         fecha = new Date();
+        listaPagofactura = new ArrayList<>();
         if (habilitarComer) {
             comercializadora = new ComercializadoraBean();
         }
@@ -2034,8 +2110,9 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         temporalServicios.eliminarRegistrosTemporales(fechaConvertida, dataUser.getUser().getNombrever().replace(" ", ""), codigoComer);
         listaFactura = new ArrayList<>();
         listaFacturaSeleccionada = new ArrayList<>();
+        listaPagofactura = new ArrayList<>();
         listaTotalCobros = new ArrayList<>();
-        tipoBusquedaDocumento = "";
+        tipoBusquedaDocumento = "1";
         fecha = new Date();
     }
 
@@ -2045,7 +2122,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         DateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
         SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
         listaFacturaAux = new ArrayList<>();
-        suma = new BigDecimal(0);        
+        suma = new BigDecimal(0);
         if (!listaFacturaSeleccionada.isEmpty()) {
             for (int i = 0; i < listaFacturaSeleccionada.size(); i++) {
                 suma = suma.add(listaFacturaSeleccionada.get(i).getValorconrubro());
@@ -2053,9 +2130,10 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             if (addPagoFacturaGestionDirecta()) {
                 for (int indice = 0; indice < listaFacturaSeleccionada.size(); indice++) {
                     if (addDetPagoGestionDirecta(indice)) {
-                        if (listaFacturaSeleccionada.get(indice).getFechaacreditacion() != null) {                            
-                            //listaFacturaSeleccionada.get(indice).setFechaacreditacion(date.format(fechaDep));
-                        }                        
+                        if (listaFacturaSeleccionada.get(indice).getFechaacreditacion() != null) {
+                            Date fechaA = formato.parse(listaFacturaSeleccionada.get(indice).getFechaacreditacion().replace("/", "-"));
+                            listaFacturaSeleccionada.get(indice).setFechaacreditacion(date.format(fechaA));
+                        }
                         if (listaFacturaSeleccionada.get(indice).getFechadespacho() != null) {
                             Date fechaA = formato.parse(listaFacturaSeleccionada.get(indice).getFechadespacho().replace("/", "-"));
                             listaFacturaSeleccionada.get(indice).setFechadespacho(date.format(fechaA));
@@ -2068,7 +2146,11 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                             Date fechaA = formato.parse(listaFacturaSeleccionada.get(indice).getFechaventa().replace("/", "-"));
                             listaFacturaSeleccionada.get(indice).setFechaventa(date.format(fechaA));
                         }
-                        listaFacturaSeleccionada.get(indice).setPagada(true);                        
+                        if (listaFacturaSeleccionada.get(indice).getFechaacreditacionprorrogada() != null) {
+                            Date fechaA = formato.parse(listaFacturaSeleccionada.get(indice).getFechaacreditacionprorrogada().replace("/", "-"));
+                            listaFacturaSeleccionada.get(indice).setFechaacreditacionprorrogada(date.format(fechaA));
+                        }
+                        listaFacturaSeleccionada.get(indice).setPagada(true);
                         cambiarEstadoFactura(listaFacturaSeleccionada.get(indice));
                     }
                 }
@@ -2429,6 +2511,14 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 
     public void setFechaDep(Date fechaDep) {
         this.fechaDep = fechaDep;
+    }
+
+    public BigDecimal getSuma() {
+        return suma;
+    }
+
+    public void setSuma(BigDecimal suma) {
+        this.suma = suma;
     }
 
 }

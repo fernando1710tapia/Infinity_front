@@ -97,24 +97,25 @@
                                     <p:outputLabel for="tipoBus">Tipo de Fecha</p:outputLabel>
                                     <p:selectOneRadio id="tipoBus" value="#{facturacionBean.tipoFecha}" layout="responsive" columns="2">
                                         <f:selectItem itemLabel="Fecha Venta" itemValue="1" />
-                                        <f:selectItem itemLabel="Fecha Despacho" itemValue="2" />                                    
+                                        <f:selectItem itemLabel="Fecha Acreditacion" itemValue="2" />
+                                        <!--<p:ajax listener="{facturacionBean.seleccionarTipoFecha()}" update="fechaI" />-->
                                     </p:selectOneRadio>
                                 </div>
                                 <div class="p-field p-col-12 p-md-4">                                  
-                                    <p:outputLabel for="fechaI" value="Fecha Inicio"/>
+                                    <p:outputLabel for="fechaI" value="Fecha"/>
                                     <p:datePicker id="fechaI" value="#{facturacionBean.fechaI}" showIcon="true" pattern="dd/MM/yyyy">
-                                        <p:ajax event="dateSelect" update="fechaF"/>
+                                        <p:ajax event="dateSelect" />
                                     </p:datePicker>
                                 </div>
-                                <div class="p-field p-col-12 p-md-4">                                  
+                                <!--<div class="p-field p-col-12 p-md-4">                                  
                                     <p:outputLabel for="fechaF" value="Fecha Fin"/>
-                                    <p:datePicker id="fechaF" value="#{facturacionBean.fechaf}" showIcon="true" pattern="dd/MM/yyyy" mindate="#{facturacionBean.fechaI}"/>                                   
-                                </div>
-
+                                    <p:datePicker id="fechaF" value="{facturacionBean.fechaf}" showIcon="true" pattern="dd/MM/yyyy" mindate="{facturacionBean.fechaI}"/>                                   
+                                </div>-->
+                                
                                 <div class="p-field p-col-12 p-md-2">
-                                    <p:commandButton value="Buscar" icon="pi pi-search-plus" actionListener="#{facturacionBean.obtenerFacturas()}" update="form"/>
+                                    <p:outputLabel value="&#160;"/>
+                                    <p:commandButton value="Buscar" icon="pi pi-search-plus" actionListener="#{facturacionBean.obtenerFacturasProrrogas()}" update="form"/>
                                 </div>
-
                             </div>
                             <div class="ui-fluid p-formgrid p-grid">
                                 <div class="p-field p-col-12 p-md-4">                                  
@@ -137,10 +138,10 @@
                                     </div>
                                 </f:facet>
                                 <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
-                                <p:column headerText="Banco" sortBy="#{envF.codigobanco}" filterBy="#{envF.codigobanco}" width="10%">
+                                <p:column headerText="Banco" sortBy="#{envF.codigobanco}" filterBy="#{envF.codigobanco}" width="8%">
                                     <h:outputText value="#{envF.codigobanco}" />
                                 </p:column>
-                                <p:column headerText="Cliente" sortBy="#{envF.codigocliente}" filterBy="#{envF.codigocliente}" width="20%">
+                                <p:column headerText="Cliente" sortBy="#{envF.codigocliente}" filterBy="#{envF.codigocliente}" width="10%">
                                     <h:outputText value="#{envF.codigocliente}" />
                                 </p:column>
                                 <p:column headerText="Factura" sortBy="#{envF.facturaPK.numero}" filterBy="#{envF.facturaPK.numero}" width="20%">
@@ -155,8 +156,23 @@
                                     <h:outputText value="#{envF.fechavencimiento}">
                                         <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                     </h:outputText>
-                                </p:column>                                           
-                                <p:column headerText="Valor" sortBy="#{envF.valorconrubro}" filterBy="#{envF.valorconrubro}" width="20%">
+                                </p:column>
+                                <p:column headerText="Fecha Acreditacion" sortBy="#{envF.fechaacreditacion}" filterBy="#{envF.fechaacreditacion}" width="15%">                                            
+                                    <h:outputText value="#{envF.fechaacreditacion}">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
+                                    </h:outputText>
+                                </p:column>
+                                <p:column headerText="Fecha Prórroga" sortBy="#{envF.fechaacreditacionprorrogada}" filterBy="#{envF.fechaacreditacionprorrogada}" width="15%">                                            
+                                    <h:outputText value="#{envF.fechaacreditacionprorrogada}">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
+                                    </h:outputText>
+                                </p:column>
+                                <p:column headerText="Valor Venta" sortBy="#{envF.valortotal}" filterBy="#{envF.valortotal}" width="10%">
+                                    <h:outputText value="#{envF.valortotal}">
+                                        <f:convertNumber currencySymbol="$" type="currency" />
+                                    </h:outputText>
+                                </p:column>
+                                <p:column headerText="Valor Rubro" sortBy="#{envF.valorconrubro}" filterBy="#{envF.valorconrubro}" width="10%">
                                     <h:outputText value="#{envF.valorconrubro}">
                                         <f:convertNumber currencySymbol="$" type="currency" />
                                     </h:outputText>
@@ -499,7 +515,7 @@
         </p:confirmDialog>   
         
         <p:confirmDialog widgetVar="editFechaDialog" showEffect="fade" width="300" message="Desea cambiar la fecha de prorroga?" header="Confirm" severity="warn">
-            <p:commandButton value="Si" icon="pi pi-check" process="@this" oncomplete="PF('editFechaDialog').hide()" actionListener="#{facturacionBean.editarFechaProFactura}"/>
+            <p:commandButton value="Si" icon="pi pi-check" process="@this" oncomplete="PF('editFechaDialog').hide()" actionListener="#{facturacionBean.editarFechaProFactura}" update="form"/>
             <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('editFechaDialog').hide()" />
         </p:confirmDialog>
 

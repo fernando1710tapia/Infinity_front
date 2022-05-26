@@ -89,25 +89,28 @@
                                 <p:column exportable="false" width="5%">
                                     <p:rowToggler  />
                                 </p:column>
-                                <p:column headerText="Banco" sortBy="#{precio.pagofacturaPK.codigobanco}" filterBy="#{precio.pagofacturaPK.codigobanco}" width="10%">
+                                <p:column headerText="Banco" sortBy="#{precio.pagofacturaPK.codigobanco}" filterBy="#{precio.pagofacturaPK.codigobanco}" width="5%">
                                     <h:outputText value="#{precio.pagofacturaPK.codigobanco}" />
                                 </p:column>
                                 <p:column headerText="Cliente" sortBy="#{pagoFacturaBean.nombreCliente(precio.pagofacturaPK.numero)}" filterBy="#{pagoFacturaBean.nombreCliente(precio.pagofacturaPK.numero)}" width="10%">
                                     <h:outputText value="#{pagoFacturaBean.nombreCliente(precio.pagofacturaPK.numero)}" />
                                 </p:column>
-                                <p:column headerText="Fecha Pago"  width="15%">
+                                <p:column headerText="Fecha Pago"  width="7%">
                                     <h:outputText value="#{precio.fecha}" >
                                         <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                     </h:outputText>
                                 </p:column>
-                                <p:column headerText="Numero Pago" sortBy="#{precio.pagofacturaPK.numero}" filterBy="#{precio.pagofacturaPK.numero}" width="15%">
+                                <p:column headerText="Numero Pago" sortBy="#{precio.pagofacturaPK.numero}" filterBy="#{precio.pagofacturaPK.numero}" width="10%">
                                     <h:outputText value="#{precio.pagofacturaPK.numero}" />
                                 </p:column>
-                                <p:column headerText="Estado" sortBy="#{precio.activoS}" filterBy="#{precio.activoS}" width="12%">
+                                <p:column headerText="Estado" sortBy="#{precio.activoS}" filterBy="#{precio.activoS}" width="7%">
                                     <h:outputText styleClass="product-badge status-#{estilos.tipoActivo(precio.activoS)}" value="#{estilos.valorActivo(precio.activoS)}" />
                                 </p:column>
-                                <p:column headerText="Valor" sortBy="#{precio.valor}" filterBy="#{precio.valor}" width="12%">
+                                <p:column headerText="Valor" sortBy="#{precio.valor}" filterBy="#{precio.valor}" width="5%">
                                     <h:outputText value="#{precio.valor}" />
+                                </p:column>
+                                <p:column headerText="Observación" sortBy="#{precio.observacion}" filterBy="#{precio.observacion}" width="20%">
+                                    <h:outputText value="#{precio.observacion}" />
                                 </p:column>
                                 <!--<p:column exportable="false">
                                     <p:commandButton icon="pi pi-pencil" update="form :formNuevo" actionListener="#{pagoFacturaBean.editarPagoFactura(precio)}"
@@ -196,7 +199,7 @@
                                     <p:outputLabel for="fechaBus" value="Tipo Fecha:"/>
                                     <p:selectOneRadio id="fechaBus" value="#{pagoFacturaBean.tipoBusquedaDocumento}">
                                         <f:selectItem itemLabel="Fecha Venta" itemValue="1"/>
-                                        <f:selectItem itemLabel="Fecha Vencimiento" itemValue="2"/>
+                                        <f:selectItem itemLabel="Fecha Acred. Prorrogada" itemValue="2"/>
                                         <p:ajax update="form" listener="#{pagoFacturaBean.actualizarTipoBusqueda}" process="@this"/>                                            
                                     </p:selectOneRadio>
                                 </div>                                                                        
@@ -223,27 +226,42 @@
                                         </div>
                                     </f:facet>
                                     <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
-                                    <p:column headerText="Banco" sortBy="#{cobro.codigobanco}" filterBy="#{cobro.codigobanco}" width="20%">
+                                    <p:column headerText="Banco" sortBy="#{cobro.codigobanco}" filterBy="#{cobro.codigobanco}" width="10%">
                                         <h:outputText value="#{cobro.codigobanco}" />
                                     </p:column>
                                     <p:column headerText="Factura" sortBy="#{cobro.facturaPK.numero}" filterBy="#{cobro.facturaPK.numero}" width="20%">
                                         <h:outputText value="#{cobro.facturaPK.numero}" />
                                     </p:column>
-                                    <p:column headerText="Fecha Venta" sortBy="#{cobro.fechaventa}" filterBy="#{cobro.fechaventa}" width="20%">                                            
+                                    <p:column headerText="Fecha Venta" sortBy="#{cobro.fechaventa}" filterBy="#{cobro.fechaventa}" width="15%">                                            
                                         <h:outputText value="#{cobro.fechaventa}">
                                             <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                         </h:outputText>
                                     </p:column>
-                                    <p:column headerText="Fecha Vencimiento" sortBy="#{cobro.fechavencimiento}" filterBy="#{cobro.fechavencimiento}" width="20%">                                            
+                                    <p:column headerText="Fecha Vencimiento" sortBy="#{cobro.fechavencimiento}" filterBy="#{cobro.fechavencimiento}" width="15%">                                            
                                         <h:outputText value="#{cobro.fechavencimiento}">
                                             <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                         </h:outputText>
                                     </p:column>                                           
-                                    <p:column headerText="Valor" sortBy="#{cobro.valortotal}" filterBy="#{cobro.valortotal}" width="20%">
+                                    <p:column headerText="Fecha Acreditación" sortBy="#{cobro.fechaacreditacion}" filterBy="#{cobro.fechaacreditacion}" width="15%">                                            
+                                        <h:outputText value="#{cobro.fechaacreditacion}">
+                                            <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column headerText="Fecha Acred. Prorrogada" sortBy="#{cobro.fechaacreditacionprorrogada}" filterBy="#{cobro.fechaacreditacionprorrogada}" width="15%">                                            
+                                        <h:outputText value="#{cobro.fechaacreditacionprorrogada}"> 
+                                            <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column headerText="Valor Venta" sortBy="#{cobro.valortotal}" filterBy="#{cobro.valortotal}" width="10%">
                                         <h:outputText value="#{cobro.valortotal}">
                                             <f:convertNumber currencySymbol="$" type="currency" />
                                         </h:outputText>
-                                    </p:column>                                                                                                          
+                                    </p:column>
+                                    <p:column headerText="Valor Rubro" sortBy="#{cobro.valorconrubro}" filterBy="#{cobro.valorconrubro}" width="10%">
+                                        <h:outputText value="#{cobro.valorconrubro}">
+                                            <f:convertNumber currencySymbol="$" type="currency" />
+                                        </h:outputText>
+                                    </p:column>                                                                                                                      
                                 </p:dataTable>
                             </div>
 
@@ -251,7 +269,7 @@
                         <p:toolbar>
                             <p:toolbarGroup>
                                 <p:commandButton value="Validar Cobros" icon="pi pi-check" actionListener="#{pagoFacturaBean.generarValores()}" update="formNuevo :formValores" styleClass="p-mr-2" />  
-                                <p:commandButton value="Regresar" icon="pi pi-arrow-left" actionListener="#{pagoFacturaBean.regresarPantallaInicial()}" styleClass="ui-button-help p-mr-2" update=":form formNuevo :formValores"/>
+                                <p:commandButton value="Regresar" icon="pi pi-arrow-left" actionListener="#{pagoFacturaBean.regresarPantallaInicial()}" styleClass="ui-button-help p-mr-2" update=":form formNuevo formValores formPagoDirecto"/>
                                 <p:commandButton value="Cancelar" icon="pi pi-times" class="ui-button-secondary"  actionListener="#{pagoFacturaBean.cancelar()}" update=":form formNuevo"/>
                             </p:toolbarGroup>
                         </p:toolbar> 
@@ -298,7 +316,7 @@
                                     <p:fileDownload value="#{pagoFacturaBean.txtStream}"/>
                                 </p:commandButton>
                                 <!--<p:commandButton value="Generar Archivos" icon="pi pi-check" actionListener="{pagoFacturaBean.generarArchivos}" styleClass="p-mr-2"/>-->
-                                <p:commandButton value="Regresar" icon="pi pi-arrow-left" actionListener="#{pagoFacturaBean.regresarGestionCobros()}" styleClass="ui-button-help p-mr-2" update=":form :formNuevo formValores"/>
+                                <p:commandButton value="Regresar" icon="pi pi-arrow-left" actionListener="#{pagoFacturaBean.regresarGestionCobros()}" styleClass="ui-button-help p-mr-2" update=":form :formNuevo formValores formPagoDirecto"/>
                                 <p:commandButton value="Cancelar" icon="pi pi-times" class="ui-button-secondary"  actionListener="#{pagoFacturaBean.cancelar()}" update=":form :formNuevo formValores"/>
                             </p:toolbarGroup>
                         </p:toolbar> 
@@ -379,7 +397,7 @@
                                     <p:outputLabel for="fechaBus" value="Tipo Fecha:"/>
                                     <p:selectOneRadio id="fechaBus" value="#{pagoFacturaBean.tipoBusquedaDocumento}">
                                         <f:selectItem itemLabel="Fecha Venta" itemValue="1"/>
-                                        <f:selectItem itemLabel="Fecha Vencimiento" itemValue="2"/>
+                                        <f:selectItem itemLabel="Fecha Acred. Prorrogada" itemValue="2"/>
                                         <p:ajax update="form" listener="#{pagoFacturaBean.actualizarTipoBusqueda}" process="@this"/>                                            
                                     </p:selectOneRadio>
                                 </div>                                                                        
@@ -426,11 +444,26 @@
                                             <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                         </h:outputText>
                                     </p:column>                                           
-                                    <p:column headerText="Valor" sortBy="#{cobro.valorconrubro}" filterBy="#{cobro.valorconrubro}" width="20%">
+                                    <p:column headerText="Fecha Acreditacion" sortBy="#{cobro.fechaacreditacion}" filterBy="#{cobro.fechaacreditacion}" width="15%">                                            
+                                        <h:outputText value="#{cobro.fechaacreditacion}">
+                                            <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column headerText="Fecha Acred. Prorrogada" sortBy="#{cobro.fechaacreditacionprorrogada}" filterBy="#{cobro.fechaacreditacionprorrogada}" width="15%">                                            
+                                        <h:outputText value="#{cobro.fechaacreditacionprorrogada}">
+                                            <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column headerText="Valor Venta" sortBy="#{cobro.valortotal}" filterBy="#{cobro.valortotal}" width="10%">
+                                        <h:outputText value="#{cobro.valortotal}">
+                                            <f:convertNumber currencySymbol="$" type="currency" />
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column headerText="Valor Rubro" sortBy="#{cobro.valorconrubro}" filterBy="#{cobro.valorconrubro}" width="10%">
                                         <h:outputText value="#{cobro.valorconrubro}">
                                             <f:convertNumber currencySymbol="$" type="currency" />
                                         </h:outputText>
-                                    </p:column>                                                                                                          
+                                    </p:column>                                                                                                         
                                 </p:dataTable>
                             </div>
 
@@ -438,8 +471,8 @@
                         <p:toolbar>
                             <p:toolbarGroup>
                                 <p:commandButton value="Validar Cobros" icon="pi pi-check" actionListener="#{pagoFacturaBean.generarValoresPagoDirecto()}" update="formPagoDirecto ingresoDatos" styleClass="p-mr-2" />  
-                                <p:commandButton value="Regresar" icon="pi pi-arrow-left" actionListener="#{pagoFacturaBean.regresarPantallaInicial()}" styleClass="ui-button-help p-mr-2" update=":form formNuevo :formValores"/>
-                                <p:commandButton value="Cancelar" icon="pi pi-times" class="ui-button-secondary"  actionListener="#{pagoFacturaBean.cancelar()}" update=":form formNuevo"/>
+                                <p:commandButton value="Regresar" icon="pi pi-arrow-left" actionListener="#{pagoFacturaBean.regresarPantallaInicial()}" styleClass="ui-button-help p-mr-2" update=":form formNuevo formValores formPagoDirecto"/>
+                                <p:commandButton value="Cancelar" icon="pi pi-times" class="ui-button-secondary"  actionListener="#{pagoFacturaBean.cancelar()}" update=":form formNuevo formPagoDirecto"/>
                             </p:toolbarGroup>
                         </p:toolbar> 
                     </div>
@@ -546,11 +579,14 @@
             </h:form>
         </p:dialog>
 
-        <p:dialog header="Ingreso Datos" width="40%" showEffect="fade" modal="true" widgetVar="ingresoDatos" responsive="true">
+        <p:dialog header="Ingreso Datos del Pago" width="40%" showEffect="fade" modal="true" widgetVar="ingresoDatos" responsive="true">
             <h:form id="ingresoDatos">
                 <p:outputPanel rendered="true">
                     <div class="p-grid crud-demo">                        
-                        <div class="ui-fluid p-col-12 p-formgrid p-grid">                                                        
+                        <div class="ui-fluid p-col-12 p-formgrid p-grid">
+                            <div class="p-field p-col-12 p-md-12">
+                                <h4>El total a pagar incluido rubro a terceros: $#{pagoFacturaBean.suma}</h4>                                
+                            </div>                             
                             <div class="p-field p-col-12 p-md-6">
                                 <p:outputLabel for="banco" value="Banco Depósito"/>
                                 <div class="ui-inputgroup">
