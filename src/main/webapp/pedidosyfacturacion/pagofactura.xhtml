@@ -107,7 +107,7 @@
                                     <h:outputText styleClass="product-badge status-#{estilos.tipoActivo(precio.activoS)}" value="#{estilos.valorActivo(precio.activoS)}" />
                                 </p:column>
                                 <p:column headerText="Valor" sortBy="#{precio.valor}" filterBy="#{precio.valor}" width="5%">
-                                    <h:outputText value="#{precio.valor}" />
+                                    <h:outputText value="$ #{precio.valor}" />
                                 </p:column>
                                 <p:column headerText="Observación" sortBy="#{precio.observacion}" filterBy="#{precio.observacion}" width="20%">
                                     <h:outputText value="#{precio.observacion}" />
@@ -138,16 +138,19 @@
                                             <p:column headerText="Fecha Vencimiento" sortBy="#{detalle.factura.fechavencimiento}">
                                                 <h:outputText value="#{detalle.factura.fechavencimiento}" />                                                    
                                             </p:column>
+                                            <p:column headerText="Fecha Acreditación" sortBy="#{detalle.factura.fechaacreditacionprorrogada}">
+                                                <h:outputText value="#{detalle.factura.fechaacreditacionprorrogada}" />                                                    
+                                            </p:column>
                                             <p:column headerText="Estado" sortBy="#{detalle.activoS}" >
                                                 <h:outputText styleClass="product-badge status-#{estilos.tipoActivo(detalle.activoS)}" value="#{estilos.valorActivo(detalle.activoS)}" />
                                             </p:column>                                            
                                             <p:column headerText="Valor" sortBy="#{detalle.factura.valortotal}">
-                                                <h:outputText value="#{detalle.factura.valortotal}">
+                                                <h:outputText value="$ #{detalle.factura.valortotal}">
                                                     <f:convertNumber currencySymbol="$" type="currency" />
                                                 </h:outputText>
                                             </p:column>
                                             <p:column headerText="Valor con Rubro" sortBy="#{detalle.factura.valorconrubro}">
-                                                <h:outputText value="#{detalle.factura.valorconrubro}">
+                                                <h:outputText value="$ #{detalle.factura.valorconrubro}">
                                                     <f:convertNumber currencySymbol="$" type="currency" />
                                                 </h:outputText>
                                             </p:column>
@@ -402,7 +405,7 @@
                                     </p:selectOneRadio>
                                 </div>                                                                        
                                 <div class="p-field p-col-12 p-md-4"> 
-                                    <p:outputLabel for="fechaBusq" value="Fecha:"/>
+                                    <p:outputLabel for="fechaBusq" value="Fecha desde: ..., hasta: hoy"/>
                                     <p:datePicker id="fechaBusq" value="#{pagoFacturaBean.fecha}" showIcon="true" pattern="dd/MM/yyyy"/>
                                 </div>  
                                 <div class="p-field p-col-12 p-md-2">
@@ -428,7 +431,7 @@
                                     <p:column headerText="Banco" sortBy="#{cobro.codigobanco}" filterBy="#{cobro.codigobanco}" width="10%">
                                         <h:outputText value="#{cobro.codigobanco}" />
                                     </p:column>
-                                    <p:column headerText="Cliente" sortBy="#{cobro.codigocliente}" filterBy="#{cobro.codigocliente}" width="20%">
+                                    <p:column headerText="Cliente" sortBy="#{cobro.codigocliente}" filterBy="#{cobro.codigocliente}" width="15%">
                                         <h:outputText value="#{cobro.codigocliente}" />
                                     </p:column>
                                     <p:column headerText="Factura" sortBy="#{cobro.facturaPK.numero}" filterBy="#{cobro.facturaPK.numero}" width="20%">

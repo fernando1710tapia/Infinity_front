@@ -646,14 +646,16 @@ public class ClienterubroterceroBean extends ReusableBean implements Serializabl
                 List<Clienterubrotercero> listaCliAux = new ArrayList<>();
                 listaCliAux = clienterubroterceroServicio.obtenerClienteRubroterceroPorRubro(comercializadora.getCodigo(), rubrotercero.getRubroterceroPK().getCodigo());
                 listaClienterubrotercero = new ArrayList<>();
-                obtenerClientes(comercializadora.getCodigo());
+                List<Cliente> listaClienteAux = new ArrayList<>();                
+                obtenerClientes(comercializadora.getCodigo());                
                 for (int i = 0; i < listaCliente.size(); i++) {
                     for (int j = 0; j < listaCliAux.size(); j++) {
                         if (listaCliente.get(i).getCodigo().equals(listaCliAux.get(j).getClienterubroterceroPK().getCodigocliente())) {
-                            listaCliente.remove(i);
+                            listaClienteAux.add(listaCliente.get(i));
                         }
                     }
                 }
+                listaCliente.removeAll(listaClienteAux);
             }
         }
     }

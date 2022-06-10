@@ -572,6 +572,9 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
                 Long lDateVen = fact.getLong("fechavencimiento");
                 Date dateVen = new Date(lDateVen);
                 factura.setFechavencimiento(date.format(dateVen));
+                Long lDateAcre = fact.getLong("fechaacreditacionprorrogada");
+                Date dateAcre = new Date(lDateAcre);
+                factura.setFechaacreditacionprorrogada(date.format(dateAcre));
                 factura.setValortotal(fact.getBigDecimal("valortotal"));
                 factura.setValorconrubro(fact.getBigDecimal("valorconrubro"));
                 detallepago.setFactura(factura);
@@ -1182,7 +1185,8 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 
             //crea el flujo para escribir en el archivo
             //flwriter = new FileWriter("C:\\archivos\\Facturas_Banco" + codBanco + "_" + fechaHora + "_" + usuario + ".txt");
-            flwriter = new FileWriter(Fichero.getCARPETAREPORTES() + "/Facturas_Banco" + codBanco + "_" + fechaHora + "_" + usuario + ".txt");
+            //flwriter = new FileWriter(Fichero.getCARPETAREPORTES() + "/Facturas_Banco" + codBanco + "_" + fechaHora + "_" + usuario + ".txt");
+            flwriter = new FileWriter(nombreArchivo);
 
             //crea un buffer o flujo intermedio antes de escribir directamente en el archivo
             BufferedWriter bfwriter = new BufferedWriter(flwriter);
@@ -1997,6 +2001,9 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                     factura.setFechaautorizacion(fact.getString("fechaautorizacion"));
                 }
                 factura.setClienteformapago(fact.getString("clienteformapago"));
+                if (!fact.isNull("clienteformapagonosri")) {
+                    factura.setClienteformapagonosri(fact.getString("clienteformapagonosri"));
+                }
                 factura.setPlazocliente(fact.getInt("plazocliente"));
                 factura.setClaveacceso(fact.getString("claveacceso"));
                 if (!fact.isNull("campoadicional_campo1")) {

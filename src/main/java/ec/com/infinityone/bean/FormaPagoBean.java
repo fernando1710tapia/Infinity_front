@@ -6,7 +6,8 @@
 package ec.com.infinityone.bean;
 
 import ec.com.infinityone.configuration.Fichero;
-import ec.com.infinityone.modeloWeb.ObjetoNivel1;
+import ec.com.infinityone.modeloWeb.Formapago;
+import ec.com.infinityone.modeloWeb.Formapago;
 import ec.com.infinityone.reusable.ReusableBean;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,10 +33,15 @@ import org.primefaces.shaded.json.JSONObject;
 @Named
 @ViewScoped
 public class FormaPagoBean extends ReusableBean implements Serializable {
-     /*
-    Variable que almacena varias Medidas
+
+    /*
+    Variable que almacena varias formas de pago
      */
-    private List<ObjetoNivel1> listaFormaP;
+    private List<Formapago> listaFormaP;
+    /*
+    Variable que almacena varias formas de pago
+     */
+    private Formapago formaP;
     /*
     Variable para validar si es guardar o editar
      */
@@ -49,6 +55,7 @@ public class FormaPagoBean extends ReusableBean implements Serializable {
      */
     public FormaPagoBean() {
     }
+
     @PostConstruct
     /**
      * Funcion para inicializar variables
@@ -57,11 +64,11 @@ public class FormaPagoBean extends ReusableBean implements Serializable {
         //direccion = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.formapago";
         direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.formapago";
         editarFormaP = false;
-        objeto = new ObjetoNivel1();
+        formaP = new Formapago();
         obtenerFormaPago();
         //getURL();
     }
-    
+
     public void obtenerFormaPago() {
         try {
             String token = "Infinity eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwYXVsIiwiaXNzIjoiZWMuY29tLmluZmluaXR5b25lIiwiaWF0IjoxNjI1ODUyOTIyLCJleHAiOjE2MjU4NTY1MjJ9.zlpXPvsZeHrmnPdQ_cINdd6SBPoNqF0Sq6Wuin3P6HdriDHoPRkhCYcJNYlfnAb8yUTrCPc9OHFIVjF35wTcaw";
@@ -80,7 +87,7 @@ public class FormaPagoBean extends ReusableBean implements Serializable {
             //connection.setRequestProperty("Access-Control-Allow-Origin", "*");
 
             listaFormaP = new ArrayList<>();
-            objeto = new ObjetoNivel1();
+            formaP = new Formapago();
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
             BufferedReader br = new BufferedReader(reader);
@@ -89,20 +96,17 @@ public class FormaPagoBean extends ReusableBean implements Serializable {
             while ((tmp = br.readLine()) != null) {
                 respuesta += tmp;
             }
-            JSONObject objetoJson = new JSONObject(respuesta);
-            JSONArray retorno = objetoJson.getJSONArray("retorno");
+            JSONObject formaPJson = new JSONObject(respuesta);
+            JSONArray retorno = formaPJson.getJSONArray("retorno");
             for (int indice = 0; indice < retorno.length(); indice++) {
                 JSONObject areaM = retorno.getJSONObject(indice);
-                objeto.setCodigo(areaM.getString("codigo"));
-                objeto.setNombre(areaM.getString("nombre"));
-                if (areaM.getBoolean("activo") == true) {
-                    objeto.setActivo("S");
-                } else {
-                    objeto.setActivo("N");
-                }
-                objeto.setUsuario(areaM.getString("usuarioactual"));
-                listaFormaP.add(objeto);
-                objeto = new ObjetoNivel1();
+                formaP.setCodigo(areaM.getString("codigo"));
+                formaP.setNombre(areaM.getString("nombre"));
+                formaP.setCodigosri(areaM.getString("codigosri"));
+                formaP.setActivo(areaM.getBoolean("activo"));               
+                formaP.setUsuarioactual(areaM.getString("usuarioactual"));
+                listaFormaP.add(formaP);
+                formaP = new Formapago();
             }
 
             System.out.println(connection.getResponseCode());
@@ -111,7 +115,7 @@ public class FormaPagoBean extends ReusableBean implements Serializable {
             e.printStackTrace();
         }
     }
-    
+
     public void save() {
         if (editarFormaP) {
             editItems();
@@ -133,20 +137,20 @@ public class FormaPagoBean extends ReusableBean implements Serializable {
 
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             JSONObject obj = new JSONObject();
-            obj.put("codigo", objeto.getCodigo());
-            obj.put("nombre", objeto.getNombre());
+            obj.put("codigo", formaP.getCodigo());
+            obj.put("nombre", formaP.getNombre());
+            obj.put("codigosri", formaP.getCodigosri());
             obj.put("activo", estadoFormaP);
             obj.put("usuarioactual", dataUser.getUser().getNombrever());
             respuesta = obj.toString();
             writer.write(respuesta);
             writer.close();
             PrimeFaces.current().executeScript("PF('nuevo').hide()");
-            if(connection.getResponseCode() == 200){
+            if (connection.getResponseCode() == 200) {
                 this.dialogo(FacesMessage.SEVERITY_INFO, "FORMA PAGO REGISTRADA EXITOSAMENTE");
-            }else{
+            } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
             }
-            
 
             System.out.println(connection.getResponseCode());
             System.out.println(connection.getResponseMessage());
@@ -166,20 +170,21 @@ public class FormaPagoBean extends ReusableBean implements Serializable {
 
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             JSONObject obj = new JSONObject();
-            obj.put("codigo", objeto.getCodigo());
-            obj.put("nombre", objeto.getNombre());
+            obj.put("codigo", formaP.getCodigo());
+            obj.put("nombre", formaP.getNombre());
+            obj.put("codigosri", formaP.getCodigosri());
             obj.put("activo", estadoFormaP);
             obj.put("usuarioactual", dataUser.getUser().getNombrever());
             respuesta = obj.toString();
             writer.write(respuesta);
             writer.close();
             PrimeFaces.current().executeScript("PF('nuevo').hide()");
-            if(connection.getResponseCode() == 200){
+            if (connection.getResponseCode() == 200) {
                 this.dialogo(FacesMessage.SEVERITY_INFO, "FORMA PAGO ACUTALIZADA EXITOSAMENTE");
-            }else{
+            } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ACTUALIZAR");
             }
-            
+
             System.out.println(connection.getResponseCode());
             System.out.println(connection.getResponseMessage());
         } catch (IOException e) {
@@ -190,20 +195,20 @@ public class FormaPagoBean extends ReusableBean implements Serializable {
     public void deleteItems() {
         try {
             String respuesta;
-            url = new URL(direccion + "/porId?codigo="+objeto.getCodigo());
+            url = new URL(direccion + "/porId?codigo=" + formaP.getCodigo());
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
             connection.setRequestMethod("DELETE");
             connection.setRequestProperty("Content-type", "application/json");
             connection.connect();
             PrimeFaces.current().executeScript("PF('nuevo').hide()");
-            if(connection.getResponseCode() == 200){
+            if (connection.getResponseCode() == 200) {
                 this.dialogo(FacesMessage.SEVERITY_INFO, "FORMA PAGO ELIMINADA EXITOSAMENTE");
                 obtenerFormaPago();
-            }else{
+            } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ELIMINAR");
             }
-            
+
             System.out.println(connection.getResponseCode());
             System.out.println(connection.getResponseMessage());
         } catch (IOException e) {
@@ -215,28 +220,24 @@ public class FormaPagoBean extends ReusableBean implements Serializable {
         estadoFormaP = true;
         editarFormaP = false;
         soloLectura = false;
-        objeto = new ObjetoNivel1();
+        formaP = new Formapago();
         PrimeFaces.current().executeScript("PF('nuevo').show()");
     }
 
-    public ObjetoNivel1 editaFormaP(ObjetoNivel1 obj) {
+    public Formapago editaFormaP(Formapago obj) {
         editarFormaP = true;
-        objeto = obj;
-        soloLectura = true;
-        if ("S".equals(objeto.getActivo())) {
-            estadoFormaP = true;
-        } else {
-            estadoFormaP = false;
-        }
+        formaP = obj;
+        soloLectura = true;        
+        estadoFormaP = formaP.getActivo();
         PrimeFaces.current().executeScript("PF('nuevo').show()");
-        return objeto;
+        return formaP;
     }
 
-    public List<ObjetoNivel1> getListaFormaP() {
+    public List<Formapago> getListaFormaP() {
         return listaFormaP;
     }
 
-    public void setListaFormaP(List<ObjetoNivel1> listaFormaP) {
+    public void setListaFormaP(List<Formapago> listaFormaP) {
         this.listaFormaP = listaFormaP;
     }
 
@@ -255,6 +256,13 @@ public class FormaPagoBean extends ReusableBean implements Serializable {
     public void setEstadoFormaP(boolean estadoFormaP) {
         this.estadoFormaP = estadoFormaP;
     }
-    
-    
+
+    public Formapago getFormaP() {
+        return formaP;
+    }
+
+    public void setFormaP(Formapago formaP) {
+        this.formaP = formaP;
+    } 
+
 }

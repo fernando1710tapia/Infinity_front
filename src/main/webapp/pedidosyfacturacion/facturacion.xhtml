@@ -110,11 +110,9 @@
                             </div>
 
                             <div class="p-field p-col-12 p-md-2">
-                                <p:commandButton value="Buscar" icon="pi pi-search-plus" actionListener="#{facturacionBean.obtenerFacturas()}" update="form"/>
+                                <p:commandButton id="save" value="Buscar" icon="pi pi-search-plus" actionListener="#{facturacionBean.obtenerFacturas()}" update="form"/>
                             </div>
-
-                        </div>                              
-
+                        </div>                           
 
                         <p:dataTable id="dt-products" widgetVar="dtProducts" var="envF" value="#{facturacionBean.listenvF}" reflow="true" styleClass="products-table"
                                      paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
@@ -129,17 +127,20 @@
                                 </div>
                             </f:facet>                            
 
-                            <p:column headerText="Cliente" filterBy="#{envF.factura.codigocliente}" width="7%">
+                            <p:column headerText="Cliente" filterBy="#{envF.factura.codigocliente}" width="6%">
                                 <h:outputText value="#{envF.factura.codigocliente}" />
                             </p:column>
                             <p:column headerText="Número" sortBy="#{envF.factura.facturaPK.numero}" filterBy="#{envF.factura.facturaPK.numero}" width="12%">
                                 <h:outputText value="#{envF.factura.facturaPK.numero}" />
                             </p:column>
-                            <p:column headerText="Número NP" sortBy="#{envF.factura.facturaPK.numeronotapedido}" filterBy="#{envF.factura.facturaPK.numeronotapedido}" width="12%">
+                            <p:column headerText="Número NP" sortBy="#{envF.factura.facturaPK.numeronotapedido}" filterBy="#{envF.factura.facturaPK.numeronotapedido}" width="8%">
                                 <h:outputText value="#{envF.factura.facturaPK.numeronotapedido}" />
                             </p:column>
-                            <p:column headerText="Valor" filterBy="#{envF.factura.valortotal}" width="5%">
+                            <p:column headerText="Valor total" filterBy="#{envF.factura.valortotal}" width="5%">
                                 <h:outputText value="#{envF.factura.valortotal}" />
+                            </p:column>
+                            <p:column headerText="Valor con rubros" filterBy="#{envF.factura.valorconrubro}" width="5%">
+                                <h:outputText value="#{envF.factura.valorconrubro}" />
                             </p:column>
                             <p:column headerText="Estado" width="8%">
                                 <h:outputText styleClass="product-badge status-#{estilos.tipoActivoBool(envF.factura.activa)}" value="#{estilos.valorBoolActivo(envF.factura.activa)}" />
@@ -167,11 +168,13 @@
                                     <f:setPropertyActionListener value="#{envF}" target="#{facturacionBean.envF}" />
                                 </p:commandButton>
                             </p:column>
-                            <p:column style="width: 3.5rem">
+                            <p:column style="width: 3rem">
                                 <p:commandButton icon="pi pi-pencil" update="form :formEditar" actionListener="#{facturacionBean.editarFactura(envF)}"
                                                  styleClass="edit-button rounded-button ui-button-success" process="@this">
                                     <f:setPropertyActionListener value="#{envF}" target="#{facturacionBean.envF}" />
-                                </p:commandButton>
+                                </p:commandButton>                                
+                            </p:column> 
+                            <p:column style="width: 3rem">                               
                                 <p:commandButton icon="pi pi-print" actionListener="#{facturacionBean.generarReporte(envF)}" ajax="false" 
                                                  onstart="PF('blockUIWidget').block()" 
                                                  oncomplete="PF('blockUIWidget').unblock()"
@@ -179,7 +182,7 @@
                                                  update="@form" styleClass="edit-button rounded-button ui-button-success">
                                     <p:fileDownload value="#{facturacionBean.pdfStream}"/>
                                 </p:commandButton>
-                            </p:column>  
+                            </p:column>    
                         </p:dataTable>
                         <p:confirmDialog id="anulacion" widgetVar="deleteProductDialog" showEffect="fade" width="300" message="Anular Factura?" header="Confirm" severity="warn">
                             <p:commandButton value="Si" icon="pi pi-check" actionListener="#{facturacionBean.verficarAnulacion()}" process="@this" oncomplete="PF('deleteProductDialog').hide()" update="form"/>
@@ -290,13 +293,13 @@
                     <p:column headerText="Cliente"  width="10%">
                         <h:outputText value="#{notaP.notapedido.codigocliente.codigo}" />
                     </p:column>                                    
-                    <p:column headerText="Factura"  width="18%">
+                    <p:column headerText="Factura"  width="20%">
                         <h:outputText value="#{notaP.notapedido.numerofacturasri}" />
                     </p:column>
                     <p:column headerText="Número NP"  width="15%">
                         <h:outputText value="#{notaP.notapedido.notapedidoPK.numero}" />
                     </p:column>
-                    <p:column headerText="Producto" width="15%">
+                    <p:column headerText="Producto" width="12%">
                         <h:outputText value="#{notaP.detalle.detallenotapedidoPK.codigoproducto}" />
                     </p:column>
                     <p:column headerText="Vol. Solicitado"  width="15%">
@@ -541,11 +544,10 @@
             <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
         </p:confirmDialog>    
 
-
-
         <p:confirmDialog global="true" showEffect="fade" width="300">
             <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
             <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
-        </p:confirmDialog> 
+        </p:confirmDialog>        
+
     </ui:define>
 </ui:composition>

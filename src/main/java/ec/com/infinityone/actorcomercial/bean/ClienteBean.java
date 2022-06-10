@@ -446,7 +446,7 @@ public class ClienteBean extends ReusableBean implements Serializable {
             esContribuyente = cliente.getEscontribuyenteespacial();
             controlaGarantia = cliente.getControlagarantia();
             aplicaSubsidio = cliente.getAplicasubsidio2();
-            formapago = cliente.getCodigoformapago();
+            formapago = cliente.getCodigoformapago();                         
             banco.setCodigo(cliente.getCodigobancodebito());
             terminal = cliente.getCodigoterminaldefecto();
 //        listaprecioPK.setCodigo(cliente.getCodigolistaprecio());
@@ -455,14 +455,15 @@ public class ClienteBean extends ReusableBean implements Serializable {
                 for (int i = 0; i < listaDireccioninen.size(); i++) {
                     if (listaDireccioninen.get(i).getCodigo().equals(cliente.getCodigodireccioninen())) {
                         this.direccioninen = listaDireccioninen.get(i);
+                        break;
                     }
                 }
             }
-
             if (!listaListaprecios.isEmpty()) {
                 for (int i = 0; i < listaListaprecios.size(); i++) {
                     if (listaListaprecios.get(i).getListaprecioPK().getCodigo() == cliente.getCodigolistaprecio()) {
                         this.listaprecio = listaListaprecios.get(i);
+                        break;
                     }
                 }
             }
@@ -646,7 +647,5 @@ public class ClienteBean extends ReusableBean implements Serializable {
     public void setListaTipoclientes(List<ObjetoNivel1> listaTipoclientes) {
         this.listaTipoclientes = listaTipoclientes;
     }
-
-
 
 }

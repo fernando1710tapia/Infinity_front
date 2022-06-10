@@ -203,9 +203,9 @@ public class ClienteServicio {
                     fpago.setCodigo(fp.getString("codigo"));
                     cli.setCodigoformapago(fpago);
                 }
-               // if (!cliente.isNull("codigotipocliente")) {
-                 //   cli.setCodigotipocliente(tc.getString("codigo"));
-               // }
+                // if (!cliente.isNull("codigotipocliente")) {
+                //   cli.setCodigotipocliente(tc.getString("codigo"));
+                // }
                 //cli.setObjRelacionado(cliente.getString("codigo") + " - " + cliente.getString("nombre"));                                    
 
 //                if (cli.isEstado(true)) {
@@ -385,6 +385,9 @@ public class ClienteServicio {
                 listaClientes.add(cli);
                 cli = new Cliente();
                 termi = new Terminal();
+                fpago = new Formapago();
+                banco = new Banco();
+                dinen = new Direccioninen();
             }
 
             if (connection.getResponseCode() != 200) {

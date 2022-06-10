@@ -50,22 +50,25 @@
 
                                 <p:ajax event="rowToggle" listener="#{crudDemoView.onRowToggle}" />
 
-                                <p:column headerText="Código" sortBy="#{formaP.codigo}" filterBy="#{formaP.codigo}" width="15%">
+                                <p:column headerText="Código" sortBy="#{formaP.codigo}" filterBy="#{formaP.codigo}" width="10%">
                                     <h:outputText value="#{formaP.codigo}" />
                                 </p:column>
-                                <p:column headerText="Nombre" sortBy="#{formaP.nombre}" filterBy="#{formaP.nombre}" width="30%">
+                                <p:column headerText="Nombre" sortBy="#{formaP.nombre}" filterBy="#{formaP.nombre}" width="25%">
                                     <h:outputText value="#{formaP.nombre}" />
                                 </p:column>
-                                <p:column headerText="Estado" sortBy="#{formaP.activo}" filterBy="#{formaP.activo}">
-                                    <h:outputText styleClass="product-badge status-#{estilos.tipoActivo(formaP.activo)}" value="#{estilos.valorActivo(formaP.activo)}" />
+                                <p:column headerText="Estado" sortBy="#{formaP.activo}" filterBy="#{formaP.activo}" width="15%">
+                                    <h:outputText styleClass="product-badge status-#{estilos.tipoActivoBool(formaP.activo)}" value="#{estilos.valorBoolActivo(formaP.activo)}" />
+                                </p:column>
+                                <p:column headerText="Código SRI" sortBy="#{formaP.codigosri}" filterBy="#{formaP.codigosri}" width="10%">
+                                    <h:outputText value="#{formaP.codigosri}" />
                                 </p:column>
                                 <p:column exportable="false">
                                     <p:commandButton icon="pi pi-pencil" update="form :formNuevo" actionListener="#{formaPagoBean.editaFormaP(formaP)}"
                                                      styleClass="edit-button rounded-button ui-button-success" process="@this">
-                                        <f:setPropertyActionListener value="#{formaP}" target="#{formaPagoBean.objeto}" />
+                                        <f:setPropertyActionListener value="#{formaP}" target="#{formaPagoBean.formaP}" />
                                     </p:commandButton>
                                     <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash" process="@this" oncomplete="PF('deleteProductDialog').show()" >
-                                        <f:setPropertyActionListener value="#{formaP}" target="#{formaPagoBean.objeto}" />
+                                        <f:setPropertyActionListener value="#{formaP}" target="#{formaPagoBean.formaP}" />
                                     </p:commandButton>
                                 </p:column>
                             </p:dataTable>
@@ -80,7 +83,7 @@
                     <div class="ui-fluid p-formgrid p-grid">
                         <div class="p-field p-col-12 p-md-6">
                             <span class="ui-float-label">
-                                <p:inputText id="codigo" value="#{formaPagoBean.objeto.codigo}" required="true" maxlength="2" disabled="#{formaPagoBean.soloLectura}">
+                                <p:inputText id="codigo" value="#{formaPagoBean.formaP.codigo}" required="true" maxlength="2" disabled="#{formaPagoBean.soloLectura}">
                                     <p:keyFilter mask="num" />
                                 </p:inputText> 
                                 <p:outputLabel for="codigo">Código</p:outputLabel>
@@ -88,11 +91,30 @@
                         </div>
                         <div class="p-field p-col-12 p-md-12">
                             <span class="ui-float-label">                                            
-                                <p:inputText id="nombre" value="#{formaPagoBean.objeto.nombre}" required="true" maxlength="50"/>
+                                <p:inputText id="nombre" value="#{formaPagoBean.formaP.nombre}" required="true" maxlength="50"/>
                                 <p:outputLabel for="nombre">Nombre</p:outputLabel>
                             </span>
                         </div>
-                        <div class="p-field p-col-12 p-md-12">
+                        <div class="p-field p-col-12 p-m-d6">
+                            <p:outputLabel for="codSri" value="Código SRI (código 20 sugerido)"/>
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon">
+                                    <i class="fa fa-money"></i>
+                                </span>
+                                <p:selectOneMenu id="codSri" value="#{formaPagoBean.formaP.codigosri}" title="Código SRI"
+                                                 panelStyle="width:175px" style="min-width: 80%;" 
+                                                 autoWidth="false" 
+                                                 filter="true" filterMatchMode="startsWith"
+                                                 required="true" requiredMessage="Seleccione Código SRI">
+                                    <f:selectItem noSelectionOption="true" itemLabel="Selecciona" itemValue="#{null}"/>
+                                    <f:selectItem itemLabel="01 - Sin utilización del sistema financiero" itemValue="01"/>
+                                    <f:selectItem itemLabel="03 - Cheque certificado" itemValue="03"/>
+                                    <f:selectItem itemLabel="19 - Tarjeta de crédito" itemValue="19"/>
+                                    <f:selectItem itemLabel="20 - Con utilización del sistema financiero" itemValue="20"/>                                    
+                                </p:selectOneMenu>
+                            </div>                            
+                        </div>
+                        <div class="p-field p-col-12 p-md-6">
                             <p:outputLabel for="estado"  value="Activo"/>
                             <div class="ui-inputgroup">
                                 <p:toggleSwitch id="estado" value="#{formaPagoBean.estadoFormaP}" > </p:toggleSwitch>

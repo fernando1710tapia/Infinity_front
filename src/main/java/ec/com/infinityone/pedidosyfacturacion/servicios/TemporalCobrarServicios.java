@@ -9,19 +9,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import ec.com.infinityone.configuration.Fichero;
 import ec.com.infinityone.modeloWeb.Temporalparacobrar;
 import ec.com.infinityone.modeloWeb.TemporalparacobrarPK;
-import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import org.primefaces.shaded.json.JSONArray;
-import org.primefaces.shaded.json.JSONObject;
 
 /**
  *

@@ -21,6 +21,8 @@ public class Formapago implements Serializable{
     private boolean activo;
 
     private String usuarioactual;
+    
+    private String codigosri;
 
     private List<Cliente> clienteList;
     
@@ -68,6 +70,14 @@ public class Formapago implements Serializable{
 
     public void setUsuarioactual(String usuarioactual) {
         this.usuarioactual = usuarioactual;
+    }
+
+    public String getCodigosri() {
+        return codigosri;
+    }
+
+    public void setCodigosri(String codigosri) {
+        this.codigosri = codigosri;
     }
     
     @Override

@@ -63,6 +63,13 @@
             </f:facet>
         </p:ajaxStatus>
 
+        <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()"/>
+
+        <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+            <div class="p-text-center">
+                <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
+            </div>
+        </p:dialog>
 
         <h:outputStylesheet name="css/primeicons.css" library="apollo-layout" />
         <h:outputStylesheet name="css/primeflex.min.css" library="apollo-layout" />

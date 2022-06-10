@@ -609,13 +609,13 @@ public class FacturacionCelBean extends ReusableBean implements Serializable {
                         }
                     }
                     seleccionarTerminal();
-                    List<Cliente> listaClientesAux = new ArrayList<>();
-                    listaClientesAux = listaClientes;
-                    for (int i = 0; i < listaClientesAux.size(); i++) {
+                    List<Cliente> listaClientesAux = new ArrayList<>();                    
+                    for (int i = 0; i < listaClientes.size(); i++) {
                         if (!listaClientes.get(i).getCodigoterminaldefecto().getCodigo().equals(codTerminal)) {
-                            listaClientes.remove(i);
+                            listaClientesAux.add(listaClientes.get(i));
                         }
-                    }
+                    } 
+                    listaClientes.removeAll(listaClientesAux);
                     break;
                 default:
                     break;
@@ -907,7 +907,7 @@ public class FacturacionCelBean extends ReusableBean implements Serializable {
                         }
                         if (np.isActiva()) {
                             listenvNP.add(envioPedido);
-                        }                        
+                        }
                         envioPedido = new EnvioPedido();
                         np = new Notapedido();
                         npPK = new NotapedidoPK();
@@ -2049,6 +2049,9 @@ public class FacturacionCelBean extends ReusableBean implements Serializable {
                     }
                     if (!fac.isNull("clienteformapago")) {
                         facturaauxiliar.setClienteformapago(fac.getString("clienteformapago"));
+                    }
+                    if (!fac.isNull("clienteformapagonosri")) {
+                        facturaauxiliar.setClienteformapagonosri(fac.getString("clienteformapagonosri"));
                     }
                     if (!fac.isNull("codigobanco")) {
                         facturaauxiliar.setCodigobanco(fac.getString("codigobanco"));

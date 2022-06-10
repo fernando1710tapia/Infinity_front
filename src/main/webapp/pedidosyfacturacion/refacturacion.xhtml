@@ -128,17 +128,20 @@
                             <p:column exportable="false" width="5%">
                                 <p:rowToggler />
                             </p:column>
-                            <p:column headerText="Cliente" filterBy="#{envF.factura.codigocliente}" width="7%">
+                            <p:column headerText="Cliente" filterBy="#{envF.factura.codigocliente}" width="6%">
                                 <h:outputText value="#{envF.factura.codigocliente}" />
                             </p:column>
                             <p:column headerText="Número" sortBy="#{envF.factura.facturaPK.numero}" filterBy="#{envF.factura.facturaPK.numero}" width="12%">
                                 <h:outputText value="#{envF.factura.facturaPK.numero}" />
                             </p:column>
-                            <p:column headerText="Número NP" sortBy="#{envF.factura.facturaPK.numeronotapedido}" filterBy="#{envF.factura.facturaPK.numeronotapedido}" width="11%">
+                            <p:column headerText="Número NP" sortBy="#{envF.factura.facturaPK.numeronotapedido}" filterBy="#{envF.factura.facturaPK.numeronotapedido}" width="8%">
                                 <h:outputText style="color:#87ea2a" value="#{envF.factura.facturaPK.numeronotapedido}" />
                             </p:column>
-                            <p:column headerText="Valor" filterBy="#{envF.factura.valortotal}" width="5%">
+                            <p:column headerText="Valor total" filterBy="#{envF.factura.valortotal}" width="5%">
                                 <h:outputText value="#{envF.factura.valortotal}" />
+                            </p:column>
+                             <p:column headerText="Valor con rubros" filterBy="#{envF.factura.valorconrubro}" width="5%">
+                                <h:outputText value="#{envF.factura.valorconrubro}" />
                             </p:column>
                             <p:column headerText="Estado" width="8%">
                                 <h:outputText styleClass="product-badge status-#{estilos.tipoActivoBool(envF.factura.activa)}" value="#{estilos.valorBoolActivo(envF.factura.activa)}" />

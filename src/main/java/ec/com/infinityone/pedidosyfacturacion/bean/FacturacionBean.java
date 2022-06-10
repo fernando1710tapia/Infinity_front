@@ -815,6 +815,9 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                                 fact.setFechaautorizacion(fa.getString("fechaautorizacion"));
                             }
                             fact.setClienteformapago(fa.getString("clienteformapago"));
+                            if (!fa.isNull("clienteformapagonosri")) {
+                                fact.setClienteformapagonosri(fa.getString("clienteformapagonosri"));
+                            }
                             fact.setPlazocliente(fa.getInt("plazocliente"));
                             fact.setClaveacceso(fa.getString("claveacceso"));
                             if (!fa.isNull("campoadicional_campo1")) {
@@ -1022,6 +1025,9 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                             fact.setFechaautorizacion(fa.getString("fechaautorizacion"));
                         }
                         fact.setClienteformapago(fa.getString("clienteformapago"));
+                        if (!fa.isNull("clienteformapagonosri")) {
+                            fact.setClienteformapagonosri(fa.getString("clienteformapagonosri"));
+                        }
                         fact.setPlazocliente(fa.getInt("plazocliente"));
                         fact.setClaveacceso(fa.getString("claveacceso"));
                         if (!fa.isNull("campoadicional_campo1")) {
@@ -1227,6 +1233,9 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                             fact.setFechaautorizacion(fa.getString("fechaautorizacion"));
                         }
                         fact.setClienteformapago(fa.getString("clienteformapago"));
+                        if (!fa.isNull("clienteformapagonosri")) {
+                            fact.setClienteformapagonosri(fa.getString("clienteformapagonosri"));
+                        }
                         fact.setPlazocliente(fa.getInt("plazocliente"));
                         fact.setClaveacceso(fa.getString("claveacceso"));
                         if (!fa.isNull("campoadicional_campo1")) {
@@ -2636,6 +2645,9 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     if (!fac.isNull("clienteformapago")) {
                         facturaauxiliar.setClienteformapago(fac.getString("clienteformapago"));
                     }
+                    if (!fac.isNull("clienteformapagonosri")) {
+                        facturaauxiliar.setClienteformapagonosri(fac.getString("clienteformapagonosri"));
+                    }
                     if (!fac.isNull("codigobanco")) {
                         facturaauxiliar.setCodigobanco(fac.getString("codigobanco"));
                     }
@@ -2684,7 +2696,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     String fechaProrro = dateAc.format(dateAcredPr);
                     facturaauxiliar.setFechaacreditacionprorrogada(fechaProrro);
                     facturaauxiliar.setFechaautorizacion(fac.getString("fechaautorizacion"));
-                    
+
                     Number hospedado = fac.getNumber("hospedado");
                     facturaauxiliar.setHospedado(hospedado.shortValue());
 

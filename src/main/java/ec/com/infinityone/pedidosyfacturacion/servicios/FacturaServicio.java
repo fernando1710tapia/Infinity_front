@@ -124,6 +124,9 @@ public class FacturaServicio {
                     factura.setFechaautorizacion(fact.getString("fechaautorizacion"));
                 }
                 factura.setClienteformapago(fact.getString("clienteformapago"));
+                if (!fact.isNull("clienteformapagonosri")) {
+                    factura.setClienteformapagonosri(fact.getString("clienteformapagonosri"));
+                }
                 factura.setPlazocliente(fact.getInt("plazocliente"));
                 factura.setClaveacceso(fact.getString("claveacceso"));
                 if (!fact.isNull("campoadicional_campo1")) {
@@ -268,6 +271,9 @@ public class FacturaServicio {
                     factura.setFechaautorizacion(fact.getString("fechaautorizacion"));
                 }
                 factura.setClienteformapago(fact.getString("clienteformapago"));
+                if (!fact.isNull("clienteformapagonosri")) {
+                    factura.setClienteformapagonosri(fact.getString("clienteformapagonosri"));
+                }
                 factura.setPlazocliente(fact.getInt("plazocliente"));
                 factura.setClaveacceso(fact.getString("claveacceso"));
                 if (!fact.isNull("campoadicional_campo1")) {
@@ -410,6 +416,9 @@ public class FacturaServicio {
                     factura.setFechaautorizacion(fact.getString("fechaautorizacion"));
                 }
                 factura.setClienteformapago(fact.getString("clienteformapago"));
+                if (!fact.isNull("clienteformapagonosri")) {
+                    factura.setClienteformapagonosri(fact.getString("clienteformapagonosri"));
+                }
                 factura.setPlazocliente(fact.getInt("plazocliente"));
                 factura.setClaveacceso(fact.getString("claveacceso"));
                 if (!fact.isNull("campoadicional_campo1")) {

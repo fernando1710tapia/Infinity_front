@@ -124,6 +124,8 @@ public class Factura implements Serializable{
 
     private String fechaacreditacionprorrogada;
 
+    private String clienteformapagonosri;
+
     public Factura() {
     }
     
@@ -608,5 +610,12 @@ public class Factura implements Serializable{
         this.fechaacreditacionprorrogada = fechaacreditacionprorrogada;
     }
 
+    public String getClienteformapagonosri() {
+        return clienteformapagonosri;
+    }
+
+    public void setClienteformapagonosri(String clienteformapagonosri) {
+        this.clienteformapagonosri = clienteformapagonosri;
+    }
 
 }

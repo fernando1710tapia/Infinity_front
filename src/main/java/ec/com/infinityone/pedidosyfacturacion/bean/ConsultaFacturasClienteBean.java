@@ -2158,6 +2158,9 @@ public class ConsultaFacturasClienteBean extends ReusableBean implements Seriali
                     if (!fac.isNull("clienteformapago")) {
                         facturaauxiliar.setClienteformapago(fac.getString("clienteformapago"));
                     }
+                    if (!fac.isNull("clienteformapagonosri")) {
+                        facturaauxiliar.setClienteformapagonosri(fac.getString("clienteformapagonosri"));
+                    }
                     if (!fac.isNull("codigobanco")) {
                         facturaauxiliar.setCodigobanco(fac.getString("codigobanco"));
                     }
