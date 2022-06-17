@@ -8,11 +8,7 @@
     <ui:define name="title">Refacturación</ui:define>
 
     <ui:define name="viewname">
-        <li>Refacturación</li>
-        <li>/</li>
-        <li>
-            <p:link outcome="/crud">Crud</p:link>
-        </li>
+        <li>Refacturación</li>        
     </ui:define>
 
     <ui:define name="content">
@@ -201,7 +197,7 @@
                                             </p:commandButton>
                                         </p:column>
                                         <p:column headerText="EN SRI" width="8%">
-                                            <p:commandButton styleClass="product-badge status-#{estilos.tipoActivo(envF.ensri)}" value="#{estilos.valorActivoFactura(envF.ensri)}" actionListener="#{refacturacionBean.verificarSri(termP)}" update="form"/>
+                                            <p:commandButton styleClass="product-badge status-#{estilos.tipoActivo(termP.ensri)}" value="#{estilos.valorActivoFactura(termP.ensri)}" actionListener="#{refacturacionBean.verificarSri(termP)}" update="form"/>
                                         </p:column>
                                         <p:column headerText="Anu OE EPP" exportable="false" width="8%">                               
                                             <p:commandButton styleClass="product-badge status-#{estilos.tipoActivoBool(termP.factura.oeanuladaenpetro)}" value="#{estilos.valorBoolActivoPago(termP.factura.oeanuladaenpetro)}" actionListener="#{refacturacionBean.verificarAnulacion(termP)}" update="form">

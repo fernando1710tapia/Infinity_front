@@ -633,15 +633,19 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
                         }
                         if (fa.getString("estado").equals("PENDIENTE")) {
                             ensri = "P";
+                            envrefact.setEnsri(ensri);
                         } else {
-                            if (fa.isNull("numeroautorizacion")) {
+                            if (fa.isNull("numeroautorizacion") || (fa.getString("numeroautorizacion").isEmpty())) {
                                 ensri = "N";
+                                envrefact.setEnsri(ensri);
                             } else {
                                 fact.setNumeroautorizacion(fa.getString("numeroautorizacion"));
                                 if (fa.getString("numeroautorizacion").length() == 49) {
                                     ensri = "S";
+                                    envrefact.setEnsri(ensri);
                                 } else {
                                     ensri = "N";
+                                    envrefact.setEnsri(ensri);
                                 }
                             }
                         }
@@ -747,7 +751,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
             File initialFile = new File(pdf.getAbsolutePath());
             InputStream targetStream = new FileInputStream(initialFile);
             //pdfStream = new DefaultStreamedContent();
-            pdfStream = new DefaultStreamedContent(targetStream, "application/pdf", nombreDocumento + ".pdf");
+            pdfStream = new DefaultStreamedContent(targetStream, "application/pdf", nombreDocumento + env.getFactura().getFacturaPK().getNumero() + ".pdf");            
             //DefaultStreamedContent.builder().contentType("application/pdf").name(nombreDocumento + ".pdf").stream(() -> new FileInputStream(targetStream)).build();
             System.err.print(pdf.getAbsolutePath());
             System.out.println(pdf.getAbsolutePath());
