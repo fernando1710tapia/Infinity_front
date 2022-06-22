@@ -3119,7 +3119,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             if (!envF.getFactura().getPagada()) {
                 if (envF.getFactura().getOeenpetro()) {
                     for (int i = 0; i < listaFormapagos.size(); i++) {
-                        if (envF.getFactura().getClienteformapago().equals(listaFormapagos.get(i).getCodigo())) {
+                        if (envF.getFactura().getClienteformapagonosri().equals(listaFormapagos.get(i).getCodigo())) {
                             formapago = listaFormapagos.get(i);
                             break;
                         }
@@ -3170,7 +3170,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                 Date fechaA = formato.parse(envF.getFactura().getFechaacreditacionprorrogada().replace("/", "-"));
                 envF.getFactura().setFechaacreditacionprorrogada(date.format(fechaA));
             }
-            envF.getFactura().setClienteformapago(formapago.getCodigo());
+            envF.getFactura().setClienteformapagonosri(formapago.getCodigo());
             actualizarFactura(envF.getFactura());
             obtenerFacturas();
         }
@@ -3288,7 +3288,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                 DateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
                 SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
                 if (listFactSelec.get(i).getFechaacreditacion() != null) {
-                    Date fechaA = formato.parse(listFactSelec.get(i).getFechadespacho().replace("/", "-"));
+                    Date fechaA = formato.parse(listFactSelec.get(i).getFechaacreditacion().replace("/", "-"));
                     listFactSelec.get(i).setFechaacreditacion(date.format(fechaA));
                 }
                 if (listFactSelec.get(i).getFechadespacho() != null) {

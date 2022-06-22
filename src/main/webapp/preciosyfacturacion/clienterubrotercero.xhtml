@@ -461,6 +461,7 @@
                             <p:outputPanel id = "editarValor" >                                
                                 <p:commandButton id="btnGuardarValor" value="Guardar" icon="pi pi-check" actionListener="#{clienterubroterceroBean.editItems}"  
                                                  update=":form formCuotas :formNuevo" styleClass="p-mr-2" /> 
+                                <p:commandButton value="Cancelar" icon="pi pi-times" class="ui-button-secondary"  actionListener="#{clienterubroterceroBean.cancelar()}" update=":form formNuevo :formCuotas" immediate="true" onclick="PF('nuevo').hide()"/>
                             </p:outputPanel>
                         </div>
                     </div>

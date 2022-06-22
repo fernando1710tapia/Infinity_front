@@ -11,9 +11,11 @@ import ec.com.infinityone.configuration.Fichero;
 import ec.com.infinityone.modeloWeb.Detalleprecio;
 import ec.com.infinityone.modeloWeb.DetalleprecioPK;
 import ec.com.infinityone.modeloWeb.Gravamen;
+import ec.com.infinityone.modeloWeb.Listaprecio;
 import ec.com.infinityone.modeloWeb.ObjetoNivel1;
 import ec.com.infinityone.modeloWeb.Precio;
 import ec.com.infinityone.modeloWeb.PrecioPK;
+import ec.com.infinityone.preciosyfacturacion.servicios.ListaprecioServicio;
 import ec.com.infinityone.reusable.ReusableBean;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -46,6 +48,9 @@ public class PrecioBean extends ReusableBean implements Serializable {
 
     @Inject
     private ComercializadoraServicio comercializadoraServicio;
+
+    @Inject
+    private ListaprecioServicio listaprecioServicio;
     /*
     Variable que almacena varios Bancos
      */
@@ -171,7 +176,6 @@ public class PrecioBean extends ReusableBean implements Serializable {
             //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.precio/porComerEstado?codigocomercializadora=" + codigoComer + "&activo=" + vigente);
             url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.precio/porComerEstado?codigocomercializadora=" + codigoComer + "&activo=" + vigente);
 
-
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
@@ -272,8 +276,8 @@ public class PrecioBean extends ReusableBean implements Serializable {
                     precioPK.setSecuencial(precPK.getInt("secuencial"));
                     precioPK.setCodigoPrecio(precPK.getLong("codigoPrecio"));
                     precio.setPrecioPK(precioPK);
-                    if (!precPK.isNull("fechafin")) {
-                        Long lDateFin = precPK.getLong("fechafin");
+                    if (!prec.isNull("fechafin")) {
+                        Long lDateFin = prec.getLong("fechafin");
                         Date dateFin = new Date(lDateFin);
                         precio.setFechafin(dateFin);
                     }
@@ -508,6 +512,20 @@ public class PrecioBean extends ReusableBean implements Serializable {
             //obtenerPrecio(comercializadora.getCodigo(), true);
             obtenerPrecios(comercializadora.getCodigo());
         }
+    }
+
+    public String nombreListaprecio(Long codListaprecio) {
+        String nombre = "";
+        List<Listaprecio> listaPreciosAux = new ArrayList<>();
+        if (codListaprecio != null) {
+            listaPreciosAux = this.listaprecioServicio.obtenerListaprecioPorComer(codigoComer);
+            for (int i = 0; i < listaPreciosAux.size(); i++) {
+                if (listaPreciosAux.get(i).getListaprecioPK().getCodigo() == codListaprecio) {
+                    nombre = listaPreciosAux.get(i).getNombre();
+                }
+            }
+        }
+        return nombre;
     }
 
     public void soloVigentes() {
