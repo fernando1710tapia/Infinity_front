@@ -330,8 +330,9 @@ public class SeguridadpermisoBean extends ReusableBean implements Serializable {
     public void deleteItems() {
         try {
             String respuesta;
-            url = new URL(direccion + "/porId?niveloperacion=" + permiso.getPermisoPK().getNiveloperacion()
-                    + "+?codigomenu=" + permiso.getPermisoPK().getCodigomenu());
+            System.out.println("FT:: deleteItems: "+direccion +" - "+permiso.getPermisoPK().getNiveloperacion() + " . "+permiso.getPermisoPK().getCodigomenu());
+            url = new URL(direccion + "/porId?niveloperacion=" + permiso.getPermisoPK().getNiveloperacion()+ "+&codigomenu=" + permiso.getPermisoPK().getCodigomenu());
+       //     url = new URL(direccion + "/porId?codigocliente=" + clienteproducto.getClienteproductoPK().getCodigocliente() + "&codigo=" + clienteproducto.getClienteproductoPK().getCodigo());
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
             connection.setRequestMethod("DELETE");
