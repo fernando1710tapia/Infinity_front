@@ -2163,6 +2163,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         listaTotalCobros = new ArrayList<>();
         tipoBusquedaDocumento = "1";
         fecha = new Date();
+        obtenerBancos();
         PrimeFaces.current().executeScript("PF('pagoDirecto').show()");
     }
 
