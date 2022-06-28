@@ -57,8 +57,10 @@ public class SeguridadmenuBean extends ReusableBean implements Serializable {
     private boolean mostrarMenuP;
     /*
     Variable almacena url Accion
-     */
+    */
     private String urlAccion;
+    private String urlAyuda;
+    private String descripcionAyuda;
     /*
     Variable almacena codigo ARCH
      */
@@ -131,6 +133,12 @@ public class SeguridadmenuBean extends ReusableBean implements Serializable {
                 }
                 if (!men.isNull("urlaccion")) {
                     seguridad.setUrlAccion(men.getString("urlaccion"));
+                }
+                if (!men.isNull("urlayuda")) {
+                    seguridad.setUrlAyuda(men.getString("urlayuda"));
+                }
+                if (!men.isNull("descripcionayuda")) {
+                    seguridad.setDescripcionAyuda(men.getString("descripcionayuda"));
                 }
                 seguridad.setObjRelacionado(seguridad.getCodigo() + " - " + seguridad.getNombre());
                 seguridad.setUsuario(men.getString("usuarioactual"));
@@ -217,6 +225,8 @@ public class SeguridadmenuBean extends ReusableBean implements Serializable {
             obj.put("nivel", seguridad.getNivel());
             obj.put("menupadre", seguridad.getMenuPadre());
             obj.put("urlaccion", seguridad.getUrlAccion());
+            obj.put("urlayuda", seguridad.getUrlAyuda());
+            obj.put("descripcionayuda", seguridad.getDescripcionAyuda());
             obj.put("usuarioactual", dataUser.getUser().getNombrever());
             respuesta = obj.toString();
             writer.write(respuesta);
@@ -250,6 +260,8 @@ public class SeguridadmenuBean extends ReusableBean implements Serializable {
             obj.put("nivel", seguridad.getNivel());
             obj.put("menupadre", seguridad.getMenuPadre());
             obj.put("urlaccion", seguridad.getUrlAccion());
+            obj.put("urlayuda", seguridad.getUrlAyuda());
+            obj.put("descripcionayuda", seguridad.getDescripcionAyuda());
             obj.put("usuarioactual", dataUser.getUser().getNombrever());
             respuesta = obj.toString();
             writer.write(respuesta);
@@ -420,4 +432,22 @@ public class SeguridadmenuBean extends ReusableBean implements Serializable {
         this.mostrarMenuP = mostrarMenuP;
     }
 
+    public String getUrlAyuda() {
+        return urlAyuda;
+    }
+
+    public void setUrlAyuda(String urlAyuda) {
+        this.urlAyuda = urlAyuda;
+    }
+
+    public String getDescripcionAyuda() {
+        return descripcionAyuda;
+    }
+
+    public void setDescripcionAyuda(String descripcionAyuda) {
+        this.descripcionAyuda = descripcionAyuda;
+    }
+
+    
+    
 }
