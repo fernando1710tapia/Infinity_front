@@ -5,17 +5,19 @@
  */
 package ec.com.infinityone.login.bean;
 
+import ec.com.infinityone.configuration.Fichero;
 import ec.com.infinityone.modeloWeb.Usuario;
 import java.io.Serializable;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Named;
+import org.primefaces.PrimeFaces;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 
 /**
  *
- * @author HP
+ * @author SonyVaio
  */
 @Named
 @SessionScoped
@@ -32,7 +34,7 @@ public class AyudaBean implements Serializable {
     /*
     variable que alamacena los productos asfalto
      */
-    private String productoSinFe;
+    private String direcMedia;
 
     private boolean actualizarD;
 
@@ -41,6 +43,7 @@ public class AyudaBean implements Serializable {
     @PostConstruct
     public void init() {
         actualizarD = false;
+        crearAtbol();
     }
 
     public void crearAtbol() {
@@ -53,26 +56,56 @@ public class AyudaBean implements Serializable {
         TreeNode node5 = new DefaultTreeNode("Precios y Facturación", root);
         TreeNode node6 = new DefaultTreeNode("Reportes", root);
 
-        TreeNode node00 = new DefaultTreeNode("Menús", node0);
-        TreeNode node01 = new DefaultTreeNode("Permisos", node0);
-        TreeNode node02 = new DefaultTreeNode("Usuarios", node0);
+//        TreeNode node00 = new DefaultTreeNode("Menús", node0);
+//        TreeNode node01 = new DefaultTreeNode("Permisos", node0);
+//        TreeNode node02 = new DefaultTreeNode("Usuarios", node0);
+        node0.getChildren().add(new DefaultTreeNode("Menús"));
+        node0.getChildren().add(new DefaultTreeNode("Permisos"));
+        node0.getChildren().add(new DefaultTreeNode("Usuarios"));
 
-        node00.getChildren().add(new DefaultTreeNode("Expenses.doc"));
-        node00.getChildren().add(new DefaultTreeNode("Resume.doc"));
-        node01.getChildren().add(new DefaultTreeNode("Invoices.txt"));
+        node1.getChildren().add(new DefaultTreeNode("Tipo de Cliente"));
+        node1.getChildren().add(new DefaultTreeNode("Banco"));
+        node1.getChildren().add(new DefaultTreeNode("Terminal"));
+        node1.getChildren().add(new DefaultTreeNode("Dirección INEN"));
+        node1.getChildren().add(new DefaultTreeNode("Forma de Pago"));
+        node1.getChildren().add(new DefaultTreeNode("Medida"));
+        node1.getChildren().add(new DefaultTreeNode("Producto"));
+        node1.getChildren().add(new DefaultTreeNode("Área Mercadeo"));
 
-        TreeNode node10 = new DefaultTreeNode("Meeting", node1);
-        TreeNode node11 = new DefaultTreeNode("Product Launch", node1);
-        TreeNode node12 = new DefaultTreeNode("Report Review", node1);
+        node2.getChildren().add(new DefaultTreeNode("Monitor Comercial"));
 
-        TreeNode node20 = new DefaultTreeNode("Al Pacino", node2);
-        TreeNode node21 = new DefaultTreeNode("Robert De Niro", node2);
+        node3.getChildren().add(new DefaultTreeNode("Abastecedora"));
+        node3.getChildren().add(new DefaultTreeNode("Cliente"));
+        node3.getChildren().add(new DefaultTreeNode("Cliente Producto"));
+        node3.getChildren().add(new DefaultTreeNode("Comercializadora"));
+        node3.getChildren().add(new DefaultTreeNode("Comercializadora Producto"));
+        node3.getChildren().add(new DefaultTreeNode("Numeración Documento"));
+        node3.getChildren().add(new DefaultTreeNode("Total Garantizado"));
+        node3.getChildren().add(new DefaultTreeNode("Cliente Garantia"));
 
-        node20.getChildren().add(new DefaultTreeNode("Scarface"));
-        node20.getChildren().add(new DefaultTreeNode("Serpico"));
+        node4.getChildren().add(new DefaultTreeNode("Consulta Facturas Cliente"));
+        node4.getChildren().add(new DefaultTreeNode("Pago de Factura"));
+        node4.getChildren().add(new DefaultTreeNode("Notas de Pedido"));
+        node4.getChildren().add(new DefaultTreeNode("Facturación"));
+        node4.getChildren().add(new DefaultTreeNode("Refacturación"));
+        node4.getChildren().add(new DefaultTreeNode("Nota de Crédito"));
+        node4.getChildren().add(new DefaultTreeNode("Prórrogas de Facturas"));
 
-        node21.getChildren().add(new DefaultTreeNode("Goodfellas"));
-        node21.getChildren().add(new DefaultTreeNode("Untouchables"));
+        node5.getChildren().add(new DefaultTreeNode("Facturador Despachador"));
+        node5.getChildren().add(new DefaultTreeNode("Gravamen"));
+        node5.getChildren().add(new DefaultTreeNode("Lista de Precios"));
+        node5.getChildren().add(new DefaultTreeNode("Precio"));
+        node5.getChildren().add(new DefaultTreeNode("Rubro Tercero"));
+        node5.getChildren().add(new DefaultTreeNode("Cliente Rubro Tercero"));
+        node5.getChildren().add(new DefaultTreeNode("Fecha Festiva"));
+
+        node6.getChildren().add(new DefaultTreeNode("Reporte Precios"));
+
+        direcMedia = Fichero.getCARPETAAYUDA()+ "\\CLIENTE_2\\cliente.MP4";
+    }
+
+    public void mostarPantalla() {
+        PrimeFaces.current().executeScript("PF('ayuda').show()");
     }
 
     public TreeNode getRoot() {
@@ -95,13 +128,13 @@ public class AyudaBean implements Serializable {
         this.userConected = userConected;
     }
 
-    public String getProductoSinFe() {
-        return productoSinFe;
+    public String getDirecMedia() {
+        return direcMedia;
     }
 
-    public void setProductoSinFe(String productoSinFe) {
-        this.productoSinFe = productoSinFe;
-    }
+    public void setDirecMedia(String direcMedia) {
+        this.direcMedia = direcMedia;
+    }   
 
     public boolean isActualizarD() {
         return actualizarD;

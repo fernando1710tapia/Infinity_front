@@ -26,10 +26,12 @@ public class Fichero {
     private static final Logger LOG = Logger.getLogger(Fichero.class.getName());
     
     private static String RUTAREPORTE;
+    private static String RUTAAYUDA;
     private static String RUTASERVICIOSPERSISTENCIA;
     private static String RUTADASHBOARD;
     private static String RUTAACTUALIZAR;
     private static String CARPETAREPORTES;
+    private static String CARPETAAYUDA;
     private static String PRODUCTOSINFE;
     private static String RUTACONEXIONBD;
     private static String PREGUNTAS;
@@ -46,12 +48,15 @@ public class Fichero {
             File fileProp = new File(confDir, "ConfiguracionInfinity.properties");
             File rep= new File(confDir, "reportes");
             CARPETAREPORTES = rep.toString();
+            File ayu= new File(confDir, "ayuda");
+            CARPETAAYUDA = ayu.toString();
             in = new FileInputStream(fileProp);
             propiedades = new Properties();
             propiedades.load(in);
             in.close();
 
             RUTAREPORTE = (String) propiedades.get("RUTAREPORTE");
+            RUTAAYUDA = (String) propiedades.get("RUTAAYUDA");
             RUTASERVICIOSPERSISTENCIA = (String) propiedades.get("RUTASERVICIOSPERSISTENCIA");
             RUTADASHBOARD = (String) propiedades.get("RUTADASHBOARD");
             RUTAACTUALIZAR = (String) propiedades.get("RUTAACTUALIZAR");
@@ -139,6 +144,22 @@ public class Fichero {
 
     public static void setRUTAACTUALIZAR(String RUTAACTUALIZAR) {
         Fichero.RUTAACTUALIZAR = RUTAACTUALIZAR;
+    }
+
+    public static String getRUTAAYUDA() {
+        return RUTAAYUDA;
+    }
+
+    public static void setRUTAAYUDA(String RUTAAYUDA) {
+        Fichero.RUTAAYUDA = RUTAAYUDA;
+    }
+
+    public static String getCARPETAAYUDA() {
+        return CARPETAAYUDA;
+    }
+
+    public static void setCARPETAAYUDA(String CARPETAAYUDA) {
+        Fichero.CARPETAAYUDA = CARPETAAYUDA;
     }
 
 }
