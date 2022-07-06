@@ -39,8 +39,10 @@
                         </div>
                         <div class="p-field p-col-12 p-md-6">  
                             <span class="ui-float-label">
-                                <p:datePicker id="fechaVenc" value="#{gestionarPreciosBean.fechaVencimiento}" showIcon="true" pattern="dd/MM/yyyy" mindate="#{gestionarPreciosBean.fechaVencimiento}"/>
                                 <p:outputLabel for="fechaVenc" value="Fecha Inicio de Vigencia "/>
+                                <p:datePicker id="fechaVenc" value="#{gestionarPreciosBean.fechaVencimiento}" showIcon="true" pattern="dd/MM/yyyy" mindate="#{gestionarPreciosBean.fechaVencimiento}">
+                                    <p:ajax event="dateSelect" listener="#{gestionarPreciosBean.verificarMismoPrecio()}"/>
+                                </p:datePicker>
                             </span>
                         </div>
                         <div class="p-field p-col-12 p-md-12"> </div>

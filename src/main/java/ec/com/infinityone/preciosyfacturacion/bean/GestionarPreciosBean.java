@@ -536,6 +536,70 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
         return contsultaPrecios;
     }
 
+        public boolean verificarMismoPrecio() {
+        try {
+            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.precio/porPreciomismodia?";
+            
+            DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
+            String fechaI = date.format(fechaVencimiento);
+
+            
+            url = new URL(direcc + "codigocomercializadora=" + codComer
+                    + "&fechainicio=" + fechaI
+                    + "&activo=" + Boolean.TRUE);
+            
+            System.out.println("FT:: verificando fecha del mismo día. "+url);
+            
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+
+            BufferedReader br = new BufferedReader(reader);
+            String tmp = null;
+            String respuesta = "";
+            while ((tmp = br.readLine()) != null) {
+                respuesta += tmp;
+            }
+            JSONObject objetoJson = new JSONObject(respuesta);
+            JSONArray retorno = objetoJson.getJSONArray("retorno");
+            
+            if (retorno.length() > 0 ){
+                
+                System.out.println("FT:: SI HAY PRECIOS del mismo día. "+retorno.length());
+            
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "Existen Precios VIGENTES en la Fecha Seleccionada \n NO DEBERÍA crear Precios en la misma Fecha \n SI ES IMPRESCIBLE hacerlo COORDINE CON SUPERTECH.EC!!");
+                System.out.println("Error al añadir:" + connection.getResponseCode());
+                System.out.println("Error:" + connection.getErrorStream());
+                System.out.println(connection.getResponseMessage());
+                contsultaPrecios = false;
+            }else{
+                System.out.println("FT:: NO HAY PRECIOS del mismo día. ");
+                contsultaPrecios = true;
+            }
+            
+            /*if (connection.getResponseCode() == 200) {
+                //this.dialogo(FacesMessage.SEVERITY_INFO, "FACTURA REGISTRADA EXITOSAMENTE");
+                contsultaPrecios = true;
+                //consultarPorIdPrecios(comerP);
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
+                System.out.println("Error al añadir:" + connection.getResponseCode());
+                System.out.println("Error:" + connection.getErrorStream());
+                System.out.println(connection.getResponseMessage());
+                contsultaPrecios = false;
+            }
+            */
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return contsultaPrecios;
+    }
+
+    
     public void obtenerTerminalesPrecioProd(int i, List<ObjetoPrecio> listPrecio) {
         try {
             //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.listaprecioterminalproducto/paraPrecioUno?";
