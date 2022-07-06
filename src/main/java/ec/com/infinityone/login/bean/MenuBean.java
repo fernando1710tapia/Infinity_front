@@ -32,7 +32,7 @@ import org.primefaces.shaded.json.JSONObject;
 @ViewScoped
 public class MenuBean extends LoginBean implements Serializable {
 
-    protected MenuModel model = new DefaultMenuModel();
+    protected MenuModel model = new DefaultMenuModel();   
 
     private LoginBean loginBean;
 
@@ -68,6 +68,8 @@ public class MenuBean extends LoginBean implements Serializable {
     private String menuPadre;
 
     private String nivel;
+    private String urlAyuda;
+    private String descripcionAyuda;
     /*
     Lista que almacena los menus padres por id
      */
@@ -80,8 +82,8 @@ public class MenuBean extends LoginBean implements Serializable {
     Lista donde se almacenan los padres no repetidos
      */
     private List<MenuBean> listaMenuPadreAgregar;
-    
-    private List<MenuBean> listaAgregar ;
+
+    private List<MenuBean> listaAgregar;
 
     @PostConstruct
     public void init() {
@@ -93,14 +95,14 @@ public class MenuBean extends LoginBean implements Serializable {
         listaAgregar = new ArrayList<>();
         obtenerMenuPadre();
         obtenerMenuHijo();
-        cargarMenu();
+        cargarMenu();        
     }
 
     public void obtenerMenuPadre() {
         try {
             //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.menu/menus?nivel=AAA");
             url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.menu/menus?nivel=AAA");
-            
+
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
@@ -128,6 +130,12 @@ public class MenuBean extends LoginBean implements Serializable {
                 if (!menuPa.isNull("urlaccion")) {
                     menu.setUrlAccion(menuPa.getString("urlaccion"));
                 }
+                if (!menuPa.isNull("urlayuda")) {
+                    menu.setUrlAyuda(menuPa.getString("urlayuda"));
+                }
+                if (!menuPa.isNull("descripcionayuda")) {
+                    menu.setDescripcionAyuda(menuPa.getString("descripcionayuda"));
+                }
                 listaMenuPadreBean.add(menu);
                 menu = new MenuBean();
             }
@@ -146,7 +154,7 @@ public class MenuBean extends LoginBean implements Serializable {
         try {
             //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.menu/menus?nivel=CCC");
             url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.menu/menus?nivel=CCC");
-        
+
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
@@ -168,6 +176,12 @@ public class MenuBean extends LoginBean implements Serializable {
                 menu.setCodigo(menuHi.getString("codigo"));
                 menu.setNombre(menuHi.getString("nombre"));
                 menu.setNivel(menuHi.getString("nivel"));
+                if (!menuHi.isNull("urlayuda")) {
+                    menu.setUrlAyuda(menuHi.getString("urlayuda"));
+                }
+                if (!menuHi.isNull("descripcionayuda")) {
+                    menu.setDescripcionAyuda(menuHi.getString("descripcionayuda"));
+                }
                 if (!menuHi.isNull("menupadre")) {
                     menu.setMenuPadre(menuHi.getString("menupadre"));
                 }
@@ -224,7 +238,7 @@ public class MenuBean extends LoginBean implements Serializable {
                 listaMenuPermiso.add(menu);
                 menu = new MenuBean();
             }
-            
+
             if (connection.getResponseCode() != 200) {
                 System.out.println(connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
@@ -245,7 +259,7 @@ public class MenuBean extends LoginBean implements Serializable {
             connection.setRequestProperty("Accept", "application/json");
 
             MenuBean menuPadre = new MenuBean();
-            
+
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
             BufferedReader br = new BufferedReader(reader);
@@ -261,7 +275,7 @@ public class MenuBean extends LoginBean implements Serializable {
                 menuPadre.setCodigo(menuPa.getString("codigo"));
                 menuPadre.setNombre(menuPa.getString("nombre"));
                 menuPadre.setNivel(menuPa.getString("nivel"));
-                    
+
                 listaMenuPAux.add(menuPadre);
                 menuPadre = new MenuBean();
             }
@@ -300,7 +314,8 @@ public class MenuBean extends LoginBean implements Serializable {
                         primerNivel.getElements().add(item2);
                     }
                     model.getElements().add(primerNivel);
-                }   break;
+                }
+                break;
             case "adco":
                 obtenerMenuPermiso(dataUser.getUser().getNiveloperacion());
                 listaMenuPermisoHi = new ArrayList<>();
@@ -311,7 +326,8 @@ public class MenuBean extends LoginBean implements Serializable {
                     } else {
                         listaMenuPermisoHi.add(listaMenuPermiso.get(i));
                     }
-                }   for (MenuBean menuP : listaMenuPermisoPa) {
+                }
+                for (MenuBean menuP : listaMenuPermisoPa) {
                     listaMenuHijoAux = new ArrayList<>();
                     primerNivel = DefaultSubMenu.builder()
                             .label(menuP.getNombre())
@@ -331,7 +347,8 @@ public class MenuBean extends LoginBean implements Serializable {
                         primerNivel.getElements().add(item2);
                     }
                     model.getElements().add(primerNivel);
-                }   break;
+                }
+                break;
             case "usac":
                 obtenerMenuPermiso(dataUser.getUser().getNiveloperacion());
                 listaMenuPermisoHi = new ArrayList<>();
@@ -342,7 +359,8 @@ public class MenuBean extends LoginBean implements Serializable {
                     } else {
                         listaMenuPermisoHi.add(listaMenuPermiso.get(i));
                     }
-                }   for (MenuBean menuP : listaMenuPermisoPa) {
+                }
+                for (MenuBean menuP : listaMenuPermisoPa) {
                     listaMenuHijoAux = new ArrayList<>();
                     primerNivel = DefaultSubMenu.builder()
                             .label(menuP.getNombre())
@@ -362,7 +380,8 @@ public class MenuBean extends LoginBean implements Serializable {
                         primerNivel.getElements().add(item2);
                     }
                     model.getElements().add(primerNivel);
-                }   break;
+                }
+                break;
             case "agco":
                 obtenerMenuPermiso(dataUser.getUser().getNiveloperacion());
                 listaMenuPermisoHi = new ArrayList<>();
@@ -373,7 +392,8 @@ public class MenuBean extends LoginBean implements Serializable {
                     } else {
                         listaMenuPermisoHi.add(listaMenuPermiso.get(i));
                     }
-                }   for (MenuBean menuP : listaMenuPermisoPa) {
+                }
+                for (MenuBean menuP : listaMenuPermisoPa) {
                     listaMenuHijoAux = new ArrayList<>();
                     primerNivel = DefaultSubMenu.builder()
                             .label(menuP.getNombre())
@@ -393,12 +413,12 @@ public class MenuBean extends LoginBean implements Serializable {
                         primerNivel.getElements().add(item2);
                     }
                     model.getElements().add(primerNivel);
-                }   break;
+                }
+                break;
             default:
                 break;
         }
-
-    }
+    }   
 
     public List<MenuBean> getListaMenuPadreBean() {
         return listaMenuPadreBean;
@@ -456,4 +476,20 @@ public class MenuBean extends LoginBean implements Serializable {
         this.model = model;
     }
 
+    public String getUrlAyuda() {
+        return urlAyuda;
+    }
+
+    public void setUrlAyuda(String urlAyuda) {
+        this.urlAyuda = urlAyuda;
+    }
+
+    public String getDescripcionAyuda() {
+        return descripcionAyuda;
+    }
+
+    public void setDescripcionAyuda(String descripcionAyuda) {
+        this.descripcionAyuda = descripcionAyuda;
+    }
+  
 }

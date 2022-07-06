@@ -542,16 +542,33 @@
                                          paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">                                        
                                 <f:facet name="header">
                                     <div class="products-table-header">
-                                        <span style="font-weight: bold">Facturas pagadas por el Banco - #{cobro.detallepagoPK.numero}</span>
+                                        <span style="font-weight: bold">Conciliación Facturas pagadas por el Banco</span>
                                     </div>
-                                </f:facet>                                
-                                <p:column headerText="N. de pago" sortBy="#{cobro.detallepagoPK.numero}" filterBy="#{cobro.detallepagoPK.numero}" width="10%">
-                                    <h:outputText value="#{cobro.detallepagoPK.numero}" />
+                                </f:facet>  
+                                <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
+                                <p:column headerText="Cod. Cliente" sortBy="#{cobro.contrapartida}" filterBy="#{cobro.contrapartida}" >
+                                    <h:outputText value="#{cobro.contrapartida}" />
                                 </p:column>
-                                <p:column headerText="Factura" sortBy="#{cobro.detallepagoPK.numerofactura}" filterBy="#{cobro.detallepagoPK.numerofactura}" width="20%">
-                                    <h:outputText value="#{cobro.detallepagoPK.numerofactura}" />
+                                <p:column headerText="Factura" sortBy="#{cobro.referencia}" filterBy="#{cobro.referencia}" >
+                                    <h:outputText value="#{cobro.referencia}" />
                                 </p:column>
-                                <!--<p:column headerText="Fecha Registro" sortBy="{cobro.valor}" filterBy="{cobro.valor}" width="20%">                                            
+                                <p:column headerText="Fecha Acreditacion" sortBy="#{cobro.fechaProc}" filterBy="#{cobro.fechaProc}" >                                            
+                                    <h:outputText value="#{cobro.fechaProc}">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
+                                    </h:outputText>
+                                </p:column>
+                                <p:column headerText="Valor con Rubro" sortBy="#{cobro.valorEnviado}" filterBy="#{cobro.valorEnviado}" >
+                                    <h:outputText value="#{cobro.valorEnviado}">
+                                        <f:convertNumber currencySymbol="$" type="currency" />
+                                    </h:outputText>
+                                </p:column>
+                                <!--<p:column headerText="N. de pago" sortBy="{cobro.detallepagoPK.numero}" filterBy="{cobro.detallepagoPK.numero}" width="10%">
+                                    <h:outputText value="{cobro.detallepagoPK.numero}" />
+                                </p:column>
+                                <p:column headerText="Factura" sortBy="{cobro.detallepagoPK.numerofactura}" filterBy="{cobro.detallepagoPK.numerofactura}" width="20%">
+                                    <h:outputText value="{cobro.detallepagoPK.numerofactura}" />
+                                </p:column>
+                                <p:column headerText="Fecha Registro" sortBy="{cobro.valor}" filterBy="{cobro.valor}" width="20%">                                            
                                     <h:outputText value="{cobro.valor}">
                                         <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                     </h:outputText>
@@ -560,12 +577,28 @@
                                     <h:outputText value="{cobro.fechacobro}">
                                         <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                     </h:outputText>
-                                </p:column>-->                                           
-                                <p:column headerText="Valor pago" sortBy="#{cobro.valor}" filterBy="#{cobro.valor}" width="20%">
-                                    <h:outputText value="#{cobro.valor}">
+                                </p:column>-->   
+                                <p:column headerText="Cod. Cliente" sortBy="#{cobro.contrapartida}" filterBy="#{cobro.contrapartida}" >
+                                    <h:outputText value="#{cobro.contrapartida}" />
+                                </p:column>
+                                <p:column headerText="Factura" sortBy="#{cobro.referencia}" filterBy="#{cobro.referencia}" >
+                                    <h:outputText value="#{cobro.referencia}" />
+                                </p:column>
+                                <p:column headerText="Fecha Proceso" sortBy="#{cobro.fechaProc}" filterBy="#{cobro.fechaProc}" >                                            
+                                    <h:outputText value="#{cobro.fechaProc}">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
+                                    </h:outputText>
+                                </p:column>
+                                <p:column headerText="Valor Enviado" sortBy="#{cobro.valorEnviado}" filterBy="#{cobro.valorEnviado}" >
+                                    <h:outputText value="#{cobro.valorEnviado}">
                                         <f:convertNumber currencySymbol="$" type="currency" />
                                     </h:outputText>
-                                </p:column>                                                                                                          
+                                </p:column>
+                                <p:column headerText="Valor Cobrado" sortBy="#{cobro.valorProcesado}" filterBy="#{cobro.valorProcesado}" width="20%">
+                                    <h:outputText value="#{cobro.valorProcesado}">
+                                        <f:convertNumber currencySymbol="$" type="currency" />
+                                    </h:outputText>
+                                </p:column>
                             </p:dataTable>
                         </div> 
                     </div>

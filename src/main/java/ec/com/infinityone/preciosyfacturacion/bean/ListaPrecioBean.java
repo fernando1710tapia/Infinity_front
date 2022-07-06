@@ -405,6 +405,7 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
                     break;
             }
         }
+
     }
 
     public void obtenerListaPrecioTerminalProduc(String codigoComer) {

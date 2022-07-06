@@ -1,0 +1,47 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/templateAyuda.xhtml">
+    <h:head>
+        <f:facet name="first">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+            <meta name="apple-mobile-web-app-capable" content="yes" />
+        </f:facet>        
+    </h:head>
+
+    <ui:define name="title">Ayuda</ui:define>
+
+    <ui:define name="viewname">
+        <li>Ayuda</li>                
+    </ui:define>
+
+
+    <ui:define name="content">
+        <h:form id="form">
+            <p:outputPanel rendered="true">
+                <div class="p-grid crud-demo">
+                    <div class="p-col-9">
+                        <div class="card">  
+                            <p:panel rendered="true" >
+                                <f:facet name="header">
+                                    <h:outputText value="Contenido" styleClass="default-header"/> 
+                                </f:facet>                                                                
+                                <video player="mp4"
+                                       controls="true"
+                                       width="420"
+                                       height="250">   
+                                    <source src="#{ayudaBean.direcMediaMp4}" type="video/mp4"/>
+                                    <source src="#{ayudaBean.direcMedia}" type="video/webm"/>
+                                </video>                                    
+                            </p:panel>                                                                
+                        </div>
+                    </div>                                  
+                </div>
+            </p:outputPanel>
+        </h:form>       
+    </ui:define>
+</ui:composition>

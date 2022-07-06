@@ -1200,7 +1200,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                         //9. CÓDIGO DE BANCO
                         + String.format("%13s", "36").replace(' ', '0') + separador
                         //10. TIPO DE CUENTA
-                        + cliAux.getTipocuentadebito()  + separador
+                        + cliAux.getTipocuentadebito() + separador
                         //11. NÚMERO DE CUENTA
                         + String.format("%20s", cliAux.getCuentadebito()).replace(' ', '0') + separador
                         //12. Tipo ID Beneficiario/Deudor
@@ -1223,8 +1223,8 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                         //                        + factura.getCodigoterminal() + "|"
                         //                        + factura.getObservacion()
                         //20. Referencia Adicional |dirección email |Operadora celular número de celular
-                        + String.format("%-100s", factura.getFechaacreditacionprorrogada() + "|" +
-                                                  cliAux.getCorreo1()).replace(' ', '0') + separador
+                        + String.format("%-100s", factura.getFechaacreditacionprorrogada() + "|"
+                                + cliAux.getCorreo1()).replace(' ', '0') + separador
                         //21. BASE IMPONIBLE 
                         + String.format("%13s", factura.getValorsinimpuestos()).replace(' ', '0').replace(".", "") + "\n");
             }
@@ -1353,23 +1353,67 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                 while (scanner.hasNextLine()) {
                     // el objeto scanner lee linea a linea desde el archivo
                     String linea = scanner.nextLine();
-                    Scanner delimitar = new Scanner(linea);
+                    //Scanner delimitar = new Scanner(linea);
                     //se usa una expresión regular
                     //que valida que antes o despues de una coma (,) exista cualquier cosa
                     //parte la cadena recibida cada vez que encuentre una coma				
-                    delimitar.useDelimiter("\\s*,\\s*");
+                    //delimitar.useDelimiter("\\s*,\\s*");
 
                     pagofacturaPK.setCodigoabastecedora(comercializadora.getAbastecedora());
                     pagofacturaPK.setCodigocomercializadora(comercializadora.getCodigo());
-                    pagofacturaPK.setNumero(delimitar.next());
+                    //pagofacturaPK.setNumero(delimitar.next());
+
+                    //Id_sobre
+                    detallepago.setId_sobre(linea.substring(0, 12));
+                    //Id_itemd
+                    detallepago.setId_item(linea.substring(12, 24));
+                    //Contrapartida
+                    detallepago.setContrapartida(linea.substring(24, 44));
+                    //Moneda   
+                    detallepago.setMoneda(linea.substring(44, 47));
+                    //Valor enviado
+                    detallepago.setValorEnviado(linea.substring(47, 60));
+                    //Valor procesado
+                    detallepago.setValorProcesado(linea.substring(60, 73));
+                    //Forma de pago procesada
+                    detallepago.setFormPago(linea.substring(73, 76));
+                    //Código de banco
+                    detallepago.setCodBancoProc(linea.substring(76, 80));
+                    //Tipo de cuenta
+                    detallepago.setTipCuenta(linea.substring(80, 83));
+                    //Número de cuenta
+                    detallepago.setNumCuenta(linea.substring(83, 103));
+                    //Tipo ID cliente beneficiario
+                    detallepago.setTipIdCliente(linea.substring(103, 104));
+                    //Número de ID cliente beneficiario
+                    detallepago.setNumIdCliente(linea.substring(104, 124));
+                    //Nombre del beneficiario
+                    detallepago.setNomBeneficiario(linea.substring(124, 164));
+                    //Referencia
+                    detallepago.setReferencia(linea.substring(164, 204));
+                    //Fecha proceso
+                    detallepago.setFechaProc(linea.substring(204, 212));
+                    //Hora de proceso
+                    detallepago.setHoraProc(linea.substring(212, 218));
+                    //Condición de proceso
+                    detallepago.setCondProc(linea.substring(218, 222));
+                    //Mensaje de proceso
+                    detallepago.setMensProc(linea.substring(222, 262));
+                    //Número de documento
+                    detallepago.setNumDocu(linea.substring(262, 274));
+                    //Canal
+                    detallepago.setCanal(linea.substring(274, 277));
+                    //Número SRI
+                    detallepago.setNumSRI(linea.substring(277, 297));
+
                     pagofacturaPK.setCodigobanco(banco.getCodigo());
 
-                    detallepagoPK.setNumerofactura(delimitar.next());
+                    //detallepagoPK.setNumerofactura(delimitar.next());
 
                     pagofactura.setPagofacturaPK(pagofacturaPK);
-                    pagofactura.setValor(new BigDecimal(delimitar.next()));
-                    Date date1 = new SimpleDateFormat("yyyy/MM/dd").parse(delimitar.next());
-                    pagofactura.setFecha(date1);
+                    //pagofactura.setValor(new BigDecimal(delimitar.next()));
+                    //Date date1 = new SimpleDateFormat("yyyy/MM/dd").parse(delimitar.next());
+                    //pagofactura.setFecha(date1);
                     pagofactura.setActivo(true);
                     pagofactura.setObservacion(observacion);
                     pagofactura.setFecharegistro(new Date());
@@ -1378,13 +1422,14 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                     detallepagoPK.setCodigoabastecedora(comercializadora.getAbastecedora());
                     detallepagoPK.setCodigocomercializadora(comercializadora.getCodigo());
                     detallepagoPK.setNumero(pagofacturaPK.getNumero());
-                    detallepagoPK.setNumeronotapedido(delimitar.next());
+                    //detallepagoPK.setNumeronotapedido(delimitar.next());
                     detallepagoPK.setCodigobanco(banco.getCodigo());
                     detallepago.setDetallepagoPK(detallepagoPK);
                     detallepago.setValor(pagofactura.getValor());
-                    suma = suma.add(detallepago.getValor());
+                    //suma = suma.add(detallepago.getValor());
                     detallepago.setActivo(true);
                     detallepago.setUsuarioactual(dataUser.getUser().getNombrever());
+                    detallepago.setPagofactura(pagofactura);
 
                     listaPagofacturaArchivoSubida.add(pagofactura);
                     listaDetallePagofacturaArchivoSubida.add(detallepago);

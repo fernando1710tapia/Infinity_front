@@ -14,49 +14,17 @@
             <span class="footer-text-left">                
                 <p:graphicImage name="#{guestPreferences.darkMode != 'light'? 'images/infinity_logo2.png' : 'images/infinity_logo2.png'}" width="10%" library="apollo-layout" />
             </span>
-            <span class="footer-text-right">Todos los Derechos Reservados. <span style="color:#87ea2a">V1.0.1</span> </span>
-            <p:commandButton icon="pi pi-question" actionListener="#{ayudaBean.mostarPantalla()}"
-                             styleClass="edit-button rounded-button ui-button-success" process="@this">                                    
-            </p:commandButton>
+            <span class="footer-text-right">Todos los Derechos Reservados. 
+                <span style="color:#87ea2a">V1.0.1</span> 
+                <p:commandButton icon="pi pi-question" actionListener="#{ayudaBean.mostarPantalla()}"
+                                 styleClass="edit-button rounded-button ui-button-success" process="@this">                                    
+                </p:commandButton>
+            </span>
+
         </div>
     </div>
     <!--    </p:outputPanel>
     </h:form>-->
 
-    <p:dialog header="Ayuda" width="60%" showEffect="fade" modal="true" widgetVar="ayuda" responsive="true">
-        <h:form id="formAyuda">
-            <p:outputPanel rendered="true">  
-                <!--<h2 style="color:#87ea2a">AYUDA</h2>-->
-                <div class="p-grid crud-demo">                    
-                    <div class="p-col-3">
-                        <div class="layout-menu-container">
-                            <div class="menu-scroll-content">                                    
-                                <h:form id="menuform">    
-                                    <fr:menu model="#{menuBean.model}"/>
-                                </h:form>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-col-9">
-                        <div class="card">  
-                            <p:panel rendered="true" >
-                                <f:facet name="header">
-                                    <h:outputText value="Contenido" styleClass="default-header"/> 
-                                </f:facet>                                                                
-                                <video value="#{ayudaBean.direcMedia}"
-                                         player="mp4"
-                                         controls="true"
-                                         width="420"
-                                         height="250"
-                                         onplay="console.log('MP4 Started Playing')"
-                                         onpause="console.log('MP4 Stopped Playing')">                                    
-                                </video>           
-                            </p:panel>                                                                
-                        </div>
-                    </div>                  
-                </div>
-            </p:outputPanel>
-        </h:form>
-    </p:dialog>
     <!--</ui:define>-->
 </ui:composition>

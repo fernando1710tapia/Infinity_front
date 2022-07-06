@@ -1,0 +1,19 @@
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:fr="http://primefaces.org/apollo">
+
+    <div class="layout-menu-container">
+        <div class="menu-scroll-content">
+            <div class="layout-menu-title">AYUDA</div>
+            <h:form id="menuform">               
+                <fr:menu model="#{ayudaBean.modelAyuda}"/>                                
+            </h:form>
+        </div>
+    </div>
+
+
+</ui:composition>
