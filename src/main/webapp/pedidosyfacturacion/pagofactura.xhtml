@@ -211,7 +211,7 @@
                                 </div>    
 
                                 <p:dataTable id="dt-cobros" widgetVar="dtProducts" var="cobro" value="#{pagoFacturaBean.listaFactura}" reflow="true" styleClass="products-table"
-                                             selection="#{pagoFacturaBean.listaFacturaSeleccionada}" rowKey="#{cobro.facturaPK.codigoabastecedora}-#{cobro.facturaPK.codigocomercializadora}-#{cobro.facturaPK.numero}-#{cobro.facturaPK.numeronotapedido}" paginator="true" rows="5" rowSelectMode="add" paginatorPosition="bottom">                                        
+                                             selection="#{pagoFacturaBean.listaFacturaSeleccionada}" rowKey="#{cobro.facturaPK.codigoabastecedora}-#{cobro.facturaPK.codigocomercializadora}-#{cobro.facturaPK.numero}-#{cobro.facturaPK.numeronotapedido}" paginator="true" rows="20" rowSelectMode="add" paginatorPosition="bottom">                                        
                                     <!-- selectionMode="multiple" rowKey="{cobro.codigobanco}-{cobro.fechaventa}-{cobro.fechavencimiento}"-->
                                     <!--rowKey="{cobro.facturaPK.codigoabastecedora}-{cobro.facturaPK.codigocomercializadora}-{cobro.facturaPK.numero}-{cobro.facturaPK.numeronotapedido}"-->
                                     <f:facet name="header">
@@ -252,13 +252,11 @@
                                         </h:outputText>
                                     </p:column>
                                     <p:column headerText="Valor Venta" sortBy="#{cobro.valortotal}" filterBy="#{cobro.valortotal}" width="10%">
-                                        <h:outputText value="#{cobro.valortotal}">
-                                            <f:convertNumber currencySymbol="$" type="currency" />
+                                        <h:outputText value="$ #{cobro.valortotal}">                                            
                                         </h:outputText>
                                     </p:column>
                                     <p:column headerText="Valor Rubro" sortBy="#{cobro.valorconrubro}" filterBy="#{cobro.valorconrubro}" width="10%">
-                                        <h:outputText value="#{cobro.valorconrubro}">
-                                            <f:convertNumber currencySymbol="$" type="currency" />
+                                        <h:outputText value="$ #{cobro.valorconrubro}">                                            
                                         </h:outputText>
                                     </p:column>                                                                                                                      
                                 </p:dataTable>

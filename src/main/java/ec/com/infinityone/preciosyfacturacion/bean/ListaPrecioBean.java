@@ -150,17 +150,17 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
 
     private ListaprecioterminalproductoPK precioTermProdPK;
 
-    private Boolean mostrarBusTrans;
-
     private String tipoBusquedaDocumento;
 
     private String tipo;
 
     private String codigoComer;
 
+    private String codigoTerm;
+
     private ComercializadoraBean comercializadora;
 
-    private ObjetoNivel1 objeto1;
+    private ObjetoNivel1 terminal;
 
     private String comercializadoraT;
     private String comercializadoraNombreT;
@@ -230,12 +230,12 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
         precioTermProdPK = new ListaprecioterminalproductoPK();
         producto = new Producto();
         medida = new Medida();
+        terminal = new ObjetoNivel1();
         listapreciobean = new ListaPrecioBean();
         valorMargen = new BigDecimal(0);
         listaprecios = new ArrayList<>();
         listaProductosComer = new ArrayList<>();
         tipoBusquedaDocumento = "N";
-        mostrarBusTrans = tipoBusquedaDocumento.equals("N");
         margenValor = new BigDecimal("0");
         mostrarPantallaIncial = true;
         configurarTerminal = false;
@@ -274,7 +274,6 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
         listaprecios = new ArrayList<>();
         listaProductosComer = new ArrayList<>();
         tipoBusquedaDocumento = "N";
-        mostrarBusTrans = tipoBusquedaDocumento.equals("N");
         margenValor = new BigDecimal("0");
         mostrarPantallaIncial = true;
         configurarTerminal = false;
@@ -308,7 +307,6 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
     }
 
     public void actualizarTipoBusqueda() {
-        mostrarBusTrans = tipoBusquedaDocumento.equals("N");
         agregarTerminal = true;
         if (editarPrecio) {
             if (tipoBusquedaDocumento.equals("N")) {
@@ -772,6 +770,12 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
         }
     }
 
+    public void seleccionarTerm() {
+        if (terminal != null) {
+            codigoTerm = terminal.getCodigo();
+        }
+    }
+
     public void actualizarLista() {
         if (listapreciobean != null) {
             listaprecios = new ArrayList<>();
@@ -785,7 +789,7 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
             agregarTerminal = false;
             editItems();
             listaprecios = new ArrayList<>();
-            terminalProducto();            
+            terminalProducto();
         } else {
             agregarTerminal = true;
             if (addItems()) {
@@ -799,7 +803,9 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
 
     public void saveLista() {
         if (guardarTerminal) {
-            addItemsTerminalProd();
+            if (!codigoTerm.isEmpty()) {
+                addItemsTerminalProd();
+            }
         } else {
             editItemsTerminalProd();
         }
@@ -836,7 +842,6 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
             mostrarTabla = false;
             mostrarMsj = true;
             tipoBusquedaDocumento = "N";
-            mostrarBusTrans = tipoBusquedaDocumento.equals("N");
             terminalProducto();
         } else {
             mostrarPantallaIncial = true;
@@ -912,8 +917,8 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
             respuesta = obj.toString();
             writer.write(respuesta);
             writer.close();
-            PrimeFaces.current().executeScript("PF('nombre').hide()");
             if (connection.getResponseCode() == 200) {
+                PrimeFaces.current().executeScript("PF('nombre').hide()");
                 this.dialogo(FacesMessage.SEVERITY_INFO, "LISTA PRECIO ACUTALIZADA EXITOSAMENTE");
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ACTUALIZAR");
@@ -958,6 +963,7 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
 
     public void addItemsTerminalProd() {
         listaprecios = new ArrayList<>();
+        List<ObjetoNivel1> listaTerminalAux = new ArrayList<>();
         obtenerPrecio(comercializadoraT);
         contOk = 0;
         contError = 0;
@@ -976,10 +982,11 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
 
             codigoListaPrecioT = listaprecios.get(listaprecios.size() - 1).getListaprecioPK().getCodigo();
         }
-        for (int i = 0; i < listaTerminal.size(); i++) {
+        listaTerminalAux.add(terminal);
+        for (int i = 0; i < listaTerminalAux.size(); i++) {
             for (int indice = 0; indice < listaProductosComer.size(); indice++) {
                 if (listaListapreciobean.get(indice).getMargenValor() != null) {
-                    if (addItemsTerminal(i, indice)) {
+                    if (addItemsTerminal(i, indice, terminal)) {
                         contOk++;
                     } else {
                         contError++;
@@ -998,7 +1005,7 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
         mostarListaPrecio = false;
     }
 
-    public Boolean addItemsTerminal(int i, int indice) {
+    public Boolean addItemsTerminal(int i, int indice, ObjetoNivel1 terminal) {
         try {
             String respuesta;
 
@@ -1022,7 +1029,7 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
             JSONObject objPk = new JSONObject();
             objPk.put("codigocomercializadora", listaProductosComer.get(indice).getComercializadoraproductoPK().getCodigocomercializadora());
             objPk.put("codigolistaprecio", codigoListaPrecioT);
-            objPk.put("codigoterminal", listaTerminal.get(i).getCodigo());
+            objPk.put("codigoterminal", terminal.getCodigo());
             objPk.put("codigoproducto", listaProductosComer.get(indice).getComercializadoraproductoPK().getCodigoproducto());
             objPk.put("codigomedida", listaProductosComer.get(indice).getComercializadoraproductoPK().getCodigomedida());
             obj.put("listaprecioterminalproductoPK", objPk);
@@ -1073,10 +1080,12 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
 
     public void editItemsTerminalProd() {
         obtenerPrecio(comercializadoraT);
-        for (int i = 0; i < listaTerminal.size(); i++) {
+        List<ObjetoNivel1> listaTerminalAux = new ArrayList<>();
+        listaTerminalAux.add(terminal);
+        for (int i = 0; i < listaTerminalAux.size(); i++) {
             for (int indice = 0; indice < listaProductosComer.size(); indice++) {
                 if (listaListapreciobean.get(indice).getMargenValor() != null) {
-                    editItemsTerminal(i, indice);
+                    editItemsTerminal(i, indice, terminal);
                 }
             }
         }
@@ -1085,7 +1094,7 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
         mostarListaPrecio = false;
     }
 
-    public void editItemsTerminal(int i, int indice) {
+    public void editItemsTerminal(int i, int indice, ObjetoNivel1 terminal) {
         try {
 
             String respuesta;
@@ -1104,7 +1113,7 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
             JSONObject objPk = new JSONObject();
             objPk.put("codigocomercializadora", listaProductosComer.get(indice).getComercializadoraproductoPK().getCodigocomercializadora());
             objPk.put("codigolistaprecio", codigoListaPrecioT);
-            objPk.put("codigoterminal", listaTerminal.get(i).getCodigo());
+            objPk.put("codigoterminal", terminal.getCodigo());
             objPk.put("codigoproducto", listaProductosComer.get(indice).getComercializadoraproductoPK().getCodigoproducto());
             objPk.put("codigomedida", listaProductosComer.get(indice).getComercializadoraproductoPK().getCodigomedida());
             obj.put("listaprecioterminalproductoPK", objPk);
@@ -1153,6 +1162,7 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
         this.setAbreviacion("");
         listaprecio1 = new Listaprecio();
         listaprecioPK = new ListaprecioPK();
+        terminal = new ObjetoNivel1();
         PrimeFaces.current().executeScript("PF('nuevo').show()");
     }
 
@@ -1164,11 +1174,24 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
         mostrarMsj = true;
         agregarTerminal = true;
         tipoBusquedaDocumento = "N";
-        mostrarBusTrans = tipoBusquedaDocumento.equals("N");
         listaprecio1 = obj;
         configurarTerminal = true;
         mostrarPantallaIncial = false;
         listaGuardada = false;
+        List<Listaprecioterminalproducto> precioTermProdAux;
+        precioTermProdAux = listaprecioterminalproductoServicio.obtenerListaprecioterminalprod(listaprecio1.getListaprecioPK().getCodigo());
+        if (!precioTermProdAux.isEmpty()) {
+            for (int i = 0; i < listaTerminal.size(); i++) {
+                if (precioTermProdAux.get(0).getListaprecioterminalproductoPK().getCodigoterminal().equals(listaTerminal.get(i).getCodigo())) {
+                    terminal = listaTerminal.get(i);
+                    break;
+                }
+            }
+        } else {
+            if (edit == 0) {
+                editarPrecio = false;
+            }
+        }
         if (listaprecio1 != null) {
             estadoPrecio = listaprecio1.getActivo();
         }
@@ -1204,7 +1227,7 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
     public void editarNombre() {
         editarPrecio = true;
         agregarTerminal = false;
-        PrimeFaces.current().executeScript("PF('nombre').show()");        
+        PrimeFaces.current().executeScript("PF('nombre').show()");
     }
 
     public Listaprecio terminalProducto() {
@@ -1538,6 +1561,14 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
 
     public void setPdfStream(StreamedContent pdfStream) {
         this.pdfStream = pdfStream;
+    }
+
+    public ObjetoNivel1 getTerminal() {
+        return terminal;
+    }
+
+    public void setTerminal(ObjetoNivel1 terminal) {
+        this.terminal = terminal;
     }
 
 }

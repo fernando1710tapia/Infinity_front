@@ -5,6 +5,7 @@
  */
 package ec.com.infinityone.preciosyfacturacion.bean;
 
+import com.sun.javafx.scene.control.skin.VirtualFlow;
 import ec.com.infinityone.actorcomercial.bean.ComercializadoraBean;
 import ec.com.infinityone.actorcomercial.serivicios.ClienteServicio;
 import ec.com.infinityone.actorcomercial.serivicios.ComercializadoraServicio;
@@ -16,9 +17,11 @@ import ec.com.infinityone.modeloWeb.ComercializadoraproductoPK;
 import ec.com.infinityone.modeloWeb.Detalleprecio;
 import ec.com.infinityone.modeloWeb.DetalleprecioPK;
 import ec.com.infinityone.modeloWeb.Gravamen;
+import ec.com.infinityone.modeloWeb.GravamenPK;
 import ec.com.infinityone.modeloWeb.Listaprecio;
 import ec.com.infinityone.modeloWeb.ListaprecioPK;
 import ec.com.infinityone.modeloWeb.Listaprecioterminalproducto;
+import ec.com.infinityone.modeloWeb.ListaprecioterminalproductoPK;
 import ec.com.infinityone.modeloWeb.Medida;
 import ec.com.infinityone.modeloWeb.ObjetoDetallePrecio;
 import ec.com.infinityone.modeloWeb.ObjetoPrecio;
@@ -28,6 +31,7 @@ import ec.com.infinityone.modeloWeb.Producto;
 import ec.com.infinityone.modeloWeb.Terminal;
 import ec.com.infinityone.preciosyfacturacion.servicios.GravamenServicio;
 import ec.com.infinityone.preciosyfacturacion.servicios.ListaprecioServicio;
+import ec.com.infinityone.preciosyfacturacion.servicios.ListaprecioterminalproductoServicio;
 import ec.com.infinityone.reusable.ReusableBean;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -82,6 +86,9 @@ public class ActualizarPrecioBean extends ReusableBean implements Serializable {
      */
     @Inject
     private ClienteServicio clienteServicio;
+
+    @Inject
+    private ListaprecioterminalproductoServicio listaprecioterminalproductoServicio;
 
     /*
     Variable que almacena varios Bancos
@@ -265,7 +272,7 @@ public class ActualizarPrecioBean extends ReusableBean implements Serializable {
         inhabilitar = false;
         obtenerListaComercializadora();
         obtenerTerminales();
-    }
+    }    
 
     public void obtenerListaComercializadora() {
         listComercializadora = new ArrayList<>();
@@ -456,6 +463,7 @@ public class ActualizarPrecioBean extends ReusableBean implements Serializable {
                         JSONObject produc = retorno.getJSONObject(indice);
                         producto.setCodigo(produc.getString("codigo"));
                         producto.setNombre(produc.getString("nombre"));
+                        producto.setPorcentajeivapresuntivo(produc.getBigDecimal("porcentajeivapresuntivo"));
                     }
                 }
                 if (connection.getResponseCode() != 200) {
@@ -536,7 +544,7 @@ public class ActualizarPrecioBean extends ReusableBean implements Serializable {
                 objprecio.setPrecio(precio);
                 objprecio.setPrecioepp(listaComercializadoraProducto.get(i).getPrecioepp());
                 objprecio.setPvpsugerido(listaComercializadoraProducto.get(i).getPvpsugerido());
-                obtenerValores(listaComercializadoraProducto.get(i));
+                obtenerValores(listaComercializadoraProducto.get(i), listaprecioselected);
                 /*------------------Objeto ObjDetalle--------------------------*/
                 objDetalle.setPrecio(precio);
                 objDetalle.setPrecioepp(listaComercializadoraProducto.get(i).getPrecioepp());
@@ -554,9 +562,18 @@ public class ActualizarPrecioBean extends ReusableBean implements Serializable {
         }
     }
 
-    public void obtenerValores(Comercializadoraproducto comerP) {
+    public void obtenerValores(Comercializadoraproducto comerP, Listaprecio listaprecioselected) {
+        List<Listaprecioterminalproducto> precioTermProdAux;
+        terminal = new Terminal();
+        precioTermProdAux = listaprecioterminalproductoServicio.obtenerListaprecioterminalprod(listaprecioselected.getListaprecioPK().getCodigo());
+        for (int i = 0; i < listaTerminales.size(); i++) {
+            if (precioTermProdAux.get(0).getListaprecioterminalproductoPK().getCodigoterminal().equals(listaTerminales.get(i).getCodigo())) {
+                terminal = listaTerminales.get(i);
+                break;
+            }
+        }
         //for(int i = 0; i < listaTerminales.size(); i++){
-        obtenerValorMargenCMargenP(listaTerminales.get(0), comerP);
+        obtenerValorMargenCMargenP(terminal, comerP);
         //}
     }
 
@@ -802,9 +819,10 @@ public class ActualizarPrecioBean extends ReusableBean implements Serializable {
                         break;
                 }
             }
-            for (int k = 0; k < listaDetallePrecio.size(); k++) {
-                listaObjDetalle.add(objDetalle);
-            }
+//for (int k = 0; k < listaDetallePrecio.size(); k++) {
+            objDetalle.setCodigoTerminal(terminal.getCodigo());
+            listaObjDetalle.add(objDetalle);
+            //}
             objDetalle = new ObjetoDetallePrecio();
             listaPrecios.get(i).setDetalleprecioList(listaDetallePrecio);
             listaPrecios.get(i).setPrecioproducto(dpcg9);
@@ -814,11 +832,13 @@ public class ActualizarPrecioBean extends ReusableBean implements Serializable {
 
     public void savePrice() {
         for (int i = 0; i < listaPrecios.size(); i++) {
-            for (int j = 0; j < listaTerminales.size(); j++) {
-                addItemsPrice(i, j, listaPrecios, listaTerminales);
+            List<Terminal> listaTerminalesAux = new ArrayList<>();
+            listaTerminalesAux.add(terminal);
+            for (int j = 0; j < listaTerminalesAux.size(); j++) {
+                addItemsPrice(i, j, listaPrecios, listaTerminalesAux);
             }
         }
-        //reestablecer();
+        listaObjDetalle = new ArrayList<>();
     }
 
     public void addItemsPrice(int i, int j, List<Precio> precio, List<Terminal> listaTerminal) {

@@ -16,9 +16,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
+import javax.el.ValueExpression;
+import javax.enterprise.context.RequestScoped;
 import javax.enterprise.context.SessionScoped;
+import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.inject.Named;
+import org.primefaces.PrimeFaces;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 import org.primefaces.model.menu.DefaultMenuItem;
@@ -33,10 +37,10 @@ import org.primefaces.shaded.json.JSONObject;
  * @author SonyVaio
  */
 @Named
-@SessionScoped
+@RequestScoped
 public class AyudaBean extends LoginBean implements Serializable {
 
-    protected MenuModel modelAyuda = new DefaultMenuModel();   
+    protected MenuModel modelAyuda = new DefaultMenuModel();
 
     /*
     Variable que almacena varios Productos
@@ -71,7 +75,9 @@ public class AyudaBean extends LoginBean implements Serializable {
      */
     private String direcMedia;
 
-    private String direcMediaMp4;
+    private String descripcion;
+
+    private String nombreMenu;
 
     private boolean actualizarD;
 
@@ -79,9 +85,13 @@ public class AyudaBean extends LoginBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        actualizarD = false;
+
+        actualizarD = true;
+        direcMedia = Fichero.getCARPETAAYUDA() + "\\CLIENTE_2\\index.html";
+        descripcion = "xxxxxxxxxxxxxxxxxxxxxxxx";
+        nombreMenu = "Cliente";
         menu = new MenuBean();
-        crearAtbol();
+        //crearAtbol();
         obtenerMenuPadre();
         obtenerMenuHijo();
         cargarMenuAyuda();
@@ -245,9 +255,18 @@ public class AyudaBean extends LoginBean implements Serializable {
 
         node6.getChildren().add(new DefaultTreeNode("Reporte Precios"));
 
-        direcMedia = Fichero.getCARPETAAYUDA() + "\\CLIENTE_2\\cliente.webm";
-        direcMediaMp4 = Fichero.getCARPETAAYUDA() + "\\CLIENTE_2\\cliente.mp4";
+        direcMedia = Fichero.getCARPETAAYUDA() + "\\CLIENTE_2\\index.html";
     }
+
+    public void update(MenuBean menuH ) {        
+        if (menuH != null) {
+            actualizarD = true;
+            direcMedia = Fichero.getCARPETAAYUDA() + menuH.getUrlAyuda();
+            descripcion = menuH.getDescripcionAyuda();
+            nombreMenu = menuH.getNombre();
+        }
+    }
+  
 
     public void cargarMenuAyuda() {
         DefaultSubMenu primerNivel;
@@ -269,8 +288,12 @@ public class AyudaBean extends LoginBean implements Serializable {
                     for (MenuBean menuH : listaMenuHijoAux) {
                         item2 = DefaultMenuItem.builder()
                                 .value(menuH.getNombre())
-                                .outcome(menuH.getUrlAccion())
+                                //.(createExpression("#{ayudaBean.update()}").getExpressionString())
+                                //.onclick(menuH.getUrlAyuda())
+                                //.onclick(actulizarInfo(menuH))
+                                //.outcome(menuH.getUrlAccion())
                                 .build();
+                        //item2.setCommand("#{ayudaBean.update(" + menuH + ")}");
                         primerNivel.getElements().add(item2);
                     }
                     modelAyuda.getElements().add(primerNivel);
@@ -428,7 +451,8 @@ public class AyudaBean extends LoginBean implements Serializable {
     }
 
     public void mostarPantalla() throws IOException {
-        FacesContext.getCurrentInstance().getExternalContext().redirect("/infinity-web-1/ayuda.xhtml");        
+        //FacesContext.getCurrentInstance().getExternalContext().redirect("/infinity-web-1/ayuda.xhtml");        
+        PrimeFaces.current().executeScript("PF('nuevo').show()");
     }
 
     public TreeNode getRoot() {
@@ -475,12 +499,20 @@ public class AyudaBean extends LoginBean implements Serializable {
         this.modelAyuda = modelAyuda;
     }
 
-    public String getDirecMediaMp4() {
-        return direcMediaMp4;
+    public String getDescripcion() {
+        return descripcion;
     }
 
-    public void setDirecMediaMp4(String direcMediaMp4) {
-        this.direcMediaMp4 = direcMediaMp4;
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public String getNombreMenu() {
+        return nombreMenu;
+    }
+
+    public void setNombreMenu(String nombreMenu) {
+        this.nombreMenu = nombreMenu;
     }
 
 }

@@ -37,11 +37,20 @@ import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import org.primefaces.PrimeFaces;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.file.UploadedFile;
 import org.primefaces.shaded.json.JSONArray;
 import org.primefaces.shaded.json.JSONObject;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -151,7 +160,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
     public void init() {
         soloVigente = false;
         direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.consultaguiaremision";
-
+        tipoFecha = "1";
         editarPrecio = false;
         consulGuia = new Consultaguiaremision();
         consulGuiaPK = new ConsultaguiaremisionPK();
@@ -238,7 +247,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
         }
     }
 
-    public void nuevaGuia() {
+    public void nuevaGuia() throws ParserConfigurationException, SAXException, IOException {
         //reestablecer();
         if (habilitarComer) {
             comercializadora = new ComercializadoraBean();
@@ -260,7 +269,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
         listaConsultaGuia = new ArrayList<>();
     }
 
-    public void actualizarTipoBusqueda() {       
+    public void actualizarTipoBusqueda() {
     }
 
     public void obtenerGuia() throws ParseException {
@@ -289,7 +298,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
             } else {
                 //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.precio/porComerEstado?codigocomercializadora=" + codigoComer + "&activo=" + vigente);
                 url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.consultaguiaremision/porFechas?codigocomercializadora=" + codigoComer
-                        + "&codigoterminal=" + codTerminal + "&tipofecha=" + tipoFecha + "&fechaI=" + fechaS + "&fechaF=" + fechaF + "&fechaIR=" + fechaIR + "&fechaFR=" + fechaFR);
+                        + "&codigoterminal=" + codTerminal + "&tipofecha=1" + "&fechaI=" + fechaS + "&fechaF=" + fechaF);
 
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setDoInput(true);
@@ -651,23 +660,191 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
     }
 
     public void guardar() throws ParseException {
-
-//        StringBuilder cadenaInfo = new StringBuilder();
-//        StringBuilder cadenaErro = new StringBuilder();
+        List<JSONObject> arregloJSON = new ArrayList<>();
         if (!listaConsultaGuiaArchivoSubida.isEmpty()) {
-            for (int i = 0; i < listaConsultaGuiaArchivoSubida.size(); i++) {
-                if (!addItems(i)) {
-                    this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR GUIA" + listaConsultaGuiaArchivoSubida.get(i).getConsultaguiaremisionPK().getNumero());
-//                    this.dialogo(FacesMessage.SEVERITY_INFO, cadenaInfo.toString());
-//                    this.dialogo(FacesMessage.SEVERITY_ERROR, cadenaErro.toString());
-                }
-            }
-
-            listaConsultaGuiaArchivoSubida = new ArrayList<>();
+            arregloJSON.addAll(addItemsArregloJSON(listaConsultaGuiaArchivoSubida));
+            addItemsGuias(arregloJSON);            
         } else {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "Error de carga, el archivo se encuentra vacio");
         }
+    }
 
+    public List<JSONObject> addItemsArregloJSON(List<Consultaguiaremision> consulGuia) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        String dateI = sdf.format(new Date());
+
+        JSONObject obj = new JSONObject();
+        JSONObject objPK = new JSONObject();
+        List<JSONObject> listObjEnvRest = new ArrayList<>();
+        for (int i = 0; i < consulGuia.size(); i++) {//           
+            objPK.put("codigocomercializadora", consulGuia.get(i).getConsultaguiaremisionPK().getCodigocomercializadora());
+            objPK.put("numero", consulGuia.get(i).getConsultaguiaremisionPK().getNumero());
+            objPK.put("fecha", consulGuia.get(i).getConsultaguiaremisionPK().getFecha());
+            objPK.put("fecharecepcion", dateI);
+
+            obj.put("consultaguiaremisionPK", objPK);
+            obj.put("codigoterminal", consulGuia.get(i).getCodigoterminal());
+            obj.put("numerooe", consulGuia.get(i).getNumerooe());
+            obj.put("codigoareamercadeo", consulGuia.get(i).getCodigoareamercadeo());
+            obj.put("codigoproducto", consulGuia.get(i).getCodigoproducto());
+            obj.put("codigomedida", consulGuia.get(i).getCodigomedida());
+            obj.put("medida", consulGuia.get(i).getMedida());
+            obj.put("producto", consulGuia.get(i).getProducto());
+            obj.put("volumenentregado", consulGuia.get(i).getVolumenentregado());
+            obj.put("autotanque", consulGuia.get(i).getAutotanque());
+            obj.put("estado", consulGuia.get(i).getEstado());
+            obj.put("activo", consulGuia.get(i).getActivo());
+            obj.put("usuarioactual", consulGuia.get(i).getUsuarioactual());
+            obj.put("numerosri", consulGuia.get(i).getNumerosri());
+            obj.put("cedulaconductor", consulGuia.get(i).getCedulaconductor());
+            obj.put("nombreconductor", consulGuia.get(i).getNombreconductor());
+            obj.put("observacion", consulGuia.get(i).getObservacion());
+            obj.put("codigocliente", consulGuia.get(i).getCodigocliente());
+            obj.put("compartimento1", consulGuia.get(i).getCompartimento1());
+            obj.put("compartimento2", consulGuia.get(i).getCompartimento2());
+            obj.put("compartimento3", consulGuia.get(i).getCompartimento3());
+            obj.put("compartimento4", consulGuia.get(i).getCompartimento4());
+            obj.put("compartimento5", consulGuia.get(i).getCompartimento5());
+            obj.put("compartimento6", consulGuia.get(i).getCompartimento6());
+            obj.put("selloinicial", consulGuia.get(i).getSelloinicial());
+            obj.put("sellofinal", consulGuia.get(i).getSellofinal());
+            obj.put("numerofactura", consulGuia.get(i).getNumerofactura());            
+
+            listObjEnvRest.add(obj);
+            obj = new JSONObject();
+            objPK = new JSONObject();
+        }
+        return listObjEnvRest;
+    }
+
+    public void addItemsGuias(List<JSONObject> arregloJSON) {
+        try {
+            String respuesta;
+            //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.precio/agregar";
+            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.consultaguiaremision/agregar";
+
+            url = new URL(direcc);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-type", "application/json");
+
+            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+            //JSONObject arrObj = new JSONObject();               
+
+            //arrObj.put("", arregloJSON);
+            respuesta = arregloJSON.toString();
+            writer.write(respuesta);
+            writer.close();
+
+            if (connection.getResponseCode() == 200) {
+                this.dialogo(FacesMessage.SEVERITY_INFO, "SE HA REGISTRADO CON EXITO");
+                System.out.println("Se ha registrado con exito");
+                listaConsultaGuiaArchivoSubida = new ArrayList<>();
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
+                System.out.println("Error al añadir:" + connection.getResponseCode());
+                System.out.println("Error:" + connection.getErrorStream());
+                System.out.println(connection.getResponseMessage());
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void lecturaXml() throws ParserConfigurationException, SAXException, IOException {
+        listaConsultaGuiaArchivoSubida = new ArrayList<>();
+        codigoComer = comercializadora.getCodigo();
+        codTerminal = terminal.getCodigo();
+        if (codigoComer != null || codTerminal != null) {
+            File folder = new File("C:\\archivos\\docs");
+            for (File file : folder.listFiles()) {
+                if (!file.isDirectory()) {
+                    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                    DocumentBuilder db = dbf.newDocumentBuilder();
+                    Document document = db.parse(file);
+                    Document doc = null;
+                    document.getDocumentElement().normalize();
+                    System.out.println("Root Element :" + document.getDocumentElement().getNodeName());
+                    NodeList nList = document.getElementsByTagName("comprobante");
+                    System.out.println("----------------------------");
+                    for (int temp = 0; temp < nList.getLength(); temp++) {
+                        Node nNode = nList.item(temp);
+                        System.out.println("\nCurrent Element :" + nNode.getNodeName());
+                        if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                            Element eElement = (Element) nNode;
+                            doc = convertStringToXMLDocument(eElement.getFirstChild().getTextContent());
+                        }
+                    }
+                    NodeList nList1 = doc.getChildNodes();
+                    for (int temp = 0; temp < nList1.getLength(); temp++) {
+                        Node nNode = nList1.item(temp);
+                        System.out.println("\nCurrent Element :" + nNode.getNodeName());
+                        if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                            Element eElement = (Element) nNode;
+                            consulGuiaPK.setCodigocomercializadora(codigoComer);
+                            consulGuiaPK.setFecha(eElement.getElementsByTagName("fechaIniTransporte").item(0).getTextContent());
+                            //<campoAdicional nombre="CodigoControlDeposito">0208164802-TERMINAL EL BEATERIO</campoAdicional> -- 8 caracteres
+                            consulGuiaPK.setNumero((eElement.getElementsByTagName("campoAdicional").item(5).getTextContent()).substring(0, 8));
+
+                            consulGuia.setConsultaguiaremisionPK(consulGuiaPK);
+                            //<campoAdicional nombre="PedidoFacturaFecha">0200011200102000000009610/07/2022</campoAdicional> -- 8 caracteres
+                            consulGuia.setNumerooe((eElement.getElementsByTagName("campoAdicional").item(4).getTextContent()).substring(0, 8));
+                            //dos primeros digitos codigoInterno                
+                            consulGuia.setCodigoareamercadeo((eElement.getElementsByTagName("codigoInterno").item(0).getTextContent()).substring(0, 2));
+                            consulGuia.setCodigoproducto(eElement.getElementsByTagName("codigoInterno").item(0).getTextContent());
+                            //<detAdicional nombre="Unidad de Medida" valor="GALS"/> valor
+                            consulGuia.setCodigomedida(eElement.getElementsByTagName("detAdicional").item(0).getTextContent());
+                            //<campoAdicional nombre="CodigoControlDeposito">0208164802-TERMINAL EL BEATERIO</campoAdicional> -- 2 caracteres despues de numero
+                            consulGuia.setCodigoterminal((eElement.getElementsByTagName("campoAdicional").item(5).getTextContent()).substring(0, 2));
+                            //<detAdicional nombre="Unidad de Medida" valor="GALS"/> valor
+                            consulGuia.setMedida(eElement.getElementsByTagName("detAdicional").item(0).getTextContent());
+                            consulGuia.setProducto(eElement.getElementsByTagName("descripcion").item(0).getTextContent());
+                            consulGuia.setVolumenentregado(new BigDecimal(eElement.getElementsByTagName("cantidad").item(0).getTextContent()));
+                            consulGuia.setAutotanque(eElement.getElementsByTagName("placa").item(0).getTextContent());
+                            consulGuia.setEstado("ACT");
+                            consulGuia.setActivo(true);
+                            consulGuia.setNumerosri(eElement.getElementsByTagName("estab").item(0).getTextContent()
+                                    + eElement.getElementsByTagName("ptoEmi").item(0).getTextContent()
+                                    + eElement.getElementsByTagName("secuencial").item(0).getTextContent());
+                            //codigocliente <campoAdicional nombre="Codigo Cliente">02010677  ESTACION DE SERVICIO SANTA ANA</campoAdicional> -- 8primeros
+                            consulGuia.setCodigocliente((eElement.getElementsByTagName("campoAdicional").item(1).getTextContent()).substring(0, 8));
+                            consulGuia.setCompartimento1(Integer.valueOf(eElement.getElementsByTagName("campoAdicional").item(7).getTextContent()));
+                            consulGuia.setCompartimento2(Integer.valueOf(eElement.getElementsByTagName("campoAdicional").item(8).getTextContent()));
+                            consulGuia.setCompartimento3(Integer.valueOf(eElement.getElementsByTagName("campoAdicional").item(9).getTextContent()));
+                            consulGuia.setCompartimento4(Integer.valueOf(eElement.getElementsByTagName("campoAdicional").item(10).getTextContent()));
+                            consulGuia.setCompartimento5(Integer.valueOf(eElement.getElementsByTagName("campoAdicional").item(11).getTextContent()));
+                            consulGuia.setCompartimento6(Integer.valueOf(eElement.getElementsByTagName("campoAdicional").item(12).getTextContent()));
+                            //numero factura <campoAdicional nombre="PedidoFacturaFecha">0200011200102000000009610/07/2022</campoAdicional> -- 15 caracteres despues de numero oe
+                            consulGuia.setNumerosri(eElement.getElementsByTagName("campoAdicional").item(4).getTextContent().substring(8, 23));
+                            consulGuia.setCedulaconductor(eElement.getElementsByTagName("campoAdicional").item(0).getTextContent().substring(0, 10));
+                            consulGuia.setNombreconductor((eElement.getElementsByTagName("campoAdicional").item(0).getTextContent().trim()).substring(11));
+                            consulGuia.setUsuarioactual(dataUser.getUser().getNombrever());
+
+                            listaConsultaGuiaArchivoSubida.add(consulGuia);
+                            consulGuia = new Consultaguiaremision();
+                            consulGuiaPK = new ConsultaguiaremisionPK();
+                        }
+                    }
+                }
+            }
+        } else {
+            this.dialogo(FacesMessage.SEVERITY_WARN, "Seleccione una comercializadora y un terminal para poder cargar el archivo");
+        }
+    }
+
+    private static Document convertStringToXMLDocument(String xmlString) {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = null;
+        try {
+            builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(new InputSource(new StringReader(xmlString)));
+            return doc;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public Boolean getVigente() {

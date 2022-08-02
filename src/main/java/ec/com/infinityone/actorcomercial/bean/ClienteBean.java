@@ -201,8 +201,11 @@ public class ClienteBean extends ReusableBean implements Serializable {
     }
 
     public void obtenerPrecio() {
-        listaListaprecios = new ArrayList<>();
-        listaListaprecios = this.listaPrecioServicio.obtenerListaprecio();
+        if (comercializadora != null) {
+            codComer = comercializadora.getCodigo();          
+            listaListaprecios = new ArrayList<>();
+            listaListaprecios = this.listaPrecioServicio.obtenerListaprecioEstado(codComer, true);
+        }        
     }
 
     public void seleccionarComercializadora() {
@@ -402,7 +405,7 @@ public class ClienteBean extends ReusableBean implements Serializable {
                     if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
                         cliente.setCodigocomercializadora(listaComercializadora.get(i).getCodigo());
                         listaListaprecios = new ArrayList<>();
-                        listaListaprecios = this.listaPrecioServicio.obtenerListaprecioPorComer(cliente.getCodigocomercializadora());
+                        listaListaprecios = this.listaPrecioServicio.obtenerListaprecioEstado(cliente.getCodigocomercializadora(), true);
                     }
                 }
             } else if (dataUser.getUser().getNiveloperacion().equals("usac")) {
@@ -411,7 +414,7 @@ public class ClienteBean extends ReusableBean implements Serializable {
                     if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
                         cliente.setCodigocomercializadora(listaComercializadora.get(i).getCodigo());
                         listaListaprecios = new ArrayList<>();
-                        listaListaprecios = this.listaPrecioServicio.obtenerListaprecioPorComer(cliente.getCodigocomercializadora());
+                        listaListaprecios = this.listaPrecioServicio.obtenerListaprecioEstado(cliente.getCodigocomercializadora(), true);
                     }
                 }
             }
@@ -436,7 +439,7 @@ public class ClienteBean extends ReusableBean implements Serializable {
 
     public Cliente editarCliente(Cliente obj) {
         listaListaprecios = new ArrayList<>();
-        listaListaprecios = this.listaPrecioServicio.getListaprecioPorComer(obj.getCodigocomercializadora());
+        listaListaprecios = this.listaPrecioServicio.obtenerListaprecioEstado(obj.getCodigocomercializadora(), true);
         soloLectura = false;
         editarCliente = true;
         cliente = obj;
@@ -446,7 +449,7 @@ public class ClienteBean extends ReusableBean implements Serializable {
             esContribuyente = cliente.getEscontribuyenteespacial();
             controlaGarantia = cliente.getControlagarantia();
             aplicaSubsidio = cliente.getAplicasubsidio2();
-            formapago = cliente.getCodigoformapago();                         
+            formapago = cliente.getCodigoformapago();
             banco.setCodigo(cliente.getCodigobancodebito());
             terminal = cliente.getCodigoterminaldefecto();
 //        listaprecioPK.setCodigo(cliente.getCodigolistaprecio());

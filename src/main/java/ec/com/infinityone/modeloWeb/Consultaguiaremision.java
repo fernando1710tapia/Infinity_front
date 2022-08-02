@@ -20,7 +20,7 @@ public class Consultaguiaremision implements Serializable {
     private String codigoterminal;
 
     private String numerooe;
-    
+
     private String codigoareamercadeo;
 
     private String codigoproducto;
@@ -40,6 +40,34 @@ public class Consultaguiaremision implements Serializable {
     private boolean activo;
 
     private String usuarioactual;
+
+    private String numerosri;
+
+    private String cedulaconductor;
+
+    private String nombreconductor;
+
+    private String observacion;
+
+    private String codigocliente;
+
+    private int compartimento1;
+
+    private int compartimento2;
+
+    private int compartimento3;
+
+    private int compartimento4;
+
+    private int compartimento5;
+
+    private int compartimento6;
+
+    private int selloinicial;
+
+    private int sellofinal;
+
+    private String numerofactura;
 
     public Consultaguiaremision() {
     }
@@ -165,6 +193,118 @@ public class Consultaguiaremision implements Serializable {
         this.usuarioactual = usuarioactual;
     }
 
+    public String getNumerosri() {
+        return numerosri;
+    }
+
+    public void setNumerosri(String numerosri) {
+        this.numerosri = numerosri;
+    }
+
+    public String getCedulaconductor() {
+        return cedulaconductor;
+    }
+
+    public void setCedulaconductor(String cedulaconductor) {
+        this.cedulaconductor = cedulaconductor;
+    }
+
+    public String getNombreconductor() {
+        return nombreconductor;
+    }
+
+    public void setNombreconductor(String nombreconductor) {
+        this.nombreconductor = nombreconductor;
+    }
+
+    public String getObservacion() {
+        return observacion;
+    }
+
+    public void setObservacion(String observacion) {
+        this.observacion = observacion;
+    }
+
+    public String getCodigocliente() {
+        return codigocliente;
+    }
+
+    public void setCodigocliente(String codigocliente) {
+        this.codigocliente = codigocliente;
+    }
+
+    public int getCompartimento1() {
+        return compartimento1;
+    }
+
+    public void setCompartimento1(int compartimento1) {
+        this.compartimento1 = compartimento1;
+    }
+
+    public int getCompartimento2() {
+        return compartimento2;
+    }
+
+    public void setCompartimento2(int compartimento2) {
+        this.compartimento2 = compartimento2;
+    }
+
+    public int getCompartimento3() {
+        return compartimento3;
+    }
+
+    public void setCompartimento3(int compartimento3) {
+        this.compartimento3 = compartimento3;
+    }
+
+    public int getCompartimento4() {
+        return compartimento4;
+    }
+
+    public void setCompartimento4(int compartimento4) {
+        this.compartimento4 = compartimento4;
+    }
+
+    public int getCompartimento5() {
+        return compartimento5;
+    }
+
+    public void setCompartimento5(int compartimento5) {
+        this.compartimento5 = compartimento5;
+    }
+
+    public int getCompartimento6() {
+        return compartimento6;
+    }
+
+    public void setCompartimento6(int compartimento6) {
+        this.compartimento6 = compartimento6;
+    }
+
+    public int getSelloinicial() {
+        return selloinicial;
+    }
+
+    public void setSelloinicial(int selloinicial) {
+        this.selloinicial = selloinicial;
+    }
+
+    public int getSellofinal() {
+        return sellofinal;
+    }
+
+    public void setSellofinal(int sellofinal) {
+        this.sellofinal = sellofinal;
+    }
+
+    public String getNumerofactura() {
+        return numerofactura;
+    }
+
+    public void setNumerofactura(String numerofactura) {
+        this.numerofactura = numerofactura;
+    }
+
     @Override
     public int hashCode() {
         int hash = 0;
@@ -184,5 +324,5 @@ public class Consultaguiaremision implements Serializable {
         }
         return true;
     }
-    
+
 }

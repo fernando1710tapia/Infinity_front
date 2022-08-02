@@ -185,7 +185,7 @@
                                         <p:column headerText="Código Lista Precio">
                                             <h:outputText value="#{price.precio.listaprecio.listaprecioPK.codigo}" />
                                         </p:column>    
-                                        <p:column headerText="Lista Precio" sortBy="#{price.precio.listaprecio.nombre}">
+                                        <p:column headerText="Lista Precio" sortBy="#{price.precio.listaprecio.nombre}" filterBy="#{price.precio.listaprecio.nombre}">
                                             <h:outputText value="#{price.precio.listaprecio.nombre}" />
                                         </p:column>
                                         <p:column headerText="Tipo" sortBy="#{price.precio.listaprecio.tipo}">
@@ -281,7 +281,7 @@
                                         <!--                                                <p:column headerText="Código Lista Precio">
                                                                                             <h:outputText value="{det.precio.listaprecio.listaprecioPK.codigo}" />
                                                                                         </p:column>    -->
-                                        <p:column headerText="Lista Precio">
+                                        <p:column headerText="Lista Precio" sortBy="#{det.precio.listaprecio.nombre}" filterBy="#{det.precio.listaprecio.nombre}">
                                             <h:outputText value="#{det.precio.listaprecio.nombre}" />
                                         </p:column>                                               
                                         <p:column headerText="Precio Sugerido" filterBy="#{det.pvpsugerido}" >
@@ -327,7 +327,8 @@
         </p:confirmDialog>
 
         <p:confirmDialog widgetVar="confirmDialog" showEffect="fade" width="300" message="Se va a iniciar la creacion de precios. Esto tomara un momento. Continuar?" header="Confirm" severity="info">            
-            <p:commandButton value="Si" icon="pi pi-check" actionListener="#{gestionarPreciosBean.guardarPrice()}" process="@this" update=":form :step2 step3" oncomplete="PF('confirmDialog').hide()"/>
+           <!-- <p:commandButton value="Si (Uno a uno)" icon="pi pi-check" actionListener="{gestionarPreciosBean.guardarPrice()}" process="@this" update=":form :step2 step3" oncomplete="PF('confirmDialog').hide()"/>-->
+            <p:commandButton value="Si" icon="pi pi-check" actionListener="#{gestionarPreciosBean.guardarPriceLote()}" process="@this" update=":form :step2 step3" oncomplete="PF('confirmDialog').hide()"/>
             <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('confirmDialog').hide()" />            
         </p:confirmDialog>
         

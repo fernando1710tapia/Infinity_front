@@ -15,7 +15,7 @@
                 <p:graphicImage name="#{guestPreferences.darkMode != 'light'? 'images/infinity_logo2.png' : 'images/infinity_logo2.png'}" width="10%" library="apollo-layout" />
             </span>
             <span class="footer-text-right">Todos los Derechos Reservados. 
-                <span style="color:#87ea2a">V1.0.1</span> 
+                <span style="color:#87ea2a">V1.0.2</span> 
                 <p:commandButton icon="pi pi-question" actionListener="#{ayudaBean.mostarPantalla()}"
                                  styleClass="edit-button rounded-button ui-button-success" process="@this">                                    
                 </p:commandButton>
@@ -23,6 +23,38 @@
 
         </div>
     </div>
+
+    <p:dialog header="Ayuda" width="60%" height="auto" showEffect="fade" modal="true" widgetVar="ayuda" responsive="true">
+        <h:form id="formAyuda">
+            <p:outputPanel rendered = "true">
+                <div class="ui-fluid p-formgrid p-grid">
+                    <div class="p-col-3">
+                        <div class="layout-menu-container">
+                            <div class="menu-scroll-content">
+                                <div class="layout-menu-title">AYUDA</div>
+                                <h:form id="menuform">               
+                                    <fr:menu model="#{ayudaBean.modelAyuda}" />                                                                            
+                                </h:form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-col-9">
+                        <div class="card">  
+                            <p:panel rendered="true" >
+                                <f:facet name="header">
+                                    <h:outputText value="#{ayudaBean.nombreMenu}" rendered="#{ayudaBean.actualizarD}" styleClass="default-header"/> 
+                                </f:facet>                                                                
+                                <p> 
+                                    <h:outputText id="desc" value="#{ayudaBean.descripcion}" rendered="#{ayudaBean.actualizarD}" styleClass="default-header"/>                                     
+                                </p> 
+                                <a href="#{ayudaBean.direcMedia}" target="_blank">Video</a>                               
+                            </p:panel>                                                                
+                        </div>
+                    </div>             
+                </div>
+            </p:outputPanel>            
+        </h:form>
+    </p:dialog>
     <!--    </p:outputPanel>
     </h:form>-->
 

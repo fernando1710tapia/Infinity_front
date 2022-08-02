@@ -25,11 +25,15 @@
                                                      action="gestionprecios.xhtml?faces-redirect=true"
                                                      styleClass="ui-button-success" style="margin-right: .5rem" immediate="true"/>
                                 </p:toolbarGroup>
-                                <!--<p:toolbarGroup>
+                                <p:toolbarGroup>
+                                    <p:commandButton value="Actualizar Precios PyS" icon="pi pi-sync" actionListener="#{precioBean.actualizarPreciosPyS()}" update="form"
+                                                     styleClass="ui-button-secondary" style="margin-right: .5rem"/>                                    
+                                </p:toolbarGroup>
+                                <p:toolbarGroup>
                                     <p:commandButton value="Actualización Personalizada" icon="pi pi-plus" ajax="false"
                                                      action="actualizarprecio.xhtml?faces-redirect=true"
                                                      styleClass="ui-button-success" style="margin-right: .5rem" immediate="true"/>
-                                </p:toolbarGroup>-->
+                                </p:toolbarGroup>
                                 <p:toolbarGroup>
                                     <p:commandButton value="Export" icon="pi pi-upload" styleClass="ui-button-help" ajax="false">
                                         <p:dataExporter type="pdf" target="dt-products" fileName="products"/>
@@ -47,7 +51,7 @@
                                                          panelStyle="width:175px" style="min-width: 80%;" 
                                                          autoWidth="false" converter="converterg"
                                                          filter="true" filterMatchMode="startsWith"
-                                                         required="true" requiredMessage="Seleccione Ambiente"
+                                                         requiredMessage="Seleccione Comercializadora"
                                                          disabled="#{!precioBean.habilitarComer}">
                                             <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}" />   
                                             <f:selectItems value="#{precioBean.listaComercializadora}"

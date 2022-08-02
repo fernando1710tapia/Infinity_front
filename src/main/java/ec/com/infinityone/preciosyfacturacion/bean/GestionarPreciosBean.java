@@ -422,7 +422,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
         step3 = false;
         if (comercializadora.getActivo().equals("N")) {
             listaTerminalProd = new ArrayList<>();
-            listaPrecio = new ArrayList<>();
+           listaPrecio = new ArrayList<>();
             listPrice = new ArrayList<>();
             for (int i = 0; i < listaComerProductos.size(); i++) {
                 if (listaComerProductos.get(i).isProcesar()) {
@@ -536,50 +536,58 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
         return contsultaPrecios;
     }
 
-        public boolean verificarMismoPrecio() {
+    public boolean verificarMismoPrecio() {
         try {
+            StringBuilder cadenaInfo = new StringBuilder();
             String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.precio/porPreciomismodia?";
-            
+
             DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
             String fechaI = date.format(fechaVencimiento);
 
-            
-            url = new URL(direcc + "codigocomercializadora=" + codComer
-                    + "&fechainicio=" + fechaI
-                    + "&activo=" + Boolean.TRUE);
-            
-            System.out.println("FT:: verificando fecha del mismo día. "+url);
-            
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoOutput(true);
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("Accept", "application/json");
+            if (!codComer.isEmpty()) {
+                url = new URL(direcc + "codigocomercializadora=" + codComer
+                        + "&fechainicio=" + fechaI
+                        + "&activo=" + Boolean.TRUE);
 
-            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+                System.out.println("FT:: verificando fecha del mismo día. " + url);
 
-            BufferedReader br = new BufferedReader(reader);
-            String tmp = null;
-            String respuesta = "";
-            while ((tmp = br.readLine()) != null) {
-                respuesta += tmp;
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setDoOutput(true);
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("Accept", "application/json");
+
+                InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+
+                BufferedReader br = new BufferedReader(reader);
+                String tmp = null;
+                String respuesta = "";
+                while ((tmp = br.readLine()) != null) {
+                    respuesta += tmp;
+                }
+                JSONObject objetoJson = new JSONObject(respuesta);
+                JSONArray retorno = objetoJson.getJSONArray("retorno");
+
+                if (retorno.length() > 0) {
+
+                    System.out.println("FT:: SI HAY PRECIOS del mismo día. " + retorno.length());
+                    cadenaInfo.append("Existen Precios VIGENTES en la Fecha Seleccionada");
+                    cadenaInfo.append("\nNO DEBERÍA crear Precios en la misma Fecha");
+                    cadenaInfo.append("\nSI ES IMPRESCIBLE hacerlo COORDINE CON SUPERTECH.EC!!");
+
+                    //this.dialogo(FacesMessage.SEVERITY_INFO, cadenaInfo.toString());
+
+                    this.dialogo(FacesMessage.SEVERITY_ERROR, "Existen Precios VIGENTES en la Fecha Seleccionada\nNO DEBERÍA crear Precios en la misma Fecha\nSI ES IMPRESCIBLE hacerlo COORDINE CON SUPERTECH.EC!!");
+                    System.out.println("Error al añadir:" + connection.getResponseCode());
+                    System.out.println("Error:" + connection.getErrorStream());
+                    System.out.println(connection.getResponseMessage());
+                    contsultaPrecios = false;
+                } else {
+                    System.out.println("FT:: NO HAY PRECIOS del mismo día. ");
+                    contsultaPrecios = true;
+                }
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "SELECCIONE UNA COMERCIALIZADORA");
             }
-            JSONObject objetoJson = new JSONObject(respuesta);
-            JSONArray retorno = objetoJson.getJSONArray("retorno");
-            
-            if (retorno.length() > 0 ){
-                
-                System.out.println("FT:: SI HAY PRECIOS del mismo día. "+retorno.length());
-            
-                this.dialogo(FacesMessage.SEVERITY_ERROR, "Existen Precios VIGENTES en la Fecha Seleccionada \n NO DEBERÍA crear Precios en la misma Fecha \n SI ES IMPRESCIBLE hacerlo COORDINE CON SUPERTECH.EC!!");
-                System.out.println("Error al añadir:" + connection.getResponseCode());
-                System.out.println("Error:" + connection.getErrorStream());
-                System.out.println(connection.getResponseMessage());
-                contsultaPrecios = false;
-            }else{
-                System.out.println("FT:: NO HAY PRECIOS del mismo día. ");
-                contsultaPrecios = true;
-            }
-            
             /*if (connection.getResponseCode() == 200) {
                 //this.dialogo(FacesMessage.SEVERITY_INFO, "FACTURA REGISTRADA EXITOSAMENTE");
                 contsultaPrecios = true;
@@ -591,7 +599,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                 System.out.println(connection.getResponseMessage());
                 contsultaPrecios = false;
             }
-            */
+             */
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -599,7 +607,6 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
         return contsultaPrecios;
     }
 
-    
     public void obtenerTerminalesPrecioProd(int i, List<ObjetoPrecio> listPrecio) {
         try {
             //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.listaprecioterminalproducto/paraPrecioUno?";
@@ -838,6 +845,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                         case "0001":
                             dpcg1 = listaPrecio.get(i).getPrecioepp().divide(listaGravamen.get(j).getValordefecto(), 6, RoundingMode.HALF_UP);
                             detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
+                            detallePrecioPK.setCodigoterminal(listaTerminalProdAux.get(k).getListaprecioterminalproductoPK().getCodigoterminal());
                             detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
                             detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
                             detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
@@ -859,6 +867,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                                 dpcg4 = (mcsiva.multiply((listaPrecio.get(i).getMargenvalorcomercializadora().divide(new BigDecimal(100))))).setScale(6, RoundingMode.HALF_UP);
                                 //dpcg4 = (listaPrecio.get(i).getPrecio().getComercializadoraproducto().getMargencomercializacion().multiply((listaPrecio.get(i).getMargenvalorcomercializadora().divide(new BigDecimal(100))))).setScale(6, RoundingMode.HALF_UP);
                                 detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
+                                detallePrecioPK.setCodigoterminal(listaTerminalProdAux.get(k).getListaprecioterminalproductoPK().getCodigoterminal());
                                 detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
                                 detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
                                 detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
@@ -875,6 +884,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                             } else {
                                 dpcg4 = (dpcg1.multiply((listaPrecio.get(i).getMargenporcentaje().divide(new BigDecimal(100))))).setScale(6, RoundingMode.HALF_UP);
                                 detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
+                                detallePrecioPK.setCodigoterminal(listaTerminalProdAux.get(k).getListaprecioterminalproductoPK().getCodigoterminal());
                                 detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
                                 detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
                                 detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
@@ -894,6 +904,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                         case "0009":
                             dpcg9 = (dpcg1.add(dpcg4)).setScale(6, RoundingMode.HALF_UP);
                             detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
+                            detallePrecioPK.setCodigoterminal(listaTerminalProdAux.get(k).getListaprecioterminalproductoPK().getCodigoterminal());
                             detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
                             detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
                             detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
@@ -912,6 +923,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                         case "0002":
                             dpcg2 = (dpcg9.multiply(listaGravamen.get(j).getValordefecto())).setScale(6, RoundingMode.HALF_UP);
                             detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
+                            detallePrecioPK.setCodigoterminal(listaTerminalProdAux.get(k).getListaprecioterminalproductoPK().getCodigoterminal());
                             detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
                             detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
                             detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
@@ -931,6 +943,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                             if (listaPrecio.get(i).getPrecio().getComercializadoraproducto().getSoloaplicaiva()) {
                                 dpcg5 = new BigDecimal(0);
                                 detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
+                                detallePrecioPK.setCodigoterminal(listaTerminalProdAux.get(k).getListaprecioterminalproductoPK().getCodigoterminal());
                                 detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
                                 detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
                                 detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
@@ -950,6 +963,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                                 //iva * listaPrecio.get(i).getPrecio().getComercializadoraproducto().getProducto().getPorcentajeivapresuntivo().divide(new BigDecimal(100)
                                 dpcg5F = dpcg2.multiply(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getProducto().getPorcentajeivapresuntivo()).divide(new BigDecimal(100)).setScale(6, RoundingMode.HALF_UP);
                                 detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
+                                detallePrecioPK.setCodigoterminal(listaTerminalProdAux.get(k).getListaprecioterminalproductoPK().getCodigoterminal());
                                 detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
                                 detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
                                 detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
@@ -970,6 +984,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                             if (listaPrecio.get(i).getPrecio().getComercializadoraproducto().getSoloaplicaiva()) {
                                 dpcg6 = new BigDecimal(0);
                                 detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
+                                detallePrecioPK.setCodigoterminal(listaTerminalProdAux.get(k).getListaprecioterminalproductoPK().getCodigoterminal());
                                 detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
                                 detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
                                 detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
@@ -986,6 +1001,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                             } else {
                                 dpcg6 = (dpcg9.multiply(listaGravamen.get(j).getValordefecto())).setScale(6, RoundingMode.HALF_UP);
                                 detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
+                                detallePrecioPK.setCodigoterminal(listaTerminalProdAux.get(k).getListaprecioterminalproductoPK().getCodigoterminal());
                                 detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
                                 detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
                                 detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
@@ -1095,14 +1111,17 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
         precioError = new ArrayList<>();
         precioGuardado = new ArrayList<>();
         detPrecioError = new ArrayList<>();
-        detPrecioGuardado = new ArrayList<>();
+        detPrecioGuardado = new ArrayList<>();        
         StringBuilder cadenaErro = new StringBuilder();
         for (int i = 0; i < listPrice.size(); i++) {
             obtenerTerminalesProducto(i, listPrice);
             for (int j = 0; j < listaTerminalProdAux.size(); j++) {
+                //arregloJSON.add(addItemsArregloJSON(i, j, listPrice, listaTerminalProdAux));
                 addItemsPrice(i, j, listPrice, listaTerminalProdAux);
             }
         }
+        //addItemsPriceAux(arregloJSON);
+//mandar vector al servicio
         if (!precioGuardado.isEmpty()) {
             this.dialogo(FacesMessage.SEVERITY_INFO, "SE HAN REGISTRADOS " + precioGuardado.size() + " PRECIOS, Y " + detPrecioGuardado.size() + " DETALLES PRECIOS EXITOSAMENTE");
         }
@@ -1117,6 +1136,230 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
             this.dialogo(FacesMessage.SEVERITY_ERROR, cadenaErro.toString());
         }
         reestablecer();
+    }
+
+    public void guardarPriceLote() {
+        //this.dialogo(FacesMessage.SEVERITY_INFO, "Se va a iniciar la creacion de precios, esto tomara un momento, por favor espere");
+        precioError = new ArrayList<>();
+        precioGuardado = new ArrayList<>();
+        detPrecioError = new ArrayList<>();
+        detPrecioGuardado = new ArrayList<>();
+        List<JSONObject> arregloJSON = new ArrayList<>();
+        StringBuilder cadenaErro = new StringBuilder();
+        for (int i = 0; i < listPrice.size(); i++) {
+            obtenerTerminalesProducto(i, listPrice);
+            //for (int j = 0; j < listaTerminalProdAux.size(); j++) {
+                arregloJSON.addAll(addItemsArregloJSON(i, listPrice, listaTerminalProdAux));
+                //addItemsPrice(i, j, listPrice, listaTerminalProdAux);
+            //}
+        }
+
+        addItemsPriceAux(arregloJSON);
+//mandar vector al servicio
+        if (!precioGuardado.isEmpty()) {
+            this.dialogo(FacesMessage.SEVERITY_INFO, "SE HAN REGISTRADOS " + precioGuardado.size() + " PRECIOS, Y " + detPrecioGuardado.size() + " DETALLES PRECIOS EXITOSAMENTE");
+        }
+        if (!precioError.isEmpty()) {
+            cadenaErro.append("ERROR AL REGISTRAR PRECIOS\n").toString();
+            for (int i = 0; i < precioError.size(); i++) {
+                cadenaErro.append("Precio N." + precioError.get(i).getPrecioPK().getCodigoPrecio() + "\n").toString();
+            }
+            for (int i = 0; i < detPrecioError.size(); i++) {
+                cadenaErro.append("Detalle Precio N." + detPrecioError.get(i).getDetalleprecioPK().getCodigo() + "\n").toString();
+            }
+            this.dialogo(FacesMessage.SEVERITY_ERROR, cadenaErro.toString());
+        }
+        reestablecer();
+    }
+
+    public void addItemsPriceAux(List<JSONObject> arregloJSON) {
+        try {
+
+            DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
+            String respuesta;
+            //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.precio/agregar";
+            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.precio/agregarlote";
+
+            url = new URL(direcc);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-type", "application/json");
+
+            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+            //JSONObject arrObj = new JSONObject();               
+
+            //arrObj.put("", arregloJSON);
+            respuesta = arregloJSON.toString();
+            writer.write(respuesta);
+            writer.close();
+
+            if (connection.getResponseCode() == 200) {
+                this.dialogo(FacesMessage.SEVERITY_INFO, "SE HA REGISTRADO CON EXITO");
+                System.out.println("Se ha registrado con exito");
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
+                System.out.println("Error al añadir:" + connection.getResponseCode());
+                System.out.println("Error:" + connection.getErrorStream());
+                System.out.println(connection.getResponseMessage());
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+//public void addItemsPriceAux(int i, int j, List<Precio> precio, List<Listaprecioterminalproducto> listaTerminalP) {
+//        try {
+//
+//            DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
+//            String fechaI = date.format(precio.get(i).getPrecioPK().getFechainicio()) + "T12:00:00";
+//            String respuesta;
+//            //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.precio/agregar";
+//            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.precio/agregarlote";
+//
+//            url = new URL(direcc);
+//            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+//            connection.setDoOutput(true);
+//            connection.setRequestMethod("POST");
+//            connection.setRequestProperty("Content-type", "application/json");
+//
+//            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+//            JSONObject obj = new JSONObject();
+//            JSONObject objPK = new JSONObject();            
+//            JSONObject objEnvRest = new JSONObject();
+//            List<JSONObject> arrObj = new ArrayList<>();
+//            Precio precioAux = new Precio();
+//
+//            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+//            String codigo = "";
+//            BufferedReader br = new BufferedReader(reader);
+//            String tmp = null;
+//            String resp = "";
+//            while ((tmp = br.readLine()) != null) {
+//                resp += tmp;
+//            }
+//            JSONObject objetoJson = new JSONObject(resp);
+//            String cod = objetoJson.getString("developerMessage");
+//            codigo = cod;
+//
+//            objPK.put("codigocomercializadora", precio.get(i).getPrecioPK().getCodigocomercializadora());
+//            objPK.put("codigoterminal", listaTerminalP.get(j).getListaprecioterminalproductoPK().getCodigoterminal());
+//            objPK.put("codigoproducto", precio.get(i).getPrecioPK().getCodigoproducto());
+//            objPK.put("codigomedida", precio.get(i).getPrecioPK().getCodigomedida());
+//            objPK.put("codigolistaprecio", precio.get(i).getPrecioPK().getCodigolistaprecio());
+//            objPK.put("fechainicio", fechaI);
+//            objPK.put("secuencial", "1");
+//            //objPK.put("codigoPrecio", "0");
+//
+//            //obj.put("codigoPrecio", observacion);
+//            obj.put("precioPK", objPK);
+//            obj.put("fechafin", "");
+//            obj.put("activo", true);
+//            obj.put("observacion", observacion);
+//            obj.put("precioproducto", precio.get(i).getPrecioproducto());
+//            obj.put("usuarioactual", dataUser.getUser().getNombrever());
+//
+//            for (int k = 0; k < precio.get(i).getDetalleprecioList().size(); k++) {
+//                arrObj.add(addItemsDetailPAux(k, precio.get(i).getDetalleprecioList(), codigo, listaTerminalP.get(j).getListaprecioterminalproductoPK().getCodigoterminal()));
+//            }
+//            
+//            objEnvRest.put("precio", obj);
+//            objEnvRest.put("detalle", arrObj);
+//
+//            //listaobjEnvRest.add(objEnvRest)
+//
+//            respuesta = objEnvRest.toString();
+//            writer.write(respuesta);
+//            writer.close();
+//
+//            if (connection.getResponseCode() == 200) {
+//                precioAux = precio.get(i);
+//                precioGuardado.add(precioAux);
+//            } else {
+//                precioAux = precio.get(i);
+//                precioError.add(precioAux);
+//                System.out.println("Error al añadir:" + connection.getResponseCode());
+//                System.out.println("Error:" + connection.getErrorStream());
+//                System.out.println(connection.getResponseMessage());
+//            }
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
+    public List<JSONObject> addItemsArregloJSON(int i, List<Precio> precio, List<Listaprecioterminalproducto> listaTerminalP) {
+        DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
+        String fechaI = date.format(precio.get(i).getPrecioPK().getFechainicio()) + "T12:00:00";
+
+        JSONObject obj = new JSONObject();
+        JSONObject objPK = new JSONObject();
+        JSONObject objEnvRest = new JSONObject();
+        List<JSONObject> arrObj = new ArrayList<>();
+        List<JSONObject> listObjEnvRest = new ArrayList<>();
+
+        for (int j = 0; j < listaTerminalP.size(); j++) {
+            objPK.put("codigocomercializadora", precio.get(i).getPrecioPK().getCodigocomercializadora());
+            objPK.put("codigoterminal", listaTerminalP.get(j).getListaprecioterminalproductoPK().getCodigoterminal());
+            objPK.put("codigoproducto", precio.get(i).getPrecioPK().getCodigoproducto());
+            objPK.put("codigomedida", precio.get(i).getPrecioPK().getCodigomedida());
+            objPK.put("codigolistaprecio", precio.get(i).getPrecioPK().getCodigolistaprecio());
+            objPK.put("fechainicio", fechaI);
+            objPK.put("secuencial", "1");
+            //objPK.put("codigoPrecio", "0");
+
+            //obj.put("codigoPrecio", observacion);
+            obj.put("precioPK", objPK);
+            obj.put("fechafin", "");
+            obj.put("activo", true);
+            obj.put("observacion", observacion);
+            obj.put("precioproducto", precio.get(i).getPrecioproducto());
+            obj.put("usuarioactual", dataUser.getUser().getNombrever());
+
+            for (int k = 0; k < precio.get(i).getDetalleprecioList().size(); k++) {
+                if (listaTerminalP.get(j).getListaprecioterminalproductoPK().getCodigoterminal().equals(precio.get(i).getDetalleprecioList().get(k).getDetalleprecioPK().getCodigoterminal())) {
+                    arrObj.add(addItemsDetailPAux(k, precio.get(i).getDetalleprecioList(), "0"));
+                }                
+            }
+
+            objEnvRest.put("precio", obj);
+            objEnvRest.put("detalle", arrObj);
+            listObjEnvRest.add(objEnvRest);
+            obj = new JSONObject();
+            objPK = new JSONObject();
+            arrObj = new ArrayList<>();
+            objEnvRest = new JSONObject();
+        }
+
+        //listaobjEnvRest.add(objEnvRest)           
+        return listObjEnvRest;
+
+    }
+
+    public JSONObject addItemsDetailPAux(int j, List<Detalleprecio> detalleP, String codigo) {
+
+        DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
+        String fechaI = date.format(fechaVencimiento) + "T12:00:00";
+
+        JSONObject detalle = new JSONObject();
+        JSONObject detallePK = new JSONObject();
+        Detalleprecio detPrecioAux = new Detalleprecio();
+
+        detallePK.put("codigocomercializadora", detalleP.get(j).getDetalleprecioPK().getCodigocomercializadora());
+        detallePK.put("codigoterminal", detalleP.get(j).getDetalleprecioPK().getCodigoterminal());
+        detallePK.put("codigoproducto", detalleP.get(j).getDetalleprecioPK().getCodigoproducto());
+        detallePK.put("codigomedida", detalleP.get(j).getDetalleprecioPK().getCodigomedida());
+        detallePK.put("codigolistaprecio", detalleP.get(j).getDetalleprecioPK().getCodigolistaprecio());
+        detallePK.put("fechainicio", fechaI);
+        detallePK.put("secuencial", "1");
+        detallePK.put("codigo", codigo);
+        detallePK.put("codigogravamen", detalleP.get(j).getDetalleprecioPK().getCodigogravamen());
+
+        detalle.put("detalleprecioPK", detallePK);
+        detalle.put("valor", detalleP.get(j).getValor());
+        detalle.put("usuarioactual", dataUser.getUser().getNombrever());
+
+        return detalle;
     }
 
     public void addItemsPrice(int i, int j, List<Precio> precio, List<Listaprecioterminalproducto> listaTerminalP) {

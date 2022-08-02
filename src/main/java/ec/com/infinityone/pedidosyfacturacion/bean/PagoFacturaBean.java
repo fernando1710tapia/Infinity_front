@@ -17,7 +17,6 @@ import ec.com.infinityone.modeloWeb.FacturaPK;
 import ec.com.infinityone.modeloWeb.ObjFactura;
 import ec.com.infinityone.modeloWeb.Pagofactura;
 import ec.com.infinityone.modeloWeb.PagofacturaPK;
-import ec.com.infinityone.modeloWeb.Usuario;
 import ec.com.infinityone.pedidosyfacturacion.servicios.FacturaServicio;
 import ec.com.infinityone.reusable.ReusableBean;
 import ec.com.infinityone.actorcomercial.bean.ComercializadoraBean;
@@ -33,19 +32,15 @@ import ec.com.infinityone.pedidosyfacturacion.servicios.TemporalCobrarServicios;
 import ec.com.infinityone.pedidosyfacturacion.servicios.TotalCobrarServicios;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -62,7 +57,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.logging.Level;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import javax.annotation.PostConstruct;
@@ -145,9 +139,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
 
     private List<Factura> listaFacturaSeleccionada;
 
-    private List<Factura> listaFacturaUnida;
-
-    private List<Factura> listaFacturaOrdenada;
+    private List<Factura> listaFacturaUnida;   
 
     private List<ObjFactura> listaobjFactura;
     /*
@@ -161,15 +153,11 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
 
     private Pagofactura pagofactura;
 
-    private Detallepago detallepago;
-
-    private ObjFactura objFactura;
+    private Detallepago detallepago;   
 
     private ComercializadoraBean comercializadora;
 
-    private String tipoBusquedaDocumento;
-
-    private Boolean mostrarBusTrans;
+    private String tipoBusquedaDocumento;   
 
     private PagofacturaPK pagofacturaPK;
 
@@ -229,9 +217,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
 
     private File fileLeer;
 
-    private String ubicacion;
-
-    private Usuario x;
+    private String ubicacion;   
 
     private BigDecimal suma;
 
@@ -277,8 +263,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
     private StreamedContent txtStream;
 
     private List<Factura> listaFacturaAux;
-    private List<Factura> listaFacturaPagadasAux;
-    private List<Factura> listaFacturas;
+    private List<Factura> listaFacturaPagadasAux;    
 
     /**
      * Constructor por defecto
@@ -302,11 +287,8 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
         pagoFacturaBean = new PagoFacturaBean();
         comercializadora = new ComercializadoraBean();
         factura = new Factura();
-        facturaPK = new FacturaPK();
-        //fecha = new Date();
-        objFactura = new ObjFactura();
-        tipoBusquedaDocumento = "1";
-        mostrarBusTrans = tipoBusquedaDocumento.equals("1");
+        facturaPK = new FacturaPK();       
+        tipoBusquedaDocumento = "1";        
         banco = new Banco();
         listaBancos = new ArrayList<>();
         listaFacturaSeleccionada = new ArrayList<>();
@@ -347,10 +329,8 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
         }
         factura = new Factura();
         facturaPK = new FacturaPK();
-        fecha = new Date();
-        objFactura = new ObjFactura();
-        tipoBusquedaDocumento = "1";
-        mostrarBusTrans = tipoBusquedaDocumento.equals("1");
+        fecha = new Date();        
+        tipoBusquedaDocumento = "1";        
         banco = new Banco();
         listaBancos = new ArrayList<>();
         listaFacturaSeleccionada = new ArrayList<>();
@@ -606,8 +586,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
     }
 
     public void cambiarEstadoFactura(Factura fact) {
-        try {
-            String respuesta;
+        try {            
             //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura/porId");
             url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura/porId");
 
@@ -641,8 +620,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
         }
     }
 
-    public void actualizarTipoBusqueda() {
-        mostrarBusTrans = tipoBusquedaDocumento.equals("1");
+    public void actualizarTipoBusqueda() {        
     }
 
     public void generarValores() throws ParseException {
@@ -666,12 +644,8 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
         String[] campos = new String[4];
         listaFacturaSeleccionada = new ArrayList<>();
         listaTotalCobros = new ArrayList<>();
-        listaFacturaUnida = new ArrayList<>();
-        listaFacturaOrdenada = new ArrayList<>();
-        objFactura = new ObjFactura();
-        BigDecimal suma = new BigDecimal(0);
-        int cant = 0;
-
+        listaFacturaUnida = new ArrayList<>();        
+        BigDecimal suma = new BigDecimal(0);        
         for (int i = 0; i < listaFactura.size(); i++) {
             for (int cont = 0; cont < parts.length; cont++) {
                 campos = parts[cont].split("-");
@@ -680,7 +654,6 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
                 }
             }
         }
-
         if (!listaFacturaSeleccionada.isEmpty()) {
             for (int j = 0; j < listaFacturaSeleccionada.size(); j++) {
                 SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
@@ -792,11 +765,9 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
         } else {
             this.dialogo(FacesMessage.SEVERITY_WARN, "Seleccione una factura");
         }
-
     }
 
     class CompareByProductID implements Comparator<Factura> {
-
         @Override
         public int compare(Factura p1, Factura p2) {
             if (p1.getFechavencimiento().compareTo(p2.getFechavencimiento()) > 0) {
@@ -810,56 +781,19 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
         }
     }
 
-    public void construirArchivos() {
-        List<TotalParaCobrar> listaTotalAux = new ArrayList<>();
-        if (!listaTotalCobros.isEmpty()) {
-            for (int i = 0; i < listaTotalCobros.size(); i++) {
-
-            }
-        }
-    }
-
-//    public void crearArchivo2(List<TotalParaCobrar> listaTotalC, String codBanco) {
-//        FileWriter flwriter = null;
-//        try {
-//            //crea el flujo para escribir en el archivo
-//            flwriter = new FileWriter("C:\\archivos\\Facturas-Banco" + codBanco + ".txt");
-//            //crea un buffer o flujo intermedio antes de escribir directamente en el archivo
-//            BufferedWriter bfwriter = new BufferedWriter(flwriter);
-//            for (TotalParaCobrar totalCobro : listaTotalC) {
-//                //escribe los datos en el archivo
-//                bfwriter.write("Banco: " + totalCobro.getBanco() + "\n"
-//                        + "Numero Factura: " + factura.getFacturaPK().getNumero() + "\n"
-//                        + "Fecha de Venta: " + factura.getFechaventa() + "\n"
-//                        + "Fecha de Vencimiento: " + factura.getFechavencimiento() + "\n"
-//                        + "Total: " + factura.getValortotal() + "\n"
-//                        + "=================================" + "\n");
-//            }
-//            //cierra el buffer intermedio
-//            bfwriter.close();
-//            this.dialogo(FacesMessage.SEVERITY_INFO, "Archivo creado satisfactoriamente..");
-//            System.out.println("Archivo creado satisfactoriamente..");
+//    public void construirArchivos() {
+//        List<TotalParaCobrar> listaTotalAux = new ArrayList<>();
+//        if (!listaTotalCobros.isEmpty()) {
+//            for (int i = 0; i < listaTotalCobros.size(); i++) {
 //
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            if (flwriter != null) {
-//                try {//cierra el flujo principal
-//                    flwriter.close();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
 //            }
 //        }
 //    }
-    public void generarArchivos() throws Throwable {
-        String usuario = dataUser.getUser().getNombrever().replace(" ", "");
+
+    public void generarArchivos() throws Throwable {        
         String nombreArchivoGenerado = "";
         List<Factura> listaFacturaBancos = new ArrayList<>();
-        List<String> listaArchivos = new ArrayList<>();
-        InputStream file = null;
-        String rutaGuardar = Fichero.getCARPETAREPORTES();
-        String fechaHora = (fechaConvertida.replace(":", "")).substring(0, 16);
+        List<String> listaArchivos = new ArrayList<>();                
         int numeroRegistros = 0;
         BigDecimal valorTotalArchivo = new BigDecimal("0");
         if (listaFacturaSeleccionada != null) {
@@ -892,8 +826,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
         txtStream = new DefaultStreamedContent(targetStream, "application/txt", nombre);
     }
 
-    public void zip(List<String> listaArchivos) {
-        StreamedContent result = null;
+    public void zip(List<String> listaArchivos) {        
         byte[] buffer = new byte[1024];
         String nombreArchivo = "cobrosBancos.zip";
         try {
@@ -918,54 +851,8 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
         }
     }
 
-//    public void crearArchivo(List<Factura> listaFactura, String codBanco) {
-//        FileWriter flwriter = null;
-//        String rutaGuardar = Fichero.getCARPETAREPORTES();        
-//        InputStream file = null;
-//        try {
-//            //crea el flujo para escribir en el archivo
-//            flwriter = new FileWriter(rutaGuardar + "Facturas-Banco" + codBanco + ".txt");
-//            //crea un buffer o flujo intermedio antes de escribir directamente en el archivo
-//            BufferedWriter bfwriter = new BufferedWriter(flwriter);
-//            for (Factura factura : listaFactura) {
-//                //escribe los datos en el archivo
-//                bfwriter.write("Banco: " + factura.getCodigobanco() + "\n"
-//                        + "Numero Factura: " + factura.getFacturaPK().getNumero() + "\n"
-//                        + "Fecha de Venta: " + factura.getFechaventa() + "\n"
-//                        + "Fecha de Vencimiento: " + factura.getFechavencimiento() + "\n"
-//                        + "Total: " + factura.getValortotal() + "\n"
-//                        + "=================================" + "\n");
-//            }
-//            //cierra el buffer intermedio
-//            bfwriter.close();
-////            File txt = File.createTempFile("_", ".pdf", directory);
-////            JasperExportManager.exportReportToPdfStream(print, new FileOutputStream(pdf));
-////            File initialFile = new File(pdf.getAbsolutePath());
-////            InputStream targetStream = new FileInputStream(initialFile);
-////            //pdfStream = new DefaultStreamedContent();
-////            pdfStream = new DefaultStreamedContent(targetStream, "application/pdf", nombreDocumento + ".pdf");
-////            //DefaultStreamedContent.builder().contentType("application/pdf").name(nombreDocumento + ".pdf").stream(() -> new FileInputStream(targetStream)).build();
-////            System.err.print(pdf.getAbsolutePath());
-////            System.out.println(pdf.getAbsolutePath());
-//            this.dialogo(FacesMessage.SEVERITY_INFO, "Archivo creado satisfactoriamente..");
-//            System.out.println("Archivo creado satisfactoriamente..");
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            if (flwriter != null) {
-//                try {//cierra el flujo principal
-//                    flwriter.close();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-//    }
     public String crearArchivo(List<Factura> listaFactura, String codBanco, int cantidadRegsitros, BigDecimal valorTotal) throws Throwable {
-
         String nombreArchivoGenerado = "";
-
         switch (codBanco) {
             case "36":
                 nombreArchivoGenerado = crearArchivo36(listaFactura, codBanco, cantidadRegsitros, valorTotal);
@@ -977,7 +864,6 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
                 throw new Throwable("Error Capturado: PagoFacturaBean.crearArchivo Banco: " + codBanco + " NO tiene configuración para creación de archivo de pagos! ");
         }
         return nombreArchivoGenerado;
-
     }
 
     /*
@@ -1048,9 +934,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 
             System.out.println("FT:: grabando lineacabecera.. " + nombreArchivo);
             bfwriter.write(lineaCabecera + "\n");
-
             for (Factura factura : listaFactura) {
-
                 linea = linea + "0201";
                 linea = linea + String.format("%15s", factura.getRuccliente()).replace(' ', '0');
                 linea = linea + String.format("%40s", factura.getNombrecliente()).replace(' ', ' ');
@@ -1059,22 +943,17 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                 DecimalFormat myFormatter = new DecimalFormat("00000000.00");
                 //System.out.println("FT::myFormatter "+myFormatter.toString());
                 String output = myFormatter.format(factura.getValorconrubro().doubleValue());
-
                 String dato = output.substring(0, 8) + output.substring(9, 11);
                 //System.out.println("FT::dato "+dato);
-
                 linea = linea + dato;
-
                 //System.out.println("FT::linea + dato"+linea);
                 //fecha
                 //SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
                 //System.out.println("FT::factura.getFechavencimiento() "+factura.getFechavencimiento());
                 String f = factura.getFechavencimiento().replaceAll("/", "");
-
                 //System.out.println("FT:: f = sdf.format(factura.getFechavencimiento()) "+f);
                 linea = linea + f;
                 //System.out.println("FT::linea + f "+f);
-
                 //Valor mínimo            
                 linea = linea + dato;
                 //System.out.println("FT::linea + Valor mínimo dato"+linea);
@@ -1091,13 +970,11 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                 DecimalFormat myFormatter1 = new DecimalFormat("00");
                 String output1 = myFormatter1.format(contadorFacturas);
                 //String dato1 = output1.substring(0, 8) + output.substring(9, 11);
-
                 linea = linea + output1;
                 //System.out.println("FT::linea + Secuencia periodo	Numérico		2 (linea + output1;): "+linea);
                 // Espacios	Alfanumérico		4
                 linea = linea + "    ";
                 System.out.println("FT::linea: " + linea + "aqui se acaba la linea");
-
                 //escribe los datos en el archivo
                 bfwriter.write(linea + "\n");
                 linea = "";
@@ -1124,25 +1001,20 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
     }
 
     public String generarLineaCabecera(List<Factura> listaFactura, String codBanco, int cantidadRegsitros, BigDecimal valorTotal) throws Throwable {
-
         String lineaCabecera = "";
         try {
-
             lineaCabecera = lineaCabecera + "01REC00017-PYS-01";
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
             String dateI = sdf.format(new Date());
             lineaCabecera = lineaCabecera + dateI + dateI;
-
             DecimalFormat myFormatter1 = new DecimalFormat("00000000");
             String output1 = myFormatter1.format(cantidadRegsitros);
             lineaCabecera = lineaCabecera + output1;
-
             DecimalFormat myFormatter = new DecimalFormat("0000000000000.00");
             //System.out.println("FT::myFormatter "+myFormatter.toString());
             String output = myFormatter.format(valorTotal.doubleValue());
             String dato = output.substring(0, 13) + output.substring(14, 16);
             lineaCabecera = lineaCabecera + output;
-
             lineaCabecera = lineaCabecera + "00000000000000000000000000000000000000000000000000000000000000000000";
             return lineaCabecera;
         } catch (Throwable t) {
@@ -1154,7 +1026,6 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 
     public String crearArchivo36(List<Factura> listaFactura, String codBanco, int cantidadRegsitros, BigDecimal valorTotal) throws Throwable {
         FileWriter flwriter = null;
-
         String usuario = dataUser.getUser().getNombrever().replace(" ", "");
         String fechaHora = (fechaConvertida.replace(":", "")).substring(0, 16);
         String nombreArchivo = "";
@@ -1164,12 +1035,10 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         listaClientesAux = clienteServicio.obtenerClientesPorComercializadora(listaFactura.get(0).getFacturaPK().getCodigocomercializadora());
         try {
             nombreArchivo = "/BANINTER_REM_" + fechaHora + "_" + "CCCC AQUI DEBE ESTAR CODIGOPYSSEGUNBANCO" + ".txt";
-
             //crea el flujo para escribir en el archivo
             //flwriter = new FileWriter("C:\\archivos\\Facturas_Banco" + codBanco + "_" + fechaHora + "_" + usuario + ".txt");
             //flwriter = new FileWriter(Fichero.getCARPETAREPORTES() + "/Facturas_Banco" + codBanco + "_" + fechaHora + "_" + usuario + ".txt");
             flwriter = new FileWriter(Fichero.getCARPETAREPORTES() + nombreArchivo);
-
             //crea un buffer o flujo intermedio antes de escribir directamente en el archivo
             BufferedWriter bfwriter = new BufferedWriter(flwriter);
             for (Factura factura : listaFactura) {
@@ -1188,17 +1057,17 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                         //3. SECUENCIAL
                         + "0000000" + separador
                         //4. COMPROBANTE DE COBRO
-                        + String.format("%20s", factura.getFacturaPK().getNumero()).replace(' ', '0') + separador
+                        + String.format("%20s", factura.getFacturaPK().getNumero().trim()).replace(' ', '0') + separador
                         //5. CONTRAPARTIDA
                         + String.format("%20s", cliAux.getCodigo()).replace(' ', '0') + separador
                         //6. MONEDA
                         + "USD" + separador
                         //7. VALOR
-                        + String.format("%13s", factura.getValorconrubro()).replace(' ', '0').replace(".", "") + separador
+                        + String.format("%14s", factura.getValorconrubro()).replace(' ', '0').replace(".", "") + separador
                         //8. FORMA DE COBRO
                         + "CTA" + separador
                         //9. CÓDIGO DE BANCO
-                        + String.format("%13s", "36").replace(' ', '0') + separador
+                        + String.format("%10s", "36").replace(' ', '0') + separador
                         //10. TIPO DE CUENTA
                         + cliAux.getTipocuentadebito() + separador
                         //11. NÚMERO DE CUENTA
@@ -1206,7 +1075,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                         //12. Tipo ID Beneficiario/Deudor
                         + "R" + separador
                         //13. Número de ID Beneficiario/Deudor
-                        + String.format("%15s", cliAux.getRuc()).replace(' ', '0') + separador
+                        + String.format("%15s", cliAux.getRuc()) + separador
                         //14. NOMBRE DEL DEUDOR
                         + String.format("%-41s", cliAux.getNombrecomercial()).replace(' ', '0') + separador
                         //15. DIRECCIÓN DEL DEUDOR
@@ -1247,49 +1116,6 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         return nombreArchivo;
     }
 
-//    public String crearArchivo36aux(List<Factura> listaFactura, String codBanco, int cantidadRegsitros, BigDecimal valorTotal) throws Throwable {
-//        FileWriter flwriter = null;
-//
-//        String usuario = dataUser.getUser().getNombrever().replace(" ", "");
-//        String fechaHora = (fechaConvertida.replace(":", "")).substring(0, 16);
-//        String nombreArchivo = "";
-//        try {
-//            nombreArchivo = Fichero.getCARPETAREPORTES() + "/REM_" + fechaHora + "_" + "CCCC AQUI DEBE ESTAR CODIGOPYSSEGUNBANCO" + ".txt";
-//
-//            //crea el flujo para escribir en el archivo
-//            //flwriter = new FileWriter("C:\\archivos\\Facturas_Banco" + codBanco + "_" + fechaHora + "_" + usuario + ".txt");
-//            //flwriter = new FileWriter(Fichero.getCARPETAREPORTES() + "/Facturas_Banco" + codBanco + "_" + fechaHora + "_" + usuario + ".txt");
-//            flwriter = new FileWriter(nombreArchivo);
-//
-//            //crea un buffer o flujo intermedio antes de escribir directamente en el archivo
-//            BufferedWriter bfwriter = new BufferedWriter(flwriter);
-//            for (Factura factura : listaFactura) {
-//                //escribe los datos en el archivo
-//                bfwriter.write("Banco: " + factura.getCodigobanco() + "\n"
-//                        + "Numero Factura: " + factura.getFacturaPK().getNumero() + "\n"
-//                        + "Fecha de Venta: " + factura.getFechaventa() + "\n"
-//                        + "Fecha de Vencimiento: " + factura.getFechavencimiento() + "\n"
-//                        + "Total: " + factura.getValortotal() + "\n"
-//                        + "=================================" + "\n");
-//            }
-//            //cierra el buffer intermedio
-//            bfwriter.close();
-//            this.dialogo(FacesMessage.SEVERITY_INFO, "Archivo creado satisfactoriamente..");
-//            System.out.println("Archivo creado satisfactoriamente..");
-//            return nombreArchivo;
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            if (flwriter != null) {
-//                try {//cierra el flujo principal
-//                    flwriter.close();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-//        return nombreArchivo;
-//    }
     public void addItems() {
         try {
             String respuesta;
@@ -1409,7 +1235,6 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                     pagofacturaPK.setCodigobanco(banco.getCodigo());
 
                     //detallepagoPK.setNumerofactura(delimitar.next());
-
                     pagofactura.setPagofacturaPK(pagofacturaPK);
                     //pagofactura.setValor(new BigDecimal(delimitar.next()));
                     //Date date1 = new SimpleDateFormat("yyyy/MM/dd").parse(delimitar.next());
@@ -1453,7 +1278,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         }
         return null;
 
-    }
+    }   
 
     public void guardar() throws ParseException {
         DateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
@@ -1731,9 +1556,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 
     public Boolean addDetPagoGestionDirecta(int indice) {
         try {
-            String respuesta;
-            DateFormat dateNum = new SimpleDateFormat("yyyyMMddhhmmss");
-            String fechaNum = dateNum.format(new Date());
+            String respuesta;                    
             //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.detallepago");
             url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.detallepago");
 
@@ -1807,8 +1630,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
     }
 
     public void deleteItems() {
-        try {
-            String respuesta = "";
+        try {            
             url = new URL(direccion + "/porId?codigoabastecedora=" + pagofactura.getPagofacturaPK().getCodigoabastecedora()
                     + "&codigocomercializadora=" + pagofactura.getPagofacturaPK().getCodigocomercializadora()
                     + "&codigobanco=" + pagofactura.getPagofacturaPK().getCodigobanco()
@@ -1911,8 +1733,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
     }
 
     public void actualizarFactura(Factura fact) {
-        try {
-            String respuesta;
+        try {            
             //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura/porId");
             url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura/porId");
 
@@ -1923,8 +1744,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             connection.setRequestMethod("PUT");
             connection.setRequestProperty("Content-type", "application/json");
             //connection.setFixedLengthStreamingMode(1000000000);
-
-            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+            
             ObjectMapper mapper = new ObjectMapper();
             String jsonStr = mapper.writeValueAsString(fact);
             Gson gson = new Gson();
@@ -1947,8 +1767,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
     }
 
     public void deleteDetallePago() {
-        try {
-            String respuesta = "";
+        try {            
             //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.detallepago/porId?"
             url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.detallepago/porId?"
                     + "codigoabastecedora=" + detallepago.getDetallepagoPK().getCodigoabastecedora() + "&codigocomercializadora=" + detallepago.getDetallepagoPK().getCodigocomercializadora()
@@ -2189,7 +2008,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             ubicacion = "";
             listaDetallePagofacturaArchivoSubida = new ArrayList<>();
         }
-        PrimeFaces.current().executeScript("PF('recibirPag').show()");
+        PrimeFaces.current().executeScript("PF('recibirPag').show()");        
     }
 
     public void nuevoPagoDirecto() {
@@ -2324,14 +2143,6 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 //        this.dialogo(FacesMessage.SEVERITY_INFO, cadenaInfo.toString());
 //        this.dialogo(FacesMessage.SEVERITY_ERROR, cadenaErro.toString());
 
-    }
-
-    public boolean isHabilitarComer() {
-        return habilitarComer;
-    }
-
-    public void setHabilitarComer(boolean habilitarComer) {
-        this.habilitarComer = habilitarComer;
     }
 
     public List<Detallepago> getListaDetallePagofacturaArchivoSubida() {

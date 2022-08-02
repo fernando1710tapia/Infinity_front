@@ -200,6 +200,55 @@ public class ListaprecioServicio {
         return listaListaprecios;
     }
 
+    public List<Listaprecio> obtenerListaprecioEstado(String codComer, boolean estado) {
+        try {
+            //URL url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.listaprecio/enPrecio?codigocomercializadora=" + codComer);
+            URL url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.listaprecio/porComercializadoraestado?codigocomercializadora=" + codComer + "&activo=" + estado);
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+
+            listaListaprecios = new ArrayList<>();
+            listaprecioPK = new ListaprecioPK();
+            listaprecio = new Listaprecio();
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+
+            BufferedReader br = new BufferedReader(reader);
+            String tmp = null;
+            String respuesta = "";
+            while ((tmp = br.readLine()) != null) {
+                respuesta += tmp;
+            }
+            JSONObject objetoJson = new JSONObject(respuesta);
+            JSONArray retorno = objetoJson.getJSONArray("retorno");
+            for (int indice = 0; indice < retorno.length(); indice++) {
+                JSONObject listaP = retorno.getJSONObject(indice);
+                JSONObject listaPK = listaP.getJSONObject("listaprecioPK");
+                listaprecioPK.setCodigo(listaPK.getLong("codigo"));
+                listaprecioPK.setCodigocomercializadora(listaPK.getString("codigocomercializadora"));
+                listaprecio.setListaprecioPK(listaprecioPK);
+                listaprecio.setNombre(listaP.getString("nombre"));
+                listaprecio.setTipo(listaP.getString("tipo"));
+                listaprecio.setActivo(listaP.getBoolean("activo"));
+                listaprecio.setUsuarioactual(listaP.getString("usuarioactual"));
+                listaListaprecios.add(listaprecio);
+                listaprecio = new Listaprecio();
+                listaprecioPK = new ListaprecioPK();
+            }
+            if (connection.getResponseCode() != 200) {
+                System.out.println(connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
+            }
+
+            return listaListaprecios;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return listaListaprecios;
+    }
+
     public List<Precio> obtenerListaprecioPorComer(String codComer, Long codLista) {
         try {
             //URL url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.listaprecio/enPrecio?codigocomercializadora=" + codComer);

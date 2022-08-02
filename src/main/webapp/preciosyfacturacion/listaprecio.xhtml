@@ -40,7 +40,7 @@
                                                          panelStyle="width:175px" style="min-width: 80%;" 
                                                          autoWidth="false" converter="converterg"
                                                          filter="true" filterMatchMode="startsWith"
-                                                         required="true" requiredMessage="Seleccione Ambiente"
+                                                         required="true" requiredMessage="Seleccione Comercializadora"
                                                          disabled="#{!listaPrecioBean.habilitarComer}">
                                             <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}" />            
                                             <f:selectItems value="#{listaPrecioBean.listaComercializadora}"
@@ -222,7 +222,7 @@
         </h:form>
 
         <h:form id="formTerminalProd">
-            <p:outputPanel id="terminal" rendered="#{listaPrecioBean.configurarTerminal}">
+            <p:outputPanel id="terminalProd" rendered="#{listaPrecioBean.configurarTerminal}">
                 <div class="p-grid crud-demo">
                     <div class="p-col-12">
                         <div class="card">
@@ -261,14 +261,34 @@
 
                             <div class="ui-fluid p-formgrid p-grid">
                                 <div class="p-field p-col-12 p-md-12"></div>
-                                <div class="p-field p-col-12 p-md-12">
+                                <div class="p-field p-col-12 p-md-8">
                                     <h6 class="p-mt-0"><span style="font-weight: bold"><p:outputLabel for="margen">Margen del Porcentaje</p:outputLabel></span></h6> 
                                     <div class="p-field p-col-12 p-md-12"></div>
                                     <p:selectOneRadio id="margen" value="#{listaPrecioBean.tipoBusquedaDocumento}">
-                                        <f:selectItem itemLabel="Por terminal" itemValue="N"/>
-                                        <f:selectItem itemLabel="Todos los terminales" itemValue="T"/>
-                                        <p:ajax update="form terminal" listener="#{listaPrecioBean.actualizarTipoBusqueda}" process="@this"/>
+                                        <f:selectItem itemLabel="Todos los terminales" itemValue="N"/>
+                                        <f:selectItem itemLabel="Por terminal" itemValue="T"/>                                        
+                                        <p:ajax update="form terminalProd" listener="#{listaPrecioBean.actualizarTipoBusqueda}" process="@this"/>
                                     </p:selectOneRadio>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-money"></i>
+                                        </span>
+                                        <p:selectOneMenu id="terminal" value="#{listaPrecioBean.terminal}" title="Terminal"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         filter="true" filterMatchMode="startsWith"
+                                                         required="#{listaPrecioBean.mostrarTabla}" requiredMessage="Seleccione Terminal" 
+                                                         rendered="#{listaPrecioBean.mostrarTabla}" disabled="#{listaPrecioBean.editarPrecio}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}" />            
+                                            <f:selectItems value="#{listaPrecioBean.listaTerminal}"
+                                                           var="term"
+                                                           itemLabel="#{term.codigo} - #{term.nombre}"
+                                                           itemValue="#{term}" />     
+                                            <p:ajax event="change" listener="#{listaPrecioBean.seleccionarTerm()}"/>
+                                        </p:selectOneMenu>
+                                    </div>          
                                 </div>
                                 <div class="p-field p-col-12 p-md-12" rendered="#{listaPrecioBean.mostrarMsj}">
                                     <p:outputLabel id="msj" rendered="#{listaPrecioBean.mostrarMsj}">Opción no disponible</p:outputLabel>                                            
@@ -339,21 +359,25 @@
             </h:form>
         </p:dialog>
 
-        <p:dialog header="Nombre" width="20%" showEffect="fade" modal="true" widgetVar="nombre" responsive="true">
+        <p:dialog header="Nombre" width="25%" showEffect="fade" modal="true" widgetVar="nombre" responsive="true">
             <h:form id="formEditNombre">
-                <p:outputPanel rendered="true">
-                    <div class="p-grid crud-demo">                        
-                        <div class="ui-fluid p-formgrid p-grid">                            
-                            <div class="p-field p-col-12 p-md-12"></div>
-                            <div class="p-field p-col-12 p-md-12">
-                                <span class="ui-float-label">                                            
-                                    <p:inputText id="nombre" value="#{listaPrecioBean.listaprecio1.nombre}" maxlength="50"/>
-                                    <p:outputLabel for="nombre">Nombre</p:outputLabel>
-                                </span>
-                            </div>                            
-                            <div class="p-field p-col-12 p-md-12"></div>
-                        </div>
-                    </div>
+                <p:outputPanel rendered="true">                                           
+                    <div class="ui-fluid p-formgrid p-grid">                            
+                        <div class="p-field p-col-12 p-md-12"></div>
+                        <div class="p-field p-col-12 p-md-12">
+                            <span class="ui-float-label">                                            
+                                <p:inputText id="nombre" value="#{listaPrecioBean.listaprecio1.nombre}" maxlength="50"/>
+                                <p:outputLabel for="nombre">Nombre</p:outputLabel>                                                                       
+                            </span>
+                        </div>  
+                        <div class="p-field p-col-12 p-md-12">
+                            <p:outputLabel for="estado"  value="Activo"/>
+                            <div class="ui-inputgroup">
+                                <p:toggleSwitch id="estado" value="#{listaPrecioBean.estadoPrecio}" > </p:toggleSwitch>
+                            </div>
+                        </div>   
+                        <div class="p-field p-col-12 p-md-12"></div>
+                    </div>                    
                 </p:outputPanel>
                 <div class="p-grid p-justify-end">                     
                     <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{listaPrecioBean.save}"  

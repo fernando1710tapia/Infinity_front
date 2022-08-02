@@ -271,8 +271,8 @@
                                                     </div>
                                                 </f:facet>
 
-                                                <p:column headerText="Terminal" filterBy="#{det.precio.terminal.codigo}" width="5%">
-                                                    <h:outputText value="#{det.precio.terminal.codigo}" />
+                                                <p:column headerText="Terminal" filterBy="#{det.codigoTerminal}" width="5%">
+                                                    <h:outputText value="#{det.codigoTerminal}" />
                                                 </p:column>
                                                 <p:column headerText="Producto" filterBy="#{det.precio.comercializadoraproducto.producto.nombre}" width="5%">
                                                     <h:outputText value="#{det.precio.comercializadoraproducto.producto.nombre}" />
@@ -313,10 +313,10 @@
                                 </div>
                                 <div class="p-grid">   
                                     <div class="p-field p-col-12 p-md-6">
-                                        <p:commandButton value="Guardar" icon="pi pi-check"  actionListener="#{actualizarPrecioBean.savePrice()}" update=":form"/>
+                                        <p:commandButton value="Guardar" icon="pi pi-check"  actionListener="#{actualizarPrecioBean.savePrice()}" update=":form :formDetP"/>
                                     </div>
                                     <div class="p-field p-col-12 p-md-6">
-                                        <p:commandButton value="Cancelar" icon="pi pi-times" class="ui-button-secondary"  actionListener="#{actualizarPrecioBean.init()}" update="formDetP :form"/>
+                                        <p:commandButton value="Cancelar" icon="pi pi-times" class="ui-button-secondary"  actionListener="#{actualizarPrecioBean.init()}" update="formDetP :form "/>
                                     </div>
                                 </div>
                             </div>

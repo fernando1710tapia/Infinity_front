@@ -481,6 +481,35 @@ public class PrecioBean extends ReusableBean implements Serializable {
         }
     }
 
+    public void actualizarPreciosPyS() {
+        try {            
+            url = new URL(direccion + "/actualizarVM?sino=true");
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+
+            BufferedReader br = new BufferedReader(reader);
+            String tmp = null;
+            String respuesta = "";
+            while ((tmp = br.readLine()) != null) {
+                respuesta += tmp;
+            }            
+            if (connection.getResponseCode() == 200) {
+                this.dialogo(FacesMessage.SEVERITY_INFO, "PRECIOS ACUTALIZADOS");                
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ACTUALIZAR");
+                System.out.println(connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void nuevoBanco() {
         estadoBanco = true;
         editarPrecio = false;

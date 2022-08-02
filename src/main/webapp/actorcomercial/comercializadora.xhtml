@@ -234,12 +234,12 @@
                                         <p:outputLabel for="prefijo">Prefijo Nota de Pedido</p:outputLabel>
                                         <p:inputText id="prefijo" value="#{comercializadoraBean.comercializadora.prefijoNpe}" required="true" disabled="#{comercializadoraBean.soloLectura}"/>
                                     </div>
-                                    
+                                    <div class="p-field p-col-12 p-md-4">
                                         <p:outputLabel for="clave">Clave Acceso PETROECUADOR</p:outputLabel>
                                         <p:password id="clave" value="#{comercializadoraBean.comercializadora.claveWsepp}" toggleMask="true" required="true" redisplay="true" maxlength="8" readonly="#{comercializadoraBean.soloLectura}">
                                             <f:validateLength minimum="8" ></f:validateLength>
                                         </p:password>
-                                                                        
+                                    </div>                                  
                                     <div class="p-field p-col-12 p-md-4">
                                         <p:outputLabel for="contEspe">Contribuyente Especial</p:outputLabel>
                                         <p:inputText id="contEspe" value="#{comercializadoraBean.comercializadora.esContriEspecial}" required="true" maxlength="5" disabled="#{comercializadoraBean.soloLectura}"/>
