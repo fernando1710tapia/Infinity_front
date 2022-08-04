@@ -12,6 +12,7 @@ import ec.com.infinityone.modeloWeb.Detalleprecio;
 import ec.com.infinityone.modeloWeb.DetalleprecioPK;
 import ec.com.infinityone.modeloWeb.Gravamen;
 import ec.com.infinityone.modeloWeb.Listaprecio;
+import ec.com.infinityone.modeloWeb.ListaprecioPK;
 import ec.com.infinityone.modeloWeb.ObjetoNivel1;
 import ec.com.infinityone.modeloWeb.Precio;
 import ec.com.infinityone.modeloWeb.PrecioPK;
@@ -87,6 +88,14 @@ public class PrecioBean extends ReusableBean implements Serializable {
     private PrecioPK precioPK;
 
     private DetalleprecioPK detallePrecioPK;
+    /*
+    Variable Lista Precio
+     */
+    private Listaprecio precioLista;
+    /*
+    Variable Lista Precio PK
+     */
+    private ListaprecioPK precioListaPK;
 
     private Gravamen gravamen;
 
@@ -250,6 +259,8 @@ public class PrecioBean extends ReusableBean implements Serializable {
             connection.setRequestProperty("Accept", "application/json");
 
             listaPrecios = new ArrayList<>();
+            precioLista = new Listaprecio();
+            precioListaPK = new ListaprecioPK();
 
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
@@ -264,6 +275,8 @@ public class PrecioBean extends ReusableBean implements Serializable {
             for (int indice = 0; indice < retorno.length(); indice++) {
                 if (!retorno.isNull(indice)) {
                     JSONObject prec = retorno.getJSONObject(indice);
+                    JSONObject listPrecio = prec.getJSONObject("listaprecio");
+                    JSONObject listPrecioPK = listPrecio.getJSONObject("listaprecioPK");
                     precPK = prec.getJSONObject("precioPK");
                     precioPK.setCodigocomercializadora(precPK.getString("codigocomercializadora"));
                     precioPK.setCodigoterminal(precPK.getString("codigoterminal"));
@@ -290,9 +303,17 @@ public class PrecioBean extends ReusableBean implements Serializable {
                     precio.setObservacion(prec.getString("observacion"));
                     precio.setPrecioproducto(prec.getBigDecimal("precioproducto"));
                     precio.setUsuarioactual(prec.getString("usuarioactual"));
+                    /*------------------Precio Lista------------------------------*/
+                    precioLista.setNombre(listPrecio.getString("nombre"));
+                    precioLista.setTipo(listPrecio.getString("tipo"));
+                    precioListaPK.setCodigo(listPrecioPK.getLong("codigo"));
+                    precioLista.setListaprecioPK(precioListaPK);
+                    precio.setListaprecio(precioLista);
                     listaPrecios.add(precio);
                     precio = new Precio();
                     precioPK = new PrecioPK();
+                    precioLista = new Listaprecio();
+                    precioListaPK = new ListaprecioPK();
                 }
 
             }
@@ -482,7 +503,7 @@ public class PrecioBean extends ReusableBean implements Serializable {
     }
 
     public void actualizarPreciosPyS() {
-        try {            
+        try {
             url = new URL(direccion + "/actualizarVM?sino=true");
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -497,9 +518,9 @@ public class PrecioBean extends ReusableBean implements Serializable {
             String respuesta = "";
             while ((tmp = br.readLine()) != null) {
                 respuesta += tmp;
-            }            
+            }
             if (connection.getResponseCode() == 200) {
-                this.dialogo(FacesMessage.SEVERITY_INFO, "PRECIOS ACUTALIZADOS");                
+                this.dialogo(FacesMessage.SEVERITY_INFO, "PRECIOS ACUTALIZADOS");
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ACTUALIZAR");
                 System.out.println(connection.getResponseCode());

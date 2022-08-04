@@ -783,11 +783,11 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                     medida = new Medida();
                     comercializadoraProducto = new Comercializadoraproducto();
                     comercializadoraProductoPK = new ComercializadoraproductoPK();
-                    precio = new Precio();
-                    precioLista = new Listaprecio();
+                    precio = new Precio();                    
                     objprecio = new ObjetoPrecio();
                     objDetalle = new ObjetoDetallePrecio();
                     terminal = new Terminal();
+                    precioLista = new Listaprecio();
                     precioListaPK = new ListaprecioPK();
                     precioPK = new PrecioPK();
                 }

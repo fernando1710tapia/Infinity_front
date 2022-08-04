@@ -21,7 +21,7 @@
 
                             <p:toolbar styleClass="p-mb-4">
                                 <p:toolbarGroup>
-                                    <p:commandButton value="Generar Guías de Remisión" icon="pi pi-plus" actionListener="#{guiasRemisionBean.nuevaGuia}" update="form :formNuevoGuia" 
+                                    <p:commandButton value="Obtener Guías de Remisión" icon="pi pi-plus" actionListener="#{guiasRemisionBean.nuevaGuia}" update="form :formNuevoGuia" 
                                                      styleClass="ui-button-success" style="margin-right: .5rem" />
                                 </p:toolbarGroup>                                
                                 <p:toolbarGroup>
@@ -157,44 +157,144 @@
             </p:outputPanel>
         </h:form>
 
-        <p:dialog header="Guía de Remisión" width="50%" showEffect="fade" modal="true" widgetVar="nuevo" responsive="true">
+        <p:dialog width="55%" showEffect="fade" modal="true" widgetVar="nuevo" responsive="true">
             <h:form id="formNuevo">
                 <p:outputPanel rendered = "true">                               
                     <div class="ui-fluid p-formgrid p-grid">
-                        <div class="p-field p-col-12 p-md-12"></div>
+                        <div class="p-field p-col-12 p-md-8">                            
+                            <h5>Guía de Remisión: #{guiasRemisionBean.consulGuia.consultaguiaremisionPK.numero} - #{guiasRemisionBean.consulGuia.numerosri}</h5> 
+                        </div>                        
+                        <div class="p-field p-col-12 p-md-4"> 
+                            <h5>Fecha Despacho: #{guiasRemisionBean.consulGuia.consultaguiaremisionPK.fecha}</h5>
+                        </div>
+                        <div class="p-field p-col-12 p-md-3">
+                            <span style="font-weight: bold">
+                                <p:outputLabel>Núm. Orden: </p:outputLabel>
+                            </span>                                                        
+                            <p:outputLabel>#{guiasRemisionBean.consulGuia.numerooe}</p:outputLabel>                                                            
+                        </div>
+                        <div class="p-field p-col-12 p-md-4">
+                            <span style="font-weight: bold">
+                                <p:outputLabel>Núm. Fact: </p:outputLabel>
+                            </span>                                           
+                            <p:outputLabel>#{guiasRemisionBean.consulGuia.numerofactura}</p:outputLabel>                             
+                        </div>
+                        <div class="p-field p-col-12 p-md-5">
+                            <span style="font-weight: bold">
+                                <p:outputLabel>Terminal: </p:outputLabel>    
+                            </span>                           
+                            <p:outputLabel>#{guiasRemisionBean.consulGuia.codigoterminal} - #{guiasRemisionBean.nombreterminal(guiasRemisionBean.consulGuia.codigoterminal)}</p:outputLabel>                                
+                        </div>
+                        <div class="p-field p-col-12 p-md-7">
+                            <span style="font-weight: bold">
+                                <p:outputLabel>Conductor: </p:outputLabel>
+                            </span>                            
+                            <p:outputLabel>#{guiasRemisionBean.consulGuia.cedulaconductor} - #{guiasRemisionBean.consulGuia.nombreconductor}</p:outputLabel>                            
+                        </div>
+                        <div class="p-field p-col-12 p-md-5">
+                            <span style="font-weight: bold">
+                                <p:outputLabel>Autotanque: </p:outputLabel>
+                            </span>                            
+                            <p:outputLabel>#{guiasRemisionBean.consulGuia.autotanque}</p:outputLabel>                            
+                        </div>
+                        <div class="p-field p-col-12 p-md-7">
+                            <span style="font-weight: bold">
+                                <p:outputLabel>Cliente: </p:outputLabel>
+                            </span>                            
+                            <p:outputLabel>#{guiasRemisionBean.consulGuia.codigocliente} - #{guiasRemisionBean.nombreCliente(guiasRemisionBean.consulGuia.codigocliente)}</p:outputLabel>
+                        </div>                        
+                        <div class="p-field p-col-12 p-md-5">  
+                            <span style="font-weight: bold">
+                                <p:outputLabel>Fecha Recepción: </p:outputLabel>
+                            </span>                            
+                            <p:outputLabel >#{guiasRemisionBean.fecha(guiasRemisionBean.consulGuia.consultaguiaremisionPK.fecharecepcion)}</p:outputLabel>
+                        </div>
+                        <div class="p-field p-col-12 p-md-2">
+                            <span class="ui-float-label">
+                                <p:inputText id="selloIni" value="#{guiasRemisionBean.consulGuia.selloinicial}" required="true" disabled="#{guiasRemisionBean.soloLectura}"/>
+                                <p:outputLabel for="selloIni">Sello Ini.: </p:outputLabel>
+                            </span>
+                        </div>
+                        <div class="p-field p-col-12 p-md-2">
+                            <span class="ui-float-label">
+                                <p:inputText id="selloFin" value="#{guiasRemisionBean.consulGuia.sellofinal}" required="true" disabled="#{guiasRemisionBean.soloLectura}"/>
+                                <p:outputLabel for="selloFin">Sello Fin.:</p:outputLabel>
+                            </span>
+                        </div>
+                        <div class="p-field p-col-12 p-md-8">
+                            <span class="ui-float-label">
+                                <p:inputText id="observ" value="#{guiasRemisionBean.consulGuia.observacion}" required="true" disabled="#{guiasRemisionBean.soloLectura}"/>
+                                <p:outputLabel for="observ">Observación:</p:outputLabel>
+                            </span>
+                        </div>                        
+                        <div class="p-field p-col-12 p-md-12">
+                            <p:dataTable id="dt-productsPro" widgetVar="dtProductsPro" var="guiaP" value="#{guiasRemisionBean.listaConsultaGuiaAux}" reflow="true" styleClass="products-table"
+                                         rows="1" rowSelectMode="add">                                
+                                <p:column headerText="Producto" width="11%">
+                                    <h:outputText value="#{guiaP.codigoproducto}" />                                                                    
+                                </p:column>
+                                <p:column headerText="Medida" width="8%">
+                                    <h:outputText value="#{guiaP.codigomedida}" />
+                                </p:column>
+                                <p:column headerText="Volumen" width="8%">
+                                    <h:outputText value="#{guiaP.volumenentregado}" />
+                                </p:column>                            
+                            </p:dataTable>
+                        </div>
+                        <div class="p-field p-col-12 p-md-12">
+                            <p:dataTable id="dt-productsComp" widgetVar="dtProductsComp" var="guiaC" value="#{guiasRemisionBean.listaConsultaGuiaAux}" reflow="true" styleClass="products-table"
+                                         rows="1" rowSelectMode="add">                                
+                                <p:column headerText="Comp. 1" width="10%">
+                                    <h:outputText value="#{guiaC.compartimento1}" />                                                                    
+                                </p:column>
+                                <p:column headerText="Comp. 2" width="10%">
+                                    <h:outputText value="#{guiaC.compartimento2}" />
+                                </p:column>
+                                <p:column headerText="Comp. 3" width="10%">
+                                    <h:outputText value="#{guiaC.compartimento3}" />
+                                </p:column>        
+                                <p:column headerText="Comp. 4" width="10%">
+                                    <h:outputText value="#{guiaC.compartimento4}" />                                                                    
+                                </p:column>
+                                <p:column headerText="Comp. 5" width="10%">
+                                    <h:outputText value="#{guiaC.compartimento5}" />
+                                </p:column>
+                                <p:column headerText="Comp. 6" width="10%">
+                                    <h:outputText value="#{guiaC.compartimento6}" />
+                                </p:column>        
+                            </p:dataTable>
+                        </div>                        
+
+                        <!--<div class="p-field p-col-12 p-md-3">
+                            <span style="font-weight: bold">
+                                <p:outputLabel>Número: </p:outputLabel>
+                            </span>
+                            <p:outputLabel>{guiasRemisionBean.consulGuia.consultaguiaremisionPK.numero}</p:outputLabel>                                                        
+                        </div>
+                        <div class="p-field p-col-12 p-md-3">
+                            <span style="font-weight: bold">
+                                <p:outputLabel>Número SRI: </p:outputLabel>
+                            </span>                            
+                            <p:outputLabel>{guiasRemisionBean.consulGuia.numerosri}</p:outputLabel>                                                        
+                        </div>
+                        <div class="p-field p-col-12 p-md-3">
+                            <span class="ui-float-label">
+                                <p:inputText id="medida" value="{guiasRemisionBean.consulGuia.medida}" required="true" maxlength="4" disabled="{guiasRemisionBean.soloLectura}"/>
+                                <p:outputLabel for="medida">Medida</p:outputLabel>
+                            </span>
+                        </div>
+                        <div class="p-field p-col-12 p-md-6">
+                            <span class="ui-float-label">
+                                <p:inputText id="producto" value="#{guiasRemisionBean.consulGuia.producto}" required="true" maxlength="50" disabled="#{guiasRemisionBean.soloLectura}"/>
+                                <p:outputLabel for="producto">Producto</p:outputLabel>
+                            </span>
+                        </div>
                         <div class="p-field p-col-12 p-md-3">
                             <span class="ui-float-label">
                                 <p:inputText id="codigoComer" value="#{guiasRemisionBean.consulGuia.consultaguiaremisionPK.codigocomercializadora}" required="true" maxlength="4" disabled="#{guiasRemisionBean.soloLectura}"/>
                                 <p:outputLabel for="codigoComer">Comercializadora</p:outputLabel>
                             </span>
-                        </div>
-                        <div class="p-field p-col-12 p-md-3">
-                            <span class="ui-float-label">
-                                <p:inputText id="codigoTerm" value="#{guiasRemisionBean.consulGuia.codigoterminal}" required="true" maxlength="4" disabled="#{guiasRemisionBean.soloLectura}" readonly=""/>
-                                <p:outputLabel for="codigoTerm">Terminal</p:outputLabel>
-                            </span>
-                        </div>
-                        <div class="p-field p-col-12 p-md-3">
-                            <span class="ui-float-label">
-                                <p:inputText id="numero" value="#{guiasRemisionBean.consulGuia.consultaguiaremisionPK.numero}" required="true" maxlength="4" disabled="#{guiasRemisionBean.soloLectura}"/>
-                                <p:outputLabel for="numero">Número de Guía</p:outputLabel>
-                            </span>
-                        </div>
-                        <div class="p-field p-col-12 p-md-3">
-                            <span class="ui-float-label">
-                                <p:inputText id="numerooe" value="#{guiasRemisionBean.consulGuia.numerooe}" required="true" maxlength="4" disabled="#{guiasRemisionBean.soloLectura}"/>
-                                <p:outputLabel for="numerooe">Número OE</p:outputLabel>
-                            </span>
-                        </div>
-                        <div class="p-field p-col-12 p-md-6">  
-                            <p:outputLabel for="fecha" value="Fecha Despacho"/>
-                            <!--<p:datePicker id="fecha" value="{guiasRemisionBean.consulGuia.consultaguiaremisionPK.fecha}" showIcon="true" pattern="dd/MM/yyyy" disabled="{guiasRemisionBean.soloLectura}"/>-->
-                            <p:inputText id="fecha" value="#{guiasRemisionBean.consulGuia.consultaguiaremisionPK.fecha}" required="true" disabled="#{guiasRemisionBean.soloLectura}"/>
-                        </div>
-                        <div class="p-field p-col-12 p-md-6">  
-                            <p:outputLabel for="fechaRec" value="Fecha de Recepción del Registro"/>
-                            <p:datePicker id="fechaRec" value="#{guiasRemisionBean.consulGuia.consultaguiaremisionPK.fecharecepcion}" showIcon="true" pattern="dd/MM/yyyy" disabled="#{guiasRemisionBean.soloLectura}"/>                            
-                        </div>
+                        </div>                        
                         <div class="p-field p-col-12 p-md-4">
                             <span class="ui-float-label">
                                 <p:inputText id="areaM" value="#{guiasRemisionBean.consulGuia.codigoareamercadeo}" required="true" maxlength="4" disabled="#{guiasRemisionBean.soloLectura}"/>
@@ -213,30 +313,13 @@
                                 <p:outputLabel for="codigoMed">Código Medida</p:outputLabel>
                             </span>
                         </div>
-                        <!--<div class="p-field p-col-12 p-md-3">
-                            <span class="ui-float-label">
-                                <p:inputText id="medida" value="{guiasRemisionBean.consulGuia.medida}" required="true" maxlength="4" disabled="{guiasRemisionBean.soloLectura}"/>
-                                <p:outputLabel for="medida">Medida</p:outputLabel>
-                            </span>
-                        </div>
-                        <div class="p-field p-col-12 p-md-6">
-                            <span class="ui-float-label">
-                                <p:inputText id="producto" value="#{guiasRemisionBean.consulGuia.producto}" required="true" maxlength="50" disabled="#{guiasRemisionBean.soloLectura}"/>
-                                <p:outputLabel for="producto">Producto</p:outputLabel>
-                            </span>
-                        </div>-->
                         <div class="p-field p-col-12 p-md-4">
                             <span class="ui-float-label">
                                 <p:inputText id="volgen" value="#{guiasRemisionBean.consulGuia.volumenentregado}" required="true" maxlength="50" disabled="#{guiasRemisionBean.soloLectura}"/>
                                 <p:outputLabel for="volgen">Volumen Entregado</p:outputLabel>
                             </span>
                         </div>
-                        <div class="p-field p-col-12 p-md-4">
-                            <span class="ui-float-label">
-                                <p:inputText id="autotan" value="#{guiasRemisionBean.consulGuia.autotanque}" required="true" maxlength="50" disabled="#{guiasRemisionBean.soloLectura}"/>
-                                <p:outputLabel for="autotan">Autotanque</p:outputLabel>
-                            </span>
-                        </div>
+
                         <div class="p-field p-col-12 p-md-4">
                             <span class="ui-float-label">
                                 <p:inputText id="est" value="#{guiasRemisionBean.consulGuia.estado}" required="true" maxlength="13" disabled="#{guiasRemisionBean.soloLectura}"/>
@@ -248,7 +331,8 @@
                             <div class="ui-inputgroup">
                                 <p:toggleSwitch id="estado" value="#{guiasRemisionBean.consulGuia.activo}" disabled="#{guiasRemisionBean.soloLectura}" > </p:toggleSwitch>
                             </div>
-                        </div>                                                                    
+                        </div>-->
+                        <div class="p-field p-col-12 p-md-12"></div>
                     </div>                                                                                           
                 </p:outputPanel>
                 <div class="p-grid p-justify-end">
@@ -262,7 +346,7 @@
         <h:form id="formNuevoGuia">
             <p:outputPanel  id="manage-product-content" rendered="#{guiasRemisionBean.mostarGuia}">     
                 <p:growl id="messages" showDetail="true" />
-                <h2 style="color:#87ea2a">CREAR GUIAS DE REMISION</h2>
+                <h2 style="color:#87ea2a">OBTENER GUIAS DE REMISION</h2>
                 <div class="ui-fluid p-formgrid p-grid">                            
                     <div class="p-field p-col-12 p-md-6">
                         <div class="ui-inputgroup">
@@ -329,7 +413,7 @@
                                             <p:inputText id="globalFilter" onkeyup="PF('dtProducts1').filter()" placeholder="Buscar" />
                                         </span>
                                     </div>
-                               </f:facet>                                                                                                                                                                                                                          
+                                </f:facet>                                                                                                                                                                                                                          
                                 <p:column style="width: 3.5rem">
                                     <p:commandButton icon="pi pi-search" update="form :formNuevo" actionListener="#{guiasRemisionBean.lecturaDatos(guia1)}"
                                                      styleClass="edit-button rounded-button ui-button-success" process="@this">

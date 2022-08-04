@@ -93,11 +93,11 @@
                                                      immediate="true" styleClass="edit-button rounded-button ui-button-success">
                                         <f:setPropertyActionListener value="#{precio}" target="#{listaPrecioBean.listaprecio1}" />
                                     </p:commandButton>
-                                    <p:commandButton icon="pi pi-trash" update="form :formNuevo :formTerminalProd" actionListener="#{listaPrecioBean.eliminarPrecio(precio)}"
+                                    <!--<p:commandButton icon="pi pi-trash" update="form :formNuevo :formTerminalProd" actionListener="{listaPrecioBean.eliminarPrecio(precio)}"
                                                      immediate="true" styleClass="edit-button rounded-button ui-button-warning">
                                         <f:setPropertyActionListener value="#{precio}" target="#{listaPrecioBean.listaprecio1}" />
                                     </p:commandButton>
-                                    <!--<p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash" oncomplete="PF('deleteProductDialog').show()" >
+                                    <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash" oncomplete="PF('deleteProductDialog').show()" >
                                         <f:setPropertyActionListener value="#{precio}" target="#{listaPrecioBean.listaprecio1}" />
                                     </p:commandButton>-->
                                 </p:column>

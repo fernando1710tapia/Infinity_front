@@ -6,10 +6,12 @@
 package ec.com.infinityone.pedidosyfacturacion.bean;
 
 import ec.com.infinityone.actorcomercial.bean.ComercializadoraBean;
+import ec.com.infinityone.actorcomercial.serivicios.ClienteServicio;
 import ec.com.infinityone.actorcomercial.serivicios.ComercializadoraServicio;
 import ec.com.infinityone.bean.TerminalBean;
 import ec.com.infinityone.catalogo.servicios.TerminalServicio;
 import ec.com.infinityone.configuration.Fichero;
+import ec.com.infinityone.modeloWeb.Cliente;
 import ec.com.infinityone.modeloWeb.Consultaguiaremision;
 import ec.com.infinityone.modeloWeb.ConsultaguiaremisionPK;
 import ec.com.infinityone.reusable.ReusableBean;
@@ -67,6 +69,9 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
      */
     @Inject
     protected TerminalServicio termServicio;
+
+    @Inject
+    protected ClienteServicio cliServicio;
     /*
     Variable que almacena varios Guias
      */
@@ -124,6 +129,8 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
     Variable para almacenar los datos comercializadora
      */
     protected List<TerminalBean> listaTermianles;
+
+    protected List<Cliente> listaClientes;
     /**
      * Variable que permite establecer la fecha inicial para realizar la
      * busqueda de guias
@@ -340,6 +347,48 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
                         consulGuia.setEstado(gui.getString("estado"));
                         consulGuia.setActivo(gui.getBoolean("activo"));
                         consulGuia.setUsuarioactual(gui.getString("usuarioactual"));
+                        if (!gui.isNull("numerosri")) {
+                            consulGuia.setNumerosri(gui.getString("numerosri"));
+                        }
+                        if (!gui.isNull("cedulaconductor")) {
+                            consulGuia.setCedulaconductor(gui.getString("cedulaconductor"));
+                        }
+                        if (!gui.isNull("nombreconductor")) {
+                            consulGuia.setNombreconductor(gui.getString("nombreconductor"));
+                        }
+                        if (!gui.isNull("observacion")) {
+                            consulGuia.setObservacion(gui.getString("observacion"));
+                        }
+                        if (!gui.isNull("codigocliente")) {
+                            consulGuia.setCodigocliente(gui.getString("codigocliente"));
+                        }
+                        if (!gui.isNull("compartimento1")) {
+                            consulGuia.setCompartimento1(gui.getInt("compartimento1"));
+                        }
+                        if (!gui.isNull("compartimento2")) {
+                            consulGuia.setCompartimento2(gui.getInt("compartimento2"));
+                        }
+                        if (!gui.isNull("compartimento3")) {
+                            consulGuia.setCompartimento3(gui.getInt("compartimento3"));
+                        }
+                        if (!gui.isNull("compartimento4")) {
+                            consulGuia.setCompartimento4(gui.getInt("compartimento4"));
+                        }
+                        if (!gui.isNull("compartimento5")) {
+                            consulGuia.setCompartimento5(gui.getInt("compartimento5"));
+                        }
+                        if (!gui.isNull("compartimento6")) {
+                            consulGuia.setCompartimento6(gui.getInt("compartimento6"));
+                        }
+                        if (!gui.isNull("selloinicial")) {
+                            consulGuia.setSelloinicial((gui.getInt("selloinicial")));
+                        }
+                        if (!gui.isNull("sellofinal")) {
+                            consulGuia.setSellofinal((gui.getInt("sellofinal")));
+                        }
+                        if (!gui.isNull("numerofactura")) {
+                            consulGuia.setNumerofactura(gui.getString("numerofactura"));
+                        }
                         listaConsultaGuia.add(consulGuia);
                         consulGuia = new Consultaguiaremision();
                         consulGuiaPK = new ConsultaguiaremisionPK();
@@ -533,6 +582,8 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
         consulGuia = obj;
         soloLectura = true;
         PrimeFaces.current().executeScript("PF('nuevo').show()");
+        listaConsultaGuiaAux = new ArrayList<>();
+        listaConsultaGuiaAux.add(consulGuia);
         return consulGuia;
     }
 
@@ -663,7 +714,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
         List<JSONObject> arregloJSON = new ArrayList<>();
         if (!listaConsultaGuiaArchivoSubida.isEmpty()) {
             arregloJSON.addAll(addItemsArregloJSON(listaConsultaGuiaArchivoSubida));
-            addItemsGuias(arregloJSON);            
+            addItemsGuias(arregloJSON);
         } else {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "Error de carga, el archivo se encuentra vacio");
         }
@@ -708,7 +759,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
             obj.put("compartimento6", consulGuia.get(i).getCompartimento6());
             obj.put("selloinicial", consulGuia.get(i).getSelloinicial());
             obj.put("sellofinal", consulGuia.get(i).getSellofinal());
-            obj.put("numerofactura", consulGuia.get(i).getNumerofactura());            
+            obj.put("numerofactura", consulGuia.get(i).getNumerofactura());
 
             listObjEnvRest.add(obj);
             obj = new JSONObject();
@@ -845,6 +896,42 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public String nombreterminal(String codterminal) {
+        String nombre = "";
+        if (codterminal != null) {
+            for (int i = 0; i < listaTermianles.size(); i++) {
+                if (listaTermianles.get(i).getCodigo().equals(codterminal)) {
+                    nombre = listaTermianles.get(i).getNombre();
+                }
+            }
+        }
+        return nombre;
+    }
+
+    public String nombreCliente(String codcli) {
+        String nombre = "";
+        listaClientes = new ArrayList<>();
+        listaClientes = cliServicio.obtenerClientes();
+        if (codcli != null) {
+            for (int i = 0; i < listaClientes.size(); i++) {
+                if (listaClientes.get(i).getCodigo().equals(codcli)) {
+                    nombre = listaClientes.get(i).getNombre();
+                    break;
+                }
+            }
+        }
+        return nombre;
+    }
+
+    public String fecha(Date fecha) {
+        String fechaS = "";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        if (fecha != null) {            
+            fechaS = sdf.format(fecha);
+        }
+        return fechaS;
     }
 
     public Boolean getVigente() {
@@ -1005,6 +1092,14 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
 
     public void setTipoFecha(String tipoFecha) {
         this.tipoFecha = tipoFecha;
+    }
+
+    public List<Consultaguiaremision> getListaConsultaGuiaAux() {
+        return listaConsultaGuiaAux;
+    }
+
+    public void setListaConsultaGuiaAux(List<Consultaguiaremision> listaConsultaGuiaAux) {
+        this.listaConsultaGuiaAux = listaConsultaGuiaAux;
     }
 
 }

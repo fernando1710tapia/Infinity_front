@@ -322,7 +322,7 @@ public class ActualizarPrecioBean extends ReusableBean implements Serializable {
             listaGravamen = new ArrayList<>();
             listaGravamen = gravamenServicio.obtenerGravamenes(codComer);
             listaListaprecios = new ArrayList<>();
-            listaListaprecios = listaprecioServicio.obtenerListaprecioPorComer(codComer);
+            listaListaprecios = listaprecioServicio.obtenerListaprecioEstado(codComer, true);
 //            }else{
 //                inhabilitar = false;
 //                listaGravamen = new ArrayList<>();

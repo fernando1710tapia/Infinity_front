@@ -96,11 +96,11 @@
                                 <p:column headerText="Código" sortBy="#{precio.precioPK.codigoPrecio}" filterBy="#{precio.precioPK.codigoPrecio}" width="7%">
                                     <h:outputText value="#{precio.precioPK.codigoPrecio}" />
                                 </p:column>
-                                <p:column headerText="Cod. Lista de Precio" sortBy="#{precio.precioPK.codigolistaprecio}" filterBy="#{precio.precioPK.codigoPrecio}" width="7%">
+                                <p:column headerText="Cod. Lista de Precio" sortBy="#{precio.precioPK.codigolistaprecio}" filterBy="#{precio.precioPK.codigolistaprecio}" width="7%">
                                     <h:outputText value="#{precio.precioPK.codigolistaprecio}" />
                                 </p:column>
-                                <p:column headerText="Lista de Precio" sortBy="#{precioBean.nombreListaprecio(precio.precioPK.codigolistaprecio)}" filterBy="#{precioBean.nombreListaprecio(precio.precioPK.codigoPrecio)}" width="10%">
-                                    <h:outputText value="#{precioBean.nombreListaprecio(precio.precioPK.codigolistaprecio)}" />
+                                <p:column headerText="Lista de Precio" sortBy="#{precio.listaprecio.nombre}" filterBy="#{precio.listaprecio.nombre}" width="10%">
+                                    <h:outputText value="#{precio.listaprecio.nombre}" />
                                 </p:column>
                                 <p:column headerText="Código Producto" width="7%">
                                     <h:outputText value="#{precio.precioPK.codigoproducto}" />
