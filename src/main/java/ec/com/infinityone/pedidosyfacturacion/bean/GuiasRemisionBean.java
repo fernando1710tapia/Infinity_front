@@ -583,10 +583,10 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
         PrimeFaces.current().executeScript("PF('nuevo').show()");
     }
 
-    public Consultaguiaremision editarGuia(Consultaguiaremision obj) {    
+    public Consultaguiaremision editarGuia(Consultaguiaremision obj) {
         editarPrecio = true;
         consulGuia = obj;
-        soloLectura = true;
+        soloLectura = false;
         PrimeFaces.current().executeScript("PF('nuevo').show()");
         listaConsultaGuiaAux = new ArrayList<>();
         listaConsultaGuiaAux.add(consulGuia);
@@ -851,7 +851,10 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
                         if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                             Element eElement = (Element) nNode;
                             consulGuiaPK.setCodigocomercializadora(codigoComer);
-                            consulGuiaPK.setFecha((eElement.getElementsByTagName("fechaIniTransporte").item(0).getTextContent()).replace("/", ""));
+                            String dia = (eElement.getElementsByTagName("fechaIniTransporte").item(0).getTextContent()).replace("/", "").substring(0, 2);
+                            String mes = (eElement.getElementsByTagName("fechaIniTransporte").item(0).getTextContent()).replace("/", "").substring(2, 4);
+                            String anio = (eElement.getElementsByTagName("fechaIniTransporte").item(0).getTextContent()).replace("/", "").substring(4);
+                            consulGuiaPK.setFecha(anio + mes + dia);
                             //<campoAdicional nombre="CodigoControlDeposito">0208164802-TERMINAL EL BEATERIO</campoAdicional> -- 8 caracteres
                             consulGuiaPK.setNumero((eElement.getElementsByTagName("campoAdicional").item(5).getTextContent()).substring(0, 8));
 
@@ -861,12 +864,19 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
                             //dos primeros digitos codigoInterno                
                             consulGuia.setCodigoareamercadeo((eElement.getElementsByTagName("codigoInterno").item(0).getTextContent()).substring(0, 2));
                             consulGuia.setCodigoproducto(eElement.getElementsByTagName("codigoInterno").item(0).getTextContent());
-                            //<detAdicional nombre="Unidad de Medida" valor="GALS"/> valor
-                            consulGuia.setCodigomedida(eElement.getElementsByTagName("detallesAdicionales").item(0).getTextContent());
+                            //<detAdicional nombre="Unidad de Medida" valor="GALS"/> valor                            
+                            int i;
+                            for (i = 0; i < eElement.getElementsByTagName("campoAdicional").item(6).getTextContent().length(); i++) {
+                                if (eElement.getElementsByTagName("campoAdicional").item(6).getTextContent().charAt(i) == '-') {
+                                    break;
+                                }
+                            }
+                            consulGuia.setCodigomedida((eElement.getElementsByTagName("campoAdicional").item(6).getTextContent()).substring(i + 1));
+                            consulGuia.setMedida(consulGuia.getCodigomedida());
                             //<campoAdicional nombre="CodigoControlDeposito">0208164802-TERMINAL EL BEATERIO</campoAdicional> -- 2 caracteres despues de numero
                             consulGuia.setCodigoterminal((eElement.getElementsByTagName("campoAdicional").item(5).getTextContent()).substring(0, 2));
                             //<detAdicional nombre="Unidad de Medida" valor="GALS"/> valor
-                            consulGuia.setMedida(eElement.getElementsByTagName("detAdicional").item(0).getTextContent());
+
                             consulGuia.setProducto(eElement.getElementsByTagName("descripcion").item(0).getTextContent());
                             consulGuia.setVolumenentregado(new BigDecimal(eElement.getElementsByTagName("cantidad").item(0).getTextContent()));
                             consulGuia.setAutotanque(eElement.getElementsByTagName("placa").item(0).getTextContent());

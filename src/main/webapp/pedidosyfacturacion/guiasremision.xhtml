@@ -140,9 +140,9 @@
                                                      styleClass="edit-button rounded-button ui-button-success" process="@this">
                                         <f:setPropertyActionListener value="#{guia}" target="#{guiasRemisionBean.consulGuia}" />
                                     </p:commandButton>
-                                    <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash" process="@this" oncomplete="PF('deleteProductDialog').show()" disabled="false">
-                                        <f:setPropertyActionListener value="#{guia}" target="#{guiasRemisionBean.consulGuia}" />
-                                    </p:commandButton>
+                                    <!--<p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash" process="@this" oncomplete="PF('deleteProductDialog').show()" disabled="false">
+                                        <f:setPropertyActionListener value="{guia}" target="{guiasRemisionBean.consulGuia}" />
+                                    </p:commandButton>-->
                                 </p:column>   
                                 <p:column style="width: 3.5rem">
                                     <p:commandButton icon="pi pi-search" update="form :formNuevo" actionListener="#{guiasRemisionBean.lecturaDatos(guia)}"
