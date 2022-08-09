@@ -1059,7 +1059,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                         //4. COMPROBANTE DE COBRO
                         + String.format("%20s", factura.getFacturaPK().getNumero().trim()).replace(' ', '0') + separador
                         //5. CONTRAPARTIDA
-                        + String.format("%20s", cliAux.getCodigo()).replace(' ', '0') + separador
+                        + String.format("%-20s", cliAux.getCodigo()).replace(' ', '0') + separador
                         //6. MONEDA
                         + "USD" + separador
                         //7. VALOR

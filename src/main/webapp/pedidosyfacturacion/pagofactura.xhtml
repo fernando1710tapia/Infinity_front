@@ -544,10 +544,10 @@
                                     </div>
                                 </f:facet>  
                                 <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
-                                <p:column headerText="Cod. Cliente" sortBy="#{cobro.contrapartida}" filterBy="#{cobro.contrapartida}" >
+                                <p:column headerText="PyS-Cliente" sortBy="#{cobro.contrapartida}" filterBy="#{cobro.contrapartida}" >
                                     <h:outputText value="#{cobro.contrapartida}" />
                                 </p:column>
-                                <p:column headerText="Factura" sortBy="#{cobro.referencia}" filterBy="#{cobro.referencia}" >
+                                <p:column headerText="PyS-Factura" sortBy="#{cobro.referencia}" filterBy="#{cobro.referencia}" >
                                     <h:outputText value="#{cobro.referencia}" />
                                 </p:column>
                                 <p:column headerText="Fecha Acreditacion" sortBy="#{cobro.fechaProc}" filterBy="#{cobro.fechaProc}" >                                            
@@ -555,7 +555,7 @@
                                         <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                     </h:outputText>
                                 </p:column>
-                                <p:column headerText="Valor con Rubro" sortBy="#{cobro.valorEnviado}" filterBy="#{cobro.valorEnviado}" >
+                                <p:column headerText="PyS-Valor" sortBy="#{cobro.valorEnviado}" filterBy="#{cobro.valorEnviado}" >
                                     <h:outputText value="#{cobro.valorEnviado}">
                                         <f:convertNumber currencySymbol="$" type="currency" />
                                     </h:outputText>
@@ -575,28 +575,35 @@
                                     <h:outputText value="{cobro.fechacobro}">
                                         <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                     </h:outputText>
-                                </p:column>-->   
-                                <p:column headerText="Cod. Cliente" sortBy="#{cobro.contrapartida}" filterBy="#{cobro.contrapartida}" >
-                                    <h:outputText value="#{cobro.contrapartida}" />
-                                </p:column>
-                                <p:column headerText="Factura" sortBy="#{cobro.referencia}" filterBy="#{cobro.referencia}" >
-                                    <h:outputText value="#{cobro.referencia}" />
-                                </p:column>
-                                <p:column headerText="Fecha Proceso" sortBy="#{cobro.fechaProc}" filterBy="#{cobro.fechaProc}" >                                            
-                                    <h:outputText value="#{cobro.fechaProc}">
-                                        <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
-                                    </h:outputText>
-                                </p:column>
-                                <p:column headerText="Valor Enviado" sortBy="#{cobro.valorEnviado}" filterBy="#{cobro.valorEnviado}" >
-                                    <h:outputText value="#{cobro.valorEnviado}">
-                                        <f:convertNumber currencySymbol="$" type="currency" />
-                                    </h:outputText>
                                 </p:column>
                                 <p:column headerText="Valor Cobrado" sortBy="#{cobro.valorProcesado}" filterBy="#{cobro.valorProcesado}" width="20%">
                                     <h:outputText value="#{cobro.valorProcesado}">
                                         <f:convertNumber currencySymbol="$" type="currency" />
                                     </h:outputText>
+                                </p:column>-->   
+                                <p:column headerText="BCO-Cliente" sortBy="#{cobro.contrapartida}" filterBy="#{cobro.contrapartida}" >
+                                    <h:outputText value="#{cobro.contrapartida}" />
                                 </p:column>
+                                <p:column headerText="BCO-Factura" sortBy="#{cobro.referencia}" filterBy="#{cobro.referencia}" >
+                                    <h:outputText value="#{cobro.referencia}" />
+                                </p:column>                                
+                                <p:column headerText="BCO-Valor" sortBy="#{cobro.valorEnviado}" filterBy="#{cobro.valorEnviado}" >
+                                    <h:outputText value="#{cobro.valorEnviado}">
+                                        <f:convertNumber currencySymbol="$" type="currency" />
+                                    </h:outputText>
+                                </p:column>
+                                <p:column headerText="BCO-NP" sortBy="#{cobro.referencia}" filterBy="#{cobro.referencia}" >
+                                    <h:outputText value="#{cobro.referencia}" />
+                                </p:column>
+                                <p:column headerText="BCO-Fecha" sortBy="#{cobro.fechaProc}" filterBy="#{cobro.fechaProc}" >                                            
+                                    <h:outputText value="#{cobro.fechaProc}">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
+                                    </h:outputText>
+                                </p:column>
+                                <p:column headerText="BCO-Condición" width="8%">
+                                    <p:commandButton styleClass="product-badge status-#{estilos.tipoActivo(envF.ensri)}" value="#{estilos.valorActivoFactura(envF.ensri)}" actionListener="#{facturacionBean.verificarSri(envF)}" update="form"/>
+                                </p:column>
+
                             </p:dataTable>
                         </div> 
                     </div>

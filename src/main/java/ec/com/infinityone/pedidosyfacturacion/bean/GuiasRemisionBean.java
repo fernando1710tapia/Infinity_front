@@ -518,6 +518,20 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
             obj.put("estado", consulGuia.getEstado());
             obj.put("activo", consulGuia.getActivo());
             obj.put("usuarioactual", consulGuia.getUsuarioactual());
+            obj.put("numerosri", consulGuia.getNumerosri());
+            obj.put("cedulaconductor", consulGuia.getCedulaconductor());
+            obj.put("nombreconductor", consulGuia.getNombreconductor());
+            obj.put("observacion", consulGuia.getObservacion());
+            obj.put("codigocliente", consulGuia.getCodigocliente());
+            obj.put("compartimento1", consulGuia.getCompartimento1());
+            obj.put("compartimento2", consulGuia.getCompartimento2());
+            obj.put("compartimento3", consulGuia.getCompartimento3());
+            obj.put("compartimento4", consulGuia.getCompartimento4());
+            obj.put("compartimento5", consulGuia.getCompartimento5());
+            obj.put("compartimento6", consulGuia.getCompartimento6());
+            obj.put("selloinicial", consulGuia.getSelloinicial());
+            obj.put("sellofinal", consulGuia.getSellofinal());
+            obj.put("numerofactura", consulGuia.getNumerofactura());
             respuesta = obj.toString();
             writer.write(respuesta);
             writer.close();
@@ -569,11 +583,13 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
         PrimeFaces.current().executeScript("PF('nuevo').show()");
     }
 
-    public Consultaguiaremision editarGuia(Consultaguiaremision obj) {
+    public Consultaguiaremision editarGuia(Consultaguiaremision obj) {    
         editarPrecio = true;
         consulGuia = obj;
-        soloLectura = false;
+        soloLectura = true;
         PrimeFaces.current().executeScript("PF('nuevo').show()");
+        listaConsultaGuiaAux = new ArrayList<>();
+        listaConsultaGuiaAux.add(consulGuia);
         return consulGuia;
     }
 
@@ -835,7 +851,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
                         if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                             Element eElement = (Element) nNode;
                             consulGuiaPK.setCodigocomercializadora(codigoComer);
-                            consulGuiaPK.setFecha(eElement.getElementsByTagName("fechaIniTransporte").item(0).getTextContent());
+                            consulGuiaPK.setFecha((eElement.getElementsByTagName("fechaIniTransporte").item(0).getTextContent()).replace("/", ""));
                             //<campoAdicional nombre="CodigoControlDeposito">0208164802-TERMINAL EL BEATERIO</campoAdicional> -- 8 caracteres
                             consulGuiaPK.setNumero((eElement.getElementsByTagName("campoAdicional").item(5).getTextContent()).substring(0, 8));
 
@@ -846,7 +862,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
                             consulGuia.setCodigoareamercadeo((eElement.getElementsByTagName("codigoInterno").item(0).getTextContent()).substring(0, 2));
                             consulGuia.setCodigoproducto(eElement.getElementsByTagName("codigoInterno").item(0).getTextContent());
                             //<detAdicional nombre="Unidad de Medida" valor="GALS"/> valor
-                            consulGuia.setCodigomedida(eElement.getElementsByTagName("detAdicional").item(0).getTextContent());
+                            consulGuia.setCodigomedida(eElement.getElementsByTagName("detallesAdicionales").item(0).getTextContent());
                             //<campoAdicional nombre="CodigoControlDeposito">0208164802-TERMINAL EL BEATERIO</campoAdicional> -- 2 caracteres despues de numero
                             consulGuia.setCodigoterminal((eElement.getElementsByTagName("campoAdicional").item(5).getTextContent()).substring(0, 2));
                             //<detAdicional nombre="Unidad de Medida" valor="GALS"/> valor
@@ -868,7 +884,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
                             consulGuia.setCompartimento5(Integer.valueOf(eElement.getElementsByTagName("campoAdicional").item(11).getTextContent()));
                             consulGuia.setCompartimento6(Integer.valueOf(eElement.getElementsByTagName("campoAdicional").item(12).getTextContent()));
                             //numero factura <campoAdicional nombre="PedidoFacturaFecha">0200011200102000000009610/07/2022</campoAdicional> -- 15 caracteres despues de numero oe
-                            consulGuia.setNumerosri(eElement.getElementsByTagName("campoAdicional").item(4).getTextContent().substring(8, 23));
+                            consulGuia.setNumerofactura(eElement.getElementsByTagName("campoAdicional").item(4).getTextContent().substring(8, 23));
                             consulGuia.setCedulaconductor(eElement.getElementsByTagName("campoAdicional").item(0).getTextContent().substring(0, 10));
                             consulGuia.setNombreconductor((eElement.getElementsByTagName("campoAdicional").item(0).getTextContent().trim()).substring(11));
                             consulGuia.setUsuarioactual(dataUser.getUser().getNombrever());
@@ -928,7 +944,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
     public String fecha(Date fecha) {
         String fechaS = "";
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        if (fecha != null) {            
+        if (fecha != null) {
             fechaS = sdf.format(fecha);
         }
         return fechaS;
