@@ -384,8 +384,26 @@
                             </p:selectOneMenu> 
                         </div>
                     </div>
+                    <!--<div class="p-field p-col-12 p-md-12">
+                        <p:outputLabel for="archivo" value="Subir Archivo"/>
+                        <p:fileUpload id="archivo" value="{guiasRemisionBean.file}" listener="{guiasRemisionBean.handleFilesUploads}"                                              
+                                      mode="advanced" multiple="true" immediate="true"
+                                      update="dt-products1 @form" auto="true"
+                                      sizeLimit="102400" allowTypes="/(\.|\/)(xml)$/"
+                                      invalidSizeMessage="Maximum file size allowed is 100 KB"
+                                      invalidFileMessage="only xml is allowed"/>                            
+                    </div>-->
+                    <div class="p-field p-col-12 p-md-12">
+                        <p:outputLabel for="archivo" value="Subir Archivo"/>
+                        <p:fileUpload id="archivo" listener="#{guiasRemisionBean.handleFileUpload}" 
+                                      mode="advanced" dragDropSupport="false" 
+                                      multiple="true" update="messages dt-products1 @form" sizeLimit="102400" fileLimit="3" 
+                                      allowTypes="/(\.|\/)(xml)$/" auto="true"
+                                      invalidSizeMessage="Maximum file size allowed is 100 KB"
+                                      invalidFileMessage="only xml is allowed"/>                        
+                    </div>                    
                     <div class="p-field p-col-12 p-md-2">                          
-                        <p:commandButton id="bus" value="Cargar Archivos" icon="pi pi-plus" actionListener="#{guiasRemisionBean.lecturaXml()}" immediate="true" update="dt-products1 @form"/>
+                        <p:commandButton id="bus" value="Cargar Archivos" icon="pi pi-plus" actionListener="#{guiasRemisionBean.lecturaXml1()}" immediate="true" update="dt-products1 @form"/>
                     </div>
                     <!--<div class="p-field p-col-12 p-md-12">
                         <p:outputLabel for="archivo" value="Subir Archivo"/>
