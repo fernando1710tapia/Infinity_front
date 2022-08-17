@@ -697,7 +697,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
                 while ((read = inputStream.get(i).read(bytes)) != -1) {
                     outputStream.write(bytes, 0, read);
                 }
-                
+
                 DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
                 DocumentBuilder db = dbf.newDocumentBuilder();
                 Document document = db.parse(file);
@@ -735,12 +735,13 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
                         consulGuia.setCodigoareamercadeo((eElement.getElementsByTagName("codigoInterno").item(0).getTextContent()).substring(0, 2));
                         consulGuia.setCodigoproducto(eElement.getElementsByTagName("codigoInterno").item(0).getTextContent());
                         //<detAdicional nombre="Unidad de Medida" valor="GALS"/> valor                                                    
-                        for (int j = 0; j < eElement.getElementsByTagName("campoAdicional").item(6).getTextContent().length(); j++) {
+                        int j;
+                        for (j = 0; j < eElement.getElementsByTagName("campoAdicional").item(6).getTextContent().length(); j++) {
                             if (eElement.getElementsByTagName("campoAdicional").item(6).getTextContent().charAt(j) == '-') {
                                 break;
                             }
                         }
-                        consulGuia.setCodigomedida((eElement.getElementsByTagName("campoAdicional").item(6).getTextContent()).substring(i + 1));
+                        consulGuia.setCodigomedida((eElement.getElementsByTagName("campoAdicional").item(6).getTextContent()).substring(j + 1));
                         consulGuia.setMedida(consulGuia.getCodigomedida());
                         //<campoAdicional nombre="CodigoControlDeposito">0208164802-TERMINAL EL BEATERIO</campoAdicional> -- 2 caracteres despues de numero
                         consulGuia.setCodigoterminal((eElement.getElementsByTagName("campoAdicional").item(5).getTextContent()).substring(0, 2));
@@ -774,6 +775,8 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
                     }
                 }
             }
+            list = new ArrayList<>();
+            inputStream = new ArrayList<>();
         } else {
             this.dialogo(FacesMessage.SEVERITY_WARN, "Seleccione una comercializadora y un terminal para poder cargar el archivo");
         }
@@ -886,12 +889,27 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
     }
 
     public void guardar() throws ParseException {
+        boolean bandera = false;
         List<JSONObject> arregloJSON = new ArrayList<>();
-        if (!listaConsultaGuiaArchivoSubida.isEmpty()) {
-            arregloJSON.addAll(addItemsArregloJSON(listaConsultaGuiaArchivoSubida));
-            addItemsGuias(arregloJSON);
+        for (int i = 0; i < listaConsultaGuiaArchivoSubida.size(); i++) {
+            if (listaConsultaGuiaArchivoSubida.get(i).getSelloinicial() != 0 && listaConsultaGuiaArchivoSubida.get(i).getSellofinal() != 0) {
+                bandera = true;
+            } else {
+                bandera = false;
+                break;
+            }
+        }
+        if (bandera) {
+            if (!listaConsultaGuiaArchivoSubida.isEmpty()) {
+                arregloJSON.addAll(addItemsArregloJSON(listaConsultaGuiaArchivoSubida));
+                addItemsGuias(arregloJSON);
+                list = new ArrayList<>();
+                inputStream = new ArrayList<>();
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "Error de carga, el archivo se encuentra vacio");
+            }
         } else {
-            this.dialogo(FacesMessage.SEVERITY_ERROR, "Error de carga, el archivo se encuentra vacio");
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "Es necesario completar los sellos");
         }
     }
 
