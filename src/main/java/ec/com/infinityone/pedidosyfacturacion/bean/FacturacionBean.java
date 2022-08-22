@@ -2822,6 +2822,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     connection.setRequestProperty("Content-type", "application/json");
                     connection.connect();
                     facturaauxiliar.setFechaacreditacion(facturaauxiliar.getFechaacreditacion() + "T12:00:00");
+                    facturaauxiliar.setFechaacreditacionprorrogada(facturaauxiliar.getFechaacreditacionprorrogada()+ "T12:00:00");
                     facturaauxiliar.setFechadespacho(facturaauxiliar.getFechadespacho() + "T12:00:00");
                     facturaauxiliar.setFechavencimiento(facturaauxiliar.getFechavencimiento() + "T12:00:00");
                     facturaauxiliar.setFechaventa(facturaauxiliar.getFechaventa() + "T12:00:00");
