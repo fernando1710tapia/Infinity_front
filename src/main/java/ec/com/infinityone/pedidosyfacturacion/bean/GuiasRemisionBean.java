@@ -189,8 +189,9 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
         mostarGuia = false;
         mostarPantallaInicial = true;
         obtenerComercializadora();
-        habilitarBusqueda();
         obtenerTerminales();
+        habilitarBusqueda();
+        
     }
 
     public void obtenerTerminales() {
@@ -201,9 +202,9 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
     public void obtenerComercializadora() {
         listaComercializadora = new ArrayList<>();
         listaComercializadora = this.comercializadoraServicio.obtenerComercializadorasActivas();
-        if (!listaComercializadora.isEmpty()) {
-            habilitarBusqueda();
-        }
+//        if (!listaComercializadora.isEmpty()) {
+//            habilitarBusqueda();
+//        }
     }
 
     public void habilitarBusqueda() {

@@ -536,27 +536,27 @@
                                               invalidFileMessage="only txt is allowed"/>    
                                 <p:outputLabel id="ubi" value="#{pagoFacturaBean.ubicacion}"/>
                             </div>                            
-                            <p:dataTable id="dt-cobros" widgetVar="dtProducts" var="cobro" value="#{pagoFacturaBean.listaDetallePagofacturaArchivoSubida}" reflow="true" styleClass="products-table"
+                            <p:dataTable id="dt-cobros" widgetVar="dtProducts" var="cobro" value="#{pagoFacturaBean.listaPagosbancorechazados}" reflow="true" styleClass="products-table"
                                          paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">                                        
                                 <f:facet name="header">
                                     <div class="products-table-header">
                                         <span style="font-weight: bold">Conciliación Facturas pagadas por el Banco</span>
                                     </div>
                                 </f:facet>  
-                                <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
-                                <p:column headerText="PyS-Cliente" sortBy="#{cobro.contrapartida}" filterBy="#{cobro.contrapartida}" >
-                                    <h:outputText value="#{cobro.contrapartida}" />
+                                <!--<p:column selectionMode="multiple" style="width:16px;text-align:center"/>-->
+                                <p:column headerText="PyS-Cliente" sortBy="#{cobro.pysCodigocliente}" filterBy="#{cobro.pysCodigocliente}" >
+                                    <h:outputText value="#{cobro.pysCodigocliente}" />
                                 </p:column>
-                                <p:column headerText="PyS-Factura" sortBy="#{cobro.referencia}" filterBy="#{cobro.referencia}" >
-                                    <h:outputText value="#{cobro.referencia}" />
+                                <p:column headerText="PyS-Factura" sortBy="#{cobro.pysNumerofactura}" filterBy="#{cobro.pysNumerofactura}" >
+                                    <h:outputText value="#{cobro.pysNumerofactura}" />
                                 </p:column>
-                                <p:column headerText="Fecha Acreditacion" sortBy="#{cobro.fechaProc}" filterBy="#{cobro.fechaProc}" >                                            
-                                    <h:outputText value="#{cobro.fechaProc}">
+                                <p:column headerText="Fecha Acreditacion" sortBy="#{cobro.pysFechaacreditacionprorrogada}" filterBy="#{cobro.pysFechaacreditacionprorrogada}" >                                            
+                                    <h:outputText value="#{cobro.pysFechaacreditacionprorrogada}">
                                         <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                     </h:outputText>
                                 </p:column>
-                                <p:column headerText="PyS-Valor" sortBy="#{cobro.valorEnviado}" filterBy="#{cobro.valorEnviado}" >
-                                    <h:outputText value="#{cobro.valorEnviado}">
+                                <p:column headerText="PyS-Valor" sortBy="#{cobro.pysValorconrubro}" filterBy="#{cobro.pysValorconrubro}" >
+                                    <h:outputText value="#{cobro.pysValorconrubro}">
                                         <f:convertNumber currencySymbol="$" type="currency" />
                                     </h:outputText>
                                 </p:column>
@@ -576,34 +576,33 @@
                                         <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                     </h:outputText>
                                 </p:column>
-                                <p:column headerText="Valor Cobrado" sortBy="#{cobro.valorProcesado}" filterBy="#{cobro.valorProcesado}" width="20%">
-                                    <h:outputText value="#{cobro.valorProcesado}">
+                                <p:column headerText="Valor Cobrado" sortBy="{cobro.valorProcesado}" filterBy="{cobro.valorProcesado}" width="20%">
+                                    <h:outputText value="{cobro.valorProcesado}">
                                         <f:convertNumber currencySymbol="$" type="currency" />
                                     </h:outputText>
                                 </p:column>-->   
-                                <p:column headerText="BCO-Cliente" sortBy="#{cobro.contrapartida}" filterBy="#{cobro.contrapartida}" >
-                                    <h:outputText value="#{cobro.contrapartida}" />
+                                <p:column headerText="BCO-Cliente" sortBy="#{cobro.pagosbancorechazadosPK.bcoCodigocliente}" filterBy="#{cobro.pagosbancorechazadosPK.bcoCodigocliente}" >
+                                    <h:outputText value="#{cobro.pagosbancorechazadosPK.bcoCodigocliente}" />
                                 </p:column>
-                                <p:column headerText="BCO-Factura" sortBy="#{cobro.referencia}" filterBy="#{cobro.referencia}" >
-                                    <h:outputText value="#{cobro.referencia}" />
+                                <p:column headerText="BCO-Factura" sortBy="#{cobro.pagosbancorechazadosPK.bcoNumerofactura}" filterBy="#{cobro.pagosbancorechazadosPK.bcoNumerofactura}" >
+                                    <h:outputText value="#{cobro.pagosbancorechazadosPK.bcoNumerofactura}" />
                                 </p:column>                                
-                                <p:column headerText="BCO-Valor" sortBy="#{cobro.valorEnviado}" filterBy="#{cobro.valorEnviado}" >
-                                    <h:outputText value="#{cobro.valorEnviado}">
+                                <p:column headerText="BCO-Valor" sortBy="#{cobro.bcoValorconrubro}" filterBy="#{cobro.bcoValorconrubro}" >
+                                    <h:outputText value="#{cobro.bcoValorconrubro}">
                                         <f:convertNumber currencySymbol="$" type="currency" />
                                     </h:outputText>
                                 </p:column>
-                                <p:column headerText="BCO-NP" sortBy="#{cobro.referencia}" filterBy="#{cobro.referencia}" >
-                                    <h:outputText value="#{cobro.referencia}" />
-                                </p:column>
-                                <p:column headerText="BCO-Fecha" sortBy="#{cobro.fechaProc}" filterBy="#{cobro.fechaProc}" >                                            
-                                    <h:outputText value="#{cobro.fechaProc}">
+                                <!--<p:column headerText="BCO-NP" sortBy="{cobro.pagosbancorechazadosPK.}" filterBy="{cobro.referencia}" >
+                                    <h:outputText value="{cobro.referencia}" />
+                                </p:column>-->
+                                <p:column headerText="BCO-Fecha" sortBy="#{cobro.bcoFechaproceso}" filterBy="#{cobro.bcoFechaproceso}" >                                            
+                                    <h:outputText value="#{cobro.bcoFechaproceso}">
                                         <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                     </h:outputText>
                                 </p:column>
-                                <p:column headerText="BCO-Condición" width="8%">
-                                    <p:commandButton styleClass="product-badge status-#{estilos.tipoActivo(envF.ensri)}" value="#{estilos.valorActivoFactura(envF.ensri)}" actionListener="#{facturacionBean.verificarSri(envF)}" update="form"/>
+                                <p:column headerText="Reg. OK" width="8%">
+                                    <p:selectBooleanCheckbox value="#{cobro.registrook}"/>                                    
                                 </p:column>
-
                             </p:dataTable>
                         </div> 
                     </div>

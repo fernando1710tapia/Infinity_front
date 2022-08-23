@@ -254,7 +254,7 @@ public class SeguridadpermisoBean extends ReusableBean implements Serializable {
         if (menu != null) {
             for (int i = 0; i < listaPermiso.size(); i++) {
                 if (listaPermiso.get(i).getPermisoPK().getNiveloperacion().equals(permisoPK.getNiveloperacion())) {
-                    if (listaPermiso.get(i).getPermisoPK().getCodigomenu().equals(menu.getMenupadre())) {
+                    if (listaPermiso.get(i).getMenu().getMenupadre().equals(menu.getMenupadre())) {
                         return true;
                     }
                 }
