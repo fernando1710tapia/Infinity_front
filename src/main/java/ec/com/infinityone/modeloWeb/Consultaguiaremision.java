@@ -69,6 +69,8 @@ public class Consultaguiaremision implements Serializable {
 
     private String numerofactura;
 
+    private String horaautorizacion;
+
     public Consultaguiaremision() {
     }
 
@@ -303,6 +305,14 @@ public class Consultaguiaremision implements Serializable {
 
     public void setNumerofactura(String numerofactura) {
         this.numerofactura = numerofactura;
+    }
+
+    public String getHoraautorizacion() {
+        return horaautorizacion;
+    }
+
+    public void setHoraautorizacion(String horaautorizacion) {
+        this.horaautorizacion = horaautorizacion;
     }
 
     @Override

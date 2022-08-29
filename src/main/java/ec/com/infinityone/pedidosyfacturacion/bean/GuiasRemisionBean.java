@@ -37,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -191,7 +192,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
         obtenerComercializadora();
         obtenerTerminales();
         habilitarBusqueda();
-        
+
     }
 
     public void obtenerTerminales() {
@@ -682,6 +683,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
         codigoComer = comercializadora.getCodigo();
         codTerminal = terminal.getCodigo();
         String ruta_temporal = Fichero.getCARPETAREPORTES();
+        String hora = "";
         if (codigoComer != null || codTerminal != null) {
             for (int i = 0; i < list.size(); i++) {
                 String fileName = list.get(i).getFileName();
@@ -703,8 +705,16 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
                 DocumentBuilder db = dbf.newDocumentBuilder();
                 Document document = db.parse(file);
                 Document doc = null;
+                Document docF = null;
                 document.getDocumentElement().normalize();
                 System.out.println("Root Element :" + document.getDocumentElement().getNodeName());
+                NodeList nListF = document.getElementsByTagName("fechaAutorizacion");
+                for (int temp = 0; temp < nListF.getLength(); temp++) {
+                    Node nNode = nListF.item(temp);
+                    System.out.println("\nCurrent Element :" + nNode.getFirstChild().getTextContent());
+                    hora = nNode.getFirstChild().getTextContent();                    
+                }                              
+                consulGuia.setHoraautorizacion((hora).substring(11));
                 NodeList nList = document.getElementsByTagName("comprobante");
                 System.out.println("----------------------------");
                 for (int temp = 0; temp < nList.getLength(); temp++) {
@@ -1136,6 +1146,13 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
             fechaS = sdf.format(fecha);
         }
         return fechaS;
+    }
+
+    public void inserarDatos(AjaxBehaviorEvent event) {
+        //System.err.println("OnBlur Action");
+//        for (int i = 0; i <) {
+//            
+//        }
     }
 
     public Boolean getVigente() {
