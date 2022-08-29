@@ -1250,6 +1250,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                     String numFact = detallepago.getReferencia().substring(8).trim();
                     String numNoPed = detallepago.getReferencia().substring(0, 8).trim();
                     String codCliente = detallepago.getContrapartida().substring(0, 8).trim();
+                    String codBanco = detallepago.getCodBancoProc().trim();
 
                     detallepagoPK.setCodigoabastecedora(comercializadora.getAbastecedora());
                     detallepagoPK.setCodigocomercializadora(comercializadora.getCodigo());
@@ -1278,16 +1279,24 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                     List<Factura> fact = facturaServicio.buscarFacturasConciliarPago(codigoComer, numFact.trim(), codCliente);
                     pagosbancorechazadosPK.setBcoCodigocliente(codCliente);
                     pagosbancorechazadosPK.setBcoNumerofactura(numFact);
-                    pagosbancorechazadosPK.setBcoCodigobanco(banco.getCodigo());
+                    pagosbancorechazadosPK.setBcoCodigobanco(codBanco);                    
                     pagosbancorechazadosPK.setFechaactual(new Date());
                     pagosbancorechazados.setPagosbancorechazadosPK(pagosbancorechazadosPK);
-                    pagosbancorechazados.setBcoValorconrubro(new BigDecimal(detallepago.getValorProcesado()));
                     pagosbancorechazados.setBcoFechaproceso(detallepago.getFechaProc());
+                    pagosbancorechazados.setBcoNombrebanco(codBanco);
+                    pagosbancorechazados.setBcoNombrecliente(detallepago.getNomBeneficiario());
+                    pagosbancorechazados.setBcoRuccliente(detallepago.getNumIdCliente());                    
+                    pagosbancorechazados.setBcoValorconrubro(new BigDecimal(detallepago.getValorProcesado()));
+                    
                     pagosbancorechazados.setRegistrook(false);
                     if (!fact.isEmpty()) {
+                        pagosbancorechazados.setPysCodigobanco(fact.get(0).getCodigobanco());
                         pagosbancorechazados.setPysCodigocliente(fact.get(0).getCodigocliente());
-                        pagosbancorechazados.setPysNumerofactura(fact.get(0).getFacturaPK().getNumero());
                         pagosbancorechazados.setPysFechaacreditacionprorrogada(date.parse(fact.get(0).getFechaacreditacion()));
+                        pagosbancorechazados.setPysNombrebanco(fact.get(0).getCodigobanco());
+                        pagosbancorechazados.setPysNombrecliente(fact.get(0).getNombrecliente());
+                        pagosbancorechazados.setPysNumerofactura(fact.get(0).getFacturaPK().getNumero());
+                        pagosbancorechazados.setPysRuccliente(fact.get(0).getRuccliente());
                         pagosbancorechazados.setPysValorconrubro(fact.get(0).getValorconrubro());
                         if (pagosbancorechazados.getBcoValorconrubro().compareTo(pagosbancorechazados.getPysValorconrubro()) == 0) {
                             pagosbancorechazados.setRegistrook(true);
