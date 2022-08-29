@@ -964,7 +964,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
             obj.put("selloinicial", consulGuia.get(i).getSelloinicial());
             obj.put("sellofinal", consulGuia.get(i).getSellofinal());
             obj.put("numerofactura", consulGuia.get(i).getNumerofactura());
-
+            obj.put("horaautorizacion", consulGuia.get(i).getHoraautorizacion());
             listObjEnvRest.add(obj);
             obj = new JSONObject();
             objPK = new JSONObject();
