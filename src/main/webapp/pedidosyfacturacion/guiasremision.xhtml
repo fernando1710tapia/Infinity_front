@@ -123,8 +123,8 @@
                                 <p:column headerText="Numero OE" sortBy="#{guia.numerooe}" filterBy="#{guia.numerooe}" width="8%">
                                     <h:outputText value="#{guia.numerooe}" />
                                 </p:column>
-                                <p:column headerText="Numero Fact." sortBy="#{guia.numerosri}" filterBy="#{guia.numerosri}" width="10%">
-                                    <h:outputText value="#{guia.numerosri}" />
+                                <p:column headerText="Numero Fact." sortBy="#{guia.numerofactura}" filterBy="#{guia.numerofactura}" width="10%">
+                                    <h:outputText value="#{guia.numerofactura}" />
                                 </p:column>
                                 <p:column headerText="Producto" width="6%">
                                     <h:outputText value="#{guia.codigoproducto}" />
@@ -497,13 +497,19 @@
                                     <p:inputText value="{guia.nombreconductor}"  />
                                 </p:column>--> 
                                 <p:column headerText="Sello Inicial"  width="9%">
-                                    <p:inputText value="#{guia1.selloinicial}"  required="true" />
+                                    <p:inputText value="#{guia1.selloinicial}"  required="true" >
+                                        <p:ajax event="blur" listener="#{guiasRemisionBean.inserarDatos}"/>  
+                                    </p:inputText>
                                 </p:column>
                                 <p:column headerText="Sello Final" width="9%">
-                                    <p:inputText value="#{guia1.sellofinal}" required="true" />
+                                    <p:inputText value="#{guia1.sellofinal}" required="true" >
+                                        <p:ajax event="blur" listener="#{guiasRemisionBean.inserarDatos}"/>
+                                    </p:inputText>
                                 </p:column>
                                 <p:column headerText="Observación"  width="18%">
-                                    <p:inputText value="#{guia1.observacion}" />
+                                    <p:inputText value="#{guia1.observacion}" >
+                                        <p:ajax event="blur" listener="#{guiasRemisionBean.inserarDatos}"/>                                    
+                                    </p:inputText>
                                 </p:column>                    
                             </p:dataTable>                                                                                         
                         </div>
