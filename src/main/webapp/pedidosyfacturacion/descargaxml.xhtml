@@ -13,7 +13,7 @@
 
     <ui:define name="content">
         <h:form id="form">
-            <p:outputPanel id="manage-product-content1" rendered="#{facturacionBean.mostarPantallaInicial}">
+            <p:outputPanel id="manage-product-content1">
                 <div class="p-grid crud-demo">
                     <div class="p-col-12">
                         <div class="card">
@@ -21,12 +21,12 @@
                             
                             <div class="ui-fluid p-formgrid p-grid">                                
                                 <div class="p-field p-col-12 p-md-2">
-                                    <p:commandButton icon="pi pi-print" actionListener="#{reportepreciosBean.generarReporte()}" ajax="false"
+                                    <p:commandButton icon="pi pi-print" actionListener="#{descargaxml.descargarxml()}" ajax="false"
                                                      onstart="PF('blockUIWidget').block()" 
                                                      oncomplete="PF('blockUIWidget').unblock()"
                                                      onclick="PrimeFaces.monitorDownload(start, stop);"
                                                      update="@form" 
-                                                     value='Generar Reporte'>
+                                                     value='Generar Descarga'>
                                         <p:fileDownload value="#{reportepreciosBean.pdfStream}"/>
                                     </p:commandButton>                                   
                                 </div>                                
