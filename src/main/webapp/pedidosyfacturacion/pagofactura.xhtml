@@ -563,7 +563,7 @@
                                     </h:outputText>
                                 </p:column>
                                 <p:column headerText="BCO-Fecha" sortBy="#{cobro.bcoFechaproceso}" filterBy="#{cobro.bcoFechaproceso}" width="10%">                                           
-                                    <h:outputText value="#{cobro.bcoFechaproceso}">
+                                    <h:outputText value="#{pagoFacturaBean.formatoFecha(cobro.bcoFechaproceso)}">
                                         <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                     </h:outputText>
                                 </p:column>
@@ -611,7 +611,7 @@
                 </p:outputPanel>
                 <div class="p-grid p-col-12 p-justify-end">                     
                     <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{pagoFacturaBean.guardar}" process="@this"  
-                                     update="@this" styleClass="p-mr-2" />                    
+                                     update="@this :form recibopago" styleClass="p-mr-2" />                    
                     <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('nuevo').hide()" class="ui-button-secondary" />
                 </div>
             </h:form>
