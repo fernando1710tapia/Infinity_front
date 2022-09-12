@@ -803,7 +803,7 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
 
     public void saveLista() {
         if (guardarTerminal) {
-            if (!codigoTerm.isEmpty()) {
+            if (!terminal.getCodigo().isEmpty()) {
                 addItemsTerminalProd();
             }
         } else {

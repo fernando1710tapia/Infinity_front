@@ -5,7 +5,8 @@
  */
 package ec.com.infinityone.pedidosyfacturacion.bean;
 
-
+import ec.com.infinityone.actorcomercial.bean.ComercializadoraBean;
+import ec.com.infinityone.actorcomercial.serivicios.ComercializadoraServicio;
 import ec.com.infinityone.reusable.ReusableBean;
 import ec.com.infinityone.configuration.Fichero;
 import java.io.File;
@@ -13,26 +14,22 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
-import javax.imageio.ImageIO;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import org.primefaces.PrimeFaces;
-import org.primefaces.apollo.domain.Document;
 import org.primefaces.model.DefaultStreamedContent;
 
 import org.primefaces.model.StreamedContent;
-
 
 /**
  *
@@ -45,6 +42,12 @@ public class Descargaxml extends ReusableBean implements Serializable {
     protected static final Logger LOG = Logger.getLogger(Descargaxml.class.getName());
 
     /*
+    Variable para acceder a los servicios de Comercialziadora
+     */
+    @Inject
+    private ComercializadoraServicio comerServicio;
+
+    /*
     Variable para renderizar la pantalla
      */
     protected boolean mostarFactura;
@@ -52,15 +55,21 @@ public class Descargaxml extends ReusableBean implements Serializable {
     Variable para renderizar la pantalla
      */
     protected boolean mostarPantallaInicial;
-     /*
-    Varaible para guardar la selección del radio button
     /*
-    Vairbale para almacenar el pdf generado
+     Vairbale para almacenar el pdf generado
      */
     protected StreamedContent pdfStream;
     private StreamedContent txtStream;
     private String rutaArchivos = "";
-    
+
+    private ComercializadoraBean comercializadora;
+
+    private List<ComercializadoraBean> listaComercializadora;
+
+    private String codComer;
+
+    protected Date fechaB;
+
     /**
      * Constructor por defecto
      */
@@ -75,8 +84,48 @@ public class Descargaxml extends ReusableBean implements Serializable {
 
         mostarFactura = false;
         mostarPantallaInicial = true;
-    
+        fechaB = new Date();
+        obtenerComercializadora();
     }
+
+    public void obtenerComercializadora() {
+        listaComercializadora = new ArrayList<>();
+        listaComercializadora = comerServicio.obtenerComercializadoras();
+        if (!listaComercializadora.isEmpty()) {
+            habilitarBusqueda();
+        }
+    }
+
+    public void seleccionarComercializdora() {
+        if (comercializadora != null) {
+            codComer = comercializadora.getCodigo();
+        }
+    }
+
+    public void habilitarBusqueda() {
+        if (dataUser.getUser() != null) {
+            if (dataUser.getUser().getNiveloperacion().equals("cero")) {
+                habilitarComer = true;
+            }
+            if (dataUser.getUser().getNiveloperacion().equals("adco")) {
+                habilitarComer = false;
+                for (int i = 0; i < listaComercializadora.size(); i++) {
+                    if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
+                        this.comercializadora = listaComercializadora.get(i);
+                    }
+                }                
+            }
+            if (dataUser.getUser().getNiveloperacion().equals("usac")) {
+                habilitarComer = false;
+                for (int i = 0; i < listaComercializadora.size(); i++) {
+                    if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
+                        this.comercializadora = listaComercializadora.get(i);
+                    }
+                }                
+            }
+        }
+    }
+
     public StreamedContent getPdfStream() {
         return pdfStream;
     }
@@ -85,47 +134,72 @@ public class Descargaxml extends ReusableBean implements Serializable {
         this.pdfStream = pdfStream;
     }
 
-    
-    public void descargarxml(){
+    public void descargarxml() {
         try {
+            Date date = new Date();
+
+            SimpleDateFormat getYearFormat = new SimpleDateFormat("yyyy");
+            SimpleDateFormat getMonthFormat = new SimpleDateFormat("MM");
+            String currentYear = getYearFormat.format(date);
+            String currentMonth = getMonthFormat.format(date);            
             //rutaArchivos= "C:\\archivos\\docs";
-            rutaArchivos= Fichero.getCARPETAREPORTES()+"\\xml"; 
-        System.out.println("FT::(0100)-INICIO descargarxml");
-        lecturaXml();
-        } catch(Throwable t){
-            System.out.println("FT::::(0100)-error "+t.getMessage());
+            //rutaArchivos= Fichero.getCARPETAXML(); 
+            rutaArchivos = Fichero.getRUTAXML() + "/" + currentYear + "/" + currentMonth + "/" + comercializadora.getRuc();
+            //rutaArchivos = Fichero.getRUTAXML();
+            System.out.println("FT::(Direccion: " + rutaArchivos);
+            System.out.println("FT::(0100)-INICIO descargarxml");
+            lecturaXml();
+        } catch (Throwable t) {
+            System.out.println("FT::::(0100)-error " + t.getMessage());
             t.printStackTrace(System.out);
         }
-            
+
     }
-    
+
     public void lecturaXml() throws Throwable {
+        String fe = "";
+        Calendar cArchivos = Calendar.getInstance();
+        Calendar cFechaE = Calendar.getInstance();
+        cFechaE.setTime(fechaB);
         File folder = new File(rutaArchivos);
-        List<String> listaArchivos = new ArrayList<>();  
+        List<String> listaArchivos = new ArrayList<>();
         for (File file : folder.listFiles()) {
             if (!file.isDirectory()) {
-//                System.out.println("----------------------------");
-                listaArchivos.add(file.getName());
-
+                int i = file.getName().lastIndexOf('.');
+                if (i > 0) {
+                    fe = file.getName().substring(i + 1);
+                }
+                if (fe.equals("xml")) {
+                    cArchivos.setTimeInMillis(file.lastModified());
+                    String date = cArchivos.get(Calendar.DAY_OF_MONTH) + "/" + cArchivos.get(Calendar.MONTH) + "/" + cArchivos.get(Calendar.YEAR);
+                    System.out.println("----" + date);
+                    if (cArchivos.get(Calendar.DAY_OF_MONTH) == cFechaE.get(Calendar.DAY_OF_MONTH)
+                            && cArchivos.get(Calendar.MONTH) == cFechaE.get(Calendar.MONTH)
+                            && cArchivos.get(Calendar.YEAR) == cFechaE.get(Calendar.YEAR)) {
+                        listaArchivos.add(file.getName());
+                    }
+                }
             }
-        }       
-        zip(listaArchivos);
+        }
+        if (!listaArchivos.isEmpty()) {
+            zip(listaArchivos);
+        } else {
+            this.dialogo(FacesMessage.SEVERITY_WARN, "No se encontraron archivos");
+        }
     }
-    
-    
-    
-    public void zip(List<String> listaArchivos) {        
+
+    public void zip(List<String> listaArchivos) {
         byte[] buffer = new byte[1024];
         String nombreArchivo = "facturasautorizadas.zip";
         try {
-            FileOutputStream fos = new FileOutputStream(rutaArchivos+ nombreArchivo);
-            System.out.println("ZIP. CREADO.:"+fos.toString());
+            FileOutputStream fos = new FileOutputStream(rutaArchivos + nombreArchivo);
+            System.out.println("ZIP. CREADO.:" + fos.toString());
             ZipOutputStream zos = new ZipOutputStream(fos);
             for (int i = 0; i < listaArchivos.size(); i++) {
                 ZipEntry ze = new ZipEntry(listaArchivos.get(i));
                 zos.putNextEntry(ze);
                 //FileInputStream in = new FileInputStream(Fichero.getCARPETAREPORTES() + listaArchivos.get(i));
-                FileInputStream in = new FileInputStream(rutaArchivos+listaArchivos.get(i));
+                FileInputStream in = new FileInputStream(rutaArchivos + "/" + listaArchivos.get(i));
                 int len;
                 while ((len = in.read(buffer)) > 0) {
                     zos.write(buffer, 0, len);
@@ -140,10 +214,44 @@ public class Descargaxml extends ReusableBean implements Serializable {
             ex.printStackTrace();
         }
     }
+
     public void descargar(String nombre) throws Throwable {
         File initialFile = new File(rutaArchivos + nombre);
-        System.out.println("FT:: descargar . AbsolutePath"+initialFile.getAbsolutePath()+"CanonicalPath"+initialFile.getCanonicalPath());
+        System.out.println("FT:: descargar . AbsolutePath" + initialFile.getAbsolutePath() + "CanonicalPath" + initialFile.getCanonicalPath());
         InputStream targetStream = new FileInputStream(initialFile);
         txtStream = new DefaultStreamedContent(targetStream, "application/txt", nombre);
     }
+
+    public StreamedContent getTxtStream() {
+        return txtStream;
+    }
+
+    public void setTxtStream(StreamedContent txtStream) {
+        this.txtStream = txtStream;
+    }
+
+    public Date getFechaB() {
+        return fechaB;
+    }
+
+    public void setFechaB(Date fechaB) {
+        this.fechaB = fechaB;
+    }
+
+    public List<ComercializadoraBean> getListaComercializadora() {
+        return listaComercializadora;
+    }
+
+    public void setListaComercializadora(List<ComercializadoraBean> listaComercializadora) {
+        this.listaComercializadora = listaComercializadora;
+    }
+
+    public ComercializadoraBean getComercializadora() {
+        return comercializadora;
+    }
+
+    public void setComercializadora(ComercializadoraBean comercializadora) {
+        this.comercializadora = comercializadora;
+    }
+
 }

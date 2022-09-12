@@ -478,7 +478,7 @@
         </h:form>
 
 
-        <p:dialog header="Recibir Pagos" width="80%" height="500px" showEffect="fade" modal="true" widgetVar="recibirPag" responsive="true">
+        <p:dialog header="Recibir Pagos" width="80%" height="500px" showEffect="fade" modal="true" widgetVar="zip" responsive="true">
             <h:form id="recibopago">
                 <p:outputPanel rendered="true">
                     <div class="p-grid crud-demo">                        
@@ -612,7 +612,7 @@
                 <div class="p-grid p-col-12 p-justify-end">                     
                     <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{pagoFacturaBean.guardar}" process="@this"  
                                      update="@this :form recibopago" styleClass="p-mr-2" />                    
-                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('nuevo').hide()" class="ui-button-secondary" />
+                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('zip').hide()" class="ui-button-secondary" />
                 </div>
             </h:form>
         </p:dialog>

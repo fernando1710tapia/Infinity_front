@@ -18,16 +18,42 @@
                     <div class="p-col-12">
                         <div class="card">
                             <p:growl id="messages" showDetail="true" />
-                            
-                            <div class="ui-fluid p-formgrid p-grid">                                
+
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-4">
+                                    <p:outputLabel for="comercializadora" value="Comercializadora"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>
+                                        <p:selectOneMenu id="comercializadora" value="#{descargaxml.comercializadora}" title="Comercializadora"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg" disabled="#{!descargaxml.habilitarComer}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}" />
+                                            <f:selectItems value="#{descargaxml.listaComercializadora}"
+                                                           var="comer"
+                                                           itemLabel="#{comer.objRelacionado}"
+                                                           itemValue="#{comer}" />
+                                            <p:ajax event="change" listener="#{descargaxml.seleccionarComercializdora}"
+                                                    update="form"/>
+                                        </p:selectOneMenu> 
+                                    </div>  
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">                                  
+                                    <p:outputLabel for="fechaB" value="Fecha Inicio"/>
+                                    <p:datePicker id="fechaB" value="#{descargaxml.fechaB}" showIcon="true" pattern="dd/MM/yyyy">
+                                        <p:ajax event="dateSelect"/>
+                                    </p:datePicker>
+                                </div>                                
                                 <div class="p-field p-col-12 p-md-2">
-                                    <p:commandButton icon="pi pi-print" actionListener="#{descargaxml.descargarxml()}" ajax="false"
+                                    <p:outputLabel value="&#160;"/>
+                                    <p:commandButton icon="pi pi-folder" actionListener="#{descargaxml.descargarxml()}" ajax="false"
                                                      onstart="PF('blockUIWidget').block()" 
                                                      oncomplete="PF('blockUIWidget').unblock()"
                                                      onclick="PrimeFaces.monitorDownload(start, stop);"
                                                      update="@form" 
                                                      value='Generar Descarga'>
-                                        <p:fileDownload value="#{reportepreciosBean.pdfStream}"/>
+                                        <p:fileDownload value="#{descargaxml.txtStream}"/>
                                     </p:commandButton>                                   
                                 </div>                                
                                 <div class="p-field p-col-12 p-md-4">

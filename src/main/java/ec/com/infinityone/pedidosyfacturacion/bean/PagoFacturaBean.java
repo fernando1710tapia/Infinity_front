@@ -1100,8 +1100,8 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                         //18. LOCALIDAD DEL COBRO
                         + String.format("%-20s", " ").replace(' ', '0') + separador
                         //19. REFERENCIA
-                        + String.format("%-1000s", factura.getFacturaPK().getNumeronotapedido()).replace(' ', '0') + separador
-                        //                        + factura.getFacturaPK().getNumero() + "|"
+                        + String.format("%-1000s", (factura.getFacturaPK().getNumeronotapedido())
+                                                  + factura.getFacturaPK().getNumero()).replace(' ', '0') + separador
                         //                        + factura.getCodigoterminal() + "|"
                         //                        + factura.getObservacion()
                         //20. Referencia Adicional |dirección email |Operadora celular número de celular
@@ -2078,7 +2078,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             ubicacion = "";
             listaDetallePagofacturaArchivoSubida = new ArrayList<>();
         }
-        PrimeFaces.current().executeScript("PF('recibirPag').show()");
+        PrimeFaces.current().executeScript("PF('zip').show()");
     }
 
     public void nuevoPagoDirecto() {
