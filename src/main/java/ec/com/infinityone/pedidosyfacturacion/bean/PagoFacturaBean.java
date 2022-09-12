@@ -46,6 +46,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DateFormat;
@@ -272,6 +273,8 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
 
     private List<Factura> listaFacturaAux;
     private List<Factura> listaFacturaPagadasAux;
+
+    private List<Pagosbancorechazados> listaPagosBancoRechazadoAux;
 
     /**
      * Constructor por defecto
@@ -1097,8 +1100,8 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                         //18. LOCALIDAD DEL COBRO
                         + String.format("%-20s", " ").replace(' ', '0') + separador
                         //19. REFERENCIA
-                        + String.format("%-1000s", factura.getFacturaPK().getNumeronotapedido()).replace(' ', '0') + separador
-                        //                        + factura.getFacturaPK().getNumero() + "|"
+                        + String.format("%-1000s", (factura.getFacturaPK().getNumeronotapedido())
+                                                  + factura.getFacturaPK().getNumero()).replace(' ', '0') + separador
                         //                        + factura.getCodigoterminal() + "|"
                         //                        + factura.getObservacion()
                         //20. Referencia Adicional |dirección email |Operadora celular número de celular
@@ -1162,6 +1165,11 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
         DateFormat date1 = new SimpleDateFormat("ddMMyyyy");
         String ruta_temporal = Fichero.getCARPETAREPORTES();
+        StringBuilder cadenaInfo = new StringBuilder();
+        StringBuilder cadenaErro = new StringBuilder();
+        List<Pagosbancorechazados> facturaNoCoincide = new ArrayList<>();
+        listaPagosBancoRechazadoAux = new ArrayList<>();
+        suma = new BigDecimal(0);
         //String ruta_temporal = "C:\\archivos\\";
         UploadedFile uploadedFile = event.getFile();
         ubicacion = "";
@@ -1179,7 +1187,6 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 
             listaPagosbancorechazados = new ArrayList<>();
             listaDetallePago = new ArrayList<>();
-            suma = new BigDecimal(0);
             Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
             codigoComer = comercializadora.getCodigo();
             if (codigoComer != null || banco.getCodigo() != null) {
@@ -1207,9 +1214,11 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                     //Moneda   
                     detallepago.setMoneda(linea.substring(44, 47));
                     //Valor enviado
-                    detallepago.setValorEnviado(linea.substring(47, 60));
+                    BigDecimal valEnv = new BigDecimal(linea.substring(47, 60));
+                    detallepago.setValorEnviado((valEnv.movePointLeft(2)).toString());
                     //Valor procesado
-                    detallepago.setValorProcesado(linea.substring(60, 73));
+                    BigDecimal valPro = new BigDecimal(linea.substring(60, 73));
+                    detallepago.setValorProcesado((valPro.movePointLeft(2)).toString());
                     //Forma de pago procesada
                     detallepago.setFormPago(linea.substring(73, 76));
                     //Código de banco
@@ -1243,7 +1252,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 
                     detallepago.setValor(new BigDecimal(detallepago.getValorProcesado()));
 
-                    suma = suma.add(new BigDecimal(detallepago.getValorProcesado()));
+                    //suma = suma.add(new BigDecimal(detallepago.getValorProcesado()));
                     detallepago.setActivo(true);
                     detallepago.setUsuarioactual(dataUser.getUser().getNombrever());
 
@@ -1270,24 +1279,20 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                     pagofactura.setObservacion(observacion);
                     pagofactura.setFecharegistro(new Date());
                     pagofactura.setUsuarioactual(dataUser.getUser().getNombrever());
-                    pagofactura.setValor(suma);
-                    //detallepago.setPagofactura(pagofactura);
-
-                    listaPagofacturaArchivoSubida.add(pagofactura);
-                    listaDetallePago.add(detallepago);
+                    //pagofactura.setValor(suma);
+                    detallepago.setPagofactura(pagofactura);
 
                     List<Factura> fact = facturaServicio.buscarFacturasConciliarPago(codigoComer, numFact.trim(), codCliente);
                     pagosbancorechazadosPK.setBcoCodigocliente(codCliente);
                     pagosbancorechazadosPK.setBcoNumerofactura(numFact);
-                    pagosbancorechazadosPK.setBcoCodigobanco(codBanco);                    
+                    pagosbancorechazadosPK.setBcoCodigobanco(codBanco);
                     pagosbancorechazadosPK.setFechaactual(new Date());
                     pagosbancorechazados.setPagosbancorechazadosPK(pagosbancorechazadosPK);
                     pagosbancorechazados.setBcoFechaproceso(detallepago.getFechaProc());
                     pagosbancorechazados.setBcoNombrebanco(codBanco);
                     pagosbancorechazados.setBcoNombrecliente(detallepago.getNomBeneficiario());
-                    pagosbancorechazados.setBcoRuccliente(detallepago.getNumIdCliente());                    
+                    pagosbancorechazados.setBcoRuccliente(detallepago.getNumIdCliente().trim());
                     pagosbancorechazados.setBcoValorconrubro(new BigDecimal(detallepago.getValorProcesado()));
-                    
                     pagosbancorechazados.setRegistrook(false);
                     if (!fact.isEmpty()) {
                         pagosbancorechazados.setPysCodigobanco(fact.get(0).getCodigobanco());
@@ -1295,14 +1300,18 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                         pagosbancorechazados.setPysFechaacreditacionprorrogada(date.parse(fact.get(0).getFechaacreditacion()));
                         pagosbancorechazados.setPysNombrebanco(fact.get(0).getCodigobanco());
                         pagosbancorechazados.setPysNombrecliente(fact.get(0).getNombrecliente());
-                        pagosbancorechazados.setPysNumerofactura(fact.get(0).getFacturaPK().getNumero());
+                        pagosbancorechazados.setPysNumerofactura(fact.get(0).getFacturaPK().getNumero().trim());
                         pagosbancorechazados.setPysRuccliente(fact.get(0).getRuccliente());
                         pagosbancorechazados.setPysValorconrubro(fact.get(0).getValorconrubro());
+                        pagosbancorechazados.setPysNumeronotapedido(numNoPed);
                         if (pagosbancorechazados.getBcoValorconrubro().compareTo(pagosbancorechazados.getPysValorconrubro()) == 0) {
                             pagosbancorechazados.setRegistrook(true);
                         }
                     }
+
                     listaPagosbancorechazados.add(pagosbancorechazados);
+                    listaPagofacturaArchivoSubida.add(pagofactura);
+                    listaDetallePago.add(detallepago);
                     pagosbancorechazados = new Pagosbancorechazados();
                     pagosbancorechazadosPK = new PagosbancorechazadosPK();
                     detallepago = new Detallepago();
@@ -1314,7 +1323,26 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                 //se cierra el ojeto scanner
                 scanner.close();
                 FacesContext context = FacesContext.getCurrentInstance();
-                context.addMessage("recibopago", new FacesMessage(FacesMessage.SEVERITY_INFO, "CARGA CORRECTA", event.getFile().getFileName() + " cargado al sistema"));
+                if (!listaPagosbancorechazados.isEmpty()) {
+                    for (int i = 0; i < listaPagosbancorechazados.size(); i++) {
+                        if (listaPagosbancorechazados.get(i).getRegistrook()) {
+                            listaPagosBancoRechazadoAux.add(listaPagosbancorechazados.get(i));
+                            suma = suma.add(listaPagosbancorechazados.get(i).getPysValorconrubro());
+                        } else {
+                            facturaNoCoincide.add(listaPagosbancorechazados.get(i));
+                        }
+                    }
+                    if (!listaPagosbancorechazados.isEmpty()) {
+                        cadenaInfo.append("Facturas recibidas para procesar: " + listaPagosbancorechazados.size()).toString();
+                    }
+                    if (!listaPagosBancoRechazadoAux.isEmpty()) {
+                        cadenaInfo.append("\nFacturas procesadas correctamente: " + listaPagosBancoRechazadoAux.size()).toString();
+                    } else {
+                        cadenaInfo.append("\nFacturas procesadas correctamente: 0").toString();
+                        this.dialogo(FacesMessage.SEVERITY_INFO, "Facturas pagadas correctamente: 0");
+                    }
+                    this.dialogo(FacesMessage.SEVERITY_INFO, cadenaInfo.toString());
+                }
                 return ubicacion;
             } else {
                 this.dialogo(FacesMessage.SEVERITY_WARN, "Seleccione una comercializadora y un banco para poder cargar el archivo");
@@ -1327,118 +1355,111 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 
     }
 
-    public void guardar() throws ParseException {
-        DateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
-        SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
+    public void guardarPagosBancoRechazado() throws ParseException {
         listaFacturaAux = new ArrayList<>();
-        List<Factura> facturaAux = new ArrayList<>();
-        List<Detallepago> facturaNoEcuentra = new ArrayList<>();
-        List<Factura> facturaNoValor = new ArrayList<>();
-        List<Factura> facturaNoActiva = new ArrayList<>();
-        suma = new BigDecimal(0);
-        StringBuilder cadenaInfo = new StringBuilder();
-        StringBuilder cadenaErro = new StringBuilder();
-        if (!listaPagofacturaArchivoSubida.isEmpty()) {
-            for (int i = 0; i < listaDetallePagofacturaArchivoSubida.size(); i++) {
-                facturaAux = facturaServicio.buscarFacturas(listaDetallePagofacturaArchivoSubida.get(i).getDetallepagoPK().getCodigoabastecedora(),
-                        listaDetallePagofacturaArchivoSubida.get(i).getDetallepagoPK().getCodigocomercializadora(),
-                        listaDetallePagofacturaArchivoSubida.get(i).getDetallepagoPK().getNumerofactura());
-                if (!facturaAux.isEmpty()) {
-                    if (facturaAux.get(0).getValortotal().equals(listaDetallePagofacturaArchivoSubida.get(i).getValor())) {
-                        if (facturaAux.get(0).getActiva()) {
-                            if (!facturaAux.get(0).getPagada()) {
-                                listaFacturaAux.add(facturaAux.get(0));
-                                suma = suma.add(listaFacturaAux.get(0).getValortotal());
-                                facturaAux = new ArrayList();
-                            } else {
-                                listaFacturaPagadasAux.add(facturaAux.get(0));
-                                facturaAux = new ArrayList();
-                            }
-                        } else {
-                            facturaNoActiva.add(facturaAux.get(0));
-                            facturaAux = new ArrayList();
-                        }
-                    } else {
-                        facturaNoValor.add(facturaAux.get(0));
-                        facturaAux = new ArrayList();
-                        //this.dialogo(FacesMessage.SEVERITY_ERROR, "No concuerda el valor de la factura N." + listaDetallePagofacturaArchivoSubida.get(i).getDetallepagoPK().getNumerofactura());
-                    }
-                } else {
-                    facturaNoEcuentra.add(listaDetallePagofacturaArchivoSubida.get(i));
-                    facturaAux = new ArrayList();
-                    //this.dialogo(FacesMessage.SEVERITY_ERROR, "No se encontaron faturas con el N." + listaDetallePagofacturaArchivoSubida.get(i).getDetallepagoPK().getNumerofactura());
+        if (!listaPagosbancorechazados.isEmpty()) {
+            for (int i = 0; i < listaPagosbancorechazados.size(); i++) {
+                if (!addPagoFacturabancoRechazado(listaPagosbancorechazados.get(i))) {
+                    this.dialogo(FacesMessage.SEVERITY_ERROR, "Error de guardado detalle pago N." + i + 1);
                 }
             }
-
-            if (!listaFacturaAux.isEmpty()) {
-                if (addPagoFactura()) {
-                    for (int indice = 0; indice < listaFacturaAux.size(); indice++) {
-                        if (addDetPago(indice)) {
-                            if (listaFacturaAux.get(indice).getFechaacreditacion() != null) {
-                                Date fechaA = formato.parse(listaFacturaAux.get(indice).getFechaacreditacion().replace("/", "-"));
-                                listaFacturaAux.get(indice).setFechaacreditacion(date.format(fechaA));
-                            }
-                            if (listaFacturaAux.get(indice).getFechaautorizacion() != null) {
-                                Date fechaA = formato.parse(listaFacturaAux.get(indice).getFechaautorizacion().replace("/", "-"));
-                                listaFacturaAux.get(indice).setFechaautorizacion(date.format(fechaA));
-                            }
-                            if (listaFacturaAux.get(indice).getFechadespacho() != null) {
-                                Date fechaA = formato.parse(listaFacturaAux.get(indice).getFechadespacho().replace("/", "-"));
-                                listaFacturaAux.get(indice).setFechadespacho(date.format(fechaA));
-                            }
-                            if (listaFacturaAux.get(indice).getFechavencimiento() != null) {
-                                Date fechaA = formato.parse(listaFacturaAux.get(indice).getFechavencimiento().replace("/", "-"));
-                                listaFacturaAux.get(indice).setFechavencimiento(date.format(fechaA));
-                            }
-                            if (listaFacturaAux.get(indice).getFechaventa() != null) {
-                                Date fechaA = formato.parse(listaFacturaAux.get(indice).getFechaventa().replace("/", "-"));
-                                listaFacturaAux.get(indice).setFechaventa(date.format(fechaA));
-                            }
-                            listaFacturaAux.get(indice).setActiva(false);
-                            cambiarEstadoFactura(listaFacturaAux.get(indice));
-                        }
-                    }
-                }
-            }
-            if (!listaDetallePagofacturaArchivoSubida.isEmpty()) {
-                cadenaInfo.append("Facturas recibidas para pagar: " + listaDetallePagofacturaArchivoSubida.size()).toString();
-                //this.dialogo(FacesMessage.SEVERITY_INFO, "Facturas recibidas para pagar: " + listaDetallePagofacturaArchivoSubida.size());
-            }
-            if (!listaFacturaAux.isEmpty()) {
-                cadenaInfo.append("\nFacturas pagadas correctamente: " + listaFacturaAux.size()).toString();
-                //this.dialogo(FacesMessage.SEVERITY_INFO, "Facturas pagadas correctamente: " + listaFacturaAux.size());
-            } else {
-                cadenaInfo.append("\nFacturas pagadas correctamente: 0").toString();
-                this.dialogo(FacesMessage.SEVERITY_INFO, "Facturas pagadas correctamente: 0");
-            }
-            if (!listaFacturaPagadasAux.isEmpty()) {
-                for (int indice = 0; indice < listaFacturaPagadasAux.size(); indice++) {
-                    cadenaErro.append("Factura N." + listaFacturaPagadasAux.get(indice).getFacturaPK().getNumero() + "ya se encuentra pagada\n").toString();
-                    //this.dialogo(FacesMessage.SEVERITY_ERROR, "Factura N." + listaFacturaPagadasAux.get(indice).getFacturaPK().getNumero() + "ya se encuentra pagada");
-                }
-            }
-            if (!facturaNoActiva.isEmpty()) {
-                for (int indice = 0; indice < facturaNoActiva.size(); indice++) {
-                    cadenaErro.append("Factura N." + facturaNoActiva.get(indice).getFacturaPK().getNumero() + "no se encuentra activa\n").toString();
-                    //this.dialogo(FacesMessage.SEVERITY_ERROR, "Factura N." + facturaNoActiva.get(indice).getFacturaPK().getNumero() + "no se encuentra activa");
-                }
-            }
-            if (!facturaNoValor.isEmpty()) {
-                for (int indice = 0; indice < facturaNoValor.size(); indice++) {
-                    cadenaErro.append("Factura N." + facturaNoValor.get(indice).getFacturaPK().getNumero() + "no concuerda el valor\n").toString();
-                    //this.dialogo(FacesMessage.SEVERITY_ERROR, "Factura N." + facturaNoValor.get(indice).getFacturaPK().getNumero() + "no concuerda el valor");
-                }
-            }
-            if (!facturaNoEcuentra.isEmpty()) {
-                for (int indice = 0; indice < facturaNoEcuentra.size(); indice++) {
-                    cadenaErro.append("Factura N." + facturaNoEcuentra.get(indice).getDetallepagoPK().getNumerofactura() + "no se encuentra\n").toString();
-                    //this.dialogo(FacesMessage.SEVERITY_ERROR, "Factura N." + facturaNoEcuentra.get(indice).getDetallepagoPK().getNumerofactura() + "no se encuentra");
-                }
-            }
-            this.dialogo(FacesMessage.SEVERITY_INFO, cadenaInfo.toString());
-            this.dialogo(FacesMessage.SEVERITY_ERROR, cadenaErro.toString());
         } else {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "Error de carga, el archivo se encuentra vacio");
+        }
+
+    }
+
+    public Boolean addPagoFacturabancoRechazado(Pagosbancorechazados pagosbancorechazados) {
+        try {
+            String respuesta;
+            DateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.pagosbancorechazados");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-type", "application/json");
+
+            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+            JSONObject obj = new JSONObject();
+            JSONObject objPK = new JSONObject();
+            objPK.put("bcoCodigobanco", pagosbancorechazados.getPagosbancorechazadosPK().getBcoCodigobanco());
+            objPK.put("bcoCodigocliente", pagosbancorechazados.getPagosbancorechazadosPK().getBcoCodigocliente());
+            objPK.put("bcoNumerofactura", pagosbancorechazados.getPagosbancorechazadosPK().getBcoNumerofactura());
+            objPK.put("fechaactual", date.format(pagosbancorechazados.getPagosbancorechazadosPK().getFechaactual()));
+            obj.put("pagosbancorechazadosPK", objPK);
+
+            obj.put("bcoValorconrubro", pagosbancorechazados.getBcoValorconrubro());
+            obj.put("bcoRuccliente", pagosbancorechazados.getBcoRuccliente());
+            obj.put("bcoNombrecliente", pagosbancorechazados.getBcoNombrecliente());
+            obj.put("bcoNombrebanco", pagosbancorechazados.getBcoNombrebanco());
+            obj.put("bcoFechaproceso", pagosbancorechazados.getBcoFechaproceso());
+            obj.put("registrook", pagosbancorechazados.getRegistrook());
+            if (pagosbancorechazados.getPysFechaacreditacionprorrogada() != null) {
+                obj.put("pysCodigobanco", pagosbancorechazados.getPysCodigobanco());
+                obj.put("pysCodigocliente", pagosbancorechazados.getPysCodigocliente());
+                obj.put("pysFechaacreditacionprorrogada", date.format(pagosbancorechazados.getPysFechaacreditacionprorrogada()));
+                obj.put("pysNombrebanco", pagosbancorechazados.getPysNombrebanco());
+                obj.put("pysNombrecliente", pagosbancorechazados.getPysNombrecliente());
+                obj.put("pysNumerofactura", pagosbancorechazados.getPysNumerofactura());
+                obj.put("pysRuccliente", pagosbancorechazados.getPysRuccliente());
+                obj.put("pysValorconrubro", pagosbancorechazados.getPysValorconrubro());
+            } else {
+                obj.put("pysCodigobanco", " ");
+                obj.put("pysCodigocliente", " ");
+                obj.put("pysFechaacreditacionprorrogada", date.format(new Date()));
+                obj.put("pysNombrebanco", " ");
+                obj.put("pysNombrecliente", " ");
+                obj.put("pysNumerofactura", " ");
+                obj.put("pysRuccliente", " ");
+                obj.put("pysValorconrubro", -1);
+            }
+            respuesta = obj.toString();
+            writer.write(respuesta);
+            writer.close();
+            if (connection.getResponseCode() == 200) {
+                System.out.println("Registro Pagos Banco Rechazado");
+                return true;
+            } else {
+//                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
+                System.out.println(connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
+                return false;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public void guardar() throws ParseException {
+        int detOk = 0;
+        int detError = 0;
+        Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+        observacion = params.get("recibopago:observacion");
+        if (!observacion.isEmpty()) {
+            if (!listaPagosBancoRechazadoAux.isEmpty()) {
+                if (addPagoFactura()) {
+                    for (int indice = 0; indice < listaPagosBancoRechazadoAux.size(); indice++) {
+                        if (!addDetPago(listaPagosBancoRechazadoAux.get(indice))) {
+                            detError++;
+                        } else {
+                            detOk++;
+                        }
+                    }
+                }
+                if (detError > 0) {
+                    this.dialogo(FacesMessage.SEVERITY_ERROR, "Detalles no registrados: " + detError);
+                }
+                if (detOk > 0) {
+                    this.dialogo(FacesMessage.SEVERITY_INFO, "Detalles registrados: " + detOk);
+                }
+                guardarPagosBancoRechazado();
+                listaPagosbancorechazados = new ArrayList<>();
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "Error de carga, el archivo se encuentra vacio");
+            }
+        } else {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "Ingrese una observación");
         }
 
     }
@@ -1465,7 +1486,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             obj.put("fecha", fechaS);
             obj.put("activo", listaPagofacturaArchivoSubida.get(0).getActivo());
             obj.put("valor", suma);
-            obj.put("observacion", listaPagofacturaArchivoSubida.get(0).getObservacion());
+            obj.put("observacion", observacion);
             String fechaR = date.format(listaPagofacturaArchivoSubida.get(0).getFecharegistro());
             obj.put("fecharegistro", fechaR);
             obj.put("usuarioactual", listaPagofacturaArchivoSubida.get(0).getUsuarioactual());
@@ -1473,21 +1494,22 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             writer.write(respuesta);
             writer.close();
             if (connection.getResponseCode() == 200) {
-                this.dialogo(FacesMessage.SEVERITY_INFO, "PAGO FACTURA REGISTRADO EXITOSAMENTE");
+                //this.dialogo(FacesMessage.SEVERITY_INFO, "PAGO FACTURA REGISTRADO EXITOSAMENTE");
                 return true;
             } else {
-                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR PAGO FACTURA");
                 System.out.println(connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
                 return false;
             }
         } catch (IOException e) {
             e.printStackTrace();
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR PAGO FACTURA");
             return false;
         }
     }
 
-    public Boolean addDetPago(int indice) {
+    public Boolean addDetPago(Pagosbancorechazados pagosbancorechazados) {
         try {
             String respuesta;
 
@@ -1514,15 +1536,15 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 //            obj.put("activo", listaDetallePagofacturaArchivoSubida.get(indice).getActivo());
 //            obj.put("usuarioactual", listaDetallePagofacturaArchivoSubida.get(indice).getUsuarioactual());
 
-            objPk.put("codigoabastecedora", listaFacturaAux.get(indice).getFacturaPK().getCodigoabastecedora());
-            objPk.put("codigocomercializadora", listaFacturaAux.get(indice).getFacturaPK().getCodigocomercializadora());
-            objPk.put("numeronotapedido", listaFacturaAux.get(indice).getFacturaPK().getNumeronotapedido());
-            objPk.put("numero", listaDetallePagofacturaArchivoSubida.get(indice).getDetallepagoPK().getNumero());
-            objPk.put("codigobanco", listaFacturaAux.get(indice).getCodigobanco());
-            objPk.put("numerofactura", listaFacturaAux.get(indice).getFacturaPK().getNumero());
+            objPk.put("codigoabastecedora", listaPagofacturaArchivoSubida.get(0).getPagofacturaPK().getCodigoabastecedora());
+            objPk.put("codigocomercializadora", listaPagofacturaArchivoSubida.get(0).getPagofacturaPK().getCodigocomercializadora());
+            objPk.put("numeronotapedido", pagosbancorechazados.getPysNumeronotapedido());
+            objPk.put("numero", listaPagofacturaArchivoSubida.get(0).getPagofacturaPK().getNumero());
+            objPk.put("codigobanco", pagosbancorechazados.getPysCodigobanco());
+            objPk.put("numerofactura", pagosbancorechazados.getPysNumerofactura());
             obj.put("detallepagoPK", objPk);
-            obj.put("valor", listaFacturaAux.get(indice).getValortotal());
-            obj.put("activo", listaFacturaAux.get(indice).getActiva());
+            obj.put("valor", pagosbancorechazados.getPysValorconrubro());
+            obj.put("activo", true);
             obj.put("usuarioactual", listaPagofacturaArchivoSubida.get(0).getUsuarioactual());
             respuesta = obj.toString();
             writer.write(respuesta);
@@ -1538,11 +1560,10 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 //            writer.write(respuesta);
 //            writer.close();
             if (connection.getResponseCode() == 200) {
-                this.dialogo(FacesMessage.SEVERITY_INFO, "LISTA DETALLES DE PAGOS REGISTRADA EXITOSAMENTE");
-                PrimeFaces.current().executeScript("PF('recibirPag').hide()");
+                //this.dialogo(FacesMessage.SEVERITY_INFO, "LISTA DETALLES DE PAGOS REGISTRADA EXITOSAMENTE");                
                 return true;
             } else {
-                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
+                //this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
                 System.out.println(connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
                 return false;
@@ -2057,7 +2078,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             ubicacion = "";
             listaDetallePagofacturaArchivoSubida = new ArrayList<>();
         }
-        PrimeFaces.current().executeScript("PF('recibirPag').show()");
+        PrimeFaces.current().executeScript("PF('zip').show()");
     }
 
     public void nuevoPagoDirecto() {
@@ -2192,6 +2213,12 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 //        this.dialogo(FacesMessage.SEVERITY_INFO, cadenaInfo.toString());
 //        this.dialogo(FacesMessage.SEVERITY_ERROR, cadenaErro.toString());
 
+    }
+
+    public String formatoFecha(String cadena) {
+        String fechaFormat = "";
+        fechaFormat = cadena.substring(0, 2) + "/" + cadena.substring(2, 4) + "/" + cadena.substring(4);
+        return fechaFormat;
     }
 
     public List<Detallepago> getListaDetallePagofacturaArchivoSubida() {

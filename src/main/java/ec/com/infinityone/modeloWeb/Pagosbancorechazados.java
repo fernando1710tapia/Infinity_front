@@ -47,6 +47,8 @@ public class Pagosbancorechazados implements Serializable {
    
     private Boolean registrook;
 
+    private String pysNumeronotapedido;
+
     public Pagosbancorechazados() {
     }
 
@@ -183,6 +185,14 @@ public class Pagosbancorechazados implements Serializable {
 
     public void setRegistrook(Boolean registrook) {
         this.registrook = registrook;
+    }
+
+    public String getPysNumeronotapedido() {
+        return pysNumeronotapedido;
+    }
+
+    public void setPysNumeronotapedido(String pysNumeronotapedido) {
+        this.pysNumeronotapedido = pysNumeronotapedido;
     }
 
     @Override

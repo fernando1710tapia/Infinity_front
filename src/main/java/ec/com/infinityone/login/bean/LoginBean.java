@@ -247,7 +247,7 @@ public class LoginBean extends ReusableBean implements Serializable {
                         x = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
                         dataUser.setUser(x);
                         dataUser.setUserConected(x.getNombrever());
-                        dataUser.setProductoSinFe(Fichero.getPRODUCTOSINFE());
+                        dataUser.setProductoSinFe(Fichero.getPRODUCTOSINFE());                        
                         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("login");
                         //FacesContext.getCurrentInstance().getExternalContext().redirect("/infinityandres/dashboard.xhtml");                        
                         LOG.log(Level.INFO, "Ingresa al sistema el usuario: {0}", usuarioLog);

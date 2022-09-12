@@ -478,7 +478,7 @@
         </h:form>
 
 
-        <p:dialog header="Recibir Pagos" width="80%" height="500px" showEffect="fade" modal="true" widgetVar="recibirPag" responsive="true">
+        <p:dialog header="Recibir Pagos" width="80%" height="500px" showEffect="fade" modal="true" widgetVar="zip" responsive="true">
             <h:form id="recibopago">
                 <p:outputPanel rendered="true">
                     <div class="p-grid crud-demo">                        
@@ -563,7 +563,7 @@
                                     </h:outputText>
                                 </p:column>
                                 <p:column headerText="BCO-Fecha" sortBy="#{cobro.bcoFechaproceso}" filterBy="#{cobro.bcoFechaproceso}" width="10%">                                           
-                                    <h:outputText value="#{cobro.bcoFechaproceso}">
+                                    <h:outputText value="#{pagoFacturaBean.formatoFecha(cobro.bcoFechaproceso)}">
                                         <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                     </h:outputText>
                                 </p:column>
@@ -611,8 +611,8 @@
                 </p:outputPanel>
                 <div class="p-grid p-col-12 p-justify-end">                     
                     <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{pagoFacturaBean.guardar}" process="@this"  
-                                     update="@this" styleClass="p-mr-2" />                    
-                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('nuevo').hide()" class="ui-button-secondary" />
+                                     update="@this :form recibopago" styleClass="p-mr-2" />                    
+                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('zip').hide()" class="ui-button-secondary" />
                 </div>
             </h:form>
         </p:dialog>

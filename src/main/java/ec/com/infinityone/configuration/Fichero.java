@@ -26,11 +26,13 @@ public class Fichero {
     private static final Logger LOG = Logger.getLogger(Fichero.class.getName());
     
     private static String RUTAREPORTE;
+    private static String RUTAXML;
     private static String RUTAAYUDA;
     private static String RUTASERVICIOSPERSISTENCIA;
     private static String RUTADASHBOARD;
     private static String RUTAACTUALIZAR;
     private static String CARPETAREPORTES;
+    private static String CARPETAXML;
     private static String CARPETAAYUDA;
     private static String PRODUCTOSINFE;
     private static String RUTACONEXIONBD;
@@ -45,17 +47,21 @@ public class Fichero {
             //Inicializa la aplicación, cargando las configuraciones iniciales
             //File confDir = new File("C:\\Users\\HP\\Documents\\David\\Infinity");
             File confDir = new File(System.getProperty("jboss.server.config.dir"));
+            System.out.println("Direccion: " + confDir.getAbsolutePath());
             File fileProp = new File(confDir, "ConfiguracionInfinity.properties");
             File rep= new File(confDir, "reportes");
             CARPETAREPORTES = rep.toString();
             File ayu= new File(confDir, "ayuda");
             CARPETAAYUDA = ayu.toString();
+            File xml= new File(confDir, "xml");
+            CARPETAXML = xml.toString();
             in = new FileInputStream(fileProp);
             propiedades = new Properties();
             propiedades.load(in);
             in.close();
 
             RUTAREPORTE = (String) propiedades.get("RUTAREPORTE");
+            RUTAXML = (String) propiedades.get("RUTAXML");
             RUTAAYUDA = (String) propiedades.get("RUTAAYUDA");
             RUTASERVICIOSPERSISTENCIA = (String) propiedades.get("RUTASERVICIOSPERSISTENCIA");
             RUTADASHBOARD = (String) propiedades.get("RUTADASHBOARD");
@@ -160,6 +166,22 @@ public class Fichero {
 
     public static void setCARPETAAYUDA(String CARPETAAYUDA) {
         Fichero.CARPETAAYUDA = CARPETAAYUDA;
+    }
+
+    public static String getRUTAXML() {
+        return RUTAXML;
+    }
+
+    public static void setRUTAXML(String RUTAXML) {
+        Fichero.RUTAXML = RUTAXML;
+    }
+
+    public static String getCARPETAXML() {
+        return CARPETAXML;
+    }
+
+    public static void setCARPETAXML(String CARPETAXML) {
+        Fichero.CARPETAXML = CARPETAXML;
     }
 
 }
