@@ -70,6 +70,8 @@ public class Descargaxml extends ReusableBean implements Serializable {
 
     protected Date fechaB;
 
+    private InputStream targetStream;
+
     /**
      * Constructor por defecto
      */
@@ -113,7 +115,7 @@ public class Descargaxml extends ReusableBean implements Serializable {
                     if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
                         this.comercializadora = listaComercializadora.get(i);
                     }
-                }                
+                }
             }
             if (dataUser.getUser().getNiveloperacion().equals("usac")) {
                 habilitarComer = false;
@@ -121,7 +123,7 @@ public class Descargaxml extends ReusableBean implements Serializable {
                     if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
                         this.comercializadora = listaComercializadora.get(i);
                     }
-                }                
+                }
             }
         }
     }
@@ -136,19 +138,22 @@ public class Descargaxml extends ReusableBean implements Serializable {
 
     public void descargarxml() {
         try {
-            Date date = new Date();
-
-            SimpleDateFormat getYearFormat = new SimpleDateFormat("yyyy");
-            SimpleDateFormat getMonthFormat = new SimpleDateFormat("MM");
-            String currentYear = getYearFormat.format(date);
-            String currentMonth = getMonthFormat.format(date);            
-            //rutaArchivos= "C:\\archivos\\docs";
-            //rutaArchivos= Fichero.getCARPETAXML(); 
-            rutaArchivos = Fichero.getRUTAXML() + "/" + currentYear + "/" + currentMonth + "/" + comercializadora.getRuc();
-            //rutaArchivos = Fichero.getRUTAXML();
-            System.out.println("FT::(Direccion: " + rutaArchivos);
-            System.out.println("FT::(0100)-INICIO descargarxml");
-            lecturaXml();
+            if (comercializadora != null) {
+                Date date = new Date();
+                SimpleDateFormat getYearFormat = new SimpleDateFormat("yyyy");
+                SimpleDateFormat getMonthFormat = new SimpleDateFormat("MM");
+                String currentYear = getYearFormat.format(date);
+                String currentMonth = getMonthFormat.format(date);
+                //rutaArchivos= "C:\\archivos\\docs";
+                //rutaArchivos= Fichero.getCARPETAXML(); 
+                rutaArchivos = Fichero.getRUTAXML() + "/" + currentYear + "/" + currentMonth + "/" + comercializadora.getRuc();
+                //rutaArchivos = Fichero.getRUTAXML();
+                System.out.println("FT::(Direccion: " + rutaArchivos);
+                System.out.println("FT::(0100)-INICIO descargarxml");
+                lecturaXml();
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_WARN, "Seleccione una comercializadora");
+            }
         } catch (Throwable t) {
             System.out.println("FT::::(0100)-error " + t.getMessage());
             t.printStackTrace(System.out);
@@ -171,8 +176,8 @@ public class Descargaxml extends ReusableBean implements Serializable {
                 }
                 if (fe.equals("xml")) {
                     cArchivos.setTimeInMillis(file.lastModified());
-                    String date = cArchivos.get(Calendar.DAY_OF_MONTH) + "/" + cArchivos.get(Calendar.MONTH) + "/" + cArchivos.get(Calendar.YEAR);
-                    System.out.println("----" + date);
+                    //String date = cArchivos.get(Calendar.DAY_OF_MONTH) + "/" + cArchivos.get(Calendar.MONTH) + "/" + cArchivos.get(Calendar.YEAR);
+                    //System.out.println("----" + date);
                     if (cArchivos.get(Calendar.DAY_OF_MONTH) == cFechaE.get(Calendar.DAY_OF_MONTH)
                             && cArchivos.get(Calendar.MONTH) == cFechaE.get(Calendar.MONTH)
                             && cArchivos.get(Calendar.YEAR) == cFechaE.get(Calendar.YEAR)) {
@@ -185,6 +190,9 @@ public class Descargaxml extends ReusableBean implements Serializable {
             zip(listaArchivos);
         } else {
             this.dialogo(FacesMessage.SEVERITY_WARN, "No se encontraron archivos");
+            if (targetStream != null) {
+                targetStream.close();
+            }
         }
     }
 
@@ -210,16 +218,21 @@ public class Descargaxml extends ReusableBean implements Serializable {
             zos.close();
             System.out.println("ZIP. LISTO");
             descargar(nombreArchivo);
+            fos.close();
         } catch (Throwable ex) {
             ex.printStackTrace();
         }
     }
 
     public void descargar(String nombre) throws Throwable {
-        File initialFile = new File(rutaArchivos + nombre);
-        System.out.println("FT:: descargar . AbsolutePath" + initialFile.getAbsolutePath() + "CanonicalPath" + initialFile.getCanonicalPath());
-        InputStream targetStream = new FileInputStream(initialFile);
-        txtStream = new DefaultStreamedContent(targetStream, "application/txt", nombre);
+        try {
+            File initialFile = new File(rutaArchivos + nombre);
+            System.out.println("FT:: descargar . AbsolutePath" + initialFile.getAbsolutePath() + "CanonicalPath" + initialFile.getCanonicalPath());
+            targetStream = new FileInputStream(initialFile);
+            txtStream = new DefaultStreamedContent(targetStream, "application/txt", nombre);
+        } catch (Throwable t) {
+            System.out.println("Error: " + t);
+        }
     }
 
     public StreamedContent getTxtStream() {

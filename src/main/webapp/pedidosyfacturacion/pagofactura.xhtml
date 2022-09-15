@@ -211,7 +211,8 @@
                                 </div>    
 
                                 <p:dataTable id="dt-cobros" widgetVar="dtProducts" var="cobro" value="#{pagoFacturaBean.listaFactura}" reflow="true" styleClass="products-table"
-                                             selection="#{pagoFacturaBean.listaFacturaSeleccionada}" rowKey="#{cobro.facturaPK.codigoabastecedora}-#{cobro.facturaPK.codigocomercializadora}-#{cobro.facturaPK.numero}-#{cobro.facturaPK.numeronotapedido}" paginator="true" rows="20" rowSelectMode="add" paginatorPosition="bottom">                                        
+                                             selection="#{pagoFacturaBean.listaFacturaSeleccionada}" rowKey="#{cobro.facturaPK.codigoabastecedora}-#{cobro.facturaPK.codigocomercializadora}-#{cobro.facturaPK.numero}-#{cobro.facturaPK.numeronotapedido}" 
+                                             paginator="true" rows="20" paginatorPosition="bottom" >                                        
                                     <!-- selectionMode="multiple" rowKey="{cobro.codigobanco}-{cobro.fechaventa}-{cobro.fechavencimiento}"-->
                                     <!--rowKey="{cobro.facturaPK.codigoabastecedora}-{cobro.facturaPK.codigocomercializadora}-{cobro.facturaPK.numero}-{cobro.facturaPK.numeronotapedido}"-->
                                     <f:facet name="header">
@@ -224,7 +225,8 @@
                                             </span>
                                         </div>
                                     </f:facet>
-                                    <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
+                                    <p:ajax event="rowSelectCheckbox" />
+                                    <p:column selectionMode="multiple" style="width:16px;text-align:center" styleClass="selectionCheckBox"/>
                                     <p:column headerText="Banco" sortBy="#{cobro.codigobanco}" filterBy="#{cobro.codigobanco}" width="10%">
                                         <h:outputText value="#{cobro.codigobanco}" />
                                     </p:column>
@@ -544,7 +546,7 @@
                                     </div>
                                 </f:facet>  
                                 <!--<p:column selectionMode="multiple" style="width:16px;text-align:center"/>-->
-                                
+
                                 <p:column headerText="PyS-Factura" sortBy="#{cobro.pysNumerofactura}" filterBy="#{cobro.pysNumerofactura}" width="12%">
                                     <h:outputText value="#{cobro.pysNumerofactura}" />
                                 </p:column>
@@ -601,9 +603,11 @@
                                 <!--<p:column headerText="BCO-NP" sortBy="{cobro.pagosbancorechazadosPK.}" filterBy="{cobro.referencia}" >
                                     <h:outputText value="{cobro.referencia}" />
                                 </p:column>-->
-                                
+
                                 <p:column headerText="Reg. OK" width="8%">
-                                    <p:selectBooleanCheckbox value="#{cobro.registrook}"/>                                    
+                                    <p:selectBooleanCheckbox value="#{cobro.registrook}">
+                                        <p:ajax event="change" /> 
+                                    </p:selectBooleanCheckbox>                                    
                                 </p:column>
                             </p:dataTable>
                         </div> 

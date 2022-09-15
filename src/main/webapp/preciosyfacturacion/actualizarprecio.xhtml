@@ -75,10 +75,10 @@
                                 <div class="p-field p-col-12 p-md-12"></div>
                                 <div class="p-field p-col-12 p-md-3">  
                                     <span class="ui-float-label">
-                                        
+
                                         <p:datePicker id="fechaIni" value="#{actualizarPrecioBean.fechaActualizada}" showIcon="true" pattern="dd/MM/yyyy" mindate="#{actualizarPrecioBean.fechaInicio}"/>
-                                            <p:outputLabel for="fechaIni" value="Fecha Inicio de Vigencia "/>
-                                        
+                                        <p:outputLabel for="fechaIni" value="Fecha Inicio de Vigencia "/>
+
                                     </span>
                                 </div>
                             </div>
@@ -97,13 +97,21 @@
                                         </div>
                                     </f:facet>
                                     <p:column headerText="Seleccionar" width="10%">
-                                        <p:selectBooleanCheckbox id="seleccionar" value="#{product.procesar}"/>
+                                        <p:selectBooleanCheckbox id="seleccionar" value="#{product.procesar}">
+                                            <p:ajax event="change" /> 
+                                        </p:selectBooleanCheckbox>
                                     </p:column>
                                     <p:column headerText="Producto" sortBy="#{product.producto.nombre}" filterBy="#{product.producto.nombre}" width="10%">
                                         <h:outputText value="#{product.producto.nombre}" />
                                     </p:column>
                                     <p:column headerText="Medida" sortBy="#{product.medida.abreviacion}" filterBy="#{product.medida.abreviacion}" width="7%">
                                         <h:outputText value="#{product.medida.abreviacion}" />
+                                    </p:column>
+                                    <p:column headerText="Margen Porcentaje" sortBy="#{actualizarPrecioBean.obtenerMargenPorcentaje(product, 1)}">
+                                        <h:outputText value="#{actualizarPrecioBean.obtenerMargenPorcentaje(product, 1)}" />
+                                    </p:column>
+                                    <p:column headerText="Margen Comercializadora" sortBy="#{actualizarPrecioBean.obtenerMargenPorcentaje(product, 2)}">
+                                        <h:outputText value="#{actualizarPrecioBean.obtenerMargenPorcentaje(product, 2)}" />
                                     </p:column>
                                     <p:column headerText="Margen Total" sortBy="#{product.margencomercializacion}">
                                         <h:outputText value="#{product.margencomercializacion}" />
@@ -112,10 +120,14 @@
                                         <h:outputText value="#{product.precioepp}" />
                                     </p:column>
                                     <p:column headerText="Precio Sugerido" filterBy="#{product.pvpsugerido}" >
-                                        <p:inputText value="#{product.pvpsugerido}" />
+                                        <p:inputText value="#{product.pvpsugerido}" >
+                                            <p:ajax event="change" /> 
+                                        </p:inputText>
                                     </p:column>
                                     <p:column headerText="Solo IVA">
-                                        <p:selectBooleanCheckbox id="iva" value="#{product.soloaplicaiva}"/>
+                                        <p:selectBooleanCheckbox id="iva" value="#{product.soloaplicaiva}">
+                                            <p:ajax event="change" /> 
+                                        </p:selectBooleanCheckbox>
                                     </p:column>
                                 </p:dataTable>
                                 <div class="p-field p-col-12 p-md-12"></div>

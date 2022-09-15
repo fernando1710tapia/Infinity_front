@@ -498,17 +498,17 @@
                                 </p:column>--> 
                                 <p:column headerText="Sello Inicial"  width="9%">
                                     <p:inputText value="#{guia1.selloinicial}"  required="true" >
-                                        <p:ajax event="blur" listener="#{guiasRemisionBean.inserarDatos}"/>  
+                                        <p:ajax event="change" /> 
                                     </p:inputText>
                                 </p:column>
                                 <p:column headerText="Sello Final" width="9%">
                                     <p:inputText value="#{guia1.sellofinal}" required="true" >
-                                        <p:ajax event="blur" listener="#{guiasRemisionBean.inserarDatos}"/>
+                                        <p:ajax event="change" /> 
                                     </p:inputText>
                                 </p:column>
                                 <p:column headerText="Observación"  width="18%">
                                     <p:inputText value="#{guia1.observacion}" >
-                                        <p:ajax event="blur" listener="#{guiasRemisionBean.inserarDatos}"/>                                    
+                                        <p:ajax event="change" /> 
                                     </p:inputText>
                                 </p:column>                    
                             </p:dataTable>                                                                                         

@@ -27,7 +27,7 @@
                                             <i class="fa fa-shopping-cart"></i>
                                         </span>
                                         <p:selectOneMenu id="comercializadora" value="#{descargaxml.comercializadora}" title="Comercializadora"
-                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         panelStyle="width:175px" style="min-width: 80%;" required="true"
                                                          autoWidth="false" converter="converterg" disabled="#{!descargaxml.habilitarComer}">
                                             <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}" />
                                             <f:selectItems value="#{descargaxml.listaComercializadora}"

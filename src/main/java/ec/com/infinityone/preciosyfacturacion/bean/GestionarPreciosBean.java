@@ -270,7 +270,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
         comercializadoraProductoPK = new ComercializadoraproductoPK();
         nombreComercializadora = "";
         terminalValor = "";
-        confTerminal = "";
+        confTerminal = "1";
         objprecio = new ObjetoPrecio();
         listaPrecio = new ArrayList<>();
         listPrice = new ArrayList<>();

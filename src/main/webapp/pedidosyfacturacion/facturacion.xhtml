@@ -307,7 +307,9 @@
                         <h:outputText value="#{notaP.detalle.volumennaturalrequerido}" />
                     </p:column>
                     <p:column headerText="Vol. Autorizado"  width="15%">                                 
-                        <p:inputText id="volAutori" value="#{notaP.detalle.volumennaturalautorizado}" />
+                        <p:inputText id="volAutori" value="#{notaP.detalle.volumennaturalautorizado}" >
+                            <p:ajax event="change" /> 
+                        </p:inputText>
                     </p:column>
                     <p:column headerText="Fecha Venta"  width="15%">
                         <h:outputText value="#{notaP.notapedido.fechaventa}" >
@@ -320,10 +322,14 @@
                         </h:outputText>
                     </p:column> 
                     <p:column headerText="Adelantar"  width="15%">
-                        <p:selectBooleanCheckbox id="adelantar" value="#{notaP.notapedido.adelantar}"/>
+                        <p:selectBooleanCheckbox id="adelantar" value="#{notaP.notapedido.adelantar}">
+                            <p:ajax event="change" /> 
+                        </p:selectBooleanCheckbox>
                     </p:column>  
                     <p:column headerText="Facturar"  width="10%">
-                        <p:selectBooleanCheckbox id="procesar" value="#{notaP.notapedido.procesar}" />
+                        <p:selectBooleanCheckbox id="procesar" value="#{notaP.notapedido.procesar}" >
+                            <p:ajax event="change" /> 
+                        </p:selectBooleanCheckbox>
                     </p:column>
                     <p:column headerText="N.P." style="width: 3.5rem">
                         <p:commandButton icon="pi pi-print" actionListener="#{facturacionBean.generarReporteNp(notaP)}" ajax="false"

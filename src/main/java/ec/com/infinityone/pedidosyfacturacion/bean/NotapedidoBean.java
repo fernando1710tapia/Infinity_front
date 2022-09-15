@@ -80,7 +80,7 @@ import org.primefaces.shaded.json.JSONObject;
 @Named
 @ViewScoped
 public class NotapedidoBean extends ReusableBean implements Serializable {
-    
+
     private static final Logger LOG = Logger.getLogger(FacturacionBean.class.getName());
 
     /*
@@ -299,7 +299,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
      */
     public NotapedidoBean() {
     }
-    
+
     @PostConstruct
     /**
      * Funcion para inicializar variables
@@ -314,7 +314,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
 
         //habilitarBusqueda();
     }
-    
+
     public void nuevaNotaPedido() {
         reestablecer();
         obtenerBanco();
@@ -337,9 +337,9 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
         }
         mostarNotaPedido = true;
         mostarPantallaInicial = false;
-        
+
     }
-    
+
     public void reestablecer() {
         editarNotapedido = false;
         codComer = "";
@@ -375,7 +375,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
         listaMedida = new ArrayList<>();
         //listaProductos = new ArrayList<>();
     }
-    
+
     public void obtenerComercializadora() {
         listaComercializadora = new ArrayList<>();
         listaComercializadora = comerServicio.obtenerComercializadorasActivas();
@@ -383,27 +383,27 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             habilitarBusqueda();
         }
     }
-    
+
     public void obtenerTerminales() {
         listaTermianles = new ArrayList<>();
         listaTermianles = termServicio.obtenerTerminal();
     }
-    
+
     public void obtenerClientes() {
         listaClientes = new ArrayList<>();
         listaClientes = clienteServicio.obtenerClientes();
     }
-    
+
     public void obtenerBanco() {
         listaBancos = new ArrayList<>();
         listaBancos = bancoServicio.obtenerBanco();
     }
-    
+
     public void obtenerMedida() {
         listaMedida = new ArrayList<>();
         listaMedida = medidaServicio.obtenerMedida();
     }
-    
+
     public void seleccionarComerc() {
         if (comercializadora != null) {
             codComer = comercializadora.getCodigo();
@@ -412,7 +412,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             listaClientes = clienteServicio.obtenerClientesPorComercializadora(codComer);
         }
     }
-    
+
     public void seleccionarComercializdora() {
         if (comercializadora != null) {
             if (comercializadora.getActivo().equals("S")) {
@@ -448,13 +448,21 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             }
         }
     }
-    
+
     public void seleccionarTerminal() {
         if (terminal != null) {
             codTerminal = terminal.getCodigo();
+            List<Cliente> listaClientesAux = new ArrayList<>();
+            listaClientesAux = clienteServicio.obtenerClientesPorComercializadora(codComer);
+            listaClientes = new ArrayList<>();
+            for (int i = 0; i < listaClientesAux.size(); i++) {
+                if (listaClientesAux.get(i).getCodigoterminaldefecto().getCodigo().equals(codTerminal)) {
+                    listaClientes.add(listaClientesAux.get(i));
+                }
+            }
         }
     }
-    
+
     public void seleccCliente() {
         if (cliente != null) {
             codCliente = cliente.getCodigo();
@@ -466,9 +474,9 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             }
             seleccionarTerminal();
         }
-        
+
     }
-    
+
     public void seleccionarCliente() {
         if (cliente != null) {
             codCliente = cliente.getCodigo();
@@ -476,10 +484,15 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             listaProductos = cliProdServicio.obtenerProductos(codCliente);
             np.setCodigocliente(cliente);
             if (cliente.getCodigoterminaldefecto() != null) {
-                codTerminal = cliente.getCodigoterminaldefecto().getCodigo() + " - " + cliente.getCodigoterminaldefecto().getNombre();
-                np.setCodigoterminal(cliente.getCodigoterminaldefecto());
+//                for (int i = 0; i < listaTermianles.size(); i++) {
+//                    if (cliente.getCodigoterminaldefecto().equals(listaTermianles.get(i).getCodigo())) {
+//                        terminal = listaTermianles.get(i);
+                        codTerminal = cliente.getCodigoterminaldefecto().getCodigo() + " - " + cliente.getCodigoterminaldefecto().getNombre();
+//                    }
+                    np.setCodigoterminal(cliente.getCodigoterminaldefecto());
+//                }
             }
-            
+
             if (cliente.getCodigobancodebito() != null) {
                 for (int i = 0; i < listaBancos.size(); i++) {
                     if (listaBancos.get(i).getCodigo().equals(cliente.getCodigobancodebito())) {
@@ -490,7 +503,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             }
         }
     }
-    
+
     public void seleccionarMedida() {
         if (medida != null) {
             detNPK.setCodigomedida(medida.getCodigo());
@@ -498,13 +511,13 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             detNP.setMedida(medida);
         }
     }
-    
+
     public void seleccionarBanco() {
         if (banco != null) {
             np.setCodigobanco(banco);
         }
     }
-    
+
     public void seleccionarProducto() {
         if (productoSeleccionado != null) {
             detNPK.setCodigoproducto(productoSeleccionado.getCodigo());
@@ -512,7 +525,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             detNP.setProducto(productoSeleccionado);
         }
     }
-    
+
     public void habilitarBusqueda() {
         if (dataUser.getUser() != null) {
             switch (dataUser.getUser().getNiveloperacion()) {
@@ -541,7 +554,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                         if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
                             this.comercializadora = listaComercializadora.get(i);
                         }
-                        
+
                     }
                     if (comercializadora.getCodigo() != null) {
                         seleccionarComerc();
@@ -556,7 +569,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                         this.dialogo(FacesMessage.SEVERITY_FATAL, "La comercializadora se encuentra deshabilitada");
                     }
                     seleccionarCliente();
-                    
+
                     for (int i = 0; i < listaTermianles.size(); i++) {
                         if (listaTermianles.get(i).getCodigo().equals(cliente.getCodigoterminaldefecto().getCodigo())) {
                             terminal = listaTermianles.get(i);
@@ -571,7 +584,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                 case "agco":
                     habilitarComer = false;
                     habilitarCli = true;
-                    habilitarTerminal = false;
+                    habilitarTerminal = true;
                     for (int i = 0; i < listaComercializadora.size(); i++) {
                         if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
                             comercializadora = listaComercializadora.get(i);
@@ -586,21 +599,21 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                         }
                     }
                     seleccionarTerminal();
-                    List<Cliente> listaClientesAux = new ArrayList<>();
-                    listaClientesAux = clienteServicio.obtenerClientesPorComercializadora(codComer);
-                    listaClientes = new ArrayList<>();
-                    for (int i = 0; i < listaClientesAux.size(); i++) {
-                        if (listaClientesAux.get(i).getCodigoterminaldefecto().getCodigo().equals(codTerminal)) {
-                            listaClientes.add(listaClientesAux.get(i));
-                        }
-                    }
+//                    List<Cliente> listaClientesAux = new ArrayList<>();
+//                    listaClientesAux = clienteServicio.obtenerClientesPorComercializadora(codComer);
+//                    listaClientes = new ArrayList<>();
+//                    for (int i = 0; i < listaClientesAux.size(); i++) {
+//                        if (listaClientesAux.get(i).getCodigoterminaldefecto().getCodigo().equals(codTerminal)) {
+//                            listaClientes.add(listaClientesAux.get(i));
+//                        }
+//                    }
                     break;
                 default:
                     break;
             }
         }
     }
-    
+
     public void obtenerNotasPedido() throws ParseException {
         try {
             DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
@@ -611,10 +624,10 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
             String dateI = sdf.format(fechaInicial);
             String dateF = sdf.format(fechaFinal);
-            
+
             Date firstDate = sdf.parse(dateI);
             Date secondDate = sdf.parse(dateF);
-            
+
             long diff = secondDate.getTime() - firstDate.getTime();
             TimeUnit time = TimeUnit.DAYS;
             long diffrence = time.convert(diff, TimeUnit.MILLISECONDS);
@@ -634,13 +647,13 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                 connection.setDoInput(true);
                 connection.setRequestMethod("GET");
                 connection.setRequestProperty("Accept", "application/json");
-                
+
                 listenvNP = new ArrayList<>();
                 listDetNP = new ArrayList<>();
                 cliente = new Cliente();
                 EnvioPedido envioPedido = new EnvioPedido();
                 InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-                
+
                 BufferedReader br = new BufferedReader(reader);
                 String tmp = null;
                 String respuesta = "";
@@ -652,7 +665,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                 if (retorno.isEmpty()) {
                     this.dialogo(FacesMessage.SEVERITY_ERROR, "NO SE ENCONTRARON NOTAS DE PEDIDO");
                 } else {
-                    
+
                     for (int indice = 0; indice < retorno.length(); indice++) {
                         if (!retorno.isNull(indice)) {
                             JSONObject nt = retorno.getJSONObject(indice);
@@ -716,7 +729,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                             np.setCodigobanco(banco);
                             np.setComercializadora(comerc);
                             np.setAbastecedora(abas);
-                            
+
                             np.setNumerofacturasri(nt.getString("numerofacturasri"));
                             np.setActiva(nt.getBoolean("activa"));
                             npPK.setNumero(ntPK.getString("numero"));
@@ -750,7 +763,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             e.printStackTrace();
         }
     }
-    
+
     public void save() throws ParseException {
         DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat fechV = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -768,11 +781,11 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
 //fechP.parse(dateP);
         Date firstDate = sdf.parse(dateV);
         Date secondDate = sdf.parse(dateD);
-        
+
         long diff = secondDate.getTime() - firstDate.getTime();
         TimeUnit time = TimeUnit.DAYS;
         long diffrence = time.convert(diff, TimeUnit.MILLISECONDS);
-        
+
         System.out.println("The difference in days is : " + diffrence);
         if (comercializadora.getActivo().equals("S")) {
             if (diffrence > 7) {
@@ -798,12 +811,12 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                 if (np.getObservacion().isEmpty()) {
                     np.setObservacion("");
                 }
-                
+
                 detNPK.setNumero("");
                 detNP.setDetallenotapedidoPK(detNPK);
                 detNP.setVolumennaturalautorizado(detNP.getVolumennaturalrequerido());
                 detNP.setUsuarioactual(dataUser.getUser().getNombrever());
-                
+
                 envNP.setNotapedido(np);
                 envNP.setDetalle(detNP);
                 if (editarNotapedido) {
@@ -816,7 +829,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "LA COMERCIALIZADORA SE ENCUENTRA INACTIVA");
         }
     }
-    
+
     public void addItems(EnvioPedido envNP) {
         try {
             String respuesta = "";
@@ -824,12 +837,12 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.notapedido";
             String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.notapedido";
             url = new URL(direcc);
-            
+
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-type", "application/json");
-            
+
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             ObjectMapper mapper = new ObjectMapper();
             String jsonStr = mapper.writeValueAsString(envNP);
@@ -837,9 +850,9 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             out.write(jsonStr.getBytes());
             out.flush();
             out.close();
-            
+
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-            
+
             BufferedReader br = new BufferedReader(reader);
             String tmp = null;
             String resp = "";
@@ -848,7 +861,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             }
             JSONObject objetoJson = new JSONObject(resp);
             numeroNotaPedio = objetoJson.getString("developerMessage");
-            
+
             if (connection.getResponseCode() == 200) {
                 this.dialogo(FacesMessage.SEVERITY_INFO, "NOTA DE PEDIDO REGISTRADA EXITOSAMENTE");
             } else {
@@ -856,13 +869,13 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                 System.out.println(connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
             }
-            
+
         } catch (IOException e) {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR NOTA DE PEDIDO: " + e);
             e.printStackTrace();
         }
     }
-    
+
     public void dialogoAnulacionNotaPedido(EnvioPedido envNP) {
         try {
             notaPedidoAuxiliar = new Notapedido();
@@ -885,7 +898,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                         notaPedidoAuxiliar.setFechaventa(fechaV);
                         notaPedidoAuxiliar.setActiva(false);
                         consultaNotaPedidoPorId(envNP);
-                        
+
                     }
                 } else {
                     this.dialogo(FacesMessage.SEVERITY_ERROR, "NO SE PUEDE ANULAR ESTA NOTA DE PEDIDO, PORQUE YA SE ENCUENTRA FACTURADA");
@@ -895,7 +908,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             Logger.getLogger(NotapedidoBean.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public void consultaNotaPedidoPorId(EnvioPedido envNP) {
         try {
             DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
@@ -910,9 +923,9 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
-            
+
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-            
+
             BufferedReader br = new BufferedReader(reader);
             String tmp = null;
             String respuesta = "";
@@ -924,7 +937,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             if (retorno.isEmpty()) {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL OBTENER INFORMACIÓN SOBRE LA NOTA DE PEDIDO PARA LA ANULACIÓN");
             } else {
-                
+
                 for (int indice = 0; indice < retorno.length(); indice++) {
                     if (!retorno.isNull(indice)) {
                         JSONObject nt = retorno.getJSONObject(indice);
@@ -1031,16 +1044,16 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                         } else {
                             notaPedidoAuxiliar.setTramarenviadaaoe("");
                         }
-                        
+
                         notaPedidoAuxiliar.setUsuarioactual(nt.getString("usuarioactual"));
-                        
+
                         if (!nt.isNull("prefijo")) {
                             notaPedidoAuxiliar.setPrefijo(nt.getString("prefijo"));
                         } else {
                             notaPedidoAuxiliar.setPrefijo("");
                         }
                         notaPedidoAuxiliar.setProcesar(nt.getBoolean("procesar"));
-                        
+
                         notaPedidoAuxiliar.setNumerofacturasri(nt.getString("numerofacturasri"));
                         notaPedidoAuxiliarPK.setNumero(ntPK.getString("numero"));
                         notaPedidoAuxiliarPK.setCodigoabastecedora(ntPK.getString("codigoabastecedora"));
@@ -1063,12 +1076,12 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                 System.out.println(connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
             }
-            
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    
+
     public void anularNotaPedido() {
         try {
             String respuesta = "";
@@ -1076,12 +1089,12 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.notapedido/porId";
             String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.notapedido/porId";
             url = new URL(direcc);
-            
+
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
             connection.setRequestMethod("PUT");
             connection.setRequestProperty("Content-type", "application/json");
-            
+
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             ObjectMapper mapper = new ObjectMapper();
             String jsonStr = mapper.writeValueAsString(notaPedidoAuxiliar);
@@ -1089,7 +1102,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             out.write(jsonStr.getBytes());
             out.flush();
             out.close();
-            
+
             if (connection.getResponseCode() == 200) {
                 this.dialogo(FacesMessage.SEVERITY_INFO, "NOTA DE PEDIDO ANULADA EXITOSAMENTE");
             } else {
@@ -1097,12 +1110,12 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                 System.out.println(connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
             }
-            
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    
+
     public void generarReporte(EnvioPedido envP) {
 //        String path = "C:\\archivos\\Template\\notapedido.jrxml";
         String rutaGuardar = Fichero.getCARPETAREPORTES();
@@ -1111,12 +1124,12 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
         InputStream file = null;
         try {
             file = new FileInputStream(new File(path));
-            
+
             JasperReport reporte = JasperCompileManager.compileReport(file);
             BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
 //            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
             Map parametro = new HashMap();
-            
+
             parametro.put("codComer", envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora());
             parametro.put("numeroNotaPedido", envP.getNotapedido().getNotapedidoPK().getNumero());
             parametro.put("logo", image);
@@ -1130,7 +1143,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
 //            File directory = new File("C:\\Archivos");
             File directory = new File(rutaGuardar);
             String nombreDocumento = "reporteNotaPedido";
-            
+
             File pdf = File.createTempFile(nombreDocumento + "_", ".pdf", directory);
             JasperExportManager.exportReportToPdfStream(print, new FileOutputStream(pdf));
             File initialFile = new File(pdf.getAbsolutePath());
@@ -1145,7 +1158,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             System.out.println("Excepcion: " + ex);
         }
     }
-    
+
     public void generarReporteAux(EnvioPedido envP) {
 //        String path = "C:\\archivos\\Template\\FormatoNotaPedido.jrxml";
 //        String subreport = "C:\\archivos\\Template\\notapedido.jrxml";
@@ -1156,13 +1169,13 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
         InputStream file = null;
         try {
             file = new FileInputStream(new File(path));
-            
+
             JasperReport reporte = JasperCompileManager.compileReport(file);
             JasperReport subreporte = JasperCompileManager.compileReport(subreport);
             BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
 //            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
             Map parametro = new HashMap();
-            
+
             parametro.put("subReporte", subreporte);
             parametro.put("codComer", envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora());
             parametro.put("numeroNotaPedido", envP.getNotapedido().getNotapedidoPK().getNumero());
@@ -1177,7 +1190,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
 //            File directory = new File("C:\\Archivos");
             File directory = new File(rutaGuardar);
             String nombreDocumento = "reporteNotaPedido";
-            
+
             File pdf = File.createTempFile(nombreDocumento + "_", ".pdf", directory);
             JasperExportManager.exportReportToPdfStream(print, new FileOutputStream(pdf));
             File initialFile = new File(pdf.getAbsolutePath());
@@ -1192,349 +1205,349 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             System.out.println("Excepcion: " + ex);
         }
     }
-    
+
     public boolean isMostarNotaPedido() {
         return mostarNotaPedido;
     }
-    
+
     public void setMostarNotaPedido(boolean mostarNotaPedido) {
         this.mostarNotaPedido = mostarNotaPedido;
     }
-    
+
     public boolean isMostarPantallaInicial() {
         return mostarPantallaInicial;
     }
-    
+
     public void setMostarPantallaInicial(boolean mostarPantallaInicial) {
         this.mostarPantallaInicial = mostarPantallaInicial;
     }
-    
+
     public ComercializadoraServicio getComerServicio() {
         return comerServicio;
     }
-    
+
     public void setComerServicio(ComercializadoraServicio comerServicio) {
         this.comerServicio = comerServicio;
     }
-    
+
     public TerminalBean getTerminal() {
         return terminal;
     }
-    
+
     public void setTerminal(TerminalBean terminal) {
         this.terminal = terminal;
     }
-    
+
     public TerminalServicio getTermServicio() {
         return termServicio;
     }
-    
+
     public void setTermServicio(TerminalServicio termServicio) {
         this.termServicio = termServicio;
     }
-    
+
     public ClienteServicio getClienteServicio() {
         return clienteServicio;
     }
-    
+
     public void setClienteServicio(ClienteServicio clienteServicio) {
         this.clienteServicio = clienteServicio;
     }
-    
+
     public String getCodComer() {
         return codComer;
     }
-    
+
     public void setCodComer(String codComer) {
         this.codComer = codComer;
     }
-    
+
     public String getCodTerminal() {
         return codTerminal;
     }
-    
+
     public void setCodTerminal(String codTerminal) {
         this.codTerminal = codTerminal;
     }
-    
+
     public String getCodCliente() {
         return codCliente;
     }
-    
+
     public void setCodCliente(String codCliente) {
         this.codCliente = codCliente;
     }
-    
+
     public String getCodAbas() {
         return codAbas;
     }
-    
+
     public void setCodAbas(String codAbas) {
         this.codAbas = codAbas;
     }
-    
+
     public String getTipoFecha() {
         return tipoFecha;
     }
-    
+
     public void setTipoFecha(String tipoFecha) {
         this.tipoFecha = tipoFecha;
     }
-    
+
     public Date getFecha() {
         return fecha;
     }
-    
+
     public void setFecha(Date fecha) {
         this.fecha = fecha;
     }
-    
+
     public String getOeenpetro() {
         return oeenpetro;
     }
-    
+
     public void setOeenpetro(String oeenpetro) {
         this.oeenpetro = oeenpetro;
     }
-    
+
     public Notapedido getNp() {
         return np;
     }
-    
+
     public void setNp(Notapedido np) {
         this.np = np;
     }
-    
+
     public NotapedidoPK getNpPK() {
         return npPK;
     }
-    
+
     public void setNpPK(NotapedidoPK npPK) {
         this.npPK = npPK;
     }
-    
+
     public Detallenotapedido getDetNP() {
         return detNP;
     }
-    
+
     public void setDetNP(Detallenotapedido detNP) {
         this.detNP = detNP;
     }
-    
+
     public List<Detallenotapedido> getListDetNP() {
         return listDetNP;
     }
-    
+
     public void setListDetNP(List<Detallenotapedido> listDetNP) {
         this.listDetNP = listDetNP;
     }
-    
+
     public DetallenotapedidoPK getDetNPK() {
         return detNPK;
     }
-    
+
     public void setDetNPK(DetallenotapedidoPK detNPK) {
         this.detNPK = detNPK;
     }
-    
+
     public EnvioPedido getEnvNP() {
         return envNP;
     }
-    
+
     public void setEnvNP(EnvioPedido envNP) {
         this.envNP = envNP;
     }
-    
+
     public List<EnvioPedido> getListenvNP() {
         return listenvNP;
     }
-    
+
     public void setListenvNP(List<EnvioPedido> listenvNP) {
         this.listenvNP = listenvNP;
     }
-    
+
     public Terminal getTerminalT() {
         return terminalT;
     }
-    
+
     public void setTerminalT(Terminal terminalT) {
         this.terminalT = terminalT;
     }
-    
+
     public Banco getBanco() {
         return banco;
     }
-    
+
     public void setBanco(Banco banco) {
         this.banco = banco;
     }
-    
+
     public Comercializadora getComerc() {
         return comerc;
     }
-    
+
     public void setComerc(Comercializadora comerc) {
         this.comerc = comerc;
     }
-    
+
     public Abastecedora getAbas() {
         return abas;
     }
-    
+
     public void setAbas(Abastecedora abas) {
         this.abas = abas;
     }
-    
+
     public List<TerminalBean> getListaTermianles() {
         return listaTermianles;
     }
-    
+
     public void setListaTermianles(List<TerminalBean> listaTermianles) {
         this.listaTermianles = listaTermianles;
     }
-    
+
     public Date getFechaVenta() {
         return fechaVenta;
     }
-    
+
     public void setFechaVenta(Date fechaVenta) {
         this.fechaVenta = fechaVenta;
     }
-    
+
     public Date getFechaDespacho() {
         return fechaDespacho;
     }
-    
+
     public void setFechaDespacho(Date fechaDespacho) {
         this.fechaDespacho = fechaDespacho;
     }
-    
+
     public List<Banco> getListaBancos() {
         return listaBancos;
     }
-    
+
     public void setListaBancos(List<Banco> listaBancos) {
         this.listaBancos = listaBancos;
     }
-    
+
     public List<Medida> getListaMedida() {
         return listaMedida;
     }
-    
+
     public void setListaMedida(List<Medida> listaMedida) {
         this.listaMedida = listaMedida;
     }
-    
+
     public Medida getMedida() {
         return medida;
     }
-    
+
     public void setMedida(Medida medida) {
         this.medida = medida;
     }
-    
+
     public Producto getProductoSeleccionado() {
         return productoSeleccionado;
     }
-    
+
     public void setProductoSeleccionado(Producto productoSeleccionado) {
         this.productoSeleccionado = productoSeleccionado;
     }
-    
+
     public List<Producto> getListaProductos() {
         return listaProductos;
     }
-    
+
     public void setListaProductos(List<Producto> listaProductos) {
         this.listaProductos = listaProductos;
     }
-    
+
     public String getNumeroNotaPedio() {
         return numeroNotaPedio;
     }
-    
+
     public void setNumeroNotaPedio(String numeroNotaPedio) {
         this.numeroNotaPedio = numeroNotaPedio;
     }
-    
+
     public Cliente getCliente() {
         return cliente;
     }
-    
+
     public void setCliente(Cliente cliente) {
         this.cliente = cliente;
     }
-    
+
     public List<ComercializadoraBean> getListaComercializadora() {
         return listaComercializadora;
     }
-    
+
     public void setListaComercializadora(List<ComercializadoraBean> listaComercializadora) {
         this.listaComercializadora = listaComercializadora;
     }
-    
+
     public List<Cliente> getListaClientes() {
         return listaClientes;
     }
-    
+
     public void setListaClientes(List<Cliente> listaClientes) {
         this.listaClientes = listaClientes;
     }
-    
+
     public List<Producto> getListaProd() {
         return listaProd;
     }
-    
+
     public void setListaProd(List<Producto> listaProd) {
         this.listaProd = listaProd;
     }
-    
+
     public boolean isEditarNotapedido() {
         return editarNotapedido;
     }
-    
+
     public void setEditarNotapedido(boolean editarNotapedido) {
         this.editarNotapedido = editarNotapedido;
     }
-    
+
     public ComercializadoraBean getComercializadora() {
         return comercializadora;
     }
-    
+
     public void setComercializadora(ComercializadoraBean comercializadora) {
         this.comercializadora = comercializadora;
     }
-    
+
     public Date getFechaMin() {
         return fechaMin;
     }
-    
+
     public void setFechaMin(Date fechaMin) {
         this.fechaMin = fechaMin;
     }
-    
+
     public StreamedContent getPdfStream() {
         return pdfStream;
     }
-    
+
     public void setPdfStream(StreamedContent pdfStream) {
         this.pdfStream = pdfStream;
     }
-    
+
     public Date getFechaInicial() {
         return fechaInicial;
     }
-    
+
     public void setFechaInicial(Date fechaInicial) {
         this.fechaInicial = fechaInicial;
     }
-    
+
     public Date getFechaFinal() {
         return fechaFinal;
     }
-    
+
     public void setFechaFinal(Date fechaFinal) {
         this.fechaFinal = fechaFinal;
     }
-    
+
 }

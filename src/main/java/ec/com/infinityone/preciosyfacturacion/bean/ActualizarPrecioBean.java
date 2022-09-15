@@ -272,7 +272,7 @@ public class ActualizarPrecioBean extends ReusableBean implements Serializable {
         inhabilitar = false;
         obtenerListaComercializadora();
         obtenerTerminales();
-    }    
+    }
 
     public void obtenerListaComercializadora() {
         listComercializadora = new ArrayList<>();
@@ -961,6 +961,34 @@ public class ActualizarPrecioBean extends ReusableBean implements Serializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public String obtenerMargenPorcentaje(Comercializadoraproducto comerProducto, int val) {
+        if (producto != null) {
+            List<Listaprecioterminalproducto> precioTermProdAux;
+            precioTermProdAux = listaprecioterminalproductoServicio.obtenerListaprecioterminalprod(listaprecioselected.getListaprecioPK().getCodigo());
+            for (int i = 0; i < precioTermProdAux.size(); i++) {
+                if (comerProducto.getComercializadoraproductoPK().getCodigocomercializadora().equals(precioTermProdAux.get(i).getListaprecioterminalproductoPK().getCodigocomercializadora()) &&
+                    comerProducto.getComercializadoraproductoPK().getCodigomedida().equals(precioTermProdAux.get(i).getListaprecioterminalproductoPK().getCodigomedida()) &&
+                    comerProducto.getComercializadoraproductoPK().getCodigoproducto().equals(precioTermProdAux.get(i).getListaprecioterminalproductoPK().getCodigoproducto())) {
+                    if (val == 1) {
+                        if (precioTermProdAux.get(i).getMargenporcentaje().toString().equals("-99.0")) {
+                            return "0";
+                        } else {
+                            return precioTermProdAux.get(i).getMargenporcentaje().toString();
+                        }
+                    }
+                    if (val == 2) {
+                        if (precioTermProdAux.get(i).getMargenvalorcomercializadora().toString().equals("-99.0")) {
+                            return "0";
+                        } else {
+                            return precioTermProdAux.get(i).getMargenvalorcomercializadora().toString();
+                        }
+                    }
+                }
+            }
+        }
+        return "";
     }
 
     public ComercializadoraBean getComercializadora() {

@@ -82,7 +82,9 @@
                                                 </f:facet>
 
                                                 <p:column headerText="Seleccionar" width="10%">
-                                                    <p:selectBooleanCheckbox id="seleccionar" value="#{product.procesar}"/>
+                                                    <p:selectBooleanCheckbox id="seleccionar" value="#{product.procesar}">
+                                                        <p:ajax event="change" /> 
+                                                    </p:selectBooleanCheckbox>
                                                 </p:column>
                                                 <p:column headerText="Producto" sortBy="#{product.producto.nombre}" filterBy="#{product.producto.nombre}" width="10%">
                                                     <h:outputText value="#{product.producto.nombre}" />
@@ -91,16 +93,24 @@
                                                     <h:outputText value="#{product.medida.abreviacion}" />
                                                 </p:column>
                                                 <p:column headerText="Margen Total" sortBy="#{product.margencomercializacion}">
-                                                    <p:inputText value="#{product.margencomercializacion}" />
+                                                    <p:inputText value="#{product.margencomercializacion}" >
+                                                        <p:ajax event="change" /> 
+                                                    </p:inputText>
                                                 </p:column>
                                                 <p:column headerText="Precio EPP" sortBy="#{product.precioepp}">
-                                                    <p:inputText value="#{product.precioepp}" />
+                                                    <p:inputText value="#{product.precioepp}" >
+                                                        <p:ajax event="change" /> 
+                                                    </p:inputText>
                                                 </p:column>
                                                 <p:column headerText="Precio Sugerido" filterBy="#{product.pvpsugerido}" >
-                                                    <p:inputText value="#{product.pvpsugerido}" />
+                                                    <p:inputText value="#{product.pvpsugerido}" >
+                                                        <p:ajax event="change" /> 
+                                                    </p:inputText>                                                     
                                                 </p:column>
                                                 <p:column headerText="Solo IVA">
-                                                    <p:selectBooleanCheckbox id="iva" value="#{product.soloaplicaiva}"/>
+                                                    <p:selectBooleanCheckbox id="iva" value="#{product.soloaplicaiva}">
+                                                        <p:ajax event="change" /> 
+                                                    </p:selectBooleanCheckbox>
                                                 </p:column>
                                             </p:dataTable>
                                         </div>
