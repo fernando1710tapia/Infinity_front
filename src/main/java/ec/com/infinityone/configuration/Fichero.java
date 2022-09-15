@@ -50,7 +50,7 @@ public class Fichero {
             System.out.println("Direccion: " + confDir.getAbsolutePath());
             File fileProp = new File(confDir, "ConfiguracionInfinity.properties");
             File rep= new File(confDir, "reportes");
-            CARPETAREPORTES = rep.toString();
+            RUTAREPORTE = rep.toString();
             File ayu= new File(confDir, "ayuda");
             CARPETAAYUDA = ayu.toString();
             File xml= new File(confDir, "xml");
@@ -60,7 +60,7 @@ public class Fichero {
             propiedades.load(in);
             in.close();
 
-            RUTAREPORTE = (String) propiedades.get("RUTAREPORTE");
+            CARPETAREPORTES = (String) propiedades.get("RUTAREPORTE");
             RUTAXML = (String) propiedades.get("RUTAXML");
             RUTAAYUDA = (String) propiedades.get("RUTAAYUDA");
             RUTASERVICIOSPERSISTENCIA = (String) propiedades.get("RUTASERVICIOSPERSISTENCIA");
