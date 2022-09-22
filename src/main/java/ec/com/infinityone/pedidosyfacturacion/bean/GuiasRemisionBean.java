@@ -678,12 +678,13 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
         FacesContext.getCurrentInstance().addMessage(null, message);
     }
 
-    public void lecturaXml1() throws ParserConfigurationException, FileNotFoundException, IOException, SAXException {
+    public void lecturaXml1() throws ParserConfigurationException, FileNotFoundException, IOException, SAXException, ParseException {
         listaConsultaGuiaArchivoSubida = new ArrayList<>();
         codigoComer = comercializadora.getCodigo();
         codTerminal = terminal.getCodigo();
         String ruta_temporal = Fichero.getCARPETAREPORTES();
         String hora = "";
+        SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");         
         if (codigoComer != null || codTerminal != null) {
             for (int i = 0; i < list.size(); i++) {
                 String fileName = list.get(i).getFileName();
@@ -766,6 +767,9 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
                         consulGuia.setNumerosri(eElement.getElementsByTagName("estab").item(0).getTextContent()
                                 + eElement.getElementsByTagName("ptoEmi").item(0).getTextContent()
                                 + eElement.getElementsByTagName("secuencial").item(0).getTextContent());
+                        //Pedidofacturafecha
+                        String fechaFact = (eElement.getElementsByTagName("campoAdicional").item(4).getTextContent()).substring(23); 
+                        consulGuia.setFechafactura(formato.parse(fechaFact));
                         //codigocliente <campoAdicional nombre="Codigo Cliente">02010677  ESTACION DE SERVICIO SANTA ANA</campoAdicional> -- 8primeros
                         consulGuia.setCodigocliente((eElement.getElementsByTagName("campoAdicional").item(1).getTextContent()).substring(0, 8));
                         consulGuia.setCompartimento1(Integer.valueOf(eElement.getElementsByTagName("campoAdicional").item(7).getTextContent()));
@@ -965,6 +969,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
             obj.put("sellofinal", consulGuia.get(i).getSellofinal());
             obj.put("numerofactura", consulGuia.get(i).getNumerofactura());
             obj.put("horaautorizacion", consulGuia.get(i).getHoraautorizacion());
+            obj.put("fechafactura", sdf.format(consulGuia.get(i).getFechafactura()));
             listObjEnvRest.add(obj);
             obj = new JSONObject();
             objPK = new JSONObject();

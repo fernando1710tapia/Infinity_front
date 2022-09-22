@@ -439,11 +439,11 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         } else {
             seleccionarComercializdora();
         }
-        if (habilitarTerminal) {
-            terminal = new TerminalBean();
-        } else {
-            seleccionarTerminal();
-        }
+//        if (terminal != null) {
+//            terminal = new TerminalBean();
+//        } else {
+//            seleccionarTerminal();
+//        }
         if (habilitarCli) {
             cliente = new Cliente();
         }
@@ -588,6 +588,14 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         if (terminal != null) {
             fact.setCodigoterminal(terminal.getCodigo());
             codTerminal = terminal.getCodigo();
+            List<Cliente> listaClientesAux = new ArrayList<>();
+            listaClientesAux = clienteServicio.obtenerClientesPorComercializadora(codComer);
+            listaClientes = new ArrayList<>();
+            for (int i = 0; i < listaClientesAux.size(); i++) {
+                if (listaClientesAux.get(i).getCodigoterminaldefecto().getCodigo().equals(codTerminal)) {
+                    listaClientes.add(listaClientesAux.get(i));
+                }
+            }
             //factura.setCodTerminal(terminal.getCodigo());
         } else {
             codTerminal = "-1";
@@ -678,7 +686,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                 case "agco":
                     habilitarComer = false;
                     habilitarCli = true;
-                    habilitarTerminal = false;
+                    habilitarTerminal = true;
                     for (int i = 0; i < listaComercializadora.size(); i++) {
                         if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
                             comercializadora = listaComercializadora.get(i);
@@ -693,14 +701,6 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         }
                     }
                     seleccionarTerminal();
-                    List<Cliente> listaClientesAux = new ArrayList<>();
-                    listaClientesAux = clienteServicio.obtenerClientesPorComercializadora(codComer);
-                    listaClientes = new ArrayList<>();
-                    for (int i = 0; i < listaClientesAux.size(); i++) {
-                        if (listaClientesAux.get(i).getCodigoterminaldefecto().getCodigo().equals(codTerminal)) {
-                            listaClientes.add(listaClientesAux.get(i));
-                        }
-                    }
                     break;
                 default:
                     break;
@@ -732,10 +732,12 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                 //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura";
                 String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura";
                 if (codCliente.isEmpty()) {
-                    url = new URL(direcc + "/paraFactura?codigoabastecedora=" + this.codAbas + "&codigocomercializadora=" + this.codComer + "&codigoterminal=" + this.codTerminal + "&tipofecha=" + tipoFecha + "&fechaI=" + fechaS + "&fechaF=" + fechaF + "&codigocliente=-1");
-                } else {
-                    url = new URL(direcc + "/paraFactura?codigoabastecedora=" + this.codAbas + "&codigocomercializadora=" + this.codComer + "&codigoterminal=" + this.codTerminal + "&tipofecha=" + tipoFecha + "&fechaI=" + fechaS + "&fechaF=" + fechaF + "&codigocliente=" + this.codCliente);
+                    codCliente = "-1";
                 }
+                if (codTerminal.isEmpty()) {
+                    codTerminal = "-1";
+                }
+                url = new URL(direcc + "/paraFactura?codigoabastecedora=" + this.codAbas + "&codigocomercializadora=" + this.codComer + "&codigoterminal=" + this.codTerminal + "&tipofecha=" + tipoFecha + "&fechaI=" + fechaS + "&fechaF=" + fechaF + "&codigocliente=" + this.codCliente);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setDoInput(true);
                 connection.setRequestMethod("GET");
@@ -861,6 +863,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                             }
                             fact.setValorconrubro(fa.getBigDecimal("valorconrubro"));
                             fact.setOeanuladaenpetro(fa.getBoolean("oeanuladaenpetro"));
+                            fact.setDespachada(fa.getBoolean("despachada"));
                             //factura.setRefacturada(fact.getBoolean("refacturada"));
                             //factura.setReliquidada(fact.getBigDecimal("reliquidada"));                            
 
@@ -1071,6 +1074,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         }
                         fact.setValorconrubro(fa.getBigDecimal("valorconrubro"));
                         fact.setOeanuladaenpetro(fa.getBoolean("oeanuladaenpetro"));
+                        fact.setDespachada(fa.getBoolean("despachada"));
                         //factura.setRefacturada(fact.getBoolean("refacturada"));
                         //factura.setReliquidada(fact.getBigDecimal("reliquidada"));                            
 
@@ -1279,6 +1283,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         }
                         fact.setValorconrubro(fa.getBigDecimal("valorconrubro"));
                         fact.setOeanuladaenpetro(fa.getBoolean("oeanuladaenpetro"));
+                        fact.setDespachada(fa.getBoolean("despachada"));
                         //factura.setRefacturada(fact.getBoolean("refacturada"));
                         //factura.setReliquidada(fact.getBigDecimal("reliquidada"));                            
 
@@ -1427,6 +1432,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
 
                         /*----Objeto Cliente----*/
                         cliente.setCodigo(cli.getString("codigo"));
+                        cliente.setNombrecomercial(cli.getString("nombrecomercial"));
                         cliente.setNombre(cli.getString("nombre"));
                         cliente.setRuc(cli.getString("ruc"));
                         cliente.setCorreo1(cli.getString("correo1"));
@@ -2822,7 +2828,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     connection.setRequestProperty("Content-type", "application/json");
                     connection.connect();
                     facturaauxiliar.setFechaacreditacion(facturaauxiliar.getFechaacreditacion() + "T12:00:00");
-                    facturaauxiliar.setFechaacreditacionprorrogada(facturaauxiliar.getFechaacreditacionprorrogada()+ "T12:00:00");
+                    facturaauxiliar.setFechaacreditacionprorrogada(facturaauxiliar.getFechaacreditacionprorrogada() + "T12:00:00");
                     facturaauxiliar.setFechadespacho(facturaauxiliar.getFechadespacho() + "T12:00:00");
                     facturaauxiliar.setFechavencimiento(facturaauxiliar.getFechavencimiento() + "T12:00:00");
                     facturaauxiliar.setFechaventa(facturaauxiliar.getFechaventa() + "T12:00:00");
@@ -3114,7 +3120,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         }
     }
 
-    public EnvioFactura editarFactura(EnvioFactura obj) {
+    public EnvioFactura editarFactura(EnvioFactura obj, int n) {
         envF = obj;
         if (envF.getFactura().getActiva()) {
             if (!envF.getFactura().getPagada()) {
@@ -3131,7 +3137,11 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                             break;
                         }
                     }
-                    PrimeFaces.current().executeScript("PF('editar').show()");
+                    if (n == 1) {
+                        PrimeFaces.current().executeScript("PF('editar').show()");
+                    } else {
+                        PrimeFaces.current().executeScript("PF('editarDesp').show()");
+                    }
                     return envF;
                 } else {
                     this.dialogo(FacesMessage.SEVERITY_WARN, "La factura no se encuentra en Petro");
@@ -3207,6 +3217,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             out.close();
             if (connection.getResponseCode() == 200) {
                 PrimeFaces.current().executeScript("PF('editar').hide()");
+                PrimeFaces.current().executeScript("PF('editarDesp').hide()");
                 this.dialogo(FacesMessage.SEVERITY_INFO, "FACTURA ACUTALIZADA EXITOSAMENTE");
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ACTUALIZAR");
@@ -3215,6 +3226,47 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             System.out.println(connection.getResponseMessage());
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public int controlDespacho(String codClienteNP) {
+        try {
+            String respuesta = "";
+            int value = 0;
+            //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura/porId");
+            url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura/controlDespacho?pcodigocliente=" + codClienteNP);
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+
+            BufferedReader br = new BufferedReader(reader);
+            String tmp = null;
+            while ((tmp = br.readLine()) != null) {
+                respuesta += tmp;
+            }
+            JSONObject objetoJson = new JSONObject(respuesta);
+            JSONArray retorno = objetoJson.getJSONArray("retorno");
+            if (retorno.isEmpty()) {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "NO SE ENCONTRARON REGISTROS");
+            } else {
+                for (int indice = 0; indice < retorno.length(); indice++) {
+                    if (!retorno.isNull(indice)) {
+                        value = retorno.getInt(indice);
+                    }
+                }
+            }
+            if (connection.getResponseCode() != 200) {
+                System.out.println(connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
+            }
+            return value;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return -2;
         }
     }
 
@@ -3309,6 +3361,19 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             }
             obtenerFacturasProrrogas();
             listFactSelec = new ArrayList<>();
+        }
+    }
+
+    public void validarNumFacturasCliente(EnvioPedido envP) {
+        if (envP != null) {
+            String codClienteNP = envP.getNotapedido().getCodigocliente().getCodigo();
+            int value = controlDespacho(codClienteNP);
+            if (value > -1) {
+                if (envP.getNotapedido().getCodigocliente().getControldespacho() < value) {
+                    envP.getNotapedido().setProcesar(false);
+                    this.dialogo(FacesMessage.SEVERITY_ERROR, "Este cliente tiene mas facturas sin despachar que las permitidas");
+                }
+            }
         }
     }
 

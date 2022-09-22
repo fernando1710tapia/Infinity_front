@@ -71,13 +71,13 @@
                                 <p:column exportable="false" width="5%">
                                     <p:rowToggler  />
                                 </p:column>
-                                <p:column headerText="Cliente" sortBy="#{rubro.clienterubroterceroPK.codigocliente}" filterBy="#{rubro.clienterubroterceroPK.codigocliente}" width="40%">
-                                    <h:outputText value="#{rubro.clienterubroterceroPK.codigocliente} - #{rubro.cliente1.nombrecomercial}" />
+                                <p:column headerText="Cliente" sortBy="#{rubro.clienterubroterceroPK.codigocliente}" filterBy="#{rubro.clienterubroterceroPK.codigocliente}" width="35%">
+                                    <h:outputText value="#{rubro.clienterubroterceroPK.codigocliente} - #{clienterubroterceroBean.nombreCliente(rubro.clienterubroterceroPK.codigocliente)}" />
                                 </p:column>
                                 <p:column headerText="Rubro" sortBy="#{rubro.rubrotercero.nombre}" filterBy="#{rubro.rubrotercero.nombre}" width="20%">
                                     <h:outputText value="#{rubro.rubrotercero.nombre}" />                                                                            
                                 </p:column>                                
-                                <p:column headerText="Valor" sortBy="#{rubro.valor}" filterBy="#{rubro.valor}" width="20%">
+                                <p:column headerText="Valor" sortBy="#{rubro.valor}" filterBy="#{rubro.valor}" width="15%">
                                     <h:outputText value="#{rubro.valor}" >                                    
                                         <f:convertNumber currencySymbol="$" type="currency" maxFractionDigits="6"/>                                                
                                     </h:outputText>                                                                                                         

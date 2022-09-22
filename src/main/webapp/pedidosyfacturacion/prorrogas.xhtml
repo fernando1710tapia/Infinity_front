@@ -141,7 +141,7 @@
                                     <h:outputText value="#{envF.codigobanco}" />
                                 </p:column>
                                 <p:column headerText="Cliente" sortBy="#{envF.codigocliente}" filterBy="#{envF.codigocliente}" width="10%">
-                                    <h:outputText value="#{envF.codigocliente}" />
+                                    <h:outputText value="#{envF.codigocliente} - #{envF.nombrecliente}" />
                                 </p:column>
                                 <p:column headerText="Factura" sortBy="#{envF.facturaPK.numero}" filterBy="#{envF.facturaPK.numero}" width="20%">
                                     <h:outputText value="#{envF.facturaPK.numero}" />
@@ -269,7 +269,7 @@
                     </f:facet>
 
                     <p:column headerText="Cliente"  width="10%">
-                        <h:outputText value="#{notaP.notapedido.codigocliente.codigo}" />
+                        <h:outputText value="#{notaP.notapedido.codigocliente.codigo} - #{notaP.notapedido.codigocliente.nombrecomercial}" />
                     </p:column>                                    
                     <p:column headerText="Factura"  width="18%">
                         <h:outputText value="#{notaP.notapedido.numerofacturasri}" />

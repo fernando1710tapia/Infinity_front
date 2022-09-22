@@ -646,8 +646,8 @@ public class ClienterubroterceroBean extends ReusableBean implements Serializabl
                 List<Clienterubrotercero> listaCliAux = new ArrayList<>();
                 listaCliAux = clienterubroterceroServicio.obtenerClienteRubroterceroPorRubro(comercializadora.getCodigo(), rubrotercero.getRubroterceroPK().getCodigo());
                 listaClienterubrotercero = new ArrayList<>();
-                List<Cliente> listaClienteAux = new ArrayList<>();                
-                obtenerClientes(comercializadora.getCodigo());                
+                List<Cliente> listaClienteAux = new ArrayList<>();
+                obtenerClientes(comercializadora.getCodigo());
                 for (int i = 0; i < listaCliente.size(); i++) {
                     for (int j = 0; j < listaCliAux.size(); j++) {
                         if (listaCliente.get(i).getCodigo().equals(listaCliAux.get(j).getClienterubroterceroPK().getCodigocliente())) {
@@ -933,6 +933,21 @@ public class ClienterubroterceroBean extends ReusableBean implements Serializabl
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public String nombreCliente(String codcli) {
+        String nombre = "";
+        listaCliente = new ArrayList<>();
+        listaCliente = clienteServicio.obtenerClientes();
+        if (codcli != null) {
+            for (int i = 0; i < listaCliente.size(); i++) {
+                if (listaCliente.get(i).getCodigo().equals(codcli)) {
+                    nombre = listaCliente.get(i).getNombre();
+                    break;
+                }
+            }
+        }
+        return nombre;
     }
 
     public boolean isDesactivarCuota() {

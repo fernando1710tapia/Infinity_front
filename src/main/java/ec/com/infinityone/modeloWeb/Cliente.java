@@ -95,6 +95,8 @@ public class Cliente implements Serializable {
 
     private Terminal codigoterminaldefecto;
 
+    private int controldespacho; 
+
     public Cliente() {
     }
 
@@ -425,7 +427,15 @@ public class Cliente implements Serializable {
 
     public void setNombrecomercial(String nombrecomercial) {
         this.nombrecomercial = nombrecomercial;
-    }        
+    }    
+
+    public int getControldespacho() {
+        return controldespacho;
+    }
+
+    public void setControldespacho(int controldespacho) {
+        this.controldespacho = controldespacho;
+    }   
 
     @Override
     public int hashCode() {
