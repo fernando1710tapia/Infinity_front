@@ -381,6 +381,7 @@ public class ClienteServicio {
                 if (!cliente.isNull("codigotipocliente")) {
                     cli.setCodigotipocliente(tc.getString("codigo"));
                 }
+                cli.setControldespacho(cliente.getInt("controldespacho"));
 
                 listaClientes.add(cli);
                 cli = new Cliente();

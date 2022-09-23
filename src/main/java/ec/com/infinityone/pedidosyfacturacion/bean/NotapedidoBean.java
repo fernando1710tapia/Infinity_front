@@ -332,9 +332,9 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
         } else {
             seleccionarCliente();
         }
-        if (habilitarTerminal) {
-            terminal = new TerminalBean();
-        }
+//        if (habilitarTerminal) {
+//            terminal = new TerminalBean();
+//        }
         mostarNotaPedido = true;
         mostarPantallaInicial = false;
 
@@ -707,6 +707,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                             /*----Objeto Cliente----*/
                             cliente.setCodigo(cli.getString("codigo"));
                             cliente.setNombre(cli.getString("nombre"));
+                            cliente.setNombrecomercial(cli.getString("nombrecomercial"));
                             cliente.setRuc(cli.getString("ruc"));
                             cliente.setCorreo1(cli.getString("correo1"));
                             cliente.setTelefono1(cli.getString("telefono1"));
@@ -758,7 +759,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                     System.out.println(connection.getResponseMessage());
                 }
             }
-            habilitarBusqueda();
+            //habilitarBusqueda();
         } catch (IOException e) {
             e.printStackTrace();
         }

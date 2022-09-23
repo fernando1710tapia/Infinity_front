@@ -47,7 +47,7 @@
                                                            var="comer"
                                                            itemLabel="#{comer.objRelacionado}"
                                                            itemValue="#{comer}" />  
-                                            
+
                                         </p:selectOneMenu>
                                     </div>                            
                                 </div>
@@ -457,6 +457,13 @@
                                         <p:outputLabel for="subsidio2"  value="Aplica Subsidio 2"/>
                                         <div class="ui-inputgroup">
                                             <p:toggleSwitch id="subsidio2" value="#{clienteBean.cliente.aplicasubsidio2}" disabled="#{clienteBean.soloLectura}"> </p:toggleSwitch>
+                                        </div>
+                                    </div>
+                                    <div class="p-field p-col-12 p-md-4">
+                                        <p:outputLabel for="facsindesp"  value="Fact. sin despacho"/>
+                                        <div class="ui-inputgroup">
+                                            <p:spinner id="facsindesp" value="#{clienteBean.cliente.controldespacho}" disabled="#{clienteBean.soloLectura}"
+                                                       min="-1" max="20"/>                                            
                                         </div>
                                     </div>
                                 </div>

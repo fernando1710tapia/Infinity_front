@@ -126,6 +126,8 @@ public class Factura implements Serializable{
 
     private String clienteformapagonosri;
 
+    private Boolean despachada;
+
     public Factura() {
     }
     
@@ -616,6 +618,14 @@ public class Factura implements Serializable{
 
     public void setClienteformapagonosri(String clienteformapagonosri) {
         this.clienteformapagonosri = clienteformapagonosri;
+    }
+
+    public Boolean getDespachada() {
+        return despachada;
+    }
+
+    public void setDespachada(Boolean despachada) {
+        this.despachada = despachada;
     }
 
 }
