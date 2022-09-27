@@ -87,6 +87,16 @@ public class Estilos implements Serializable {
         return result;
     }
 
+    public String valorBoolActivoFact(boolean _tipo) {
+        String result;
+        if (_tipo) {
+            result = "ACT";
+        } else {
+            result = "ANU";
+        }
+        return result;
+    }
+
     public String valorBoolActivoIni(boolean _tipo) {
         String result;
         if (_tipo) {

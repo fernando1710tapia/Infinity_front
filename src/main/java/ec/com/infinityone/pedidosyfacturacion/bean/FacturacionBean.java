@@ -434,6 +434,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
 
     public void nuevaFactura() {
         reestablecer();
+        habilitarBusqueda();
         if (habilitarComer) {
             comercializadora = new ComercializadoraBean();
         } else {
@@ -443,7 +444,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
 //            terminal = new TerminalBean();
 //        } else {
 //            seleccionarTerminal();
-//        }
+//        }        
         if (habilitarCli) {
             cliente = new Cliente();
         }
@@ -576,6 +577,8 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                 fact.setFacturaPK(factPk);
                 codComer = comercializadora.getCodigo();
                 codAbas = comercializadora.getAbastecedora();
+                listaClientes = new ArrayList<>();
+                listaClientes = clienteServicio.obtenerClientesPorComercializadora(codComer);
                 //factura.setCodComer(comercializadora.getCodigo());
                 //factura.setCodAbas(comercializadora.getAbastecedora());
             } else {
@@ -1367,8 +1370,9 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             String fechaS = date.format(this.fechaI);
             //String ur = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.notapedido/paraFactura?codigoabastecedora=0001&codigocomercializadora=0002&codigoterminal=07&tipofecha=1&fecha=2021/6/18";
             //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.notapedido/paraFactura?";
-            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.notapedido/paraFactura?";
-            url = new URL(direcc + "codigoabastecedora=" + this.codAbas + "&codigocomercializadora=" + this.codComer + "&codigoterminal=" + this.codTerminal + "&tipofecha=" + tipoFecha + "&fecha=" + fechaS);
+            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.notapedido/Comerterminal?";
+            //url = new URL(direcc + "codigoabastecedora=" + this.codAbas + "&codigocomercializadora=" + this.codComer + "&codigoterminal=" + this.codTerminal + "&tipofecha=" + tipoFecha + "&fecha=" + fechaS);
+            url = new URL(direcc + "codigoabastecedora=" + this.codAbas + "&codigocomercializadora=" + this.codComer + "&codigoterminal=" + this.codTerminal + "&tipofecha=" + tipoFecha + "&fechaI=" + fechaS + "&fechaF=" + fechaS + "&codigocliente=" + codCliente);
 
             System.out.println("FT:: obtenerNotaPedidos:: URL: " + url.toString());
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -1378,6 +1382,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
 
             listenvNP = new ArrayList<>();
             listDetNP = new ArrayList<>();
+            cliente = new Cliente();    
             EnvioPedido envioPedido = new EnvioPedido();
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
@@ -1443,6 +1448,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         }
                         cliente.setCodigolistaprecio(cli.getLong("codigolistaprecio"));
                         cliente.setCodigoformapago(formap);
+                        cliente.setControldespacho(cli.getInt("controldespacho"));
 
                         /*----Objeto Terminal----*/
                         terminalT.setCodigo(term.getString("codigo"));
@@ -3366,10 +3372,11 @@ public class FacturacionBean extends ReusableBean implements Serializable {
 
     public void validarNumFacturasCliente(EnvioPedido envP) {
         if (envP != null) {
-            String codClienteNP = envP.getNotapedido().getCodigocliente().getCodigo();
-            int value = controlDespacho(codClienteNP);
-            if (value > -1) {
-                if (envP.getNotapedido().getCodigocliente().getControldespacho() < value) {
+            int control = envP.getNotapedido().getCodigocliente().getControldespacho();
+            if (control > -1) {
+                String codClienteNP = envP.getNotapedido().getCodigocliente().getCodigo();
+                int value = controlDespacho(codClienteNP);
+                if (control < value) {
                     envP.getNotapedido().setProcesar(false);
                     this.dialogo(FacesMessage.SEVERITY_ERROR, "Este cliente tiene mas facturas sin despachar que las permitidas");
                 }
