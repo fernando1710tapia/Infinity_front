@@ -351,9 +351,11 @@ public class ListaprecioServicio {
 
     public Date obtenerUltimaFechaDePrecio(String codComer, Long codigoListaP) {
         try {
+            dateF = new Date();
             //URL url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.precio/porComerListap?codigocomercializadora=" + codComer
             URL url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.precio/porComerListap?codigocomercializadora=" + codComer
                     + "&codigolistaprecio=" + codigoListaP);
+
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.setRequestMethod("GET");

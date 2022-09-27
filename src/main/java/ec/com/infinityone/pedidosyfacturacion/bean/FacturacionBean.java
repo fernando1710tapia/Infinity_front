@@ -1516,6 +1516,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         }
                         envioPedido = new EnvioPedido();
                         np = new Notapedido();
+                        producto = new Producto();
                         npPK = new NotapedidoPK();
                         abas = new Abastecedora();
                         comerc = new Comercializadora();
