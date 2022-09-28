@@ -48,7 +48,7 @@
                                                        var="comer"
                                                        itemLabel="#{comer.objRelacionado}"
                                                        itemValue="#{comer}" />
-                                        <p:ajax event="change" listener="#{facturacionBean.seleccionarComer()}" update="form cli"/>
+                                        <p:ajax event="change" listener="#{facturacionBean.seleccionarComer(1)}" update="form cli"/>
                                     </p:selectOneMenu> 
                                 </div>
                             </div>
@@ -68,7 +68,7 @@
                                                        var="terminal"
                                                        itemLabel="#{terminal.objRelacionado}"
                                                        itemValue="#{terminal}" />
-                                        <p:ajax event="change" listener="#{facturacionBean.seleccionarTerminal}" update="form cli"/>
+                                        <p:ajax event="change" listener="#{facturacionBean.seleccionarTerminal(1)}" update="form cli"/>
                                     </p:selectOneMenu> 
                                 </div>
                             </div>
@@ -87,7 +87,7 @@
                                                        var="cliente"
                                                        itemLabel="#{cliente.codigo} - #{cliente.nombrecomercial}"
                                                        itemValue="#{cliente}" />
-                                        <p:ajax event="change" listener="#{facturacionBean.seleccionarCliente()}"
+                                        <p:ajax event="change" listener="#{facturacionBean.seleccionarCliente(1)}"
                                                 update="terminal"/>
                                     </p:selectOneMenu> 
                                 </div>
@@ -116,7 +116,7 @@
                         </div>                           
 
                         <p:dataTable id="dt-products" widgetVar="dtProducts" var="envF" value="#{facturacionBean.listenvF}" reflow="true" styleClass="products-table"
-                                     paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
+                                      paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
                             <f:facet name="header">
                                 <div class="products-table-header">
                                     <span style="font-weight: bold">Facturas</span>
@@ -177,7 +177,7 @@
                             </p:column> 
                             <p:column style="width: 3rem">
                                 <p:commandButton icon="pi pi-send" update="form :formEditarDesp" actionListener="#{facturacionBean.editarFactura(envF, 2)}"
-                                                 styleClass="edit-button rounded-button ui-button-success" process="@this">
+                                                 styleClass="edit-button rounded-button product-badge status-#{estilos.tipoActivoBool(envF.factura.despachada)}" process="@this">
                                     <f:setPropertyActionListener value="#{envF}" target="#{facturacionBean.envF}" />
                                 </p:commandButton>                                
                             </p:column> 
@@ -239,7 +239,7 @@
                                                        var="comer"
                                                        itemLabel="#{comer.objRelacionado}"
                                                        itemValue="#{comer}" />
-                                        <p:ajax event="change" listener="#{facturacionBean.seleccionarComercializdora}"
+                                        <p:ajax event="change" listener="#{facturacionBean.seleccionarComercializadora}"
                                                 update="formNuevo cli2"/>
                                     </p:selectOneMenu> 
                                 </div>
@@ -258,7 +258,7 @@
                                                        var="terminal"
                                                        itemLabel="#{terminal.objRelacionado}"
                                                        itemValue="#{terminal}" />
-                                        <p:ajax event="change" listener="#{facturacionBean.seleccionarTerminal}" update="formNuevo cli2"/>
+                                        <p:ajax event="change" listener="#{facturacionBean.seleccionarTerminal(2)}" update="formNuevo cli2"/>
                                     </p:selectOneMenu> 
                                 </div>
                             </div>                                                                                                             
@@ -277,7 +277,7 @@
                                                        var="cliente"
                                                        itemLabel="#{cliente.codigo} - #{cliente.nombrecomercial}"
                                                        itemValue="#{cliente}" />
-                                        <p:ajax event="change" listener="#{facturacionBean.seleccionarCliente()}"
+                                        <p:ajax event="change" listener="#{facturacionBean.seleccionarCliente(2)}"
                                                 update="formNuevo terminal2"/>
                                     </p:selectOneMenu> 
                                 </div>
@@ -324,7 +324,7 @@
                             <p:column headerText="Cliente" filterBy="#{notaP.notapedido.codigocliente.codigo}" width="20%">
                                 <h:outputText value="#{notaP.notapedido.codigocliente.codigo} #{notaP.notapedido.codigocliente.nombrecomercial}" />
                             </p:column>                                    
-                            <p:column headerText="Factura" filterBy="#{notaP.notapedido.numerofacturasri}" width="17%">
+                            <p:column headerText="Factura" filterBy="#{notaP.notapedido.numerofacturasri}" width="18%">
                                 <h:outputText value="#{notaP.notapedido.numerofacturasri}" />
                             </p:column>
                             <p:column headerText="Número NP"  width="9%">

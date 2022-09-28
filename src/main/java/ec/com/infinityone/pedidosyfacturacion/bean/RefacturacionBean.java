@@ -97,12 +97,12 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
         if (habilitarComer) {
             comercializadora = new ComercializadoraBean();
         } else {
-            seleccionarComercializdora();
+            seleccionarComercializadora();
         }
         if (habilitarTerminal) {
             terminal = new TerminalBean();
         } else {
-            seleccionarTerminal();
+            seleccionarTerminal(2);
         }
         if (habilitarCli) {
             cliente = new Cliente();
