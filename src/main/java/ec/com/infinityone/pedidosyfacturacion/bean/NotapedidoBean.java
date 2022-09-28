@@ -332,6 +332,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
         } else {
             seleccionarCliente();
         }
+        habilitarBusqueda(2);
 //        if (habilitarTerminal) {
 //            terminal = new TerminalBean();
 //        }
@@ -380,7 +381,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
         listaComercializadora = new ArrayList<>();
         listaComercializadora = comerServicio.obtenerComercializadorasActivas();
         if (!listaComercializadora.isEmpty()) {
-            habilitarBusqueda();
+            habilitarBusqueda(1);
         }
     }
 
@@ -404,12 +405,16 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
         listaMedida = medidaServicio.obtenerMedida();
     }
 
-    public void seleccionarComerc() {
+    public void seleccionarComerc(int busqueda) {
         if (comercializadora != null) {
             codComer = comercializadora.getCodigo();
             codAbas = comercializadora.getAbastecedora();
             listaClientes = new ArrayList<>();
-            listaClientes = clienteServicio.obtenerClientesPorComercializadora(codComer);
+            if (busqueda == 1) {
+                listaClientes = clienteServicio.obtenerClientesPorComercializadora(codComer);
+            } else {
+                listaClientes = clienteServicio.obtenerClientesPorComercializadoraActiva(codComer);
+            }
         }
     }
 
@@ -431,7 +436,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                 detNP.setDetallenotapedidoPK(detNPK);
                 if (habilitarComer) {
                     listaClientes = new ArrayList<>();
-                    listaClientes = clienteServicio.obtenerClientesPorComercializadora(codComer);
+                    listaClientes = clienteServicio.obtenerClientesPorComercializadoraActiva(codComer);
                 }
 //                listaClientes = new ArrayList<>();
 //                listaClientes = clienteServicio.obtenerClientesPorComercializadora(codComer);
@@ -449,12 +454,16 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
         }
     }
 
-    public void seleccionarTerminal() {
+    public void seleccionarTerminal(int busqueda) {
         if (terminal != null) {
             codTerminal = terminal.getCodigo();
             List<Cliente> listaClientesAux = new ArrayList<>();
-            listaClientesAux = clienteServicio.obtenerClientesPorComercializadora(codComer);
             listaClientes = new ArrayList<>();
+            if (busqueda == 1) {
+                listaClientesAux = clienteServicio.obtenerClientesPorComercializadora(codComer);
+            } else {
+                listaClientesAux = clienteServicio.obtenerClientesPorComercializadoraActiva(codComer);
+            }
             for (int i = 0; i < listaClientesAux.size(); i++) {
                 if (listaClientesAux.get(i).getCodigoterminaldefecto().getCodigo().equals(codTerminal)) {
                     listaClientes.add(listaClientesAux.get(i));
@@ -463,7 +472,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
         }
     }
 
-    public void seleccCliente() {
+    public void seleccCliente(int busqueda) {
         if (cliente != null) {
             codCliente = cliente.getCodigo();
             for (int i = 0; i < listaTermianles.size(); i++) {
@@ -472,7 +481,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                     break;
                 }
             }
-            seleccionarTerminal();
+            seleccionarTerminal(busqueda);
         }
 
     }
@@ -487,9 +496,9 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
 //                for (int i = 0; i < listaTermianles.size(); i++) {
 //                    if (cliente.getCodigoterminaldefecto().equals(listaTermianles.get(i).getCodigo())) {
 //                        terminal = listaTermianles.get(i);
-                        codTerminal = cliente.getCodigoterminaldefecto().getCodigo() + " - " + cliente.getCodigoterminaldefecto().getNombre();
+                codTerminal = cliente.getCodigoterminaldefecto().getCodigo() + " - " + cliente.getCodigoterminaldefecto().getNombre();
 //                    }
-                    np.setCodigoterminal(cliente.getCodigoterminaldefecto());
+                np.setCodigoterminal(cliente.getCodigoterminaldefecto());
 //                }
             }
 
@@ -526,13 +535,14 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
         }
     }
 
-    public void habilitarBusqueda() {
+    public void habilitarBusqueda(int busqueda) {
         if (dataUser.getUser() != null) {
             switch (dataUser.getUser().getNiveloperacion()) {
                 case "cero":
                     habilitarComer = true;
                     habilitarCli = true;
                     habilitarTerminal = true;
+                    terminal = new TerminalBean();
                     break;
                 case "adco":
                     habilitarComer = false;
@@ -543,7 +553,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                             this.comercializadora = listaComercializadora.get(i);
                         }
                     }
-                    seleccionarComerc();
+                    seleccionarComerc(busqueda);
                     //listaClientes = clienteServicio.obtenerClientesPorComercializadora(comercializadora.getCodigo());
                     break;
                 case "usac":
@@ -557,8 +567,8 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
 
                     }
                     if (comercializadora.getCodigo() != null) {
-                        seleccionarComerc();
-                        listaClientes = clienteServicio.obtenerClientesActivosPorComercializadora(comercializadora.getCodigo());
+                        seleccionarComerc(busqueda);
+                        listaClientes = clienteServicio.obtenerClientesPorComercializadoraActiva(comercializadora.getCodigo());
                         for (int i = 0; i < listaClientes.size(); i++) {
                             if (listaClientes.get(i).getCodigo().equals(dataUser.getUser().getCodigocliente())) {
                                 this.cliente = listaClientes.get(i);
@@ -576,7 +586,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                             break;
                         }
                     }
-                    seleccionarTerminal();
+                    seleccionarTerminal(busqueda);
                     //listaClientes = clienteServicio.obtenerClientesPorComercializadora(comercializadora.getCodigo());
 
                     //seleccionarCliente();
@@ -591,14 +601,14 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                             break;
                         }
                     }
-                    seleccionarComerc();
+                    seleccionarComerc(busqueda);
                     for (int i = 0; i < listaTermianles.size(); i++) {
                         if (listaTermianles.get(i).getCodigo().equals(dataUser.getUser().getCodigoterminal())) {
                             terminal = listaTermianles.get(i);
                             break;
                         }
                     }
-                    seleccionarTerminal();
+                    seleccionarTerminal(busqueda);
 //                    List<Cliente> listaClientesAux = new ArrayList<>();
 //                    listaClientesAux = clienteServicio.obtenerClientesPorComercializadora(codComer);
 //                    listaClientes = new ArrayList<>();

@@ -434,11 +434,10 @@ public class FacturacionBean extends ReusableBean implements Serializable {
 
     public void nuevaFactura() {
         reestablecer();
-        habilitarBusqueda();
         if (habilitarComer) {
             comercializadora = new ComercializadoraBean();
         } else {
-            seleccionarComercializdora();
+            seleccionarComercializadora();
         }
 //        if (terminal != null) {
 //            terminal = new TerminalBean();
@@ -448,6 +447,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         if (habilitarCli) {
             cliente = new Cliente();
         }
+        habilitarBusqueda(2);
 
         mostarFactura = true;
         mostarPantallaInicial = false;
@@ -541,7 +541,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         listaComercializadora = new ArrayList<>();
         listaComercializadora = comerServicio.obtenerComercializadorasActivas();
         if (!listaComercializadora.isEmpty()) {
-            habilitarBusqueda();
+            habilitarBusqueda(1);
         }
     }
 
@@ -560,16 +560,21 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         listaFormapagos = this.formapagoServicio.obtenerFormapago();
     }
 
-    public void seleccionarComer() {
+    public void seleccionarComer(int busqueda) {
         if (comercializadora != null) {
             codComer = comercializadora.getCodigo();
             codAbas = comercializadora.getAbastecedora();
             listaClientes = new ArrayList<>();
-            listaClientes = clienteServicio.obtenerClientesPorComercializadora(codComer);
+            if (busqueda == 1) {
+                listaClientes = clienteServicio.obtenerClientesPorComercializadora(codComer);
+            } else {
+                listaClientes = clienteServicio.obtenerClientesPorComercializadoraActiva(codComer);
+            }
+
         }
     }
 
-    public void seleccionarComercializdora() {
+    public void seleccionarComercializadora() {
         if (comercializadora != null) {
             if (comercializadora.getActivo().equals("S")) {
                 factPk.setCodigocomercializadora(comercializadora.getCodigo());
@@ -578,7 +583,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                 codComer = comercializadora.getCodigo();
                 codAbas = comercializadora.getAbastecedora();
                 listaClientes = new ArrayList<>();
-                listaClientes = clienteServicio.obtenerClientesPorComercializadora(codComer);
+                listaClientes = clienteServicio.obtenerClientesPorComercializadoraActiva(codComer);
                 //factura.setCodComer(comercializadora.getCodigo());
                 //factura.setCodAbas(comercializadora.getAbastecedora());
             } else {
@@ -587,13 +592,17 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         }
     }
 
-    public void seleccionarTerminal() {
+    public void seleccionarTerminal(int busqueda) {
         if (terminal != null) {
             fact.setCodigoterminal(terminal.getCodigo());
             codTerminal = terminal.getCodigo();
             List<Cliente> listaClientesAux = new ArrayList<>();
-            listaClientesAux = clienteServicio.obtenerClientesPorComercializadora(codComer);
             listaClientes = new ArrayList<>();
+            if (busqueda == 1) {
+                listaClientesAux = clienteServicio.obtenerClientesPorComercializadora(codComer);
+            } else {
+                listaClientesAux = clienteServicio.obtenerClientesPorComercializadoraActiva(codComer);
+            }
             for (int i = 0; i < listaClientesAux.size(); i++) {
                 if (listaClientesAux.get(i).getCodigoterminaldefecto().getCodigo().equals(codTerminal)) {
                     listaClientes.add(listaClientesAux.get(i));
@@ -605,7 +614,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         }
     }
 
-    public void seleccionarCliente() {
+    public void seleccionarCliente(int busqueda) {
         if (cliente != null) {
             codCliente = cliente.getCodigo();
             for (int i = 0; i < listaTermianles.size(); i++) {
@@ -614,34 +623,34 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     break;
                 }
             }
-            seleccionarTerminal();
+            seleccionarTerminal(busqueda);
         } else {
             codCliente = "-1";
         }
     }
 
-    public void seleccionarTipoFecha() {
-        if (cliente != null) {
-            codCliente = cliente.getCodigo();
-            for (int i = 0; i < listaTermianles.size(); i++) {
-                if (listaTermianles.get(i).getCodigo().equals(cliente.getCodigoterminaldefecto().getCodigo())) {
-                    terminal = listaTermianles.get(i);
-                    break;
-                }
-            }
-            seleccionarTerminal();
-        } else {
-            codCliente = "-1";
-        }
-    }
-
-    public void habilitarBusqueda() {
+//    public void seleccionarTipoFecha() {
+//        if (cliente != null) {
+//            codCliente = cliente.getCodigo();
+//            for (int i = 0; i < listaTermianles.size(); i++) {
+//                if (listaTermianles.get(i).getCodigo().equals(cliente.getCodigoterminaldefecto().getCodigo())) {
+//                    terminal = listaTermianles.get(i);
+//                    break;
+//                }
+//            }
+//            seleccionarTerminal();
+//        } else {
+//            codCliente = "-1";
+//        }
+//    }
+    public void habilitarBusqueda(int busqueda) {
         if (dataUser.getUser() != null) {
             switch (dataUser.getUser().getNiveloperacion()) {
                 case "cero":
                     habilitarComer = true;
                     habilitarTerminal = true;
                     habilitarCli = true;
+                    terminal = new TerminalBean();
                     break;
                 case "adco":
                     habilitarComer = false;
@@ -652,8 +661,8 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                             comercializadora = listaComercializadora.get(i);
                         }
                     }
-                    seleccionarComer();
-                    listaClientes = clienteServicio.obtenerClientesActivosPorComercializadora(comercializadora.getCodigo());
+                    seleccionarComer(busqueda);
+                    listaClientes = clienteServicio.obtenerClientesPorComercializadoraActiva(comercializadora.getCodigo());
                     break;
                 case "usac":
                     habilitarComer = false;
@@ -665,8 +674,8 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         }
                     }
                     if (comercializadora.getCodigo() != null) {
-                        seleccionarComer();
-                        listaClientes = clienteServicio.obtenerClientesActivosPorComercializadora(comercializadora.getCodigo());
+                        seleccionarComer(busqueda);
+                        listaClientes = clienteServicio.obtenerClientesPorComercializadoraActiva(comercializadora.getCodigo());
                         for (int i = 0; i < listaClientes.size(); i++) {
                             if (listaClientes.get(i).getCodigo().equals(dataUser.getUser().getCodigocliente())) {
                                 this.cliente = listaClientes.get(i);
@@ -676,14 +685,14 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     } else {
                         this.dialogo(FacesMessage.SEVERITY_FATAL, "La comercializadora se encuentra deshabilitada");
                     }
-                    seleccionarCliente();
+                    seleccionarCliente(busqueda);
                     for (int i = 0; i < listaTermianles.size(); i++) {
                         if (listaTermianles.get(i).getCodigo().equals(cliente.getCodigoterminaldefecto().getCodigo())) {
                             terminal = listaTermianles.get(i);
                             break;
                         }
                     }
-                    seleccionarTerminal();
+                    seleccionarTerminal(busqueda);
                     break;
 
                 case "agco":
@@ -696,14 +705,14 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                             break;
                         }
                     }
-                    seleccionarComer();
+                    seleccionarComer(busqueda);
                     for (int i = 0; i < listaTermianles.size(); i++) {
                         if (listaTermianles.get(i).getCodigo().equals(dataUser.getUser().getCodigoterminal())) {
                             terminal = listaTermianles.get(i);
                             break;
                         }
                     }
-                    seleccionarTerminal();
+                    seleccionarTerminal(busqueda);
                     break;
                 default:
                     break;
@@ -1382,7 +1391,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
 
             listenvNP = new ArrayList<>();
             listDetNP = new ArrayList<>();
-            cliente = new Cliente();    
+            Cliente clienteNP = new Cliente();
             EnvioPedido envioPedido = new EnvioPedido();
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
@@ -1436,19 +1445,19 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         formap.setCodigo(formPago.getString("codigo"));
 
                         /*----Objeto Cliente----*/
-                        cliente.setCodigo(cli.getString("codigo"));
-                        cliente.setNombrecomercial(cli.getString("nombrecomercial"));
-                        cliente.setNombre(cli.getString("nombre"));
-                        cliente.setRuc(cli.getString("ruc"));
-                        cliente.setCorreo1(cli.getString("correo1"));
-                        cliente.setTelefono1(cli.getString("telefono1"));
-                        cliente.setDireccion(cli.getString("direccion"));
+                        clienteNP.setCodigo(cli.getString("codigo"));
+                        clienteNP.setNombrecomercial(cli.getString("nombrecomercial"));
+                        clienteNP.setNombre(cli.getString("nombre"));
+                        clienteNP.setRuc(cli.getString("ruc"));
+                        clienteNP.setCorreo1(cli.getString("correo1"));
+                        clienteNP.setTelefono1(cli.getString("telefono1"));
+                        clienteNP.setDireccion(cli.getString("direccion"));
                         if (!cli.isNull("tipoplazocredito")) {
-                            cliente.setTipoplazocredito(cli.getString("tipoplazocredito"));
+                            clienteNP.setTipoplazocredito(cli.getString("tipoplazocredito"));
                         }
-                        cliente.setCodigolistaprecio(cli.getLong("codigolistaprecio"));
-                        cliente.setCodigoformapago(formap);
-                        cliente.setControldespacho(cli.getInt("controldespacho"));
+                        clienteNP.setCodigolistaprecio(cli.getLong("codigolistaprecio"));
+                        clienteNP.setCodigoformapago(formap);
+                        clienteNP.setControldespacho(cli.getInt("controldespacho"));
 
                         /*----Objeto Terminal----*/
                         terminalT.setCodigo(term.getString("codigo"));
@@ -1459,10 +1468,10 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         /*------Variable trasnformar de int a short-----*/
                         int dp = cli.getInt("diasplazocredito");
                         short diasplazo = (short) dp;
-                        cliente.setDiasplazocredito(diasplazo);
+                        clienteNP.setDiasplazocredito(diasplazo);
 
                         /*----Guardando el cliente, termina y banco en Nota pedido---*/
-                        np.setCodigocliente(cliente);
+                        np.setCodigocliente(clienteNP);
                         np.setCodigoterminal(terminalT);
                         np.setCodigobanco(banco);
                         np.setComercializadora(comerc);
@@ -1521,7 +1530,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         abas = new Abastecedora();
                         comerc = new Comercializadora();
                         formap = new Formapago();
-                        cliente = new Cliente();
+                        clienteNP = new Cliente();
                         terminalT = new Terminal();
                         banco = new Banco();
                         listDetNP = new ArrayList<>();

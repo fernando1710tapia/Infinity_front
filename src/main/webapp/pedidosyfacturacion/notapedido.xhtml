@@ -45,7 +45,7 @@
                                                            var="comer"
                                                            itemLabel="#{comer.objRelacionado}"
                                                            itemValue="#{comer}" />
-                                            <p:ajax event="change" listener="#{notapedidoBean.seleccionarComerc()}" update="form cli"/>
+                                            <p:ajax event="change" listener="#{notapedidoBean.seleccionarComerc(1)}" update="form cli"/>
                                         </p:selectOneMenu> 
                                     </div>                          
                                 </div>
@@ -63,7 +63,7 @@
                                                            var="ter"
                                                            itemLabel="#{ter.objRelacionado}"
                                                            itemValue="#{ter}" />
-                                            <p:ajax event="change" listener="#{notapedidoBean.seleccionarTerminal}" update="cli"/>
+                                            <p:ajax event="change" listener="#{notapedidoBean.seleccionarTerminal(1)}" update="cli"/>
                                         </p:selectOneMenu> 
                                     </div> 
                                 </div>
@@ -82,7 +82,7 @@
                                                            var="cliente"
                                                            itemLabel="#{cliente.codigo} - #{cliente.nombrecomercial}"
                                                            itemValue="#{cliente}" />
-                                            <p:ajax event="change" listener="#{notapedidoBean.seleccCliente()}"
+                                            <p:ajax event="change" listener="#{notapedidoBean.seleccCliente(1)}"
                                                     update="term"/>
                                         </p:selectOneMenu> 
                                     </div>
@@ -195,7 +195,7 @@
                                                var="ter"
                                                itemLabel="#{ter.objRelacionado}"
                                                itemValue="#{ter}" />
-                                <p:ajax event="change" listener="#{notapedidoBean.seleccionarTerminal}" update="cliente" />
+                                <p:ajax event="change" listener="#{notapedidoBean.seleccionarTerminal(2)}" update="cliente" />
                             </p:selectOneMenu> 
                         </div> 
                     </div>
