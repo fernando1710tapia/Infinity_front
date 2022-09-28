@@ -230,7 +230,7 @@ public class ClienteServicio {
     public List<Cliente> obtenerClientesPorComercializadora(String codComer) {
         try {
             //URL url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.cliente/porComercializadora?codigocomercializadora="+codComer);
-            URL url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.cliente/porComercializadora?codigocomercializadora=" + codComer);
+            URL url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.cliente/porComercializadoraactivo?codigocomercializadora=" + codComer);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
