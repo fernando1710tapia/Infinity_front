@@ -1101,14 +1101,27 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                         + String.format("%-20s", " ").replace(' ', '0') + separador
                         //19. REFERENCIA
                         + String.format("%-1000s", (factura.getFacturaPK().getNumeronotapedido())
-                                                  + factura.getFacturaPK().getNumero()).replace(' ', '0') + separador
+                                + factura.getFacturaPK().getNumero()).replace(' ', '0') + separador
                         //                        + factura.getCodigoterminal() + "|"
                         //                        + factura.getObservacion()
                         //20. Referencia Adicional |dirección email |Operadora celular número de celular
                         + String.format("%-100s", factura.getFechaacreditacionprorrogada() + "|"
                                 + cliAux.getCorreo1()).replace(' ', '0') + separador
                         //21. BASE IMPONIBLE 
-                        + String.format("%13s", factura.getValorsinimpuestos()).replace(' ', '0').replace(".", "") + "\n");
+                        + String.format("%-13s", factura.getValorsinimpuestos()).replace(' ', '0').replace(".", "") + separador
+                        //IVA BIENES                        
+                        + String.format("%-13s", factura.getIvatotal()).replace(' ', '0').replace(".", "") + separador
+                        //BASE IMPONIBLE SERVICIOS                        
+                        + String.format("%-13s", factura.getValorconrubro()).replace(' ', '0').replace(".", "") + separador
+                        //IVA SERVICIOS                        
+                        + String.format("%-13s", "0").replace(' ', '0').replace(".", "") + separador
+                        //ICE                        
+                        + String.format("%13s", "").replace(' ', '0').replace(".", "") + separador
+                        //REFERENCIA FACTURACION                       
+                        + String.format("%-500s", "").replace(' ', '0').replace(".", "") + separador
+                        //CAMPO OPCIONAL                        
+                        + String.format("%-200s", "").replace(' ', '0').replace(".", "") + "\n"
+                );
             }
             //cierra el buffer intermedio
             bfwriter.close();
