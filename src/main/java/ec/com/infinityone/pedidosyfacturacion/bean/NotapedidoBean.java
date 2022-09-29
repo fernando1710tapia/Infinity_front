@@ -469,6 +469,13 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                     listaClientes.add(listaClientesAux.get(i));
                 }
             }
+        } else {
+            listaClientes = new ArrayList<>();
+            if (busqueda == 1) {
+                listaClientes = clienteServicio.obtenerClientesPorComercializadora(codComer);
+            } else {
+                listaClientes = clienteServicio.obtenerClientesPorComercializadoraActiva(codComer);
+            }
         }
     }
 

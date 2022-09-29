@@ -611,6 +611,12 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             //factura.setCodTerminal(terminal.getCodigo());
         } else {
             codTerminal = "-1";
+            listaClientes = new ArrayList<>();
+            if (busqueda == 1) {
+                listaClientes = clienteServicio.obtenerClientesPorComercializadora(codComer);
+            } else {
+                listaClientes = clienteServicio.obtenerClientesPorComercializadoraActiva(codComer);
+            }
         }
     }
 
@@ -743,10 +749,10 @@ public class FacturacionBean extends ReusableBean implements Serializable {
 
                 //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura";
                 String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura";
-                if (codCliente.isEmpty()) {
+                if (codCliente.isEmpty() || cliente == null) {
                     codCliente = "-1";
                 }
-                if (codTerminal.isEmpty()) {
+                if (codTerminal.isEmpty() || terminal == null) {
                     codTerminal = "-1";
                 }
                 url = new URL(direcc + "/paraFactura?codigoabastecedora=" + this.codAbas + "&codigocomercializadora=" + this.codComer + "&codigoterminal=" + this.codTerminal + "&tipofecha=" + tipoFecha + "&fechaI=" + fechaS + "&fechaF=" + fechaF + "&codigocliente=" + this.codCliente);
@@ -1380,9 +1386,14 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             //String ur = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.notapedido/paraFactura?codigoabastecedora=0001&codigocomercializadora=0002&codigoterminal=07&tipofecha=1&fecha=2021/6/18";
             //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.notapedido/paraFactura?";
             String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.notapedido/Comerterminal?";
+            if (codCliente.isEmpty() || cliente == null) {
+                codCliente = "-1";
+            }
+            if (codTerminal.isEmpty() || terminal == null) {
+                codTerminal = "-1";
+            }
             //url = new URL(direcc + "codigoabastecedora=" + this.codAbas + "&codigocomercializadora=" + this.codComer + "&codigoterminal=" + this.codTerminal + "&tipofecha=" + tipoFecha + "&fecha=" + fechaS);
             url = new URL(direcc + "codigoabastecedora=" + this.codAbas + "&codigocomercializadora=" + this.codComer + "&codigoterminal=" + this.codTerminal + "&tipofecha=" + tipoFecha + "&fechaI=" + fechaS + "&fechaF=" + fechaS + "&codigocliente=" + codCliente);
-
             System.out.println("FT:: obtenerNotaPedidos:: URL: " + url.toString());
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
