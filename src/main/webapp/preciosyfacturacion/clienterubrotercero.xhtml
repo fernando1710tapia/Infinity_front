@@ -72,7 +72,7 @@
                                     <p:rowToggler  />
                                 </p:column>
                                 <p:column headerText="Cliente" sortBy="#{rubro.clienterubroterceroPK.codigocliente}" filterBy="#{rubro.clienterubroterceroPK.codigocliente}" width="35%">
-                                    <h:outputText value="#{rubro.clienterubroterceroPK.codigocliente} - #{clienterubroterceroBean.nombreCliente(rubro.clienterubroterceroPK.codigocliente)}" />
+                                    <h:outputText value="#{rubro.clienterubroterceroPK.codigocliente} - #{rubro.cliente1.nombrecomercial}" />
                                 </p:column>
                                 <p:column headerText="Rubro" sortBy="#{rubro.rubrotercero.nombre}" filterBy="#{rubro.rubrotercero.nombre}" width="20%">
                                     <h:outputText value="#{rubro.rubrotercero.nombre}" />                                                                            

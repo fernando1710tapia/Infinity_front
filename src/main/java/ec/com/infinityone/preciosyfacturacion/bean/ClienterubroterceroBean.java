@@ -942,7 +942,7 @@ public class ClienterubroterceroBean extends ReusableBean implements Serializabl
         if (codcli != null) {
             for (int i = 0; i < listaCliente.size(); i++) {
                 if (listaCliente.get(i).getCodigo().equals(codcli)) {
-                    nombre = listaCliente.get(i).getNombre();
+                    nombre = listaCliente.get(i).getNombrecomercial();
                     break;
                 }
             }
