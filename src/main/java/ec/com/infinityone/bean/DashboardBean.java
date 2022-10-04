@@ -23,6 +23,10 @@ import javax.annotation.PostConstruct;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Named;
+import org.primefaces.model.chart.Axis;
+import org.primefaces.model.chart.AxisType;
+import org.primefaces.model.chart.BarChartModel;
+import org.primefaces.model.chart.ChartSeries;
 import org.primefaces.shaded.json.JSONArray;
 import org.primefaces.shaded.json.JSONObject;
 
@@ -46,8 +50,10 @@ public class DashboardBean extends ReusableBean implements Serializable {
     private BigDecimal sumatotal;
 
     private Integer facturas;
-    
+
     private Usuario x;
+
+    private BarChartModel barModel;
 
     public DashboardBean() {
     }
@@ -58,11 +64,12 @@ public class DashboardBean extends ReusableBean implements Serializable {
         direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura/mejorCliente?activo=true";
 
         mejorcliente = new Mejorcliente();
-        
+
         obtenerListamejorCliente();
         obtenerprimerCliente();
-        
-         x = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
+        createBarModel();
+
+        x = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
     }
 
     public void obtenerprimerCliente() {
@@ -74,7 +81,7 @@ public class DashboardBean extends ReusableBean implements Serializable {
     }
 
     public void obtenerListamejorCliente() {
-        try { 
+        try {
             url = new URL(direccion);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
@@ -106,6 +113,46 @@ public class DashboardBean extends ReusableBean implements Serializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private BarChartModel initBarModel() {
+        BarChartModel model = new BarChartModel();
+
+        ChartSeries boys = new ChartSeries();
+        boys.setLabel("Boys");
+        boys.set("2004", 120);
+        boys.set("2005", 100);
+        boys.set("2006", 44);
+        boys.set("2007", 150);
+        boys.set("2008", 25);
+
+        ChartSeries girls = new ChartSeries();
+        girls.setLabel("Girls");
+        girls.set("2004", 52);
+        girls.set("2005", 60);
+        girls.set("2006", 110);
+        girls.set("2007", 135);
+        girls.set("2008", 120);
+
+        model.addSeries(boys);
+        model.addSeries(girls);
+
+        return model;
+    }
+
+    private void createBarModel() {
+        barModel = initBarModel();
+
+        barModel.setTitle("Bar Chart");
+        barModel.setLegendPosition("ne");
+
+        Axis xAxis = barModel.getAxis(AxisType.X);
+        xAxis.setLabel("Gender");
+
+        Axis yAxis = barModel.getAxis(AxisType.Y);
+        yAxis.setLabel("Births");
+        yAxis.setMin(0);
+        yAxis.setMax(200);
     }
 
     public List<Mejorcliente> getListaMejorcliente() {
@@ -155,7 +202,13 @@ public class DashboardBean extends ReusableBean implements Serializable {
     public void setX(Usuario x) {
         this.x = x;
     }
-    
-    
+
+    public BarChartModel getBarModel() {
+        return barModel;
+    }
+
+    public void setBarModel(BarChartModel barModel) {
+        this.barModel = barModel;
+    }
 
 }
