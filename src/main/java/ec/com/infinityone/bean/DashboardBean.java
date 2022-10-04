@@ -52,6 +52,8 @@ public class DashboardBean extends ReusableBean implements Serializable {
     private Integer facturas;
 
     private Usuario x;
+    private String direccionVentaVsDespacho_Venta;
+    private String direccionVentaVsDespacho_Despacho;
 
     private BarChartModel barModel;
 
@@ -62,7 +64,8 @@ public class DashboardBean extends ReusableBean implements Serializable {
     public void init() {
         //direccion = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura/mejorCliente?activo=true";        
         direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura/mejorCliente?activo=true";
-
+        direccionVentaVsDespacho_Venta = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura/ventaTotal";
+        direccionVentaVsDespacho_Despacho = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.consultaguiaremision/despachoTotal";
         mejorcliente = new Mejorcliente();
 
         obtenerListamejorCliente();
@@ -203,6 +206,23 @@ public class DashboardBean extends ReusableBean implements Serializable {
         this.x = x;
     }
 
+    public String getDireccionVentaVsDespacho_Venta() {
+        return direccionVentaVsDespacho_Venta;
+    }
+
+    public void setDireccionVentaVsDespacho_Venta(String direccionVentaVsDespacho_Venta) {
+        this.direccionVentaVsDespacho_Venta = direccionVentaVsDespacho_Venta;
+    }
+
+    public String getDireccionVentaVsDespacho_Despacho() {
+        return direccionVentaVsDespacho_Despacho;
+    }
+
+    public void setDireccionVentaVsDespacho_Despacho(String direccionVentaVsDespacho_Despacho) {
+        this.direccionVentaVsDespacho_Despacho = direccionVentaVsDespacho_Despacho;
+    }
+    
+    
     public BarChartModel getBarModel() {
         return barModel;
     }

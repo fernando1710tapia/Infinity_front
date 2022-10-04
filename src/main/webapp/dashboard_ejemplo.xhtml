@@ -1,0 +1,742 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pe="http://primefaces.org/ui/extensions"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Dashboard</ui:define>
+
+    <ui:define name="viewname">
+        <li>FAVORITES</li>
+        <li><i class="pi pi-angle-right"/></li>
+        <li>
+            <p:link outcome="/calendar">DASHBOARD</p:link>
+        </li>
+    </ui:define>
+
+    <ui:define name="head">
+        <h:outputScript name="js/chart.js" library="demo" />
+        <script type="text/javascript">
+            //<![CDATA[
+            $(function () {
+                var dataSet = [
+                    [31, 83, 69, 29, 62, 25, 59, 26, 46],
+                    [40, 29, 7, 73, 81, 69, 46, 21, 96],
+                ];
+                var dataSet2 = [
+                    [67, 98, 27, 88, 38, 3, 22, 60, 56],
+                    [74, 67, 11, 36, 100, 49, 34, 56, 45],
+                ];
+
+                $('#order-tabs-container > .order-tab').on('click', function () {
+                    var el = $(this);
+                    el.addClass('order-tab-active').siblings('.order-tab-active').removeClass('order-tab-active');
+                    ordersChart.data.datasets[0].data = dataSet[parseInt(el.data('index'))];
+                    ordersChart.data.datasets[1].data = dataSet2[parseInt(el.data('index'))];
+                    ordersChart.data.datasets[0].label = el.data('label');
+                    ordersChart.data.datasets[0].borderColor = el.data('stroke');
+                    ordersChart.update();
+                });
+
+                var ordersChart = new Chart(document.getElementById("order-chart").getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ["January", "February", "March", "April", "May", "June", "July", "August", "September"],
+                        datasets: [{
+                                label: 'Revenue',
+                                data: [31, 83, 69, 29, 62, 25, 59, 26, 46],
+                                borderColor: [
+                                    '#00acac',
+                                ],
+                                borderWidth: 2,
+                                fill: false,
+                                borderDash: [3, 6],
+                            }, {
+                                label: 'Cost',
+                                data: [67, 98, 27, 88, 38, 3, 22, 60, 56],
+                                borderColor: [
+                                    '#f1b263',
+                                ],
+                                backgroundColor: [
+                                    'rgba(241, 178, 99, .07)',
+                                ],
+                                borderWidth: 2,
+                                fill: true,
+                                pointRadius: 3,
+                            }]
+                    },
+                    options: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                fontColor: '#A0A7B5'
+                            }
+                        },
+                        responsive: true,
+                        hover: {
+                            mode: 'index'
+                        },
+                        scales: {
+                            yAxes: [{
+                                    ticks: {
+                                        fontColor: '#A0A7B5'
+                                    },
+                                    gridLines: {
+                                        color: 'rgba(160, 167, 181, .3)',
+                                    }
+                                }],
+                            xAxes: [{
+                                    ticks: {
+                                        fontColor: '#A0A7B5'
+                                    },
+                                    gridLines: {
+                                        color: 'rgba(160, 167, 181, .3)',
+                                    }
+                                }],
+                        }
+                    }
+                });
+
+                var traffidDataSet = [
+                    [48, 52],
+                    [26, 74],
+                    [12, 88],
+                ];
+
+                var trafficChart = null;
+
+                $('#traffic-tabs-container > .traffic-tab').on('click', function () {
+                    var el = $(this);
+                    el.addClass('traffic-tab-active').siblings('.traffic-tab-active').removeClass('traffic-tab-active');
+
+                    if (trafficChart) {
+                        trafficChart.data.datasets[0].data = traffidDataSet[parseInt(el.data('index'))];
+                        trafficChart.update();
+                    }
+                });
+
+                window.redrawDoughnut = function () {
+                    var style = getComputedStyle(document.body);
+                    var primCol = style.getPropertyValue('--primary-color') || '#2c84d8';
+                    var contentAlt = style.getPropertyValue('--content-alt-bg-color') || '#B1B9C9';
+
+                    if (trafficChart) {
+                        trafficChart.destroy();
+                    }
+
+                    trafficChart = new Chart(document.getElementById("traffic-chart").getContext('2d'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: [
+                                'Add View',
+                                'Total View',
+                            ],
+                            datasets: [{
+                                    data: [48, 52],
+                                    backgroundColor: [
+                                        primCol,
+                                        contentAlt,
+                                    ],
+                                    borderWidth: 0,
+                                }]
+                        },
+                        options: {
+                            legend: {
+                                display: false,
+                            },
+                            responsive: true,
+                            cutoutPercentage: 70
+                        }
+                    });
+                }
+
+                window.redrawDoughnut();
+
+                var goalChart = new Chart(document.getElementById("goal-chart").getContext('2d'), {
+                    type: 'pie',
+                    data: {
+                        labels: [
+                            'Complete',
+                            'Not Complete',
+                            'Extra Tasks',
+                        ],
+                        datasets: [{
+                                data: [183, 62, 10],
+                                backgroundColor: [
+                                    '#ffffff',
+                                    'rgba(255,255,255,.2)',
+                                    'rgba(255,255,255,.5)',
+                                ],
+                                borderWidth: 0,
+                            }]
+                    },
+                    options: {
+                        legend: {
+                            display: false,
+                        },
+                        responsive: true,
+                    }
+                });
+
+
+            });
+            //]]>  
+        </script>
+        <style type="text/css">
+            .main-content {
+                padding: 0;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="form">
+            <div class="layout-dashboard">
+                <div class="p-grid">
+                    <!--<div class="p-col-12">
+                        <p:outputLabel for="datetime"/>
+                        <p:calendar id="datetime" requiredMessage="Ingrese Fecha" 
+                                    value="{dashboardBean.fechaSeleccionada}" pattern="dd/MM/yyyy" 
+                                    showOn="button" showButtonPanel="true">
+                            <p:ajax event="dateSelect" listener="{dashboardBean.onDateSelect}" 
+                                    update="@form panelGraficos"
+                                    onstart="PF('blockUIWidget').block()"
+                                    oncomplete="PF('blockUIWidget').unblock()"/>
+                        </p:calendar>                    
+                    </div>
+                    <p:outputPanel id="panelGraficos" style="width:3000px;">
+                        <div class="p-grid ui-fluid">
+                            <div class="p-col-12 p-lg-12">
+                                <div class="card">
+                                    <h5>Ventas Del Mes</h5>
+                                    <p:lineChart model="{dashboardBean.lineModel}" style="width: 100%; height: 210px;"/>
+                                </div>
+                            </div>
+                            <div class="p-col-12 p-lg-6">
+                                <div class="card">
+                                    <h5>Mejores Clientes En El Mes ($)</h5>
+                                    <p:polarAreaChart model="{dashboardBean.polarAreaModel}" style="width: 100%; height: 320px;"/>
+                                </div>
+                            </div>
+                            <div class="p-col-12 p-lg-6">
+                                <div class="card">
+                                    <h5>Ventas Por Producto En El Mes ($)</h5>
+                                    <p:pieChart model="{dashboardBean.pieModel}" style="width: 100%; height: 320px;"/>
+                                </div>
+                            </div>
+                        </div>
+                    </p:outputPanel>-->
+                    <div class="p-col-12 p-md-12 p-xl-9">
+                        <div class="p-grid">
+                            <div class="p-col-12 p-md-12 p-xl-4">
+                                <div class="card overview-box-1 blue">
+                                    <div class="card-header">
+                                        <h6>Revenue Status</h6>
+                                        <div class="header-buttons">
+                                            <a href="#"><i class="pi pi-arrow-up"/></a>
+                                        </div>
+                                    </div>
+                                    <div class="overview-content">
+                                        <h3>87363</h3>
+                                        <div class="overview-graph">
+                                            <span style="height: 12px;"><span class="graph-tooltip">12</span></span>
+                                            <span style="height: 40px;"><span class="graph-tooltip">40</span></span>
+                                            <span style="height: 26px;"><span class="graph-tooltip">26</span></span>
+                                            <span style="height: 17px;"><span class="graph-tooltip">17</span></span>
+                                            <span style="height: 36px;"><span class="graph-tooltip">36</span></span>
+                                            <span style="height: 51px;"><span class="graph-tooltip">51</span></span>
+                                        </div>
+                                    </div>
+                                    <div class="overview-footer">
+                                        <span><i class="pi pi-arrow-up"/> <span>55%</span> increase in today sales</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-col-12 p-md-12 p-xl-4">
+                                <div class="card overview-box-1 teal">
+                                    <div class="card-header">
+                                        <h6>Page View</h6>
+                                        <div class="header-buttons">
+                                            <a href="#"><i class="pi pi-arrow-up"/></a>
+                                        </div>
+                                    </div>
+                                    <div class="overview-content">
+                                        <h3>5592</h3>
+                                        <div class="overview-graph">
+                                            <span style="height: 30px;"><span class="graph-tooltip">30</span></span>
+                                            <span style="height: 43px;"><span class="graph-tooltip">43</span></span>
+                                            <span style="height: 48px;"><span class="graph-tooltip">48</span></span>
+                                            <span style="height: 40px;"><span class="graph-tooltip">40</span></span>
+                                            <span style="height: 352x;"><span class="graph-tooltip">52</span></span>
+                                            <span style="height: 18px;"><span class="graph-tooltip">18</span></span>
+                                        </div>
+                                    </div>
+                                    <div class="overview-footer down">
+                                        <span><i class="pi pi-arrow-down"/> <span>12%</span> decrease in today sales</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-col-12 p-md-12 p-xl-4">
+                                <div class="card  overview-box-1 orange">
+                                    <div class="card-header">
+                                        <h6>Bounce Rate</h6>
+                                        <div class="header-buttons">
+                                            <a href="#"><i class="pi pi-arrow-up"/></a>
+                                        </div>
+                                    </div>
+                                    <div class="overview-content">
+                                        <h3>55.95%</h3>
+                                        <div class="overview-graph">
+                                            <span style="height: 20px;"><span class="graph-tooltip">20</span></span>
+                                            <span style="height: 23px;"><span class="graph-tooltip">23</span></span>
+                                            <span style="height: 52px;"><span class="graph-tooltip">52</span></span>
+                                            <span style="height: 18px;"><span class="graph-tooltip">18</span></span>
+                                            <span style="height: 28px;"><span class="graph-tooltip">28</span></span>
+                                            <span style="height: 42px;"><span class="graph-tooltip">42</span></span>
+                                        </div>
+                                    </div>
+                                    <div class="overview-footer">
+                                        <span><i class="pi pi-arrow-up"/> <span>6%</span> increase in today sales</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-col-12">
+                                <div class="card sale-graph"> 
+                                    <div class="card-header">
+                                        <h6>Top Products</h6>
+                                        <p:commandButton value="Graficar" id:"graficar" actionListener="#{dashboardBean_ejemplo.graficarVentasDespachos()}" update="ventagrafico"/>
+                                        <h:panelGrid id="ventagrafico">
+                                            <p:chart type="bar" model="#{dashboardBean_ejemplo.barra}" style="width: 250px; height: 250px;" rendered="#{dashboardBean_ejemplo.barra !=null}"/>
+                                    </div>
+                                    <div id="order-tabs-container" class="order-tabs">
+                                        <div class="order-tab order-tab-active" data-label="New Sales" data-index="0" data-stroke="#00acac" >
+                                            <h6>Current Week</h6>
+                                            <h3>$455.55</h3>
+                                        </div>
+                                        <div class="order-tab " data-label="Previous Sales" data-index="1" data-stroke="#2f8ee5">
+                                            <h6>Previous Week</h6>
+                                            <h3>$244.40</h3>
+                                        </div>
+                                    </div>
+                                    <div class="overview-chart">
+                                        <canvas id="order-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-col-12 p-md-12 p-xl-3">
+                        <div class="p-grid">
+                            <div class="p-col-12 p-md-6 p-xl-12">
+                                <div class="card traffic">
+                                    <div class="card-header">
+                                        <h6>Traffic</h6>
+                                    </div>
+                                    <span>26 May - 27 May</span>
+                                    <div class="traffic-chart">
+                                        <canvas id="traffic-chart" width="200px" height="200px"></canvas>
+                                    </div>
+                                    <div id="traffic-tabs-container" class="traffic-tabs">
+                                        <div class="traffic-tab traffic-tab-active" data-label="New Sales" data-index="0"  >
+                                            <h6>48%</h6>
+                                            <i class="pi pi-facebook"/>
+                                            <span>Facebook</span>
+                                        </div>
+                                        <div class="traffic-tab " data-label="Previous Sales" data-index="1">
+                                            <h6>26%</h6>
+                                            <i class="pi pi-twitter"/>
+                                            <span>Twitter</span>
+                                        </div>
+                                        <div class="traffic-tab " data-label="Previous Sales" data-index="2">
+                                            <h6>17%</h6>
+                                            <i class="pi pi-github"/>
+                                            <span>Github</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-col-12 p-md-6 p-xl-12">
+                                <div class="card goals">
+                                    <div class="card-header">
+                                        <h6>Today's Goal</h6>
+                                        <span><span>183</span> / 255</span>
+                                    </div>
+                                    <span>22 June, 2020</span>
+                                    <div class="goal-graph">
+                                        <canvas id="goal-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-col-12 p-md-6 p-xl-4">
+                        <div class="card leaderboard">
+                            <div class="card-header">
+                                <h6>Leaderboard</h6>
+                            </div>
+                            <ul>
+                                <li>
+                                    <div class="person">
+                                        <p:graphicImage name="images/dashboard/leader-1.png" library="demo" />
+                                        <p>Peter Taylor</p>
+                                    </div>
+                                    <div class="person-numbers">
+                                        <h6>$224.44</h6>
+                                        <i class="pi pi-arrow-up"/>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="person">
+                                        <p:graphicImage name="images/dashboard/leader-2.png" library="demo" />
+                                        <p>Nicolina Lindholm</p>
+                                    </div>
+                                    <div class="person-numbers">
+                                        <h6>$86.05</h6>
+                                        <i class="pi pi-arrow-up"/>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="person">
+                                        <p:graphicImage name="images/dashboard/leader-3.png" library="demo" />
+                                        <p>Su Hua</p>
+                                    </div>
+                                    <div class="person-numbers">
+                                        <h6>$59.44</h6>
+                                        <i class="pi pi-arrow-up"/>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="person">
+                                        <p:graphicImage name="images/dashboard/leader-4.png" library="demo" />
+                                        <p>Maria Illescas</p>
+                                    </div>
+                                    <div class="person-numbers">
+                                        <h6>$12.32</h6>
+                                        <i class="pi pi-arrow-up"/>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="person">
+                                        <p:graphicImage name="images/dashboard/avatar-dengra.png" library="demo" />
+                                        <p>Ezequiel Dengra</p>
+                                    </div>
+                                    <div class="person-numbers">
+                                        <h6>$12.32</h6>
+                                        <i class="pi pi-arrow-up"/>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="person">
+                                        <p:graphicImage name="images/dashboard/avatar-conan.png" library="demo" />
+                                        <p>Conan Matusov</p>
+                                    </div>
+                                    <div class="person-numbers">
+                                        <h6>$12.32</h6>
+                                        <i class="pi pi-arrow-up"/>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="person">
+                                        <p:graphicImage name="images/dashboard/seller-1.png" library="demo" />
+                                        <p>Hector Mariano</p>
+                                    </div>
+                                    <div class="person-numbers">
+                                        <h6>$12.32</h6>
+                                        <i class="pi pi-arrow-up"/>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="p-col-12 p-md-6 p-xl-4">
+                        <div class="card product-list">
+                            <div class="card-header">
+                                <h6>Product List</h6>
+                            </div>
+                            <ul>
+                                <li>
+                                    <div class="product">
+                                        <p:graphicImage name="images/dashboard/image-product-1.png" library="demo" />
+                                        <div class="product-info">
+                                            <p>Nike Air X12</p>
+                                            <span>Sold <span>250</span> times</span>
+                                        </div>
+
+                                    </div>
+                                    <i class="pi pi-arrow-up"/>
+                                </li>
+                                <li>
+                                    <div class="product">
+                                        <p:graphicImage name="images/dashboard/image-product-2.png" library="demo" />
+                                        <div class="product-info">
+                                            <p>Nike Sports Watch</p>
+                                            <span>Sold <span>189</span> times</span>
+                                        </div>
+
+                                    </div>
+                                    <i class="pi pi-arrow-up"/>
+                                </li>
+                                <li>
+                                    <div class="product">
+                                        <p:graphicImage name="images/dashboard/image-product-3.png" library="demo" />
+                                        <div class="product-info">
+                                            <p>Heinz Yellow Mustard</p>
+                                            <span>Sold <span>24</span> times</span>
+                                        </div>
+
+                                    </div>
+                                    <i class="pi pi-arrow-up"/>
+                                </li>
+                                <li>
+                                    <div class="product">
+                                        <p:graphicImage name="images/dashboard/image-product-4.png" library="demo" />
+                                        <div class="product-info">
+                                            <p>Beats Headphone</p>
+                                            <span>Sold <span>24</span> times</span>
+                                        </div>
+
+                                    </div>
+                                    <i class="pi pi-arrow-down down"/>
+                                </li>
+                                <li>
+                                    <div class="product">
+                                        <p:graphicImage name="images/dashboard/image-product-5.png" library="demo" />
+                                        <div class="product-info">
+                                            <p>Black Racing Bike</p>
+                                            <span>Sold <span>24</span> times</span>
+                                        </div>
+
+                                    </div>
+                                    <i class="pi pi-arrow-up"/>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="p-col-12 p-md-6 p-xl-4">
+                        <div class="card sellers">
+                            <div class="card-header">
+                                <h6>Seller List</h6>
+                            </div>
+                            <ul>
+                                <li>
+                                    <div class="seller">
+                                        <p:graphicImage name="images/dashboard/seller-1.png" library="demo" />
+                                        <p>Hector Mariano</p>
+                                    </div>
+                                    <span>Tier 1</span>
+                                    <p:rating value="2" readonly="true" stars="3"/>
+                                    <p:menuButton icon="pi pi-ellipsis-v" styleClass="ui-button-secondary outlined-button " >
+                                        <p:menuitem value="View Profile" icon="pi pi-user"/>
+                                        <p:menuitem value="Update Profile" icon="pi pi-refresh"/>
+                                        <p:menuitem value="Delete Profile" icon="pi pi-trash"/>
+                                    </p:menuButton>
+                                </li>
+                                <li>
+                                    <div class="seller">
+                                        <p:graphicImage name="images/dashboard/seller-2.png" library="demo" />
+                                        <p>Maria Illescas</p>
+                                    </div>
+                                    <span>Tier 2</span>
+                                    <p:rating value="2" readonly="true" stars="3"/>
+                                    <p:menuButton icon="pi pi-ellipsis-v" styleClass="ui-button-secondary outlined-button " >
+                                        <p:menuitem value="View Profile" icon="pi pi-user"/>
+                                        <p:menuitem value="Update Profile" icon="pi pi-refresh"/>
+                                        <p:menuitem value="Delete Profile" icon="pi pi-trash"/>
+                                    </p:menuButton>
+                                </li>
+                                <li>
+                                    <div class="seller">
+                                        <p:graphicImage name="images/dashboard/seller-3.png" library="demo" />
+                                        <p>Ngô Hải Giang</p>
+                                    </div>
+                                    <span>Tier 3</span>
+                                    <p:rating value="1" readonly="true" stars="3"/>
+                                    <p:menuButton icon="pi pi-ellipsis-v" styleClass="ui-button-secondary outlined-button " >
+                                        <p:menuitem value="View Profile" icon="pi pi-user"/>
+                                        <p:menuitem value="Update Profile" icon="pi pi-refresh"/>
+                                        <p:menuitem value="Delete Profile" icon="pi pi-trash"/>
+                                    </p:menuButton>
+                                </li>
+                                <li>
+                                    <div class="seller">
+                                        <p:graphicImage name="images/dashboard/seller-4.png" library="demo" />
+                                        <p>Tamas Bunce</p>
+                                    </div>
+                                    <span>Tier 4</span>
+                                    <p:rating value="1" readonly="true" stars="3"/>
+                                    <p:menuButton icon="pi pi-ellipsis-v" styleClass="ui-button-secondary outlined-button " >
+                                        <p:menuitem value="View Profile" icon="pi pi-user"/>
+                                        <p:menuitem value="Update Profile" icon="pi pi-refresh"/>
+                                        <p:menuitem value="Delete Profile" icon="pi pi-trash"/>
+                                    </p:menuButton>
+                                </li>
+                                <li>
+                                    <div class="seller">
+                                        <p:graphicImage name="images/dashboard/avatar-conan.png" library="demo" />
+                                        <p>Conan Matusov</p>
+                                    </div>
+                                    <span>Tier 4</span>
+                                    <p:rating value="1" readonly="true" stars="3"/>
+                                    <p:menuButton icon="pi pi-ellipsis-v" styleClass="ui-button-secondary outlined-button " >
+                                        <p:menuitem value="View Profile" icon="pi pi-user"/>
+                                        <p:menuitem value="Update Profile" icon="pi pi-refresh"/>
+                                        <p:menuitem value="Delete Profile" icon="pi pi-trash"/>
+                                    </p:menuButton>
+                                </li>
+                                <li>
+                                    <div class="seller">
+                                        <p:graphicImage name="images/dashboard/leader-4.png" library="demo" />
+                                        <p>Maria Illescas</p>
+                                    </div>
+                                    <span>Tier 4</span>
+                                    <p:rating value="1" readonly="true" stars="3"/>
+                                    <p:menuButton icon="pi pi-ellipsis-v" styleClass="ui-button-secondary outlined-button " >
+                                        <p:menuitem value="View Profile" icon="pi pi-user"/>
+                                        <p:menuitem value="Update Profile" icon="pi pi-refresh"/>
+                                        <p:menuitem value="Delete Profile" icon="pi pi-trash"/>
+                                    </p:menuButton>
+                                </li>
+                                <li>
+                                    <div class="seller">
+                                        <p:graphicImage name="images/dashboard/leader-3.png" library="demo" />
+                                        <p>Su Hua</p>
+                                    </div>
+                                    <span>Tier 4</span>
+                                    <p:rating value="1" readonly="true" stars="3"/>
+                                    <p:menuButton icon="pi pi-ellipsis-v" styleClass="ui-button-secondary outlined-button " >
+                                        <p:menuitem value="View Profile" icon="pi pi-user"/>
+                                        <p:menuitem value="Update Profile" icon="pi pi-refresh"/>
+                                        <p:menuitem value="Delete Profile" icon="pi pi-trash"/>
+                                    </p:menuButton>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="p-col-12 p-md-6 p-xl-4">
+                        <div class="card tasks">
+                            <div class="card-header">
+                                <h6>Tasks</h6>
+                            </div>
+                            <div>
+                                <div class="task task-1">
+                                    <div class="task-info">
+                                        <div class="task-name"><span>12</span> Orders to fulfill</div>
+                                        <i class="pi pi-tag"/>
+                                    </div>
+                                    <div class="task-progress">
+                                        <div></div>
+                                    </div>
+                                </div>
+                                <div class="task task-2">
+                                    <div class="task-info">
+                                        <div class="task-name"><span>40+</span> Payments to withdraw</div>
+                                        <i class="pi pi-money-bill"/>
+                                    </div>
+                                    <div class="task-progress">
+                                        <div></div>
+                                    </div>
+                                </div>
+                                <div class="task task-3">
+                                    <div class="task-info">
+                                        <div class="task-name"><span>4</span> Reports to revise</div>
+                                        <i class="pi pi-file"/>
+                                    </div>
+                                    <div class="task-progress">
+                                        <div></div>
+                                    </div>
+                                </div>
+                                <div class="task task-4">
+                                    <div class="task-info">
+                                        <div class="task-name"><span>6</span> Questions to respond</div>
+                                        <i class="pi pi-comment"/>
+                                    </div>
+                                    <div class="task-progress">
+                                        <div></div>
+                                    </div>
+                                </div>
+                                <div class="task task-5">
+                                    <div class="task-info">
+                                        <div class="task-name"><span>2</span> Chargebacks to review</div>
+                                        <i class="pi pi-check-square"/>
+                                    </div>
+                                    <div class="task-progress">
+                                        <div></div>
+                                    </div>
+                                </div>
+                                <div class="task task-1">
+                                    <div class="task-info">
+                                        <div class="task-name"><span>12</span> Orders to fulfill</div>
+                                        <i class="pi pi-tag"/>
+                                    </div>
+                                    <div class="task-progress">
+                                        <div></div>
+                                    </div>
+                                </div>
+                                <div class="task task-2">
+                                    <div class="task-info">
+                                        <div class="task-name"><span>40+</span> Payments to withdraw</div>
+                                        <i class="pi pi-money-bill"/>
+                                    </div>
+                                    <div class="task-progress">
+                                        <div></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-col-12 p-xl-8">
+                        <div class="card sales">
+                            <div class="card-header">
+                                <h6>Recent Sales</h6>
+                                <p:selectOneMenu value="#{dashboardView.productWeek}" styleClass="dashbard-demo-dropdown" style="min-width: 8rem">
+                                    <f:selectItem itemLabel="This Week" itemValue="#{0}"></f:selectItem>
+                                    <f:selectItem itemLabel="Last Week" itemValue="#{1}"></f:selectItem>
+                                    <p:ajax listener="#{dashboardView.loadProducts}" update="productsTable" />
+                                </p:selectOneMenu>
+                            </div>
+                            <p>Your sales activity over time.</p>
+
+                            <p:dataTable id="productsTable" var="product" value="#{dashboardView.products}" reflow="true" paginatorPosition="bottom"
+                                         rowKey="#{product.id}" paginator="true" rows="5" >
+                                <p:column headerText="Id" sortBy="#{product.id}">
+                                    <h:outputText value="#{product.id}" />
+                                </p:column>
+
+                                <p:column headerText="Category" sortBy="#{product.category}">
+                                    <h:outputText value="#{product.category}" />
+                                </p:column>
+
+                                <p:column headerText="Price" sortBy="#{product.price}">
+                                    <h:outputText value="#{product.price}">
+                                        <f:convertNumber currencySymbol="$" type="currency" />
+                                    </h:outputText>
+                                </p:column>
+
+                                <p:column headerText="Status" sortBy="#{product.inventoryStatus}">
+                                    <span class="product-badge status-#{product.inventoryStatus.name().toLowerCase()}">#{product.inventoryStatus}</span>
+                                </p:column>
+
+                                <p:column style="width: 3.5rem">
+                                    <p:commandButton icon="pi pi-search" />
+                                </p:column>
+                            </p:dataTable>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <pe:blockUI widgetVar="blockUIWidget" cssOverlay="{opacity:0.5}">
+                <h:panelGrid columns="2">
+                    <h:graphicImage library="imagenes" name="ajaxloadingbar.gif"
+                                    style="margin-right: 12px; vertical-align: middle;"/>
+                    <h:outputText value="Cargando..." style="white-space: nowrap;"/>
+                </h:panelGrid>
+            </pe:blockUI>
+        </h:form>
+
+
+    </ui:define>
+
+</ui:composition>

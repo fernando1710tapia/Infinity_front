@@ -6,6 +6,7 @@
 package ec.com.infinityone.preciosyfacturacion.servicios;
 
 import ec.com.infinityone.configuration.Fichero;
+import ec.com.infinityone.modeloWeb.Cliente;
 import ec.com.infinityone.modeloWeb.Clienterubrotercero;
 import ec.com.infinityone.modeloWeb.ClienterubroterceroPK;
 import ec.com.infinityone.modeloWeb.Rubrotercero;
@@ -51,6 +52,10 @@ public class ClienterubroterceroServicio {
     Variable que alamacena un objeto rubroterceroPK
      */
     private RubroterceroPK rubroTerceroPK;
+    /*
+    Variable que alamacena un objeto Cliente
+     */
+    private Cliente cliente1;
 
     public List<Clienterubrotercero> obtenerClienteRubrotercero(String codComer) {
         try {
@@ -66,6 +71,7 @@ public class ClienterubroterceroServicio {
             clienterubroterceroPK = new ClienterubroterceroPK();
             clienterubrotercero = new Clienterubrotercero();
             rubroTercero = new Rubrotercero();
+            cliente1 = new Cliente();
 
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
@@ -82,8 +88,12 @@ public class ClienterubroterceroServicio {
                 JSONObject cliRubro = retorno.getJSONObject(indice);
                 JSONObject cliRubroPK = cliRubro.getJSONObject("clienterubroterceroPK");
                 JSONObject rubro = cliRubro.getJSONObject("rubrotercero");
+                JSONObject cliente = cliRubro.getJSONObject("cliente1");
+                
                 //JSONObject rubroPK = rubro.getJSONObject("rubroterceroPK");
 
+                cliente1.setNombrecomercial(cliente.getString("nombrecomercial"));
+                clienterubrotercero.setCliente1(cliente1);
                 rubroTercero.setNombre(rubro.getString("nombre"));
                 clienterubroterceroPK.setCodigo(cliRubroPK.getInt("codigorubrotercero"));
                 clienterubroterceroPK.setCodigocomercializadora(cliRubroPK.getString("codigocomercializadora"));
@@ -92,6 +102,7 @@ public class ClienterubroterceroServicio {
                 clienterubrotercero.setValor(cliRubro.getBigDecimal("valor"));
                 clienterubrotercero.setCuotas(cliRubro.getInt("cuotas"));
                 clienterubrotercero.setTipocobro(cliRubro.getString("tipocobro"));
+                 
                 Long dateStrIC = cliRubro.getLong("fechainiciocobro");
                 Date dateIC = new Date(dateStrIC);
                 String fechaIniCobro = date.format(dateIC);
@@ -103,6 +114,7 @@ public class ClienterubroterceroServicio {
                 clienterubrotercero = new Clienterubrotercero();
                 clienterubroterceroPK = new ClienterubroterceroPK();
                 rubroTercero = new Rubrotercero();
+                cliente1 = new Cliente();
             }
             if (connection.getResponseCode() != 200) {
                 System.out.println(connection.getResponseCode());
