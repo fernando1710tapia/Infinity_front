@@ -174,7 +174,10 @@ public class Descargaxml extends ReusableBean implements Serializable {
                 if (i > 0) {
                     fe = file.getName().substring(i + 1);
                 }
+                System.out.println("AS: Archivo antes de if xml" + file.getName() + file.lastModified());
                 if (fe.equals("xml")) {
+                    System.out.println("AS: Archivo despues" + file.getName() + file.lastModified());
+
                     cArchivos.setTimeInMillis(file.lastModified());
                     //String date = cArchivos.get(Calendar.DAY_OF_MONTH) + "/" + cArchivos.get(Calendar.MONTH) + "/" + cArchivos.get(Calendar.YEAR);
                     //System.out.println("----" + date);
