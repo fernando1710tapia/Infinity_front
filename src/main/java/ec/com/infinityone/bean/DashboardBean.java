@@ -134,6 +134,7 @@ public class DashboardBean extends ReusableBean implements Serializable {
         girls.set("2004", 52);
         girls.set("2005", 60);
         girls.set("2006", 110);
+        //girls.set("
         girls.set("2007", 135);
         girls.set("2008", 120);
 
@@ -229,6 +230,14 @@ public class DashboardBean extends ReusableBean implements Serializable {
 
     public void setBarModel(BarChartModel barModel) {
         this.barModel = barModel;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
     }
 
 }
