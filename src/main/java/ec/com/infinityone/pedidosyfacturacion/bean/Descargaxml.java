@@ -139,11 +139,11 @@ public class Descargaxml extends ReusableBean implements Serializable {
     public void descargarxml() {
         try {
             if (comercializadora != null) {
-                Date date = new Date();
+                //Date date = new Date();
                 SimpleDateFormat getYearFormat = new SimpleDateFormat("yyyy");
                 SimpleDateFormat getMonthFormat = new SimpleDateFormat("MM");
-                String currentYear = getYearFormat.format(date);
-                String currentMonth = getMonthFormat.format(date);
+                String currentYear = getYearFormat.format(fechaB);
+                String currentMonth = getMonthFormat.format(fechaB);
                 //rutaArchivos= "C:\\archivos\\docs";
                 //rutaArchivos= Fichero.getCARPETAXML(); 
                 rutaArchivos = Fichero.getRUTAXML() + "/" + currentYear + "/" + currentMonth + "/" + comercializadora.getRuc();
@@ -163,6 +163,7 @@ public class Descargaxml extends ReusableBean implements Serializable {
 
     public void lecturaXml() throws Throwable {
         String fe = "";
+        SimpleDateFormat formato = new SimpleDateFormat("ddMMyyyy"); 
         Calendar cArchivos = Calendar.getInstance();
         Calendar cFechaE = Calendar.getInstance();
         cFechaE.setTime(fechaB);
@@ -178,7 +179,8 @@ public class Descargaxml extends ReusableBean implements Serializable {
                 if (fe.equals("xml")) {
                     System.out.println("AS: Archivo despues" + file.getName() + file.lastModified());
 
-                    cArchivos.setTimeInMillis(file.lastModified());
+                    String dateArchivo = file.getName().substring(0,7);
+                    cArchivos.setTime(formato.parse(dateArchivo));
                     //String date = cArchivos.get(Calendar.DAY_OF_MONTH) + "/" + cArchivos.get(Calendar.MONTH) + "/" + cArchivos.get(Calendar.YEAR);
                     //System.out.println("----" + date);
                     if (cArchivos.get(Calendar.DAY_OF_MONTH) == cFechaE.get(Calendar.DAY_OF_MONTH)
