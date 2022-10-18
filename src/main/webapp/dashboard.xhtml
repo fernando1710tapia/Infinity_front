@@ -47,16 +47,16 @@
                 var ordersChart = new Chart(document.getElementById("order-chart").getContext('2d'), {
                     type: 'bar',
                     data: {
-                        labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio'],
+                        labels: ['15-Terminal Chiguilpe', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio'],
                         datasets: [{
-                                label: 'Compra',
-                                data: [20, 40, 20, 70, 20, 49, 30],
+                                label: '0121-DIESEL PREMIUM',
+                                data: [16864, 40, 20, 70, 20, 49, 30],
                                 backgroundColor: 'rgba(57, 163, 244, .7)',
                                 borderWidth: 0,
                                 fill: false,
                             }, {
-                                label: 'Venta',
-                                data: [5, 19, 10, 10, 22, 14, 10],
+                                label: '0101-GAS. EXTRA',
+                                data: [12870, 19, 10, 10, 22, 14, 10],
                                 backgroundColor: 'rgba(222, 162, 66, .7)',
                                 borderWidth: 0,
                                 fill: false,
@@ -281,7 +281,7 @@
             </div>
             <div class="p-field p-col-12 p-md-6">
 
-                <div class="p-field p-col-12 p-md-4">
+                <!--<div class="p-field p-col-12 p-md-4">
                     <div class="ui-inputgroup">
                         <span class="ui-inputgroup-addon">
                             <i class="fa fa-money"></i>
@@ -317,7 +317,7 @@
                                            itemValue="#{cli.codigo}" />                                            
                         </p:selectOneMenu>
                     </div>                                                
-                </div>
+                </div>-->
 
 
                 <p:panel  header="Última actualización: #{clienteGarantiaBean.formattedDate}" styleClass="disk-spaces" id="panelGarantia">
@@ -336,16 +336,22 @@
                             <h:outputText styleClass="ui-icon pi pi-replay"/>
                         </p:commandLink>
                     </f:facet>
-                </p:panel>
+                </p:panel>              
 
-
-                <div class="p-col-12">
-                    <p:panel header="Ventas Totales" styleClass="chart">
-                        <p:chart type="bar" model="#{dashboardBean.barModel}" style="height:300px" widgetVar="chart"/>                       
-                    </p:panel>
+            </div>     
+            <div class="p-col-12 p-lg-7 ">
+                <div class="p-grid">
+                    <div class="p-field p-col-12 p-md-6">
+                        <p:outputLabel for="fechaF" value="Fecha"/>
+                        <p:datePicker id="fechaF" value="#{dashboardBean.date}" showIcon="true" pattern="dd/MM/yyyy" maxdate="#{facturacionBean.fechaI}"/>
+                    </div>
+                    <div class="p-col-12">
+                        <p:panel header="Ventas Totales" styleClass="chart">
+                            <p:chart type="bar" model="#{dashboardBean.barModel}" style="height:300px" widgetVar="chart"/>
+                        </p:panel>
+                    </div>
                 </div>
-             
-            </div>                                        
+            </div>
 
 
         </div>

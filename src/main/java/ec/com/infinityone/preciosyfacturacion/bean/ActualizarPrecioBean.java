@@ -341,17 +341,17 @@ public class ActualizarPrecioBean extends ReusableBean implements Serializable {
         Date date;
         if (listaprecioselected != null) {
             codigoListaPre = listaprecioselected.getListaprecioPK().getCodigo();
+            listaComercializadoraProducto = new ArrayList<>();
+            fechaInicio = new Date();
             if (clienteServicio.obtenerClientePorListaPrecio(codigoListaPre) > 0) {
-                inhabilitar = false;
-                listaComercializadoraProducto = new ArrayList<>();
-            } else {
-                listaComercializadoraProducto = new ArrayList<>();
+                inhabilitar = false;                                
+            } else {                
                 inhabilitar = true;
-                date = listaprecioServicio.obtenerUltimaFechaDePrecio(comercializadora.getCodigo(), codigoListaPre);
-                Calendar c = Calendar.getInstance();
-                c.setTime(date);
-                c.add(Calendar.DATE, 1);
-                fechaInicio = c.getTime();
+//                date = listaprecioServicio.obtenerUltimaFechaDePrecio(comercializadora.getCodigo(), codigoListaPre);
+//                Calendar c = Calendar.getInstance();
+//                c.setTime(date);
+//                c.add(Calendar.DATE, 1);
+//                fechaInicio = c.getTime();                
             }
         }
     }

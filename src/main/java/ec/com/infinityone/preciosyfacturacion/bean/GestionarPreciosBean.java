@@ -422,7 +422,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
         step3 = false;
         if (comercializadora.getActivo().equals("N")) {
             listaTerminalProd = new ArrayList<>();
-           listaPrecio = new ArrayList<>();
+            listaPrecio = new ArrayList<>();
             listPrice = new ArrayList<>();
             for (int i = 0; i < listaComerProductos.size(); i++) {
                 if (listaComerProductos.get(i).isProcesar()) {
@@ -575,7 +575,6 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                     cadenaInfo.append("\nSI ES IMPRESCIBLE hacerlo COORDINE CON SUPERTECH.EC!!");
 
                     //this.dialogo(FacesMessage.SEVERITY_INFO, cadenaInfo.toString());
-
                     this.dialogo(FacesMessage.SEVERITY_ERROR, "Existen Precios VIGENTES en la Fecha Seleccionada\nNO DEBERÍA crear Precios en la misma Fecha\nSI ES IMPRESCIBLE hacerlo COORDINE CON SUPERTECH.EC!!");
                     System.out.println("Error al añadir:" + connection.getResponseCode());
                     System.out.println("Error:" + connection.getErrorStream());
@@ -587,19 +586,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                 }
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "SELECCIONE UNA COMERCIALIZADORA");
-            }
-            /*if (connection.getResponseCode() == 200) {
-                //this.dialogo(FacesMessage.SEVERITY_INFO, "FACTURA REGISTRADA EXITOSAMENTE");
-                contsultaPrecios = true;
-                //consultarPorIdPrecios(comerP);
-            } else {
-                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
-                System.out.println("Error al añadir:" + connection.getResponseCode());
-                System.out.println("Error:" + connection.getErrorStream());
-                System.out.println(connection.getResponseMessage());
-                contsultaPrecios = false;
-            }
-             */
+            }            
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -783,7 +770,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                     medida = new Medida();
                     comercializadoraProducto = new Comercializadoraproducto();
                     comercializadoraProductoPK = new ComercializadoraproductoPK();
-                    precio = new Precio();                    
+                    precio = new Precio();
                     objprecio = new ObjetoPrecio();
                     objDetalle = new ObjetoDetallePrecio();
                     terminal = new Terminal();
@@ -1111,7 +1098,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
         precioError = new ArrayList<>();
         precioGuardado = new ArrayList<>();
         detPrecioError = new ArrayList<>();
-        detPrecioGuardado = new ArrayList<>();        
+        detPrecioGuardado = new ArrayList<>();
         StringBuilder cadenaErro = new StringBuilder();
         for (int i = 0; i < listPrice.size(); i++) {
             obtenerTerminalesProducto(i, listPrice);
@@ -1149,8 +1136,8 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
         for (int i = 0; i < listPrice.size(); i++) {
             obtenerTerminalesProducto(i, listPrice);
             //for (int j = 0; j < listaTerminalProdAux.size(); j++) {
-                arregloJSON.addAll(addItemsArregloJSON(i, listPrice, listaTerminalProdAux));
-                //addItemsPrice(i, j, listPrice, listaTerminalProdAux);
+            arregloJSON.addAll(addItemsArregloJSON(i, listPrice, listaTerminalProdAux));
+            //addItemsPrice(i, j, listPrice, listaTerminalProdAux);
             //}
         }
 
@@ -1319,7 +1306,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
             for (int k = 0; k < precio.get(i).getDetalleprecioList().size(); k++) {
                 if (listaTerminalP.get(j).getListaprecioterminalproductoPK().getCodigoterminal().equals(precio.get(i).getDetalleprecioList().get(k).getDetalleprecioPK().getCodigoterminal())) {
                     arrObj.add(addItemsDetailPAux(k, precio.get(i).getDetalleprecioList(), "0"));
-                }                
+                }
             }
 
             objEnvRest.put("precio", obj);

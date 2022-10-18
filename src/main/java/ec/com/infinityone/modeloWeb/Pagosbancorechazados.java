@@ -48,6 +48,10 @@ public class Pagosbancorechazados implements Serializable {
     private Boolean registrook;
 
     private String pysNumeronotapedido;
+    
+    private String bcoCondicionProceso;
+    
+    private String bcoMensajeProceso;
 
     public Pagosbancorechazados() {
     }
@@ -194,6 +198,22 @@ public class Pagosbancorechazados implements Serializable {
     public void setPysNumeronotapedido(String pysNumeronotapedido) {
         this.pysNumeronotapedido = pysNumeronotapedido;
     }
+
+    public String getBcoCondicionProceso() {
+        return bcoCondicionProceso;
+    }
+
+    public void setBcoCondicionProceso(String bcoCondicionProceso) {
+        this.bcoCondicionProceso = bcoCondicionProceso;
+    }
+
+    public String getBcoMensajeProceso() {
+        return bcoMensajeProceso;
+    }
+
+    public void setBcoMensajeProceso(String bcoMensajeProceso) {
+        this.bcoMensajeProceso = bcoMensajeProceso;
+    }   
 
     @Override
     public int hashCode() {

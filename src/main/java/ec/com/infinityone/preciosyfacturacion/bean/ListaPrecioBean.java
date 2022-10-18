@@ -1097,42 +1097,76 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
     public void editItemsTerminal(int i, int indice, ObjetoNivel1 terminal) {
         try {
 
-            String respuesta;
+            String respuesta = "";
+            int value = 0;
+            String margenporcentaje = "";
+            String margenvalorcomercializadora = "";
+
+            if (tipoT.equals("MPO - Margen sobre el precio en terminal")) {
+                if (listaListapreciobean.get(indice).getMargenValor() != null) {
+                    margenporcentaje = listaListapreciobean.get(indice).getMargenValor().toString();
+                    margenvalorcomercializadora = "-99";
+                }
+            } else {
+                if (listaListapreciobean.get(indice).getMargenValor() != null) {
+                    margenvalorcomercializadora = listaListapreciobean.get(indice).getMargenValor().toString();
+                    margenporcentaje = "-99";
+                }
+            }
 
             //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.listaprecioterminalproducto/porId");
-            url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.listaprecioterminalproducto/porId");
+            //url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.listaprecioterminalproducto/porId");
+            url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.listaprecioterminalproducto/actualizar?codigocomercializadora=" + listaProductosComer.get(indice).getComercializadoraproductoPK().getCodigocomercializadora()
+                    + "&codigoproducto=" + listaProductosComer.get(indice).getComercializadoraproductoPK().getCodigoproducto()
+                    + "&codigomedida=" + listaProductosComer.get(indice).getComercializadoraproductoPK().getCodigomedida()
+                    + "&codigoterminal=" + terminal.getCodigo()
+                    + "&codigolistaprecio=" + codigoListaPrecioT
+                    + "&margenporcentaje=" + margenporcentaje
+                    + "&margenvalorcomercializadora=" + margenvalorcomercializadora
+                    + "&usuario=" + (dataUser.getUser().getNombrever()).trim());
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
             connection.setRequestMethod("PUT");
             connection.setRequestProperty("Content-type", "application/json");
+            connection.connect();
 
-            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+//            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+//
+//            BufferedReader br = new BufferedReader(reader);
+//            String tmp = null;
+//            String resp = "";
+//            while ((tmp = br.readLine()) != null) {
+//                resp += tmp;
+//            }
+//            JSONObject objetoJson = new JSONObject(resp);
+//            JSONArray retorno = objetoJson.getJSONArray("retorno");
 
-            JSONObject obj = new JSONObject();
-            JSONObject objPk = new JSONObject();
-            objPk.put("codigocomercializadora", listaProductosComer.get(indice).getComercializadoraproductoPK().getCodigocomercializadora());
-            objPk.put("codigolistaprecio", codigoListaPrecioT);
-            objPk.put("codigoterminal", terminal.getCodigo());
-            objPk.put("codigoproducto", listaProductosComer.get(indice).getComercializadoraproductoPK().getCodigoproducto());
-            objPk.put("codigomedida", listaProductosComer.get(indice).getComercializadoraproductoPK().getCodigomedida());
-            obj.put("listaprecioterminalproductoPK", objPk);
-            if (tipoT.equals("MPO - Margen sobre el precio en terminal")) {
-                if (listaListapreciobean.get(indice).getMargenValor() != null) {
-                    obj.put("margenporcentaje", listaListapreciobean.get(indice).getMargenValor());
-                    obj.put("margenvalorcomercializadora", -99);
-                }
-            } else {
-                if (listaListapreciobean.get(indice).getMargenValor() != null) {
-                    obj.put("margenvalorcomercializadora", listaListapreciobean.get(indice).getMargenValor());
-                    obj.put("margenporcentaje", -99);
-                }
-            }
-            obj.put("usuarioactual", dataUser.getUser().getNombrever());
-            respuesta = obj.toString();
-            writer.write(respuesta);
-            writer.close();
-
+//            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+//
+//            JSONObject obj = new JSONObject();
+//            JSONObject objPk = new JSONObject();
+//            objPk.put("codigocomercializadora", listaProductosComer.get(indice).getComercializadoraproductoPK().getCodigocomercializadora());
+//            objPk.put("codigolistaprecio", codigoListaPrecioT);
+//            objPk.put("codigoterminal", terminal.getCodigo());
+//            objPk.put("codigoproducto", listaProductosComer.get(indice).getComercializadoraproductoPK().getCodigoproducto());
+//            objPk.put("codigomedida", listaProductosComer.get(indice).getComercializadoraproductoPK().getCodigomedida());
+//            obj.put("listaprecioterminalproductoPK", objPk);
+//            if (tipoT.equals("MPO - Margen sobre el precio en terminal")) {
+//                if (listaListapreciobean.get(indice).getMargenValor() != null) {
+//                    obj.put("margenporcentaje", listaListapreciobean.get(indice).getMargenValor());
+//                    obj.put("margenvalorcomercializadora", -99);
+//                }
+//            } else {
+//                if (listaListapreciobean.get(indice).getMargenValor() != null) {
+//                    obj.put("margenvalorcomercializadora", listaListapreciobean.get(indice).getMargenValor());
+//                    obj.put("margenporcentaje", -99);
+//                }
+//            }
+//            obj.put("usuarioactual", dataUser.getUser().getNombrever());
+//            respuesta = obj.toString();
+//            writer.write(respuesta);
+//            writer.close();
             if (connection.getResponseCode() == 200) {
                 this.dialogo(FacesMessage.SEVERITY_INFO, "LISTA PRECIO TERMINAL PRODUCTO REGISTRADA EXITOSAMENTE");
                 PrimeFaces.current().executeScript("PF('nuevo').hide()");

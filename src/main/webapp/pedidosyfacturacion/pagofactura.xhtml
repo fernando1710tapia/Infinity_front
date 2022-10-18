@@ -550,10 +550,10 @@
                                 </f:facet>  
                                 <!--<p:column selectionMode="multiple" style="width:16px;text-align:center"/>-->
 
-                                <p:column headerText="PyS-Factura" sortBy="#{cobro.pysNumerofactura}" filterBy="#{cobro.pysNumerofactura}" width="12%">
+                                <p:column headerText="PyS-Factura" sortBy="#{cobro.pysNumerofactura}" filterBy="#{cobro.pysNumerofactura}" width="16%">
                                     <h:outputText value="#{cobro.pysNumerofactura}" />
                                 </p:column>
-                                <p:column headerText="BCO-Factura" sortBy="#{cobro.pagosbancorechazadosPK.bcoNumerofactura}" filterBy="#{cobro.pagosbancorechazadosPK.bcoNumerofactura}" width="12%" >
+                                <p:column headerText="BCO-Factura" sortBy="#{cobro.pagosbancorechazadosPK.bcoNumerofactura}" filterBy="#{cobro.pagosbancorechazadosPK.bcoNumerofactura}" width="16%" >
                                     <h:outputText value="#{cobro.pagosbancorechazadosPK.bcoNumerofactura}" />
                                 </p:column>  
                                 <p:column headerText="PyS-Cliente" sortBy="#{cobro.pysCodigocliente}" filterBy="#{cobro.pysCodigocliente}" width="8%">
@@ -581,6 +581,12 @@
                                     <h:outputText value="#{cobro.bcoValorconrubro}">
                                         <f:convertNumber currencySymbol="$" type="currency" />
                                     </h:outputText>
+                                </p:column>
+                                <p:column headerText="Cond. de Proceso" filterBy="#{cobro.condicionProceso}" width="8%">
+                                    <h:outputText value="#{cobro.condicionProceso}" />
+                                </p:column>
+                                <p:column headerText="Mns. de Proceso" filterBy="#{cobro.mensajeProceso}" width="20%">
+                                    <h:outputText value="#{cobro.mensajeProceso}" />
                                 </p:column>
                                 <!--<p:column headerText="N. de pago" sortBy="{cobro.detallepagoPK.numero}" filterBy="{cobro.detallepagoPK.numero}" width="10%">
                                     <h:outputText value="{cobro.detallepagoPK.numero}" />

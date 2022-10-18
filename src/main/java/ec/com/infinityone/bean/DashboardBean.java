@@ -6,9 +6,10 @@
 package ec.com.infinityone.bean;
 
 import ec.com.infinityone.configuration.Fichero;
+import ec.com.infinityone.modeloWeb.DespachoTotalDto;
 import ec.com.infinityone.modeloWeb.Mejorcliente;
-import ec.com.infinityone.modeloWeb.ObjetoNivel1;
 import ec.com.infinityone.modeloWeb.Usuario;
+import ec.com.infinityone.modeloWeb.VentaTotalDto;
 import ec.com.infinityone.reusable.ReusableBean;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,7 +18,10 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.faces.context.FacesContext;
@@ -43,7 +47,15 @@ public class DashboardBean extends ReusableBean implements Serializable {
      */
     private List<Mejorcliente> listaMejorcliente;
 
+    private List<VentaTotalDto> listaVentaTotalDto;
+
+    private List<DespachoTotalDto> listaDespachoTotalDto;
+
     private Mejorcliente mejorcliente;
+
+    private VentaTotalDto ventaTotalDto;
+
+    private DespachoTotalDto despachoTotalDto;
 
     private String nombrecliente;
 
@@ -57,20 +69,26 @@ public class DashboardBean extends ReusableBean implements Serializable {
 
     private BarChartModel barModel;
 
+    private Date date;
+
     public DashboardBean() {
     }
 
     @PostConstruct
     public void init() {
         //direccion = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura/mejorCliente?activo=true";        
-        direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura/mejorCliente?activo=true";
-        direccionVentaVsDespacho_Venta = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura/ventaTotal";
-        direccionVentaVsDespacho_Despacho = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.consultaguiaremision/despachoTotal";
+        direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim();
+        direccionVentaVsDespacho_Venta = "ec.com.infinity.modelo.factura/ventaTotal";
+        direccionVentaVsDespacho_Despacho = "ec.com.infinity.modelo.consultaguiaremision/despachoTotal";
         mejorcliente = new Mejorcliente();
+        date = new Date();
 
         obtenerListamejorCliente();
         obtenerprimerCliente();
         createBarModel();
+        obtenerVentaTotal();
+        obtenerDespachoTotal();
+
 
         x = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
     }
@@ -85,7 +103,7 @@ public class DashboardBean extends ReusableBean implements Serializable {
 
     public void obtenerListamejorCliente() {
         try {
-            url = new URL(direccion);
+            url = new URL(direccion + "ec.com.infinity.modelo.factura/mejorCliente?activo=true");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
@@ -113,6 +131,84 @@ public class DashboardBean extends ReusableBean implements Serializable {
 
             System.out.println(connection.getResponseCode());
             System.out.println(connection.getResponseMessage());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void obtenerVentaTotal() {
+        try {
+            DateFormat dateFormat = new SimpleDateFormat("yyyy/mm/dd");
+            String pfecha = dateFormat.format(date);
+            url = new URL(direccion + "ec.com.infinity.modelo.factura/ventatotal1?pfecha=" + pfecha);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+
+            listaVentaTotalDto = new ArrayList<>();
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+
+            BufferedReader br = new BufferedReader(reader);
+            String tmp = null;
+            String respuesta = "";
+            while ((tmp = br.readLine()) != null) {
+                respuesta += tmp;
+            }
+            JSONObject objetoJson = new JSONObject(respuesta);
+            JSONArray retorno = objetoJson.getJSONArray("retorno");
+            for (int indice = 0; indice < retorno.length(); indice++) {
+                JSONObject ventTot = retorno.getJSONObject(indice);
+                ventaTotalDto.setNombreTerminal(ventTot.getString("nombreTerminal"));
+                ventaTotalDto.setNombreProducto(ventTot.getString("nombreProducto"));
+                ventaTotalDto.setVolumenTotal(ventTot.getBigDecimal("volumenTotal"));
+                ventaTotalDto.setFacturas(ventTot.getInt("volumenTotal"));
+                listaVentaTotalDto.add(ventaTotalDto);
+                ventaTotalDto = new VentaTotalDto();
+            }
+            if (connection.getResponseCode() != 200) {
+                System.out.println(connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
+            } 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void obtenerDespachoTotal() {
+        try {
+            DateFormat dateFormat = new SimpleDateFormat("yyyy/mm/dd");
+            String pfecha = dateFormat.format(date);
+            url = new URL(direccion + "ec.com.infinity.modelo.factura/ventatotal1?pfecha=" + pfecha);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+
+            listaDespachoTotalDto = new ArrayList<>();
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+
+            BufferedReader br = new BufferedReader(reader);
+            String tmp = null;
+            String respuesta = "";
+            while ((tmp = br.readLine()) != null) {
+                respuesta += tmp;
+            }
+            JSONObject objetoJson = new JSONObject(respuesta);
+            JSONArray retorno = objetoJson.getJSONArray("retorno");
+            for (int indice = 0; indice < retorno.length(); indice++) {
+                JSONObject despTot = retorno.getJSONObject(indice);
+                despachoTotalDto.setNombreTerminal(despTot.getString("nombreTerminal"));
+                despachoTotalDto.setNombreProducto(despTot.getString("nombreProducto"));
+                despachoTotalDto.setVolumenTotal(despTot.getBigDecimal("volumenTotal"));
+                despachoTotalDto.setGuias(despTot.getInt("guias"));
+                listaDespachoTotalDto.add(despachoTotalDto);
+                despachoTotalDto = new DespachoTotalDto();
+            }
+            if (connection.getResponseCode() != 200) {
+                System.out.println(connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
+            } 
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -205,25 +301,8 @@ public class DashboardBean extends ReusableBean implements Serializable {
 
     public void setX(Usuario x) {
         this.x = x;
-    }
+    } 
 
-    public String getDireccionVentaVsDespacho_Venta() {
-        return direccionVentaVsDespacho_Venta;
-    }
-
-    public void setDireccionVentaVsDespacho_Venta(String direccionVentaVsDespacho_Venta) {
-        this.direccionVentaVsDespacho_Venta = direccionVentaVsDespacho_Venta;
-    }
-
-    public String getDireccionVentaVsDespacho_Despacho() {
-        return direccionVentaVsDespacho_Despacho;
-    }
-
-    public void setDireccionVentaVsDespacho_Despacho(String direccionVentaVsDespacho_Despacho) {
-        this.direccionVentaVsDespacho_Despacho = direccionVentaVsDespacho_Despacho;
-    }
-    
-    
     public BarChartModel getBarModel() {
         return barModel;
     }
@@ -232,12 +311,13 @@ public class DashboardBean extends ReusableBean implements Serializable {
         this.barModel = barModel;
     }
 
-    public String getDireccion() {
-        return direccion;
+    public Date getDate() {
+        return date;
     }
 
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
+    public void setDate(Date date) {
+        this.date = date;
     }
+
 
 }

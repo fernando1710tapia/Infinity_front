@@ -1306,6 +1306,8 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                     pagosbancorechazados.setBcoNombrecliente(detallepago.getNomBeneficiario());
                     pagosbancorechazados.setBcoRuccliente(detallepago.getNumIdCliente().trim());
                     pagosbancorechazados.setBcoValorconrubro(new BigDecimal(detallepago.getValorProcesado()));
+                    pagosbancorechazados.setBcoCondicionProceso(detallepago.getCondProc());
+                    pagosbancorechazados.setBcoMensajeProceso(detallepago.getMensProc());
                     pagosbancorechazados.setRegistrook(false);
                     if (!fact.isEmpty()) {
                         pagosbancorechazados.setPysCodigobanco(fact.get(0).getCodigobanco());
@@ -1316,9 +1318,11 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                         pagosbancorechazados.setPysNumerofactura(fact.get(0).getFacturaPK().getNumero().trim());
                         pagosbancorechazados.setPysRuccliente(fact.get(0).getRuccliente());
                         pagosbancorechazados.setPysValorconrubro(fact.get(0).getValorconrubro());
-                        pagosbancorechazados.setPysNumeronotapedido(numNoPed);
-                        if (pagosbancorechazados.getBcoValorconrubro().compareTo(pagosbancorechazados.getPysValorconrubro()) == 0) {
-                            pagosbancorechazados.setRegistrook(true);
+                        pagosbancorechazados.setPysNumeronotapedido(numNoPed);                        
+                        if (pagosbancorechazados.getBcoCondicionProceso().equals("0000")) {
+                            if (pagosbancorechazados.getBcoValorconrubro().compareTo(pagosbancorechazados.getPysValorconrubro()) == 0) {
+                                pagosbancorechazados.setRegistrook(true);
+                            }
                         }
                     }
 
