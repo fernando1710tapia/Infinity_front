@@ -57,6 +57,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -806,24 +807,49 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
     public void generarArchivos() throws Throwable {
         String nombreArchivoGenerado = "";
         List<Factura> listaFacturaBancos = new ArrayList<>();
+        List<Factura> listaFacturaMapa = new ArrayList<>();
         List<String> listaArchivos = new ArrayList<>();
+        HashMap<String, List<Factura>> mapaFacturas = new HashMap<>();
         int numeroRegistros = 0;
         BigDecimal valorTotalArchivo = new BigDecimal("0");
         if (listaFacturaSeleccionada != null) {
             if (!listaFacturaSeleccionada.isEmpty()) {
                 for (int i = 0; i < listaBancos.size(); i++) {
                     listaFacturaBancos = new ArrayList<>();
+                    listaFacturaMapa = new ArrayList<>();
+                    mapaFacturas = new HashMap<>();
                     for (int j = 0; j < listaFacturaSeleccionada.size(); j++) {
                         if (listaFacturaSeleccionada.get(j).getCodigobanco().equals(listaBancos.get(i).getCodigo())) {
-                            listaFacturaBancos.add(listaFacturaSeleccionada.get(j));
+                                System.out.println("FT::. RECORRIENDO LISTA DE FACTURAS "+ j +" - "+listaFacturaSeleccionada.get(j).getFacturaPK().getNumero()+ " - " + listaFacturaSeleccionada.get(j).getFechaacreditacionprorrogada());
+                                if(!mapaFacturas.containsKey(listaFacturaSeleccionada.get(j).getFechaacreditacionprorrogada())){
+                                    System.out.println("FT::. INICIALIZA NUEVO ARREGLO listaFacturaMapa");
+                                listaFacturaMapa = new ArrayList<>();
+                                }
+                                listaFacturaMapa.add(listaFacturaSeleccionada.get(j));
+                                mapaFacturas.put(listaFacturaSeleccionada.get(j).getFechaacreditacionprorrogada(), listaFacturaMapa);
+
+//                            listaFacturaBancos.add(listaFacturaSeleccionada.get(j));
                             valorTotalArchivo.add(listaFacturaSeleccionada.get(j).getValorconrubro());
                             numeroRegistros++;
                         }
                     }
-                    if (!listaFacturaBancos.isEmpty()) {
-                        nombreArchivoGenerado = crearArchivo(listaFacturaBancos, listaBancos.get(i).getCodigo(), numeroRegistros, valorTotalArchivo);
-                        listaArchivos.add(nombreArchivoGenerado);
+                    for (Map.Entry<String, List<Factura>> entry : mapaFacturas.entrySet()) {
+                        System.out.println("FT::clave=" + entry.getKey() + ", valor=" + entry.getValue());
                     }
+//     FT               if (!listaFacturaBancos.isEmpty()) {
+//                        nombreArchivoGenerado = crearArchivo(listaFacturaBancos, listaBancos.get(i).getCodigo(), numeroRegistros, valorTotalArchivo);
+//                        listaArchivos.add(nombreArchivoGenerado);
+//                    }
+                    
+                    if (!mapaFacturas.isEmpty()) {
+
+                        for (Map.Entry<String, List<Factura>> entry : mapaFacturas.entrySet()) {
+                            System.out.println("FT::- CREANDO ARCHIVO - clave=" + entry.getKey() + ", valor=" + entry.getValue());
+                            nombreArchivoGenerado = crearArchivo(entry.getValue(), entry.getKey(), listaBancos.get(i).getCodigo(), numeroRegistros, valorTotalArchivo);
+                            listaArchivos.add(nombreArchivoGenerado);
+                        }
+                    }
+                    
                 }
                 zip(listaArchivos);
                 temporalServicios.eliminarRegistrosTemporales(fechaConvertida, dataUser.getUser().getNombrever().replace(" ", ""), codigoComer);
@@ -869,6 +895,21 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
         switch (codBanco) {
             case "36":
                 nombreArchivoGenerado = crearArchivo36(listaFactura, codBanco, cantidadRegsitros, valorTotal);
+                break;
+            case "37":
+                nombreArchivoGenerado = crearArchivo37(listaFactura, codBanco, cantidadRegsitros, valorTotal);
+                break;
+            default:
+                throw new Throwable("Error Capturado: PagoFacturaBean.crearArchivo Banco: " + codBanco + " NO tiene configuración para creación de archivo de pagos! ");
+        }
+        return nombreArchivoGenerado;
+    }
+    
+    public String crearArchivo(List<Factura> listaFactura, String fechaAcreditacionProrrogada, String codBanco, int cantidadRegsitros, BigDecimal valorTotal) throws Throwable {
+        String nombreArchivoGenerado = "";
+        switch (codBanco) {
+            case "36":
+                nombreArchivoGenerado = crearArchivo36(listaFactura, fechaAcreditacionProrrogada, codBanco, cantidadRegsitros, valorTotal);
                 break;
             case "37":
                 nombreArchivoGenerado = crearArchivo37(listaFactura, codBanco, cantidadRegsitros, valorTotal);
@@ -1037,7 +1078,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         }
     }
 
-    public String crearArchivo36(List<Factura> listaFactura, String codBanco, int cantidadRegsitros, BigDecimal valorTotal) throws Throwable {
+    public String crearArchivo36Lote(List<Factura> listaFactura, String codBanco, int cantidadRegsitros, BigDecimal valorTotal) throws Throwable {
         FileWriter flwriter = null;
         String usuario = dataUser.getUser().getNombrever().replace(" ", "");
         String fechaHora = (fechaConvertida.replace(":", "")).substring(0, 16);
@@ -1142,6 +1183,218 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         return nombreArchivo;
     }
 
+    public String crearArchivo36(List<Factura> listaFactura, String fechaAcreditacionProrrogada, String codBanco, int cantidadRegsitros, BigDecimal valorTotal) throws Throwable {
+        FileWriter flwriter = null;
+        String usuario = dataUser.getUser().getNombrever().replace(" ", "");
+        String fechaHora = (fechaConvertida.replace(":", "")).substring(0, 16);
+        String fechaAcr = fechaAcreditacionProrrogada.substring(0, 4)+fechaAcreditacionProrrogada.substring(5, 7)+fechaAcreditacionProrrogada.substring(8, 10);
+        String nombreArchivo = "";
+        String separador = "\t";
+        Cliente cliAux = new Cliente();
+        List<Cliente> listaClientesAux = new ArrayList<>();
+        
+        try {
+            nombreArchivo = "/BANINTER_G_" + fechaHora + "_" + "COBRAR-EL_" + fechaAcr + ".txt";
+            //crea el flujo para escribir en el archivo
+            //flwriter = new FileWriter("C:\\archivos\\Facturas_Banco" + codBanco + "_" + fechaHora + "_" + usuario + ".txt");
+            //flwriter = new FileWriter(Fichero.getCARPETAREPORTES() + "/Facturas_Banco" + codBanco + "_" + fechaHora + "_" + usuario + ".txt");
+            flwriter = new FileWriter(Fichero.getCARPETAREPORTES() + nombreArchivo);
+            //crea un buffer o flujo intermedio antes de escribir directamente en el archivo
+            BufferedWriter bfwriter = new BufferedWriter(flwriter);
+            for (Factura factura : listaFactura) {
+                listaClientesAux = clienteServicio.obtenerClientesPorID(factura.getCodigocliente());
+                for (int i = 0; i < listaClientesAux.size(); i++) {
+                    if (listaClientesAux.get(i).getCodigo().equals(factura.getCodigocliente())) {
+                        cliAux = listaClientesAux.get(i);
+                        break;
+                    }
+                }
+                //escribe los datos en el archivo               
+                bfwriter.write(
+                        //1. CÓDIGO DE ORIENTACIÓN
+                        "CO" + separador
+                        //2. CUENTA DE LA EMPRESA
+                        + String.format("%20s", cliAux.getCuentadebito()).replace(' ', '0') + separador
+                        //3. SECUENCIAL
+                        + "0000000" + separador
+                        //4. COMPROBANTE DE COBRO
+                        + String.format("%20s", factura.getFacturaPK().getNumero().trim()).replace(' ', '0') + separador
+                        //5. CONTRAPARTIDA
+                        + String.format("%-20s", cliAux.getCodigo()).replace(' ', '0') + separador
+                        //6. MONEDA
+                        + "USD" + separador
+                        //7. VALOR
+                        + String.format("%14s", factura.getValorconrubro()).replace(' ', '0').replace(".", "") + separador
+                        //8. FORMA DE COBRO
+                        + "CTA" + separador
+                        //9. CÓDIGO DE BANCO
+                        + String.format("%10s", "36").replace(' ', '0') + separador
+                        //10. TIPO DE CUENTA
+                        + cliAux.getTipocuentadebito() + separador
+                        //11. NÚMERO DE CUENTA
+                        + String.format("%20s", cliAux.getCuentadebito()).replace(' ', '0') + separador
+                        //12. Tipo ID Beneficiario/Deudor
+                        + "R" + separador
+                        //13. Número de ID Beneficiario/Deudor
+                        + String.format("%15s", cliAux.getRuc()) + separador
+                        //14. NOMBRE DEL DEUDOR
+                        + String.format("%-41s", cliAux.getNombrecomercial()).replace(' ', '0') + separador
+                        //15. DIRECCIÓN DEL DEUDOR
+                        + String.format("%-38s", cliAux.getDireccion()).replace(' ', '0') + separador
+                        //16. CIUDAD DEL DEUDOR
+                        + String.format("%-20s", " ").replace(' ', '0') + separador
+                        //17. TELÉFONO DEL DEUDOR
+                        + String.format("%20s", cliAux.getTelefono1()).replace(' ', '0') + separador
+                        //18. LOCALIDAD DEL COBRO
+                        + String.format("%-20s", " ").replace(' ', '0') + separador
+                        //19. REFERENCIA
+                        + String.format("%-1000s", (factura.getFacturaPK().getNumeronotapedido())
+                                + factura.getFacturaPK().getNumero()).replace(' ', '0') + separador
+                        //                        + factura.getCodigoterminal() + "|"
+                        //                        + factura.getObservacion()
+                        //20. Referencia Adicional |dirección email |Operadora celular número de celular
+                        + String.format("%-100s", factura.getFechaacreditacionprorrogada() + "|"
+                                + cliAux.getCorreo1()).replace(' ', '0') + separador
+                        //21. BASE IMPONIBLE 
+                        + String.format("%-13s", factura.getValorsinimpuestos()).replace(' ', '0').replace(".", "") + separador
+                        //IVA BIENES                        
+                        + String.format("%-13s", factura.getIvatotal()).replace(' ', '0').replace(".", "") + separador
+                        //BASE IMPONIBLE SERVICIOS                        
+                        + String.format("%-13s", factura.getValorconrubro()).replace(' ', '0').replace(".", "") + separador
+                        //IVA SERVICIOS                        
+                        + String.format("%-13s", "0").replace(' ', '0').replace(".", "") + separador
+                        //ICE                        
+                        + String.format("%13s", "").replace(' ', '0').replace(".", "") + separador
+                        //REFERENCIA FACTURACION                       
+                        + String.format("%-500s", "").replace(' ', '0').replace(".", "") + separador
+                        //CAMPO OPCIONAL                        
+                        + String.format("%-200s", "").replace(' ', '0').replace(".", "") + "\n"
+                );
+            }
+            //cierra el buffer intermedio
+            bfwriter.close();
+            this.dialogo(FacesMessage.SEVERITY_INFO, "Archivo creado satisfactoriamente..");
+            System.out.println("Archivo creado satisfactoriamente..");
+            return nombreArchivo;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (flwriter != null) {
+                try {//cierra el flujo principal
+                    flwriter.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return nombreArchivo;
+    }
+    
+    public String crearArchivo36(List<Factura> listaFactura, String codBanco, int cantidadRegsitros, BigDecimal valorTotal) throws Throwable {
+        FileWriter flwriter = null;
+        String usuario = dataUser.getUser().getNombrever().replace(" ", "");
+        String fechaHora = (fechaConvertida.replace(":", "")).substring(0, 16);
+        String nombreArchivo = "";
+        String separador = "\t";
+        Cliente cliAux = new Cliente();
+        List<Cliente> listaClientesAux = new ArrayList<>();
+        listaClientesAux = clienteServicio.obtenerClientesPorComercializadora(listaFactura.get(0).getFacturaPK().getCodigocomercializadora());
+        try {
+            nombreArchivo = "/BANINTER_REM_" + fechaHora + "_" + "CCCC AQUI DEBE ESTAR CODIGOPYSSEGUNBANCO" + ".txt";
+            //crea el flujo para escribir en el archivo
+            //flwriter = new FileWriter("C:\\archivos\\Facturas_Banco" + codBanco + "_" + fechaHora + "_" + usuario + ".txt");
+            //flwriter = new FileWriter(Fichero.getCARPETAREPORTES() + "/Facturas_Banco" + codBanco + "_" + fechaHora + "_" + usuario + ".txt");
+            flwriter = new FileWriter(Fichero.getCARPETAREPORTES() + nombreArchivo);
+            //crea un buffer o flujo intermedio antes de escribir directamente en el archivo
+            BufferedWriter bfwriter = new BufferedWriter(flwriter);
+            for (Factura factura : listaFactura) {
+                for (int i = 0; i < listaClientesAux.size(); i++) {
+                    if (listaClientesAux.get(i).getCodigo().equals(factura.getCodigocliente())) {
+                        cliAux = listaClientesAux.get(i);
+                        break;
+                    }
+                }
+                //escribe los datos en el archivo               
+                bfwriter.write(
+                        //1. CÓDIGO DE ORIENTACIÓN
+                        "CO" + separador
+                        //2. CUENTA DE LA EMPRESA
+                        + String.format("%20s", cliAux.getCuentadebito()).replace(' ', '0') + separador
+                        //3. SECUENCIAL
+                        + "0000000" + separador
+                        //4. COMPROBANTE DE COBRO
+                        + String.format("%20s", factura.getFacturaPK().getNumero().trim()).replace(' ', '0') + separador
+                        //5. CONTRAPARTIDA
+                        + String.format("%-20s", cliAux.getCodigo()).replace(' ', '0') + separador
+                        //6. MONEDA
+                        + "USD" + separador
+                        //7. VALOR
+                        + String.format("%14s", factura.getValorconrubro()).replace(' ', '0').replace(".", "") + separador
+                        //8. FORMA DE COBRO
+                        + "CTA" + separador
+                        //9. CÓDIGO DE BANCO
+                        + String.format("%10s", "36").replace(' ', '0') + separador
+                        //10. TIPO DE CUENTA
+                        + cliAux.getTipocuentadebito() + separador
+                        //11. NÚMERO DE CUENTA
+                        + String.format("%20s", cliAux.getCuentadebito()).replace(' ', '0') + separador
+                        //12. Tipo ID Beneficiario/Deudor
+                        + "R" + separador
+                        //13. Número de ID Beneficiario/Deudor
+                        + String.format("%15s", cliAux.getRuc()) + separador
+                        //14. NOMBRE DEL DEUDOR
+                        + String.format("%-41s", cliAux.getNombrecomercial()).replace(' ', '0') + separador
+                        //15. DIRECCIÓN DEL DEUDOR
+                        + String.format("%-38s", cliAux.getDireccion()).replace(' ', '0') + separador
+                        //16. CIUDAD DEL DEUDOR
+                        + String.format("%-20s", " ").replace(' ', '0') + separador
+                        //17. TELÉFONO DEL DEUDOR
+                        + String.format("%20s", cliAux.getTelefono1()).replace(' ', '0') + separador
+                        //18. LOCALIDAD DEL COBRO
+                        + String.format("%-20s", " ").replace(' ', '0') + separador
+                        //19. REFERENCIA
+                        + String.format("%-1000s", (factura.getFacturaPK().getNumeronotapedido())
+                                + factura.getFacturaPK().getNumero()).replace(' ', '0') + separador
+                        //                        + factura.getCodigoterminal() + "|"
+                        //                        + factura.getObservacion()
+                        //20. Referencia Adicional |dirección email |Operadora celular número de celular
+                        + String.format("%-100s", factura.getFechaacreditacionprorrogada() + "|"
+                                + cliAux.getCorreo1()).replace(' ', '0') + separador
+                        //21. BASE IMPONIBLE 
+                        + String.format("%-13s", factura.getValorsinimpuestos()).replace(' ', '0').replace(".", "") + separador
+                        //IVA BIENES                        
+                        + String.format("%-13s", factura.getIvatotal()).replace(' ', '0').replace(".", "") + separador
+                        //BASE IMPONIBLE SERVICIOS                        
+                        + String.format("%-13s", factura.getValorconrubro()).replace(' ', '0').replace(".", "") + separador
+                        //IVA SERVICIOS                        
+                        + String.format("%-13s", "0").replace(' ', '0').replace(".", "") + separador
+                        //ICE                        
+                        + String.format("%13s", "").replace(' ', '0').replace(".", "") + separador
+                        //REFERENCIA FACTURACION                       
+                        + String.format("%-500s", "").replace(' ', '0').replace(".", "") + separador
+                        //CAMPO OPCIONAL                        
+                        + String.format("%-200s", "").replace(' ', '0').replace(".", "") + "\n"
+                );
+            }
+            //cierra el buffer intermedio
+            bfwriter.close();
+            this.dialogo(FacesMessage.SEVERITY_INFO, "Archivo creado satisfactoriamente..");
+            System.out.println("Archivo creado satisfactoriamente..");
+            return nombreArchivo;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (flwriter != null) {
+                try {//cierra el flujo principal
+                    flwriter.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return nombreArchivo;
+    }
+    
     public void addItems() {
         try {
             String respuesta;

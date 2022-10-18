@@ -2,9 +2,18 @@
 package ec.com.infinityone.ejemplo;
 
 
+import ec.com.infinityone.configuration.Fichero;
+import ec.com.infinityone.modeloWeb.VentaDespachoTotal;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.DateFormat;
 import java.text.DateFormatSymbols;
+import java.text.SimpleDateFormat;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -29,6 +38,8 @@ import org.primefaces.model.charts.pie.PieChartDataSet;
 import org.primefaces.model.charts.pie.PieChartModel;
 import org.primefaces.model.charts.polar.PolarAreaChartDataSet;
 import org.primefaces.model.charts.polar.PolarAreaChartModel;
+import org.primefaces.shaded.json.JSONArray;
+import org.primefaces.shaded.json.JSONObject;
  
 /**
  *
@@ -36,80 +47,15 @@ import org.primefaces.model.charts.polar.PolarAreaChartModel;
  */
 @Named
 @ViewScoped
-public class DashboardBean_ejemplo extends ChartDemoView implements Serializable {
+public class DashboardBeanejemplo extends ChartDemoView implements Serializable {
+    
+    VentaDespachoTotal unaVentaDespachoTotal;
+    ArrayList<VentaDespachoTotal> listaVentaDespachoTotal;
     
     private BarChartModel barra;
     public void graficarVentasDespachos(){
-        barra = new BarChartModel();
-        
-        for (int i = 0; i < 12; i++) {
-            ChartSeries serie = new ChartSeries();
-            serie.setLabel(String.valueOf(i));
-            serie.set(String.valueOf(i), (i+100));
-            barra.addSeries(serie);
-        }
-        barra.setTitle("Gráfico UNO");
-        barra.setLegendPosition("ne");
-        barra.setAnimate(true);
-        
-        Axis xAxis = barra.getAxis(AxisType.X);
-        xAxis.setLabel("Meses");
-        Axis yAxis = barra.getAxis(AxisType.Y);
-        yAxis.setLabel("Venta total");
-        yAxis.setMin(1000);
-        yAxis.setMax(50000);
-        
-        
-    }
-//
-//    /**
-//     * Variable para instanciar la clase MovimientoSurtidorServicio
-//      
-//    @Inject
-//    private PmqV1MovimientosurtidorServicio movimientoServicio;
-//
-//    /**
-//     * Variable para manejar la fecha seleccionada por el usuario
-//     */
-//    private Date fechaSeleccionada;
-//
-//    /**
-//     * Funcion para inicializar el bean
-//     */
-//    @PostConstruct
-//    @Override
-//    public void init() {
-//        fechaSeleccionada = new Date();
-//        mejoresClientes();
-//        ventaProductos();
-//        ventasMes();
-//    }
-//
-//    /**
-//     * Funcion para actualizar el cambio de fecha
-//     *
-//     * @param event
-//     */
-//    public void onDateSelect(SelectEvent event) {
-//        fechaSeleccionada = (Date) event.getObject();
-//        mejoresClientes();
-//        ventaProductos();
-//        ventasMes();
-//    }
-//
-//    /**
-//     * Funcion para graficar un grafico de pie del estado de los documentos del
-//     * mes
-//     */
-//    public void ventaProductos() {
-//        this.pieModel = new PieChartModel();
-//        ChartData data = new ChartData();
-//
-//        PieChartDataSet dataSet = new PieChartDataSet();
-//        List<Number> values = new ArrayList<>();
-//        List<String> bgColors = new ArrayList<>();
-//        List<String> labels = new ArrayList<>();
-//        List<VentasProductoDTO> listaAux = movimientoServicio.ventaPorProducto(this.obtenerFechaInicioMes(fechaSeleccionada), this.obtenerFechaFinMes(fechaSeleccionada));
+        /**
+//         *         List<VentasProductoDTO> listaAux = movimientoServicio.ventaPorProducto(this.obtenerFechaInicioMes(fechaSeleccionada), this.obtenerFechaFinMes(fechaSeleccionada));
 //
 //        for (int i = 0; i < listaAux.size(); i++) {
 //
@@ -144,12 +90,124 @@ public class DashboardBean_ejemplo extends ChartDemoView implements Serializable
 //        data.setLabels(labels);
 //
 //        this.pieModel.setData(data);
-//
-//    }
-//
-//    /**
-//     * método para realizar un gráfico de barras de las ventas de los empleados
-//     */
+
+         */
+                 
+        barra = new BarChartModel();
+        System.out.println("FT:: ENTRA A graficarVentasDespachos");
+        actualizarGrafico();
+        for (int i = 0; i < 12; i++) {
+            ChartSeries serie = new ChartSeries();
+            serie.setLabel(String.valueOf(i));
+            serie.set(String.valueOf(i), (i+100));
+            barra.addSeries(serie);
+        }
+        barra.setTitle("Gráfico UNO");
+        barra.setLegendPosition("ne");
+        barra.setAnimate(true);
+        
+        Axis xAxis = barra.getAxis(AxisType.X);
+        xAxis.setLabel("Meses");
+        Axis yAxis = barra.getAxis(AxisType.Y);
+        yAxis.setLabel("Venta total");
+        yAxis.setMin(1000);
+        yAxis.setMax(50000);
+        
+    }
+    
+    public void actualizarGrafico() {
+//        if (comercializadora.getCodigo() != null) {
+//            Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+            //codigoComer = params.get("form:comercializadora_input");
+            ArrayList<Object> lista = new ArrayList<>();
+            obtenerVentasDespachos();
+//        }
+    }
+
+    public List<VentaDespachoTotal> obtenerVentasDespachos() {
+        try {
+            //URL url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.clienterubrotercero/comer?codigocomercializadora=" + codComer);
+            URL url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura/ventatotal");
+            DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+
+            listaVentaDespachoTotal = new ArrayList<>();
+            unaVentaDespachoTotal = new VentaDespachoTotal();
+
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+
+            BufferedReader br = new BufferedReader(reader);
+            String tmp = null;
+            String respuesta = "";
+            while ((tmp = br.readLine()) != null) {
+                respuesta += tmp;
+            }
+            JSONObject objetoJson = new JSONObject(respuesta);
+            JSONArray retorno = objetoJson.getJSONArray("retorno");
+            for (int indice = 0; indice < retorno.length(); indice++) {
+
+                JSONObject venDes = retorno.getJSONObject(indice);
+                unaVentaDespachoTotal.setTerminal(venDes.getString("nombreTerminal"));
+                unaVentaDespachoTotal.setContador(venDes.getInt("facturas"));
+                unaVentaDespachoTotal.setCantidadTotal(venDes.getBigInteger("volumenTotal")); 
+                listaVentaDespachoTotal.add(unaVentaDespachoTotal);
+                unaVentaDespachoTotal = new VentaDespachoTotal();
+
+            }
+            if (connection.getResponseCode() != 200) {
+                System.out.println(connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
+            }
+
+            return listaVentaDespachoTotal;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return listaVentaDespachoTotal;
+    }
+    
+    /**
+     * Variable para instanciar la clase MovimientoSurtidorServicio
+      
+    @Inject
+    private PmqV1MovimientosurtidorServicio movimientoServicio;
+
+    /**
+     * Variable para manejar la fecha seleccionada por el usuario
+     */
+    private Date fechaSeleccionada;
+
+    /**
+     * Funcion para inicializar el bean
+     */
+    @PostConstruct
+    @Override
+    public void init() {
+        fechaSeleccionada = new Date();
+        graficarVentasDespachos();
+    }
+
+    /**
+     * Funcion para actualizar el cambio de fecha
+     *
+     * @param event
+     */
+    public void onDateSelect(SelectEvent event) {
+        fechaSeleccionada = (Date) event.getObject();
+        graficarVentasDespachos();
+    }
+
+    /**
+     * Funcion para graficar un grafico de pie del estado de los documentos del
+     * mes ventaProductos()
+     */
+
+    /**
+     * método para realizar un gráfico de barras de las ventas de los empleados
+     */
 //    public void ventasMes() {
 //        this.lineModel = new LineChartModel();
 //        ChartData data = new ChartData();
@@ -195,11 +253,11 @@ public class DashboardBean_ejemplo extends ChartDemoView implements Serializable
 //        this.lineModel.setData(data);
 //
 //    }
-//
-//    /**
-//     * método para realizar un gráfico de barras de los mejores clientes en el
-//     * mes
-//     */
+
+    /**
+     * método para realizar un gráfico de barras de los mejores clientes en el
+     * mes
+     */
 //    public void mejoresClientes() {
 //        this.polarAreaModel = new PolarAreaChartModel();
 //        ChartData data = new ChartData();
@@ -234,20 +292,20 @@ public class DashboardBean_ejemplo extends ChartDemoView implements Serializable
 //        data.setLabels(labels);
 //        this.polarAreaModel.setData(data);
 //    }
-//
-//    /**
-//     * Getters y Setters
-//     *
-//     * @return
-//     */
-//    public Date getFechaSeleccionada() {
-//        return fechaSeleccionada;
-//    }
-//
-//    public void setFechaSeleccionada(Date fechaSeleccionada) {
-//        this.fechaSeleccionada = fechaSeleccionada;
-//    }
-//
+
+    /**
+     * Getters y Setters
+     *
+     * @return
+     */
+    public Date getFechaSeleccionada() {
+        return fechaSeleccionada;
+    }
+
+    public void setFechaSeleccionada(Date fechaSeleccionada) {
+        this.fechaSeleccionada = fechaSeleccionada;
+    }
+
 //    @Override
 //    public PolarAreaChartModel getPolarAreaModel() {
 //        return polarAreaModel;
