@@ -227,40 +227,40 @@
                                     </f:facet>
                                     <p:ajax event="rowSelectCheckbox" />
                                     <p:column selectionMode="multiple" style="width:16px;text-align:center" styleClass="selectionCheckBox"/>
-                                    <p:column headerText="Banco" sortBy="#{cobro.codigobanco}" filterBy="#{cobro.codigobanco}" width="10%">
+                                    <p:column headerText="Banco" filterBy="#{cobro.codigobanco}" width="5%">
                                         <h:outputText value="#{cobro.codigobanco}" />
                                     </p:column>
-                                    <p:column headerText="Cliente" sortBy="#{cobro.codigocliente}" filterBy="#{cobro.codigocliente}" width="10%">
+                                    <p:column headerText="Cliente"  filterBy="#{cobro.codigocliente}" width="25%">
                                         <h:outputText value="#{cobro.codigocliente} - #{cobro.nombrecliente}" />
                                     </p:column>
-                                    <p:column headerText="Factura" sortBy="#{cobro.facturaPK.numero}" filterBy="#{cobro.facturaPK.numero}" width="20%">
+                                    <p:column headerText="Factura" filterBy="#{cobro.facturaPK.numero}" width="15%">
                                         <h:outputText value="#{cobro.facturaPK.numero}" />
                                     </p:column>
-                                    <p:column headerText="Fecha Venta" sortBy="#{cobro.fechaventa}" filterBy="#{cobro.fechaventa}" width="15%">                                            
+                                    <p:column headerText="Fecha Venta" filterBy="#{cobro.fechaventa}" width="15%">                                            
                                         <h:outputText value="#{cobro.fechaventa}">
                                             <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                         </h:outputText>
                                     </p:column>
-                                    <p:column headerText="Fecha Vencimiento" sortBy="#{cobro.fechavencimiento}" filterBy="#{cobro.fechavencimiento}" width="15%">                                            
+                                    <!--<p:column headerText="Fecha Vencimiento" sortBy="#{cobro.fechavencimiento}" filterBy="#{cobro.fechavencimiento}" width="15%">                                            
                                         <h:outputText value="#{cobro.fechavencimiento}">
                                             <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                         </h:outputText>
                                     </p:column>                                           
-                                    <!--<p:column headerText="Fecha Acreditación" sortBy="{cobro.fechaacreditacion}" filterBy="{cobro.fechaacreditacion}" width="15%">                                            
+                                    <p:column headerText="Fecha Acreditación" sortBy="{cobro.fechaacreditacion}" filterBy="{cobro.fechaacreditacion}" width="15%">                                            
                                         <h:outputText value="{cobro.fechaacreditacion}">
                                             <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                         </h:outputText>
                                     </p:column>-->
-                                    <p:column headerText="Fecha Acred. Prorrogada" sortBy="#{cobro.fechaacreditacionprorrogada}" filterBy="#{cobro.fechaacreditacionprorrogada}" width="15%">                                            
+                                    <p:column headerText="Fecha Acred. Prorrogada" filterBy="#{cobro.fechaacreditacionprorrogada}" width="15%">                                            
                                         <h:outputText value="#{cobro.fechaacreditacionprorrogada}"> 
                                             <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                         </h:outputText>
                                     </p:column>
-                                    <p:column headerText="Valor Venta" sortBy="#{cobro.valortotal}" filterBy="#{cobro.valortotal}" width="10%">
+                                    <p:column headerText="Valor Venta"  filterBy="#{cobro.valortotal}" width="10%">
                                         <h:outputText value="$ #{cobro.valortotal}">                                            
                                         </h:outputText>
                                     </p:column>
-                                    <p:column headerText="Valor Rubro" sortBy="#{cobro.valorconrubro}" filterBy="#{cobro.valorconrubro}" width="10%">
+                                    <p:column headerText="Valor Rubro"  filterBy="#{cobro.valorconrubro}" width="10%">
                                         <h:outputText value="$ #{cobro.valorconrubro}">                                            
                                         </h:outputText>
                                     </p:column>                                                                                                                      
@@ -290,16 +290,16 @@
                             <div class="ui-fluid p-formgrid p-grid">                                                                                
                                 <p:dataTable id="dt-valores" widgetVar="dtMargen" var="totalC" value="#{pagoFacturaBean.listaTotalCobros}" reflow="true" styleClass="margen-table"
                                              paginator="true" rows="5" rowSelectMode="add" paginatorPosition="bottom">                                                                                                                                                                                                                                                                                                
-                                    <p:column headerText="Banco" sortBy="#{totalC.banco}" filterBy="#{totalC.banco}" width="20%">
+                                    <p:column headerText="Banco"  filterBy="#{totalC.banco}" width="20%">
                                         <h:outputText value="#{totalC.banco}" />
                                     </p:column>                                            
-                                    <p:column headerText="Fecha Vencimiento" sortBy="#{totalC.fechavencimiento}" filterBy="#{totalC.fechavencimiento}" width="20%">
+                                    <p:column headerText="Fecha Acred. Prorrogada."  filterBy="#{totalC.fechavencimiento}" width="20%">
                                         <h:outputText value="#{totalC.fechavencimiento}" />
                                     </p:column>
-                                    <p:column headerText="Facturas" sortBy="#{totalC.facturas}" filterBy="#{totalC.facturas}" width="20%">
+                                    <p:column headerText="Facturas"  filterBy="#{totalC.facturas}" width="20%">
                                         <h:outputText value="#{totalC.facturas}" />
                                     </p:column>
-                                    <p:column headerText="Total a cobrar" sortBy="#{totalC.valortotal}" filterBy="#{totalC.valortotal}" width="20%">
+                                    <p:column headerText="Total a cobrar" filterBy="#{totalC.valortotal}" width="20%">
                                         <h:outputText value="#{totalC.valortotal}">
                                             <f:convertNumber currencySymbol="$" type="currency" />
                                         </h:outputText>
@@ -441,12 +441,12 @@
                                             <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                         </h:outputText>
                                     </p:column>
-                                    <p:column headerText="Fecha Vencimiento" sortBy="#{cobro.fechavencimiento}" filterBy="#{cobro.fechavencimiento}" width="15%">                                            
+                                    <!--<p:column headerText="Fecha Vencimiento" sortBy="#{cobro.fechavencimiento}" filterBy="#{cobro.fechavencimiento}" width="15%">                                            
                                         <h:outputText value="#{cobro.fechavencimiento}">
                                             <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                         </h:outputText>
                                     </p:column>                                           
-                                    <!--<p:column headerText="Fecha Acreditacion" sortBy="{cobro.fechaacreditacion}" filterBy="{cobro.fechaacreditacion}" width="15%">                                            
+                                    <p:column headerText="Fecha Acreditacion" sortBy="{cobro.fechaacreditacion}" filterBy="{cobro.fechaacreditacion}" width="15%">                                            
                                         <h:outputText value="{cobro.fechaacreditacion}">
                                             <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                         </h:outputText>
@@ -562,7 +562,7 @@
                                 <p:column headerText="BCO-Cliente" sortBy="#{cobro.pagosbancorechazadosPK.bcoCodigocliente}" filterBy="#{cobro.pagosbancorechazadosPK.bcoCodigocliente}" width="8%">
                                     <h:outputText value="#{cobro.pagosbancorechazadosPK.bcoCodigocliente}" />
                                 </p:column>
-                                <p:column headerText="PyS-F. Acreditación" sortBy="#{cobro.pysFechaacreditacionprorrogada}" filterBy="#{cobro.pysFechaacreditacionprorrogada}" width="10%">                                            
+                                <p:column headerText="PyS-F. Acred. Prorro." sortBy="#{cobro.pysFechaacreditacionprorrogada}" filterBy="#{cobro.pysFechaacreditacionprorrogada}" width="10%">                                            
                                     <h:outputText value="#{cobro.pysFechaacreditacionprorrogada}">
                                         <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                     </h:outputText>

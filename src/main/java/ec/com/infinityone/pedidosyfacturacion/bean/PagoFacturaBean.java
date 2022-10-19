@@ -673,6 +673,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
                 SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
                 Date fechaVenta = formato.parse(listaFacturaSeleccionada.get(j).getFechaventa().replace("/", "-"));
                 Date fechaVencimiento = formato.parse(listaFacturaSeleccionada.get(j).getFechavencimiento().replace("/", "-"));
+                Date fechaAcreditacionProrrogada = formato.parse(listaFacturaSeleccionada.get(j).getFechaacreditacionprorrogada().replace("/", "-"));
                 //String dateI = sdf.format(fechaVenta);
                 //String dateF = sdf.format(fechaVencimiento);
 
@@ -683,8 +684,9 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
 
                 tempCobros.setTemporalparacobrarPK(tempCobrosPK);
                 tempCobros.setCodigobanco(listaFacturaSeleccionada.get(j).getCodigobanco());
-                tempCobros.setFechavencimiento(sdf.format(fechaVencimiento));
+                tempCobros.setFechavencimiento(sdf.format(fechaAcreditacionProrrogada));
                 tempCobros.setFechaventa(sdf.format(fechaVenta));
+                
                 tempCobros.setValorconrubro(listaFacturaSeleccionada.get(j).getValorconrubro());
                 tempCobros.setValortotal(listaFacturaSeleccionada.get(j).getValortotal());
                 tempCobros.setCodigocliente(listaFacturaSeleccionada.get(j).getCodigocliente());
