@@ -822,9 +822,9 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
                     mapaFacturas = new HashMap<>();
                     for (int j = 0; j < listaFacturaSeleccionada.size(); j++) {
                         if (listaFacturaSeleccionada.get(j).getCodigobanco().equals(listaBancos.get(i).getCodigo())) {
-                                System.out.println("FT::. RECORRIENDO LISTA DE FACTURAS "+ j +" - "+listaFacturaSeleccionada.get(j).getFacturaPK().getNumero()+ " - " + listaFacturaSeleccionada.get(j).getFechaacreditacionprorrogada());
+                                //System.out.println("FT::. RECORRIENDO LISTA DE FACTURAS "+ j +" - "+listaFacturaSeleccionada.get(j).getFacturaPK().getNumero()+ " - " + listaFacturaSeleccionada.get(j).getFechaacreditacionprorrogada());
                                 if(!mapaFacturas.containsKey(listaFacturaSeleccionada.get(j).getFechaacreditacionprorrogada())){
-                                    System.out.println("FT::. INICIALIZA NUEVO ARREGLO listaFacturaMapa");
+                                    //System.out.println("FT::. INICIALIZA NUEVO ARREGLO listaFacturaMapa");
                                 listaFacturaMapa = new ArrayList<>();
                                 }
                                 listaFacturaMapa.add(listaFacturaSeleccionada.get(j));
@@ -835,9 +835,9 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
                             numeroRegistros++;
                         }
                     }
-                    for (Map.Entry<String, List<Factura>> entry : mapaFacturas.entrySet()) {
-                        System.out.println("FT::clave=" + entry.getKey() + ", valor=" + entry.getValue());
-                    }
+//                    for (Map.Entry<String, List<Factura>> entry : mapaFacturas.entrySet()) {
+//                        System.out.println("FT::clave=" + entry.getKey() + ", valor=" + entry.getValue());
+//                    }
 //     FT               if (!listaFacturaBancos.isEmpty()) {
 //                        nombreArchivoGenerado = crearArchivo(listaFacturaBancos, listaBancos.get(i).getCodigo(), numeroRegistros, valorTotalArchivo);
 //                        listaArchivos.add(nombreArchivoGenerado);

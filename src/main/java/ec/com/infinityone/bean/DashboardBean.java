@@ -29,8 +29,15 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Named;
 import org.primefaces.model.chart.Axis;
 import org.primefaces.model.chart.AxisType;
-import org.primefaces.model.chart.BarChartModel;
 import org.primefaces.model.chart.ChartSeries;
+import org.primefaces.model.charts.ChartData;
+import org.primefaces.model.charts.axes.cartesian.CartesianScales;
+import org.primefaces.model.charts.axes.cartesian.linear.CartesianLinearAxes;
+import org.primefaces.model.charts.axes.cartesian.linear.CartesianLinearTicks;
+import org.primefaces.model.charts.bar.BarChartDataSet;
+import org.primefaces.model.charts.bar.BarChartModel;
+import org.primefaces.model.charts.bar.BarChartOptions;
+import org.primefaces.model.charts.optionconfig.title.Title;
 import org.primefaces.shaded.json.JSONArray;
 import org.primefaces.shaded.json.JSONObject;
 
@@ -70,6 +77,7 @@ public class DashboardBean extends ReusableBean implements Serializable {
     private BarChartModel barModel;
 
     private Date date;
+    private Date today;
 
     public DashboardBean() {
     }
@@ -82,13 +90,11 @@ public class DashboardBean extends ReusableBean implements Serializable {
         direccionVentaVsDespacho_Despacho = "ec.com.infinity.modelo.consultaguiaremision/despachoTotal";
         mejorcliente = new Mejorcliente();
         date = new Date();
+        today = new Date();
 
         obtenerListamejorCliente();
         obtenerprimerCliente();
-        createBarModel();
-        obtenerVentaTotal();
-        obtenerDespachoTotal();
-
+        actualizarGrafico();
 
         x = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
     }
@@ -138,14 +144,16 @@ public class DashboardBean extends ReusableBean implements Serializable {
 
     public void obtenerVentaTotal() {
         try {
-            DateFormat dateFormat = new SimpleDateFormat("yyyy/mm/dd");
-            String pfecha = dateFormat.format(date);
+            String pfecha;
+            DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+            pfecha = dateFormat.format(this.date);
             url = new URL(direccion + "ec.com.infinity.modelo.factura/ventatotal1?pfecha=" + pfecha);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
 
+            ventaTotalDto = new VentaTotalDto();
             listaVentaTotalDto = new ArrayList<>();
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
@@ -162,14 +170,14 @@ public class DashboardBean extends ReusableBean implements Serializable {
                 ventaTotalDto.setNombreTerminal(ventTot.getString("nombreTerminal"));
                 ventaTotalDto.setNombreProducto(ventTot.getString("nombreProducto"));
                 ventaTotalDto.setVolumenTotal(ventTot.getBigDecimal("volumenTotal"));
-                ventaTotalDto.setFacturas(ventTot.getInt("volumenTotal"));
+                ventaTotalDto.setFacturas(ventTot.getInt("facturas"));
                 listaVentaTotalDto.add(ventaTotalDto);
                 ventaTotalDto = new VentaTotalDto();
             }
             if (connection.getResponseCode() != 200) {
                 System.out.println(connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
-            } 
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -177,14 +185,16 @@ public class DashboardBean extends ReusableBean implements Serializable {
 
     public void obtenerDespachoTotal() {
         try {
-            DateFormat dateFormat = new SimpleDateFormat("yyyy/mm/dd");
-            String pfecha = dateFormat.format(date);
-            url = new URL(direccion + "ec.com.infinity.modelo.factura/ventatotal1?pfecha=" + pfecha);
+            String pfecha;
+            DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+            pfecha = dateFormat.format(this.date);
+            url = new URL(direccion + "ec.com.infinity.modelo.consultaguiaremision/despachototal?pfecha=" + pfecha);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
 
+            despachoTotalDto = new DespachoTotalDto();
             listaDespachoTotalDto = new ArrayList<>();
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
@@ -208,7 +218,7 @@ public class DashboardBean extends ReusableBean implements Serializable {
             if (connection.getResponseCode() != 200) {
                 System.out.println(connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
-            } 
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -216,43 +226,130 @@ public class DashboardBean extends ReusableBean implements Serializable {
 
     private BarChartModel initBarModel() {
         BarChartModel model = new BarChartModel();
-
-        ChartSeries boys = new ChartSeries();
-        boys.setLabel("Boys");
-        boys.set("2004", 120);
-        boys.set("2005", 100);
-        boys.set("2006", 44);
-        boys.set("2007", 150);
-        boys.set("2008", 25);
-
-        ChartSeries girls = new ChartSeries();
-        girls.setLabel("Girls");
-        girls.set("2004", 52);
-        girls.set("2005", 60);
-        girls.set("2006", 110);
-        //girls.set("
-        girls.set("2007", 135);
-        girls.set("2008", 120);
-
-        model.addSeries(boys);
-        model.addSeries(girls);
+//
+//        ChartSeries boys = new ChartSeries();
+//        boys.setLabel("Despacho Total");
+//        for (int i = 0; i < listaDespachoTotalDto.size(); i++) {
+//            boys.set(listaDespachoTotalDto.get(i).getNombreTerminal(), listaDespachoTotalDto.get(i).getVolumenTotal());
+//        }
+////        boys.set("2004", 52);
+////        boys.set("2005", 60);
+////        boys.set("2006", 110);
+////        boys.set("2007", 135);
+//
+//        ChartSeries girls = new ChartSeries();
+//        girls.setLabel("Venta Total");
+//        for (int i = 0; i < listaVentaTotalDto.size(); i++) {
+//            girls.set(listaVentaTotalDto.get(i).getNombreTerminal(), listaVentaTotalDto.get(i).getVolumenTotal());
+//        }
+////
+////        girls.set("2004", 52);
+////        girls.set("2005", 60);
+////        girls.set("2006", 110);
+////        //girls.set("
+////        girls.set("2007", 135);
+////        girls.set("2008", 120);
+//
+//        model.addSeries(boys);
+//        model.addSeries(girls);
 
         return model;
     }
 
-    private void createBarModel() {
-        barModel = initBarModel();
+//    private void createBarModel() {
+//        barModel = initBarModel();
+//
+//        barModel.setTitle("Bar Chart");
+//        barModel.setLegendPosition("ne");
+//
+//        Axis xAxis = barModel.getAxis(AxisType.X);
+//        xAxis.setLabel("Gender");
+//
+//        Axis yAxis = barModel.getAxis(AxisType.Y);
+//        yAxis.setLabel("Births");
+//        yAxis.setMin(0);
+//        yAxis.setMax(200);
+//    }
+    public String[] coloresProducto(String cod) {
+        String[] extra = {"rgba(222, 162, 66, .7)", "rgb(222, 162, 66)"};
+        String[] diesel = {"rgba(57, 163, 244, .7)", "rgb(57, 163, 244)"};
+        if (!cod.isEmpty()) {
+            if (cod.substring(0, 4).equals("0101")) {
+                return extra;
+            }
+            if (cod.substring(0, 4).equals("0121")) {
+                return diesel;
+            }
+        }
+        return new String[1];
+    }
 
-        barModel.setTitle("Bar Chart");
-        barModel.setLegendPosition("ne");
+    public void createBarModel() {
+        barModel = new BarChartModel();
+        ChartData data = new ChartData();
+        List<BarChartDataSet> barDataSetList = new ArrayList<>();
 
-        Axis xAxis = barModel.getAxis(AxisType.X);
-        xAxis.setLabel("Gender");
+        for (int i = 0; i < listaDespachoTotalDto.size(); i++) {
+            BarChartDataSet barDataSet = new BarChartDataSet();
+            barDataSet.setLabel(listaDespachoTotalDto.get(i).getNombreProducto());
+            barDataSet.setBackgroundColor(coloresProducto(listaDespachoTotalDto.get(i).getNombreProducto())[0]);
+            barDataSet.setBorderColor(coloresProducto(listaDespachoTotalDto.get(i).getNombreProducto())[1]);
+            barDataSet.setBorderWidth(1);
+            List<Number> values = new ArrayList<>();
+            values.add(listaDespachoTotalDto.get(i).getVolumenTotal());
+            barDataSet.setData(values);
+            barDataSetList.add(barDataSet);
+        }
+//        for (int i = 0; i < listaVentaTotalDto.size(); i++) {
+//            BarChartDataSet barDataSet2 = new BarChartDataSet();
+//            barDataSet2.setLabel(listaVentaTotalDto.get(i).getNombreProducto());
+//            barDataSet2.setBackgroundColor("rgba(222, 162, 66, .7)");
+//            barDataSet2.setBorderColor("rgb(222, 162, 66)");
+//            barDataSet2.setBorderWidth(1);
+//            List<Number> values2 = new ArrayList<>();
+//            values2.add(listaVentaTotalDto.get(i).getVolumenTotal());
+//            barDataSet2.setData(values2);
+//            barDataSetList.add(barDataSet2);
+//        }
 
-        Axis yAxis = barModel.getAxis(AxisType.Y);
-        yAxis.setLabel("Births");
-        yAxis.setMin(0);
-        yAxis.setMax(200);
+        for (int i = 0; i < barDataSetList.size(); i++) {
+            data.addChartDataSet(barDataSetList.get(i));
+        }
+
+        List<String> labels = new ArrayList<>();
+        for (int i = 0; i < listaVentaTotalDto.size(); i++) {
+            labels.add(listaVentaTotalDto.get(i).getNombreTerminal());
+        }
+//        if (!listaVentaTotalDto.isEmpty()) {
+//            labels.add(listaVentaTotalDto.get(0).getNombreTerminal());
+//        }
+        data.setLabels(labels);
+        barModel.setData(data);
+
+        //Options
+        BarChartOptions options = new BarChartOptions();
+        CartesianScales cScales = new CartesianScales();
+        CartesianLinearAxes linearAxes = new CartesianLinearAxes();
+        linearAxes.setOffset(true);
+        //linearAxes.setBeginAtZero(true);
+        CartesianLinearTicks ticks = new CartesianLinearTicks();
+        linearAxes.setTicks(ticks);
+        linearAxes.setStacked(true);
+        cScales.addXAxesData(linearAxes);
+        cScales.addYAxesData(linearAxes);
+        options.setScales(cScales);
+
+//        Title title = new Title();
+//        title.setDisplay(true);
+//        title.setText("Bar Chart");
+//        options.setTitle(title);
+        barModel.setOptions(options);
+    }
+
+    public void actualizarGrafico() {
+        obtenerVentaTotal();
+        obtenerDespachoTotal();
+        createBarModel();
     }
 
     public List<Mejorcliente> getListaMejorcliente() {
@@ -301,7 +398,7 @@ public class DashboardBean extends ReusableBean implements Serializable {
 
     public void setX(Usuario x) {
         this.x = x;
-    } 
+    }
 
     public BarChartModel getBarModel() {
         return barModel;
@@ -319,5 +416,12 @@ public class DashboardBean extends ReusableBean implements Serializable {
         this.date = date;
     }
 
+    public Date getToday() {
+        return today;
+    }
+
+    public void setToday(Date today) {
+        this.today = today;
+    }
 
 }
