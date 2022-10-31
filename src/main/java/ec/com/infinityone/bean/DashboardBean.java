@@ -22,7 +22,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
@@ -38,6 +40,7 @@ import org.primefaces.model.charts.bar.BarChartDataSet;
 import org.primefaces.model.charts.bar.BarChartModel;
 import org.primefaces.model.charts.bar.BarChartOptions;
 import org.primefaces.model.charts.optionconfig.title.Title;
+import org.primefaces.model.charts.optionconfig.tooltip.Tooltip;
 import org.primefaces.shaded.json.JSONArray;
 import org.primefaces.shaded.json.JSONObject;
 
@@ -288,37 +291,50 @@ public class DashboardBean extends ReusableBean implements Serializable {
         barModel = new BarChartModel();
         ChartData data = new ChartData();
         List<BarChartDataSet> barDataSetList = new ArrayList<>();
+        BarChartDataSet barDataSet = new BarChartDataSet();
+        BarChartDataSet barDataSet2 = new BarChartDataSet();
 
         for (int i = 0; i < listaDespachoTotalDto.size(); i++) {
-            BarChartDataSet barDataSet = new BarChartDataSet();
+            barDataSet = new BarChartDataSet();
             barDataSet.setLabel(listaDespachoTotalDto.get(i).getNombreProducto());
             barDataSet.setBackgroundColor(coloresProducto(listaDespachoTotalDto.get(i).getNombreProducto())[0]);
             barDataSet.setBorderColor(coloresProducto(listaDespachoTotalDto.get(i).getNombreProducto())[1]);
+            barDataSet.setStack("Stack 0");
             barDataSet.setBorderWidth(1);
             List<Number> values = new ArrayList<>();
             values.add(listaDespachoTotalDto.get(i).getVolumenTotal());
             barDataSet.setData(values);
             barDataSetList.add(barDataSet);
         }
-//        for (int i = 0; i < listaVentaTotalDto.size(); i++) {
-//            BarChartDataSet barDataSet2 = new BarChartDataSet();
-//            barDataSet2.setLabel(listaVentaTotalDto.get(i).getNombreProducto());
-//            barDataSet2.setBackgroundColor("rgba(222, 162, 66, .7)");
-//            barDataSet2.setBorderColor("rgb(222, 162, 66)");
-//            barDataSet2.setBorderWidth(1);
-//            List<Number> values2 = new ArrayList<>();
-//            values2.add(listaVentaTotalDto.get(i).getVolumenTotal());
-//            barDataSet2.setData(values2);
-//            barDataSetList.add(barDataSet2);
-//        }
+
+        for (int i = 0; i < listaVentaTotalDto.size(); i++) {
+            barDataSet2 = new BarChartDataSet();
+            barDataSet2.setLabel(listaVentaTotalDto.get(i).getNombreProducto());
+            barDataSet2.setBackgroundColor(coloresProducto(listaVentaTotalDto.get(i).getNombreProducto())[0]);
+            barDataSet2.setBorderColor(coloresProducto(listaVentaTotalDto.get(i).getNombreProducto())[1]);
+            barDataSet2.setStack("Stack 1");
+            barDataSet2.setBorderWidth(1);
+            List<Number> values2 = new ArrayList<>();
+            values2.add(listaVentaTotalDto.get(i).getVolumenTotal());
+            barDataSet2.setData(values2);
+            barDataSetList.add(barDataSet2);
+        }
 
         for (int i = 0; i < barDataSetList.size(); i++) {
             data.addChartDataSet(barDataSetList.get(i));
         }
 
         List<String> labels = new ArrayList<>();
+        List<String> nombres = new ArrayList<>();
         for (int i = 0; i < listaVentaTotalDto.size(); i++) {
-            labels.add(listaVentaTotalDto.get(i).getNombreTerminal());
+            nombres.add(listaVentaTotalDto.get(i).getNombreTerminal());
+        }
+        Set nuevaLista = new HashSet<>(nombres);
+        nombres.clear();
+        nombres.addAll(nuevaLista);
+
+        for (int i = 0; i < nombres.size(); i++) {
+            labels.add(nombres.get(i));
         }
 //        if (!listaVentaTotalDto.isEmpty()) {
 //            labels.add(listaVentaTotalDto.get(0).getNombreTerminal());
@@ -343,6 +359,11 @@ public class DashboardBean extends ReusableBean implements Serializable {
 //        title.setDisplay(true);
 //        title.setText("Bar Chart");
 //        options.setTitle(title);
+        Tooltip tooltip = new Tooltip();
+        tooltip.setMode("index");
+        tooltip.setIntersect(false);
+        options.setTooltip(tooltip);
+
         barModel.setOptions(options);
     }
 

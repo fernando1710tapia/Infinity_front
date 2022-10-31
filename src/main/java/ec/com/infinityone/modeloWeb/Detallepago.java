@@ -12,21 +12,20 @@ import java.math.BigDecimal;
  *
  * @author Paul
  */
-
 public class Detallepago implements Serializable {
-   
+
     protected DetallepagoPK detallepagoPK;
-  
+
     private BigDecimal valor;
-    
+
     private boolean activo;
-    
+
     private String usuarioactual;
-    
+
     private Factura factura;
-    
+
     private Pagofactura pagofactura;
-    
+
     private String activoS;
 
     private String id_sobre;
@@ -50,6 +49,33 @@ public class Detallepago implements Serializable {
     private String numDocu;
     private String canal;
     private String numSRI;
+
+    private String constanteCabe_10;
+    private String motivo_bancario;
+    private String constanteCabe_2;
+    private String fechaCrea;
+    //private String fechaIniProc;
+    private String cantItemsCarga;
+    private String cantItemsOk;
+    private String valItemsOk;
+    private String valTotRetRentBienes;
+    private String valTotRetRentServicios;
+    private String valTotRetIvaBienes;
+    private String valTotRetIvaServicios;
+    private String constanteCabe_6;
+
+    private String constanteDet_2;
+    //private String tipCuenta;
+    //private String numCuenta;
+    //private String valProcesado;
+    private String motBancario;
+    private String constanteDet_3;
+    //private String contrapartida;
+    //private String codProceso;
+    private String valRetRentBienes;
+    private String valRetRentServicios;
+    private String valRetIvaBienes;
+    private String valRetIvaServicios;
 
     public Detallepago() {
     }
@@ -291,6 +317,158 @@ public class Detallepago implements Serializable {
 
     public void setNumSRI(String numSRI) {
         this.numSRI = numSRI;
+    }
+
+    public String getConstanteCabe_10() {
+        return constanteCabe_10;
+    }
+
+    public void setConstanteCabe_10(String constanteCabe_10) {
+        this.constanteCabe_10 = constanteCabe_10;
+    }
+
+    public String getMotivo_bancario() {
+        return motivo_bancario;
+    }
+
+    public void setMotivo_bancario(String motivo_bancario) {
+        this.motivo_bancario = motivo_bancario;
+    }
+
+    public String getConstanteCabe_2() {
+        return constanteCabe_2;
+    }
+
+    public void setConstanteCabe_2(String constanteCabe_2) {
+        this.constanteCabe_2 = constanteCabe_2;
+    }
+
+    public String getFechaCrea() {
+        return fechaCrea;
+    }
+
+    public void setFechaCrea(String fechaCrea) {
+        this.fechaCrea = fechaCrea;
+    }   
+
+    public String getCantItemsCarga() {
+        return cantItemsCarga;
+    }
+
+    public void setCantItemsCarga(String cantItemsCarga) {
+        this.cantItemsCarga = cantItemsCarga;
+    }
+
+    public String getCantItemsOk() {
+        return cantItemsOk;
+    }
+
+    public void setCantItemsOk(String cantItemsOk) {
+        this.cantItemsOk = cantItemsOk;
+    }
+
+    public String getValItemsOk() {
+        return valItemsOk;
+    }
+
+    public void setValItemsOk(String valItemsOk) {
+        this.valItemsOk = valItemsOk;
+    }
+
+    public String getValTotRetRentBienes() {
+        return valTotRetRentBienes;
+    }
+
+    public void setValTotRetRentBienes(String valTotRetRentBienes) {
+        this.valTotRetRentBienes = valTotRetRentBienes;
+    }
+
+    public String getValTotRetRentServicios() {
+        return valTotRetRentServicios;
+    }
+
+    public void setValTotRetRentServicios(String valTotRetRentServicios) {
+        this.valTotRetRentServicios = valTotRetRentServicios;
+    }
+
+    public String getValTotRetIvaBienes() {
+        return valTotRetIvaBienes;
+    }
+
+    public void setValTotRetIvaBienes(String valTotRetIvaBienes) {
+        this.valTotRetIvaBienes = valTotRetIvaBienes;
+    }
+
+    public String getValTotRetIvaServicios() {
+        return valTotRetIvaServicios;
+    }
+
+    public void setValTotRetIvaServicios(String valTotRetIvaServicios) {
+        this.valTotRetIvaServicios = valTotRetIvaServicios;
+    }
+
+    public String getConstanteCabe_6() {
+        return constanteCabe_6;
+    }
+
+    public void setConstanteCabe_6(String constanteCabe_6) {
+        this.constanteCabe_6 = constanteCabe_6;
+    }
+
+    public String getConstanteDet_2() {
+        return constanteDet_2;
+    }
+
+    public void setConstanteDet_2(String constanteDet_2) {
+        this.constanteDet_2 = constanteDet_2;
+    }
+
+    public String getMotBancario() {
+        return motBancario;
+    }
+
+    public void setMotBancario(String motBancario) {
+        this.motBancario = motBancario;
+    }
+
+    public String getConstanteDet_3() {
+        return constanteDet_3;
+    }
+
+    public void setConstanteDet_3(String constanteDet_3) {
+        this.constanteDet_3 = constanteDet_3;
+    }   
+
+    public String getValRetRentBienes() {
+        return valRetRentBienes;
+    }
+
+    public void setValRetRentBienes(String valRetRentBienes) {
+        this.valRetRentBienes = valRetRentBienes;
+    }
+
+    public String getValRetRentServicios() {
+        return valRetRentServicios;
+    }
+
+    public void setValRetRentServicios(String valRetRentServicios) {
+        this.valRetRentServicios = valRetRentServicios;
+    }
+
+    public String getValRetIvaBienes() {
+        return valRetIvaBienes;
+    }
+
+    public void setValRetIvaBienes(String valRetIvaBienes) {
+        this.valRetIvaBienes = valRetIvaBienes;
+    }
+
+    public String getValRetIvaServicios() {
+        return valRetIvaServicios;
+    }
+
+    public void setValRetIvaServicios(String valRetIvaServicios) {
+        this.valRetIvaServicios = valRetIvaServicios;
     }
 
 }
