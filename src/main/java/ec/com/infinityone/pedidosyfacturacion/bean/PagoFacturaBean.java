@@ -46,6 +46,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -940,7 +941,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
                 nombreArchivoGenerado = crearArchivo36(listaFactura, fechaAcreditacionProrrogada, codBanco, cantidadRegsitros, valorTotal);
                 break;
             case "37":
-                nombreArchivoGenerado = crearArchivo37(listaFactura, codBanco, cantidadRegsitros, valorTotal);
+                nombreArchivoGenerado = crearArchivo37(listaFactura, fechaAcreditacionProrrogada, codBanco, cantidadRegsitros, valorTotal);
                 break;
             default:
                 throw new Throwable("Error Capturado: PagoFacturaBean.crearArchivo Banco: " + codBanco + " NO tiene configuración para creación de archivo de pagos! ");
@@ -993,6 +994,194 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         Archivo de facturación de la Empresa con código 980. Fecha de carga: 27 de febrero del 2012						
         Es: REM_20120227_980.TXT						
      */
+    public String crearArchivo37(List<Factura> listaFactura, String fechaAcreditacionProrrogada, String codBanco, int cantidadRegsitros, BigDecimal valorTotal) throws Throwable {
+        FileWriter flwriter = null;
+
+//        COBROSRET_AAAAAMMDD_NN_XX.TXT
+//        COBROSRET_AAAAAMMDD_NN_XXX.TXT
+//        Donde NN es un secuencial
+
+        String usuario = dataUser.getUser().getNombrever().replace(" ", "");
+        String fechaHora = (fechaConvertida.replace(":", "")).substring(0, 16);
+        String nombreArchivo = "";
+        String lineaCabecera = "";
+        String separador = "\t";
+        Cliente cliAux = new Cliente();
+        List<Cliente> listaClientesAux = new ArrayList<>();
+        String fechaAcr = fechaAcreditacionProrrogada.substring(0, 4)+fechaAcreditacionProrrogada.substring(5, 7)+fechaAcreditacionProrrogada.substring(8, 10);
+    
+        try {
+            nombreArchivo = "/COBROSRET_" + fechaAcr + "_01_XXX" + ".txt";
+
+            //crea el flujo para escribir en el archivo
+            //flwriter = new FileWriter("C:\\archivos\\Facturas_Banco" + codBanco + "_" + fechaHora + "_" + usuario + ".txt");
+            flwriter = new FileWriter(Fichero.getCARPETAREPORTES() + nombreArchivo);
+            String linea = "";
+            String lineaIva = "";
+            ArrayList<String> lineasIVA = new ArrayList<>();
+            int contadorFacturas = 0;
+            //crea un buffer o flujo intermedio antes de escribir directamente en el archivo
+            BufferedWriter bfwriter = new BufferedWriter(flwriter);
+            // Escribir la linea de Cabecera
+//            lineaCabecera = generarLineaCabecera(listaFactura, codBanco, cantidadRegsitros, valorTotal);
+            // Escribir la linea de Cabecera
+
+            System.out.println("FT:: grabando lineacabecera.. " + nombreArchivo);
+            //bfwriter.write(lineaCabecera + "\n");
+            for (Factura factura : listaFactura) {
+                listaClientesAux = clienteServicio.obtenerClientesPorID(factura.getCodigocliente());
+                for (int i = 0; i < listaClientesAux.size(); i++) {
+                    if (listaClientesAux.get(i).getCodigo().equals(factura.getCodigocliente())) {
+                        cliAux = listaClientesAux.get(i);
+                        break;
+                    }
+                }
+                contadorFacturas++;
+                //1	Código Orientación	Carácter 	2
+                linea = linea + "CO"+separador;
+                //2	Cuenta Empresa	Numérico 	20
+                linea = linea + String.format("%20s", "12345")+separador;
+                //3	Secuencial	Numérico	16
+                linea = linea + String.format("%16s", String.valueOf(contadorFacturas))+separador;
+                //4	Comprobante de Cobro	Carácter	20
+                linea = linea + String.format("%20s", factura.getFacturaPK().getNumero().trim())+separador;
+                //5	Contrapartida	Carácter 	20
+                linea = linea + String.format("%20s", factura.getFacturaPK().getNumero().trim())+separador;
+                //6	Moneda	Carácter
+                linea = linea + "USD"+separador;
+                //7	Valor	Numérico	13
+                //System.out.println("FT::linea "+linea);
+                //System.out.println("FT::factura.getValorconrubro() "+factura.getValorconrubro());
+                DecimalFormat myFormatter = new DecimalFormat("00000000000.00");
+                //System.out.println("FT::myFormatter "+myFormatter.toString());
+                String output = myFormatter.format(factura.getValorconrubro().doubleValue());
+                String dato = output.substring(0, 11) + output.substring(12, 14);
+                //System.out.println("FT::dato "+dato);
+                linea = linea + dato+separador;
+                //8	Forma de Cobro 	Carácter	3
+                linea = linea + "CTA"+separador;
+                //9	Codigo de Banco	Numérico	10
+                linea = linea + String.format("%10s", "0017")+separador;
+                
+                //10	Tipo de Cuenta	Carácter	3
+                linea = linea + cliAux.getTipocuentadebito()+separador;
+                
+                //11	Numero de Cuenta	Numérico 
+                linea = linea + String.format("%34s", cliAux.getCuentadebito()).replace(' ', '0')+separador;
+                
+                //12	Tipo ID Cliente Beneficiario 
+                linea = linea + "R"+separador;
+                        
+//                13	Numero ID Cliente
+                linea = linea + String.format("%14s", cliAux.getRuc())+separador;
+
+//                14	Nombre del Cliente  
+                linea = linea + String.format("%40s", cliAux.getNombrecomercial())+separador;
+                
+//                15	Dirección Beneficiario / Deudor	Carácter	40
+                linea = linea + String.format("%40s", cliAux.getDireccion())+separador;
+                
+//                16	CiudadBeneficiario / Deudor	Carácter	20	Ciudad del Beneficiario
+                linea = linea + String.format("%20s", "")+separador;
+//                17	Teléfono Beneficiario / Deudor	Carácter	20
+                linea = linea + String.format("%20s", cliAux.getTelefono1())+separador;
+                
+//                18	Localidad de pago / cobro	Carácter	20
+                linea = linea + String.format("%20s", "")+separador;
+
+//                19	Referencia 	Carácter	200	Referencia del cobro
+
+                linea = linea + String.format("%-200s", (factura.getFacturaPK().getNumeronotapedido())+factura.getFacturaPK().getNumero()).replace(' ', '0')+separador;
+
+//                20	Referencia Adicional | Email 	Carácter	100
+
+                linea = linea + String.format("%20s", cliAux.getCorreo1())+separador;
+                
+//                21	Número Factura	Numérico	200
+                linea = linea + String.format("%200s", factura.getFacturaPK().getNumero())+separador;
+
+                // ESCRIBIR LINEA DE DESGLOSE DE RUBROS
+//                1	TipoProceso	Carácter 	2
+                lineaIva = lineaIva + "DE"+separador;
+                
+//                2	Secuencial	Numérico	7
+                lineaIva = lineaIva + String.format("%7s", String.valueOf(contadorFacturas))+separador;
+                
+//                3	Tiporubro	Carácter 	20
+                lineaIva = lineaIva + String.format("%20s", "IVA_BIEN")+separador;
+                
+//                4	Concepto	Carácter 	50
+                lineaIva = lineaIva + String.format("%20s", "IVA_FACTURA: "+factura.getFacturaPK().getNumero())+separador;
+
+//                5	Valorbase	Numérico 	13
+                DecimalFormat myFormatterIVA = new DecimalFormat("00000000000.00");
+                //System.out.println("FT::myFormatter "+myFormatter.toString());
+                String outputIVA = myFormatterIVA.format(factura.getValorsinimpuestos().doubleValue());
+                String datoIVA = outputIVA.substring(0, 11) + outputIVA.substring(12, 14);
+                //System.out.println("FT::dato "+dato);
+                lineaIva = lineaIva + datoIVA+separador;
+                
+//                6	Porcentaje	Numérico 	13 
+
+                BigDecimal porcentajeIVA = new BigDecimal("0");
+                System.out.println("ANTES DE DIVIDIR FT::myFormatterPorcentajeIVA FAC:"+factura.getFacturaPK().getNumero() +" - IVA: "+ factura.getIvatotal() +" - VALOR SIN IVA: "+ factura.getValorsinimpuestos());
+                porcentajeIVA = (factura.getIvatotal().divide(factura.getValorsinimpuestos(),3,RoundingMode.CEILING)).movePointRight(2);
+                System.out.println("DESPUES DE DIVIDIR FT::myFormatterPorcentajeIVA FAC:"+factura.getFacturaPK().getNumero() +" - "+ porcentajeIVA);                
+                DecimalFormat myFormatterPorcentajeIVA = new DecimalFormat("00000000000.00");
+  
+//                String outputPorcentajeIVA = myFormatterPorcentajeIVA.format(factura.getIvatotal().divide(factura.getValorsinimpuestos()).doubleValue());
+                String outputPorcentajeIVA = myFormatterPorcentajeIVA.format(porcentajeIVA);
+                String datoPorcentajeIVA = outputPorcentajeIVA.substring(0, 11)+"00";// + outputPorcentajeIVA.substring(12, 14);
+                //System.out.println("FT::dato "+dato);
+                lineaIva = lineaIva + datoPorcentajeIVA+separador;
+
+//                7	Valorneto	Numérico 	13 
+
+                DecimalFormat myFormatterIVAValor = new DecimalFormat("00000000000.00");
+                //System.out.println("FT::myFormatter "+myFormatter.toString());
+                String outputIVAValor = myFormatterIVAValor.format(factura.getIvatotal().doubleValue());
+                String datoIVAValor = outputIVAValor.substring(0, 11) + outputIVAValor.substring(12, 14);
+                //System.out.println("FT::dato "+dato);
+                lineaIva = lineaIva + datoIVAValor+separador;
+                lineasIVA.add(lineaIva);
+                lineaIva = "";
+                System.out.println("FT::linea: " + linea + "aqui se acaba la linea");
+                //escribe los datos en el archivo
+                bfwriter.write(linea + "\n");
+                linea = "";
+                
+            }
+            
+            System.out.println("FT::ESCRIBIENDO LINEAS DE DESGLOSE: ");
+            for (int i = 0; i < contadorFacturas; i++) {
+                
+                //escribe los datos en el archivo
+                bfwriter.write(lineasIVA.get(i) + "\n");
+//                linea = "";
+
+            }
+            
+            //cierra el buffer intermedio
+            bfwriter.close();
+            this.dialogo(FacesMessage.SEVERITY_INFO, "Archivo creado satisfactoriamente..");
+            System.out.println("Archivo creado satisfactoriamente..");
+            return nombreArchivo;
+        } catch (Throwable e) {
+            System.out.println("FT:: error capturado " + this.getClass() + "::" + e.getMessage());
+            e.printStackTrace(System.out);
+        } finally {
+            if (flwriter != null) {
+                try {//cierra el flujo principal
+                    flwriter.close();
+                } catch (IOException e) {
+                    System.out.println("FT:: error capturado " + this.getClass() + "::" + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        }
+        return nombreArchivo;
+    }
+
     public String crearArchivo37(List<Factura> listaFactura, String codBanco, int cantidadRegsitros, BigDecimal valorTotal) throws Throwable {
         FileWriter flwriter = null;
         
@@ -1007,7 +1196,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             //flwriter = new FileWriter("C:\\archivos\\Facturas_Banco" + codBanco + "_" + fechaHora + "_" + usuario + ".txt");
             flwriter = new FileWriter(Fichero.getCARPETAREPORTES() + nombreArchivo);
             String linea = "";
-            long contadorFacturas = 1;
+            long contadorFacturas = 0;
             //crea un buffer o flujo intermedio antes de escribir directamente en el archivo
             BufferedWriter bfwriter = new BufferedWriter(flwriter);
             // Escribir la linea de Cabecera
@@ -1017,6 +1206,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             System.out.println("FT:: grabando lineacabecera.. " + nombreArchivo);
             bfwriter.write(lineaCabecera + "\n");
             for (Factura factura : listaFactura) {
+                contadorFacturas++;
                 linea = linea + "0201";
                 linea = linea + String.format("%15s", factura.getRuccliente()).replace(' ', '0');
                 linea = linea + String.format("%40s", factura.getNombrecliente()).replace(' ', ' ');
