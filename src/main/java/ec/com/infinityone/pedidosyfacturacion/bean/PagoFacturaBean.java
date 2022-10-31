@@ -127,27 +127,27 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
     Variable que almacena varios Bancos
      */
     private List<Pagofactura> listaPagofactura;
-    
+
     private List<Pagofactura> listaPagofacturaArchivoSubida;
-    
+
     private List<Detallepago> listaDetallePagofacturaArchivoSubida;
-    
+
     private List<Pagosbancorechazados> listaPagosbancorechazados;
     /*
     Variable que almacena varios Bancos
      */
     private List<Detallepago> listaDetallePago;
-    
+
     private List<ComercializadoraBean> listaComercializadora;
-    
+
     private List<ComercializadoraBean> listaComercializadoraAux;
-    
+
     private List<Factura> listaFactura;
-    
+
     private List<Factura> listaFacturaSeleccionada;
-    
+
     private List<Factura> listaFacturaUnida;
-    
+
     private List<ObjFactura> listaobjFactura;
     /*
     Variable para validar si es guardar o editar
@@ -157,41 +157,41 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
     Variable que establece true or false para el estado del Banco
      */
     private boolean estadoPago;
-    
+
     private Pagofactura pagofactura;
-    
+
     private Detallepago detallepago;
-    
+
     private ComercializadoraBean comercializadora;
-    
+
     private String tipoBusquedaDocumento;
-    
+
     private PagofacturaPK pagofacturaPK;
-    
+
     private DetallepagoPK detallepagoPK;
-    
+
     private PagoFacturaBean pagoFacturaBean;
-    
+
     private Factura factura;
-    
+
     private FacturaPK facturaPK;
-    
+
     private Pagosbancorechazados pagosbancorechazados;
-    
+
     private PagosbancorechazadosPK pagosbancorechazadosPK;
-    
+
     private String codigoComer;
     /*
     varibale para guardar la observacion
      */
     private String observacion;
-    
+
     private String numero;
-    
+
     private Date fecha;
-    
+
     private Date fecha1;
-    
+
     private Date fechaDep;
     /*
     Variable Banco
@@ -225,11 +225,11 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
     Variable para almacenar los datos clientes
      */
     protected List<Cliente> listaClientes;
-    
+
     private File fileLeer;
-    
+
     private String ubicacion;
-    
+
     private BigDecimal suma;
 
     /*
@@ -272,12 +272,12 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
     Vairbale para almacenar el pdf generado
      */
     private StreamedContent txtStream;
-    
+
     private List<Factura> listaFacturaAux;
     private List<Factura> listaFacturaPagadasAux;
-    
+
     private List<Pagosbancorechazados> listaPagosBancoRechazadoAux;
-    
+
     private HashMap<String, String> codigos;
 
     /**
@@ -285,7 +285,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
      */
     public PagoFacturaBean() {
     }
-    
+
     @PostConstruct
     /**
      * Funcion para inicializar variables
@@ -333,7 +333,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
         //habilitarBusqueda();
         //obtenerPagoFactura(listaComercializadora.get(0).getCodigo(), new Date());        
     }
-    
+
     public void cancelar() {
         eliminarTemporalesCorbo();
         editarPago = false;
@@ -364,7 +364,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
         tempCobros = new Temporalparacobrar();
         tempCobrosPK = new TemporalparacobrarPK();
     }
-    
+
     public void obtenerComercializadora() {
         listaComercializadora = new ArrayList<>();
         listaComercializadora = this.comercializadoraServicio.obtenerComercializadorasActivas();
@@ -372,7 +372,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
             habilitarBusqueda();
         }
     }
-    
+
     public void seleccionarComer() {
         if (comercializadora != null) {
             codigoComer = comercializadora.getCodigo();
@@ -380,7 +380,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
             listaClientes = clienteServicio.obtenerClientesPorComercializadora(codigoComer);
         }
     }
-    
+
     public void eliminarTemporalesCorbo() {
         if (fechaConvertida != null) {
             if (!fechaConvertida.equals("")) {
@@ -392,7 +392,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
             }
         }
     }
-    
+
     public void obtenerCodigosResultados() {
         codigos = new HashMap<>();
         codigos.put("0", "Debito en cuenta exitoso");
@@ -413,24 +413,24 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
         codigos.put("15", "Proceso pendiente de ejecución");
         codigos.put("95", "Debito Parcial exitoso");
         codigos.put("99", "Error técnico o indeterminado");
-        
+
     }
-    
+
     private void obtenerBancos() {
         listaBancos = new ArrayList<>();
         listaBancos = bancoServicio.obtenerBanco();
     }
-    
+
     public void obtenerTerminales() {
         listaTermianles = new ArrayList<>();
         listaTermianles = termServicio.obtenerTerminal();
     }
-    
+
     public void seleccionarBanco() {
         if (banco != null) {
         }
     }
-    
+
     public void seleccionarTerminal() {
         if (terminal != null) {
             codTerminal = terminal.getCodigo();
@@ -439,7 +439,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
             codTerminal = "-1";
         }
     }
-    
+
     public void seleccionarCliente() {
         if (cliente != null) {
             codCliente = cliente.getCodigo();
@@ -454,7 +454,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
             codCliente = "-1";
         }
     }
-    
+
     public void habilitarBusqueda() {
         if (dataUser.getUser() != null) {
             if (dataUser.getUser().getNiveloperacion().equals("cero")) {
@@ -481,23 +481,23 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
             }
         }
     }
-    
+
     public void obtenerPagoFactura(String codigoComer, Date fechaBusqueda) {
         try {
             DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
             String fechaS = date.format(fechaBusqueda);
             //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.pagofactura/porComerFecha?codigocomercializadora=" + codigoComer + "&fecha=" + fechaS);
             url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.pagofactura/porComerFecha?codigocomercializadora=" + codigoComer + "&fecha=" + fechaS);
-            
+
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
-            
+
             listaPagofactura = new ArrayList<>();
-            
+
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-            
+
             BufferedReader br = new BufferedReader(reader);
             String tmp = null;
             String respuesta = "";
@@ -530,7 +530,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
                     Date dateReg = new Date(lDateReg);
                     pagofactura.setFecharegistro(dateReg);
                     pagofactura.setUsuarioactual(pagofac.getString("usuarioactual"));
-                    
+
                     listaPagofactura.add(pagofactura);
                     pagofactura = new Pagofactura();
                     pagofacturaPK = new PagofacturaPK();
@@ -544,7 +544,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
             e.printStackTrace();
         }
     }
-    
+
     public void onRowToggle(ToggleEvent event) {
         if (event.getVisibility() == Visibility.VISIBLE) {
             Pagofactura pagofacturaD = (Pagofactura) event.getData();
@@ -553,27 +553,32 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
             }
         }
     }
-    
+
     public String nombreCliente(String numero) {
         obtenerDetallePago(numero);
-        return listaDetallePago.get(0).getFactura().getNombrecliente();
+        if (listaDetallePago.isEmpty()) {
+            return "";
+        } else {
+            return listaDetallePago.get(0).getFactura().getNombrecliente();
+        }
+
     }
-    
+
     public void obtenerDetallePago(String codigoPrec) {
         try {
             //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.detallepago/porNumero?numero=" + codigoPrec);
             url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.detallepago/porNumero?numero=" + codigoPrec);
-            
+
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
-            
+
             listaDetallePago = new ArrayList<>();
             DateFormat date = new SimpleDateFormat("dd/MM/yyyy");
-            
+
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-            
+
             BufferedReader br = new BufferedReader(reader);
             String tmp = null;
             String respuesta = "";
@@ -625,12 +630,12 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
             e.printStackTrace();
         }
     }
-    
+
     public void cambiarEstadoFactura(Factura fact) {
         try {
             //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura/porId");
             url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura/porId");
-            
+
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setConnectTimeout(1000 * 60);
             connection.setReadTimeout(1000 * 60);
@@ -660,26 +665,26 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
             e.printStackTrace();
         }
     }
-    
+
     public void actualizarTipoBusqueda() {
     }
-    
+
     public void generarValores() throws ParseException {
         gestionarCobro = false;
         pagoDirecto = false;
         pantallaInicial = false;
         valoresGeneredos = true;
-        
+
         String timeStamp = new SimpleDateFormat("HH:mm:ss.SSS").format(Calendar.getInstance().getTime());
         SimpleDateFormat fech2 = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
         Date fechaHoy = new Date();
         fechaConvertida = fech2.format(fechaHoy) + timeStamp;
-        
+
         String usuario = dataUser.getUser().getNombrever().replace(" ", "");
-        
+
         Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
-        
+
         String codFacSelec = params.get("formNuevo:dt-cobros_selection");
         String[] parts = codFacSelec.split(",");
         String[] campos = new String[4];
@@ -708,18 +713,18 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
                 tempCobrosPK.setUsuarioactual(usuario);
                 tempCobrosPK.setCodigocomercializadora(codigoComer);
                 tempCobrosPK.setNumerofactura(listaFacturaSeleccionada.get(j).getFacturaPK().getNumero());
-                
+
                 tempCobros.setTemporalparacobrarPK(tempCobrosPK);
                 tempCobros.setCodigobanco(listaFacturaSeleccionada.get(j).getCodigobanco());
                 tempCobros.setFechavencimiento(sdf.format(fechaAcreditacionProrrogada));
                 tempCobros.setFechaventa(sdf.format(fechaVenta));
-                
+
                 tempCobros.setValorconrubro(listaFacturaSeleccionada.get(j).getValorconrubro());
                 tempCobros.setValortotal(listaFacturaSeleccionada.get(j).getValortotal());
                 tempCobros.setCodigocliente(listaFacturaSeleccionada.get(j).getCodigocliente());
-                
+
                 temporalServicios.insertarTemporalCobros(tempCobros);
-                
+
                 tempCobros = new Temporalparacobrar();
                 tempCobrosPK = new TemporalparacobrarPK();
             }
@@ -793,7 +798,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
             this.dialogo(FacesMessage.SEVERITY_WARN, "Seleccione una factura");
         }
     }
-    
+
     public void generarValoresPagoDirecto() {
         observ = "";
         suma = new BigDecimal(0);
@@ -809,9 +814,9 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
             this.dialogo(FacesMessage.SEVERITY_WARN, "Seleccione una factura");
         }
     }
-    
+
     class CompareByProductID implements Comparator<Factura> {
-        
+
         @Override
         public int compare(Factura p1, Factura p2) {
             if (p1.getFechavencimiento().compareTo(p2.getFechavencimiento()) > 0) {
@@ -871,14 +876,14 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
 //                    }
 
                     if (!mapaFacturas.isEmpty()) {
-                        
+
                         for (Map.Entry<String, List<Factura>> entry : mapaFacturas.entrySet()) {
                             System.out.println("FT::- CREANDO ARCHIVO - clave=" + entry.getKey() + ", valor=" + entry.getValue());
                             nombreArchivoGenerado = crearArchivo(entry.getValue(), entry.getKey(), listaBancos.get(i).getCodigo(), numeroRegistros, valorTotalArchivo);
                             listaArchivos.add(nombreArchivoGenerado);
                         }
                     }
-                    
+
                 }
                 zip(listaArchivos);
                 temporalServicios.eliminarRegistrosTemporales(fechaConvertida, dataUser.getUser().getNombrever().replace(" ", ""), codigoComer);
@@ -887,13 +892,13 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
             }
         }
     }
-    
+
     public void descargar(String nombre) throws FileNotFoundException {
         File initialFile = new File(Fichero.getCARPETAREPORTES() + nombre);
         InputStream targetStream = new FileInputStream(initialFile);
         txtStream = new DefaultStreamedContent(targetStream, "application/txt", nombre);
     }
-    
+
     public void zip(List<String> listaArchivos) {
         byte[] buffer = new byte[1024];
         String nombreArchivo = "cobrosBancos.zip";
@@ -918,7 +923,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
             ex.printStackTrace();
         }
     }
-    
+
     public String crearArchivo(List<Factura> listaFactura, String codBanco, int cantidadRegsitros, BigDecimal valorTotal) throws Throwable {
         String nombreArchivoGenerado = "";
         switch (codBanco) {
@@ -933,7 +938,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
         }
         return nombreArchivoGenerado;
     }
-    
+
     public String crearArchivo(List<Factura> listaFactura, String fechaAcreditacionProrrogada, String codBanco, int cantidadRegsitros, BigDecimal valorTotal) throws Throwable {
         String nombreArchivoGenerado = "";
         switch (codBanco) {
@@ -1000,7 +1005,6 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 //        COBROSRET_AAAAAMMDD_NN_XX.TXT
 //        COBROSRET_AAAAAMMDD_NN_XXX.TXT
 //        Donde NN es un secuencial
-
         String usuario = dataUser.getUser().getNombrever().replace(" ", "");
         String fechaHora = (fechaConvertida.replace(":", "")).substring(0, 16);
         String nombreArchivo = "";
@@ -1008,8 +1012,8 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         String separador = "\t";
         Cliente cliAux = new Cliente();
         List<Cliente> listaClientesAux = new ArrayList<>();
-        String fechaAcr = fechaAcreditacionProrrogada.substring(0, 4)+fechaAcreditacionProrrogada.substring(5, 7)+fechaAcreditacionProrrogada.substring(8, 10);
-    
+        String fechaAcr = fechaAcreditacionProrrogada.substring(0, 4) + fechaAcreditacionProrrogada.substring(5, 7) + fechaAcreditacionProrrogada.substring(8, 10);
+
         try {
             nombreArchivo = "/COBROSRET_" + fechaAcr + "_01_XXX" + ".txt";
 
@@ -1038,17 +1042,17 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                 }
                 contadorFacturas++;
                 //1	Código Orientación	Carácter 	2
-                linea = linea + "CO"+separador;
+                linea = linea + "CO" + separador;
                 //2	Cuenta Empresa	Numérico 	20
-                linea = linea + String.format("%20s", "12345")+separador;
+                linea = linea + String.format("%20s", "12345") + separador;
                 //3	Secuencial	Numérico	16
-                linea = linea + String.format("%16s", String.valueOf(contadorFacturas))+separador;
+                linea = linea + String.format("%16s", String.valueOf(contadorFacturas)) + separador;
                 //4	Comprobante de Cobro	Carácter	20
-                linea = linea + String.format("%20s", factura.getFacturaPK().getNumero().trim())+separador;
+                linea = linea + String.format("%20s", factura.getFacturaPK().getNumero().trim()) + separador;
                 //5	Contrapartida	Carácter 	20
-                linea = linea + String.format("%20s", factura.getFacturaPK().getNumero().trim())+separador;
+                linea = linea + String.format("%20s", factura.getFacturaPK().getNumero().trim()) + separador;
                 //6	Moneda	Carácter
-                linea = linea + "USD"+separador;
+                linea = linea + "USD" + separador;
                 //7	Valor	Numérico	13
                 //System.out.println("FT::linea "+linea);
                 //System.out.println("FT::factura.getValorconrubro() "+factura.getValorconrubro());
@@ -1057,61 +1061,59 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                 String output = myFormatter.format(factura.getValorconrubro().doubleValue());
                 String dato = output.substring(0, 11) + output.substring(12, 14);
                 //System.out.println("FT::dato "+dato);
-                linea = linea + dato+separador;
+                linea = linea + dato + separador;
                 //8	Forma de Cobro 	Carácter	3
-                linea = linea + "CTA"+separador;
+                linea = linea + "CTA" + separador;
                 //9	Codigo de Banco	Numérico	10
-                linea = linea + String.format("%10s", "0017")+separador;
-                
+                linea = linea + String.format("%10s", "0017") + separador;
+
                 //10	Tipo de Cuenta	Carácter	3
-                linea = linea + cliAux.getTipocuentadebito()+separador;
-                
+                linea = linea + cliAux.getTipocuentadebito() + separador;
+
                 //11	Numero de Cuenta	Numérico 
-                linea = linea + String.format("%34s", cliAux.getCuentadebito()).replace(' ', '0')+separador;
-                
+                linea = linea + String.format("%34s", cliAux.getCuentadebito()).replace(' ', '0') + separador;
+
                 //12	Tipo ID Cliente Beneficiario 
-                linea = linea + "R"+separador;
-                        
+                linea = linea + "R" + separador;
+
 //                13	Numero ID Cliente
-                linea = linea + String.format("%14s", cliAux.getRuc())+separador;
+                linea = linea + String.format("%14s", cliAux.getRuc()) + separador;
 
 //                14	Nombre del Cliente  
-                linea = linea + String.format("%40s", cliAux.getNombrecomercial())+separador;
-                
+                linea = linea + String.format("%40s", cliAux.getNombrecomercial()) + separador;
+
 //                15	Dirección Beneficiario / Deudor	Carácter	40
-                linea = linea + String.format("%40s", cliAux.getDireccion())+separador;
-                
+                linea = linea + String.format("%40s", cliAux.getDireccion()) + separador;
+
 //                16	CiudadBeneficiario / Deudor	Carácter	20	Ciudad del Beneficiario
-                linea = linea + String.format("%20s", "")+separador;
+                linea = linea + String.format("%20s", "") + separador;
 //                17	Teléfono Beneficiario / Deudor	Carácter	20
-                linea = linea + String.format("%20s", cliAux.getTelefono1())+separador;
-                
+                linea = linea + String.format("%20s", cliAux.getTelefono1()) + separador;
+
 //                18	Localidad de pago / cobro	Carácter	20
-                linea = linea + String.format("%20s", "")+separador;
+                linea = linea + String.format("%20s", "") + separador;
 
 //                19	Referencia 	Carácter	200	Referencia del cobro
-
-                linea = linea + String.format("%-200s", (factura.getFacturaPK().getNumeronotapedido())+factura.getFacturaPK().getNumero()).replace(' ', '0')+separador;
+                linea = linea + String.format("%-200s", (factura.getFacturaPK().getNumeronotapedido()) + factura.getFacturaPK().getNumero()).replace(' ', '0') + separador;
 
 //                20	Referencia Adicional | Email 	Carácter	100
+                linea = linea + String.format("%20s", cliAux.getCorreo1()) + separador;
 
-                linea = linea + String.format("%20s", cliAux.getCorreo1())+separador;
-                
 //                21	Número Factura	Numérico	200
-                linea = linea + String.format("%200s", factura.getFacturaPK().getNumero())+separador;
+                linea = linea + String.format("%200s", factura.getFacturaPK().getNumero()) + separador;
 
                 // ESCRIBIR LINEA DE DESGLOSE DE RUBROS
 //                1	TipoProceso	Carácter 	2
-                lineaIva = lineaIva + "DE"+separador;
-                
+                lineaIva = lineaIva + "DE" + separador;
+
 //                2	Secuencial	Numérico	7
-                lineaIva = lineaIva + String.format("%7s", String.valueOf(contadorFacturas))+separador;
-                
+                lineaIva = lineaIva + String.format("%7s", String.valueOf(contadorFacturas)) + separador;
+
 //                3	Tiporubro	Carácter 	20
-                lineaIva = lineaIva + String.format("%20s", "IVA_BIEN")+separador;
-                
+                lineaIva = lineaIva + String.format("%20s", "IVA_BIEN") + separador;
+
 //                4	Concepto	Carácter 	50
-                lineaIva = lineaIva + String.format("%20s", "IVA_FACTURA: "+factura.getFacturaPK().getNumero())+separador;
+                lineaIva = lineaIva + String.format("%20s", "IVA_FACTURA: " + factura.getFacturaPK().getNumero()) + separador;
 
 //                5	Valorbase	Numérico 	13
                 DecimalFormat myFormatterIVA = new DecimalFormat("00000000000.00");
@@ -1119,48 +1121,46 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                 String outputIVA = myFormatterIVA.format(factura.getValorsinimpuestos().doubleValue());
                 String datoIVA = outputIVA.substring(0, 11) + outputIVA.substring(12, 14);
                 //System.out.println("FT::dato "+dato);
-                lineaIva = lineaIva + datoIVA+separador;
-                
-//                6	Porcentaje	Numérico 	13 
+                lineaIva = lineaIva + datoIVA + separador;
 
+//                6	Porcentaje	Numérico 	13 
                 BigDecimal porcentajeIVA = new BigDecimal("0");
-                System.out.println("ANTES DE DIVIDIR FT::myFormatterPorcentajeIVA FAC:"+factura.getFacturaPK().getNumero() +" - IVA: "+ factura.getIvatotal() +" - VALOR SIN IVA: "+ factura.getValorsinimpuestos());
-                porcentajeIVA = (factura.getIvatotal().divide(factura.getValorsinimpuestos(),3,RoundingMode.CEILING)).movePointRight(2);
-                System.out.println("DESPUES DE DIVIDIR FT::myFormatterPorcentajeIVA FAC:"+factura.getFacturaPK().getNumero() +" - "+ porcentajeIVA);                
+                System.out.println("ANTES DE DIVIDIR FT::myFormatterPorcentajeIVA FAC:" + factura.getFacturaPK().getNumero() + " - IVA: " + factura.getIvatotal() + " - VALOR SIN IVA: " + factura.getValorsinimpuestos());
+                porcentajeIVA = (factura.getIvatotal().divide(factura.getValorsinimpuestos(), 3, RoundingMode.CEILING)).movePointRight(2);
+                System.out.println("DESPUES DE DIVIDIR FT::myFormatterPorcentajeIVA FAC:" + factura.getFacturaPK().getNumero() + " - " + porcentajeIVA);
                 DecimalFormat myFormatterPorcentajeIVA = new DecimalFormat("00000000000.00");
-  
+
 //                String outputPorcentajeIVA = myFormatterPorcentajeIVA.format(factura.getIvatotal().divide(factura.getValorsinimpuestos()).doubleValue());
                 String outputPorcentajeIVA = myFormatterPorcentajeIVA.format(porcentajeIVA);
-                String datoPorcentajeIVA = outputPorcentajeIVA.substring(0, 11)+"00";// + outputPorcentajeIVA.substring(12, 14);
+                String datoPorcentajeIVA = outputPorcentajeIVA.substring(0, 11) + "00";// + outputPorcentajeIVA.substring(12, 14);
                 //System.out.println("FT::dato "+dato);
-                lineaIva = lineaIva + datoPorcentajeIVA+separador;
+                lineaIva = lineaIva + datoPorcentajeIVA + separador;
 
 //                7	Valorneto	Numérico 	13 
-
                 DecimalFormat myFormatterIVAValor = new DecimalFormat("00000000000.00");
                 //System.out.println("FT::myFormatter "+myFormatter.toString());
                 String outputIVAValor = myFormatterIVAValor.format(factura.getIvatotal().doubleValue());
                 String datoIVAValor = outputIVAValor.substring(0, 11) + outputIVAValor.substring(12, 14);
                 //System.out.println("FT::dato "+dato);
-                lineaIva = lineaIva + datoIVAValor+separador;
+                lineaIva = lineaIva + datoIVAValor + separador;
                 lineasIVA.add(lineaIva);
                 lineaIva = "";
                 System.out.println("FT::linea: " + linea + "aqui se acaba la linea");
                 //escribe los datos en el archivo
                 bfwriter.write(linea + "\n");
                 linea = "";
-                
+
             }
-            
+
             System.out.println("FT::ESCRIBIENDO LINEAS DE DESGLOSE: ");
             for (int i = 0; i < contadorFacturas; i++) {
-                
+
                 //escribe los datos en el archivo
                 bfwriter.write(lineasIVA.get(i) + "\n");
 //                linea = "";
 
             }
-            
+
             //cierra el buffer intermedio
             bfwriter.close();
             this.dialogo(FacesMessage.SEVERITY_INFO, "Archivo creado satisfactoriamente..");
@@ -1184,7 +1184,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 
     public String crearArchivo37(List<Factura> listaFactura, String codBanco, int cantidadRegsitros, BigDecimal valorTotal) throws Throwable {
         FileWriter flwriter = null;
-        
+
         String usuario = dataUser.getUser().getNombrever().replace(" ", "");
         String fechaHora = (fechaConvertida.replace(":", "")).substring(0, 16);
         String nombreArchivo = "";
@@ -1271,7 +1271,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         }
         return nombreArchivo;
     }
-    
+
     public String generarLineaCabecera(List<Factura> listaFactura, String codBanco, int cantidadRegsitros, BigDecimal valorTotal) throws Throwable {
         String lineaCabecera = "";
         try {
@@ -1295,7 +1295,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             return lineaCabecera;
         }
     }
-    
+
     public String crearArchivo36Lote(List<Factura> listaFactura, String codBanco, int cantidadRegsitros, BigDecimal valorTotal) throws Throwable {
         FileWriter flwriter = null;
         String usuario = dataUser.getUser().getNombrever().replace(" ", "");
@@ -1400,7 +1400,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         }
         return nombreArchivo;
     }
-    
+
     public String crearArchivo36(List<Factura> listaFactura, String fechaAcreditacionProrrogada, String codBanco, int cantidadRegsitros, BigDecimal valorTotal) throws Throwable {
         FileWriter flwriter = null;
         String usuario = dataUser.getUser().getNombrever().replace(" ", "");
@@ -1410,7 +1410,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         String separador = "\t";
         Cliente cliAux = new Cliente();
         List<Cliente> listaClientesAux = new ArrayList<>();
-        
+
         try {
             nombreArchivo = "/BANINTER_G_" + fechaHora + "_" + "COBRAR-EL_" + fechaAcr + ".txt";
             //crea el flujo para escribir en el archivo
@@ -1507,7 +1507,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         }
         return nombreArchivo;
     }
-    
+
     public String crearArchivo36(List<Factura> listaFactura, String codBanco, int cantidadRegsitros, BigDecimal valorTotal) throws Throwable {
         FileWriter flwriter = null;
         String usuario = dataUser.getUser().getNombrever().replace(" ", "");
@@ -1612,7 +1612,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         }
         return nombreArchivo;
     }
-    
+
     public void addItems() {
         try {
             String respuesta;
@@ -1621,7 +1621,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-type", "application/json");
-            
+
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             JSONObject obj = new JSONObject();
 //            obj.put("codigo", precio.getCodigo());
@@ -1637,14 +1637,14 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
             }
-            
+
             System.out.println(connection.getResponseCode());
             System.out.println(connection.getResponseMessage());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    
+
     public String handleFileUpload(FileUploadEvent event) {
         DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
         DateFormat date1 = new SimpleDateFormat("ddMMyyyy");
@@ -1670,7 +1670,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             File file = new File(ubicacion);
             //se pasa el flujo al objeto scanner
             scanner = new Scanner(file);
-            
+
             listaPagosbancorechazados = new ArrayList<>();
             listaDetallePago = new ArrayList<>();
             Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
@@ -1736,18 +1736,18 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                             detallepago.setCanal(linea.substring(274, 277));
                             //Número SRI
                             detallepago.setNumSRI(linea.substring(277, 297));
-                            
+
                             detallepago.setValor(new BigDecimal(detallepago.getValorProcesado()));
 
                             //suma = suma.add(new BigDecimal(detallepago.getValorProcesado()));
                             detallepago.setActivo(true);
                             detallepago.setUsuarioactual(dataUser.getUser().getNombrever());
-                            
+
                             String numFact = detallepago.getReferencia().substring(8).trim();
                             String numNoPed = detallepago.getReferencia().substring(0, 8).trim();
                             String codCliente = detallepago.getContrapartida().substring(0, 8).trim();
                             String codBanco = detallepago.getCodBancoProc().trim();
-                            
+
                             detallepagoPK.setCodigoabastecedora(comercializadora.getAbastecedora());
                             detallepagoPK.setCodigocomercializadora(comercializadora.getCodigo());
                             detallepagoPK.setNumeronotapedido(numNoPed);
@@ -1755,7 +1755,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                             detallepagoPK.setCodigobanco(banco.getCodigo());
                             detallepagoPK.setNumero(detallepago.getId_sobre());
                             detallepago.setDetallepagoPK(detallepagoPK);
-                            
+
                             pagofacturaPK.setCodigobanco(banco.getCodigo());
                             pagofacturaPK.setCodigoabastecedora(comercializadora.getAbastecedora());
                             pagofacturaPK.setCodigocomercializadora(comercializadora.getCodigo());
@@ -1768,7 +1768,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                             pagofactura.setUsuarioactual(dataUser.getUser().getNombrever());
                             //pagofactura.setValor(suma);
                             detallepago.setPagofactura(pagofactura);
-                            
+
                             List<Factura> fact = facturaServicio.buscarFacturasConciliarPago(codigoComer, numFact.trim(), codCliente);
                             pagosbancorechazadosPK.setBcoCodigocliente(codCliente);
                             pagosbancorechazadosPK.setBcoNumerofactura(numFact);
@@ -1799,7 +1799,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                                     }
                                 }
                             }
-                            
+
                             listaPagosbancorechazados.add(pagosbancorechazados);
                             listaPagofacturaArchivoSubida.add(pagofactura);
                             listaDetallePago.add(detallepago);
@@ -1849,7 +1849,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                         //Valor Total Retenido Iva Servicios
                         detallepago.setConstanteCabe_6(linea.substring(114, 124));
                         while (scanner.hasNextLine()) {
-                            
+
                             linea = scanner.nextLine();
                             //Constante
                             detallepago.setConstanteDet_2(linea.substring(0, 2));
@@ -1876,10 +1876,10 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                             detallepago.setValRetIvaBienes(linea.substring(86, 96));
                             //Valor Retenido Iva Servicios
                             detallepago.setValRetIvaServicios(linea.substring(97, 107));
-                            
+
                             String numFact = detallepago.getContrapartida().trim();
                             String numDet = detallepago.getMotivo_bancario().trim() + detallepago.getFechaProc().trim() + horaFormat.format(new Date());
-                            
+
                             List<Factura> fact = facturaServicio.buscarFacturasAbasComerNum(comercializadora.getAbastecedora(), comercializadora.getCodigo(), numFact.trim());
                             String codBanco = "";
                             String numNoPed = "";
@@ -1893,17 +1893,17 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                             detallepagoPK.setNumero(numDet);
                             detallepagoPK.setCodigobanco(banco.getCodigo());
                             detallepagoPK.setNumerofactura(numFact);
-                            
+
                             detallepago.setDetallepagoPK(detallepagoPK);
                             detallepago.setValor(new BigDecimal(detallepago.getValorProcesado()));
                             detallepago.setActivo(true);
                             detallepago.setUsuarioactual(dataUser.getUser().getNombrever());
-                            
+
                             pagofacturaPK.setCodigobanco(banco.getCodigo());
                             pagofacturaPK.setCodigoabastecedora(comercializadora.getAbastecedora());
                             pagofacturaPK.setCodigocomercializadora(comercializadora.getCodigo());
                             pagofacturaPK.setNumero(numDet);
-                            
+
                             pagofactura.setPagofacturaPK(pagofacturaPK);
                             pagofactura.setFecha(date1.parse(detallepago.getFechaProc()));
                             pagofactura.setActivo(true);
@@ -1912,7 +1912,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                             pagofactura.setUsuarioactual(dataUser.getUser().getNombrever());
                             //pagofactura.setValor(suma);
                             detallepago.setPagofactura(pagofactura);
-                            
+
                             pagosbancorechazadosPK.setBcoCodigocliente("N/D");
                             pagosbancorechazadosPK.setBcoNumerofactura(numFact);
                             pagosbancorechazadosPK.setBcoCodigobanco(codBanco);
@@ -1946,7 +1946,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                                     }
                                 }
                             }
-                            
+
                             listaPagosbancorechazados.add(pagosbancorechazados);
                             listaPagofacturaArchivoSubida.add(pagofactura);
                             listaDetallePago.add(detallepago);
@@ -1992,9 +1992,9 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             e.printStackTrace();
         }
         return null;
-        
+
     }
-    
+
     public void guardarPagosBancoRechazado() throws ParseException {
         listaFacturaAux = new ArrayList<>();
         if (!listaPagosbancorechazados.isEmpty()) {
@@ -2006,9 +2006,9 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         } else {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "Error de carga, el archivo se encuentra vacio");
         }
-        
+
     }
-    
+
     public Boolean addPagoFacturabancoRechazado(Pagosbancorechazados pagosbancorechazados) {
         try {
             String respuesta;
@@ -2018,7 +2018,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-type", "application/json");
-            
+
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             JSONObject obj = new JSONObject();
             JSONObject objPK = new JSONObject();
@@ -2027,7 +2027,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             objPK.put("bcoNumerofactura", pagosbancorechazados.getPagosbancorechazadosPK().getBcoNumerofactura());
             objPK.put("fechaactual", date.format(pagosbancorechazados.getPagosbancorechazadosPK().getFechaactual()));
             obj.put("pagosbancorechazadosPK", objPK);
-            
+
             obj.put("bcoValorconrubro", pagosbancorechazados.getBcoValorconrubro());
             obj.put("bcoRuccliente", pagosbancorechazados.getBcoRuccliente());
             obj.put("bcoNombrecliente", pagosbancorechazados.getBcoNombrecliente());
@@ -2070,7 +2070,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             return false;
         }
     }
-    
+
     public void guardar() throws ParseException {
         int detOk = 0;
         int detError = 0;
@@ -2101,9 +2101,9 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         } else {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "Ingrese una observación");
         }
-        
+
     }
-    
+
     public Boolean addPagoFactura() {
         try {
             String respuesta;
@@ -2113,7 +2113,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-type", "application/json");
-            
+
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             JSONObject obj = new JSONObject();
             JSONObject objPK = new JSONObject();
@@ -2148,19 +2148,19 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             return false;
         }
     }
-    
+
     public Boolean addDetPago(Pagosbancorechazados pagosbancorechazados) {
         try {
             String respuesta;
 
             //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.detallepago");
             url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.detallepago");
-            
+
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-type", "application/json");
-            
+
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             //List<JSONObject> listObj = new ArrayList<>();
             JSONObject obj = new JSONObject();
@@ -2213,7 +2213,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             return false;
         }
     }
-    
+
     public Boolean addPagoFacturaGestionDirecta() {
         try {
             String respuesta;
@@ -2228,7 +2228,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-type", "application/json");
-            
+
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             JSONObject obj = new JSONObject();
             JSONObject objPK = new JSONObject();
@@ -2261,18 +2261,18 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             return false;
         }
     }
-    
+
     public Boolean addDetPagoGestionDirecta(int indice) {
         try {
             String respuesta;
             //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.detallepago");
             url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.detallepago");
-            
+
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-type", "application/json");
-            
+
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             JSONObject obj = new JSONObject();
             JSONObject objPk = new JSONObject();
@@ -2305,7 +2305,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             return false;
         }
     }
-    
+
     public void editItems() {
         try {
             String respuesta;
@@ -2314,7 +2314,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             connection.setDoOutput(true);
             connection.setRequestMethod("PUT");
             connection.setRequestProperty("Content-type", "application/json");
-            
+
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             JSONObject obj = new JSONObject();
 //            obj.put("codigo", precio.getCodigo());
@@ -2336,7 +2336,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             e.printStackTrace();
         }
     }
-    
+
     public void deleteItems() {
         try {
             url = new URL(direccion + "/porId?codigoabastecedora=" + pagofactura.getPagofacturaPK().getCodigoabastecedora()
@@ -2348,7 +2348,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             connection.setRequestMethod("DELETE");
             connection.setRequestProperty("Content-type", "application/json");
             connection.connect();
-            
+
             if (connection.getResponseCode() == 200) {
                 PrimeFaces.current().executeScript("PF('nuevo').hide()");
                 this.dialogo(FacesMessage.SEVERITY_INFO, "PAGO ELIMINADO EXITOSAMENTE");
@@ -2356,29 +2356,29 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ELIMINAR");
             }
-            
+
             System.out.println(connection.getResponseCode());
             System.out.println(connection.getResponseMessage());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    
+
     public void editDetallePagoItems() throws ParseException {
         try {
             String respuesta;
             //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.detallepago/porId");
             url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.detallepago/porId");
-            
+
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
             connection.setRequestMethod("PUT");
             connection.setRequestProperty("Content-type", "application/json");
-            
+
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             JSONObject obj = new JSONObject();
             JSONObject objPk = new JSONObject();
-            
+
             objPk.put("codigoabastecedora", detallepago.getDetallepagoPK().getCodigoabastecedora());
             objPk.put("codigocomercializadora", detallepago.getDetallepagoPK().getCodigocomercializadora());
             objPk.put("numeronotapedido", detallepago.getDetallepagoPK().getNumeronotapedido());
@@ -2389,7 +2389,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             obj.put("valor", detallepago.getValor());
             obj.put("activo", false);
             obj.put("usuarioactual", dataUser.getUser().getNombrever());
-            
+
             respuesta = obj.toString();
             writer.write(respuesta);
             writer.close();
@@ -2406,7 +2406,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             e.printStackTrace();
         }
     }
-    
+
     public void editarEstadoFactura() throws ParseException {
         List<Factura> facBus = new ArrayList<>();
         facBus = facturaServicio.buscarFacturas(detallepago.getDetallepagoPK().getCodigoabastecedora(), detallepago.getDetallepagoPK().getCodigocomercializadora(), detallepago.getDetallepagoPK().getNumerofactura());
@@ -2439,12 +2439,12 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             }
         }
     }
-    
+
     public void actualizarFactura(Factura fact) {
         try {
             //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura/porId");
             url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura/porId");
-            
+
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setConnectTimeout(1000 * 60);
             connection.setReadTimeout(1000 * 60);
@@ -2473,7 +2473,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             e.printStackTrace();
         }
     }
-    
+
     public void deleteDetallePago() {
         try {
             //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.detallepago/porId?"
@@ -2486,7 +2486,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             connection.setRequestMethod("DELETE");
             connection.setRequestProperty("Content-type", "application/json");
             connection.connect();
-            
+
             if (connection.getResponseCode() == 200) {
                 PrimeFaces.current().executeScript("PF('nuevo').hide()");
                 this.dialogo(FacesMessage.SEVERITY_INFO, "DETALLE PAGO ELIMINADO EXITOSAMENTE");
@@ -2496,12 +2496,12 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                 System.out.println(connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
             }
-            
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    
+
     public void nuevoPagoFactura() {
         gestionarCobro = true;
         pagoDirecto = false;
@@ -2522,7 +2522,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         fecha = new Date();
         PrimeFaces.current().executeScript("PF('nuevo').show()");
     }
-    
+
     public Pagofactura editarPagoFactura(Pagofactura obj) {
         editarPago = true;
         gestionarCobro = false;
@@ -2536,7 +2536,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         PrimeFaces.current().executeScript("PF('nuevo').show()");
         return pagofactura;
     }
-    
+
     public void actualizarLista() {
         if (comercializadora != null) {
             if (comercializadora.getCodigo() != null) {
@@ -2547,7 +2547,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             this.dialogo(FacesMessage.SEVERITY_ERROR, "SELECCIONE LA COMERCIALIZADORA");
         }
     }
-    
+
     public void actualizarListaCobros() {
         if (comercializadora != null) {
             if (pagoFacturaBean != null) {
@@ -2561,7 +2561,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             }
         }
     }
-    
+
     public void obtenerFacturas() throws ParseException {
         try {
             DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
@@ -2569,20 +2569,20 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 
             //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura";
             String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura";
-            
+
             url = new URL(direcc + "/paraCobrarxformapago?codigocomercializadora=" + this.codigoComer + "&tipofecha=" + tipoBusquedaDocumento + "&oeenpetro=" + true + "&activa=" + true + "&pagada=" + false + "&clienteformapago=03" + "&fecha=" + fechaS + "&codigoterminal=" + this.codTerminal + "&codigocliente=" + this.codCliente);
-            
+
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
-            
+
             listaFactura = new ArrayList<>();
             factura = new Factura();
             facturaPK = new FacturaPK();
-            
+
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-            
+
             BufferedReader br = new BufferedReader(reader);
             String tmp = null;
             String respuesta = "";
@@ -2594,13 +2594,13 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             for (int indice = 0; indice < retorno.length(); indice++) {
                 JSONObject fact = retorno.getJSONObject(indice);
                 JSONObject factPK = fact.getJSONObject("facturaPK");
-                
+
                 facturaPK.setCodigoabastecedora(factPK.getString("codigoabastecedora"));
                 facturaPK.setCodigocomercializadora(factPK.getString("codigocomercializadora"));
                 facturaPK.setNumeronotapedido(factPK.getString("numeronotapedido"));
                 facturaPK.setNumero(factPK.getString("numero"));
                 factura.setFacturaPK(facturaPK);
-                
+
                 if (!fact.isNull("fechaacreditacionprorrogada")) {
                     Long lDatePro = fact.getLong("fechaacreditacionprorrogada");
                     Date datePro = new Date(lDatePro);
@@ -2698,18 +2698,18 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                 listaFactura.add(factura);
                 factura = new Factura();
                 facturaPK = new FacturaPK();
-                
+
             }
             if (connection.getResponseCode() != 200) {
                 System.out.println(connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
             }
-            
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    
+
     public void recibirPagos() {
         observ = "";
         if (habilitarComer) {
@@ -2720,7 +2720,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         }
         PrimeFaces.current().executeScript("PF('zip').show()");
     }
-    
+
     public void nuevoPagoDirecto() {
         gestionarCobro = false;
         pagoDirecto = true;
@@ -2740,7 +2740,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         obtenerBancos();
         PrimeFaces.current().executeScript("PF('pagoDirecto').show()");
     }
-    
+
     public void regresarPantallaInicial() {
         pantallaInicial = true;
         valoresGeneredos = false;
@@ -2752,7 +2752,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             comercializadora = new ComercializadoraBean();
         }
     }
-    
+
     public void regresarGestionCobros() {
         if (habilitarComer) {
             comercializadora = new ComercializadoraBean();
@@ -2769,7 +2769,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         tipoBusquedaDocumento = "1";
         fecha = new Date();
     }
-    
+
     public void guardarPagoDirecto() throws ParseException {
         Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
         observ = params.get("ingresoDatos:obs");
@@ -2854,331 +2854,331 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 //        this.dialogo(FacesMessage.SEVERITY_ERROR, cadenaErro.toString());
 
     }
-    
+
     public String formatoFecha(String cadena) {
         String fechaFormat = "";
         fechaFormat = cadena.substring(0, 2) + "/" + cadena.substring(2, 4) + "/" + cadena.substring(4);
         return fechaFormat;
     }
-    
+
     public List<Detallepago> getListaDetallePagofacturaArchivoSubida() {
         return listaDetallePagofacturaArchivoSubida;
     }
-    
+
     public void setListaDetallePagofacturaArchivoSubida(List<Detallepago> listaDetallePagofacturaArchivoSubida) {
         this.listaDetallePagofacturaArchivoSubida = listaDetallePagofacturaArchivoSubida;
     }
-    
+
     public String getUbicacion() {
         return ubicacion;
     }
-    
+
     public void setUbicacion(String ubicacion) {
         this.ubicacion = ubicacion;
     }
-    
+
     public List<Pagofactura> getListaPagofacturaArchivoSubida() {
         return listaPagofacturaArchivoSubida;
     }
-    
+
     public void setListaPagofacturaArchivoSubida(List<Pagofactura> listaPagofacturaArchivoSubida) {
         this.listaPagofacturaArchivoSubida = listaPagofacturaArchivoSubida;
     }
-    
+
     public List<ObjFactura> getListaobjFactura() {
         return listaobjFactura;
     }
-    
+
     public void setListaobjFactura(List<ObjFactura> listaobjFactura) {
         this.listaobjFactura = listaobjFactura;
     }
-    
+
     public List<Factura> getListaFacturaUnida() {
         return listaFacturaUnida;
     }
-    
+
     public void setListaFacturaUnida(List<Factura> listaFacturaUnida) {
         this.listaFacturaUnida = listaFacturaUnida;
     }
-    
+
     public List<Factura> getListaFacturaSeleccionada() {
         return listaFacturaSeleccionada;
     }
-    
+
     public void setListaFacturaSeleccionada(List<Factura> listaFacturaSeleccionada) {
         this.listaFacturaSeleccionada = listaFacturaSeleccionada;
     }
-    
+
     public ComercializadoraBean getComercializadora() {
         return comercializadora;
     }
-    
+
     public void setComercializadora(ComercializadoraBean comercializadora) {
         this.comercializadora = comercializadora;
     }
-    
+
     public List<Pagofactura> getListaPagofactura() {
         return listaPagofactura;
     }
-    
+
     public void setListaPagofactura(List<Pagofactura> listaPagofactura) {
         this.listaPagofactura = listaPagofactura;
     }
-    
+
     public List<Detallepago> getListaDetallePago() {
         return listaDetallePago;
     }
-    
+
     public void setListaDetallePago(List<Detallepago> listaDetallePago) {
         this.listaDetallePago = listaDetallePago;
     }
-    
+
     public boolean isEditarPago() {
         return editarPago;
     }
-    
+
     public void setEditarPago(boolean editarPago) {
         this.editarPago = editarPago;
     }
-    
+
     public boolean isEstadoPago() {
         return estadoPago;
     }
-    
+
     public void setEstadoPago(boolean estadoPago) {
         this.estadoPago = estadoPago;
     }
-    
+
     public Pagofactura getPagofactura() {
         return pagofactura;
     }
-    
+
     public void setPagofactura(Pagofactura pagofactura) {
         this.pagofactura = pagofactura;
     }
-    
+
     public Detallepago getDetallepago() {
         return detallepago;
     }
-    
+
     public void setDetallepago(Detallepago detallepago) {
         this.detallepago = detallepago;
     }
-    
+
     public PagofacturaPK getPagofacturaPK() {
         return pagofacturaPK;
     }
-    
+
     public void setPagofacturaPK(PagofacturaPK pagofacturaPK) {
         this.pagofacturaPK = pagofacturaPK;
     }
-    
+
     public DetallepagoPK getDetallepagoPK() {
         return detallepagoPK;
     }
-    
+
     public void setDetallepagoPK(DetallepagoPK detallepagoPK) {
         this.detallepagoPK = detallepagoPK;
     }
-    
+
     public PagoFacturaBean getPagoFacturaBean() {
         return pagoFacturaBean;
     }
-    
+
     public void setPagoFacturaBean(PagoFacturaBean pagoFacturaBean) {
         this.pagoFacturaBean = pagoFacturaBean;
     }
-    
+
     public String getCodigoComer() {
         return codigoComer;
     }
-    
+
     public void setCodigoComer(String codigoComer) {
         this.codigoComer = codigoComer;
     }
-    
+
     public Date getFecha() {
         return fecha;
     }
-    
+
     public void setFecha(Date fecha) {
         this.fecha = fecha;
     }
-    
+
     public List<ComercializadoraBean> getListaComercializadora() {
         return listaComercializadora;
     }
-    
+
     public void setListaComercializadora(List<ComercializadoraBean> listaComercializadora) {
         this.listaComercializadora = listaComercializadora;
     }
-    
+
     public Banco getBanco() {
         return banco;
     }
-    
+
     public void setBanco(Banco banco) {
         this.banco = banco;
     }
-    
+
     public List<Banco> getListaBancos() {
         return listaBancos;
     }
-    
+
     public void setListaBancos(List<Banco> listaBancos) {
         this.listaBancos = listaBancos;
     }
-    
+
     public List<Factura> getListaFactura() {
         return listaFactura;
     }
-    
+
     public void setListaFactura(List<Factura> listaFactura) {
         this.listaFactura = listaFactura;
     }
-    
+
     public String getTipoBusquedaDocumento() {
         return tipoBusquedaDocumento;
     }
-    
+
     public void setTipoBusquedaDocumento(String tipoBusquedaDocumento) {
         this.tipoBusquedaDocumento = tipoBusquedaDocumento;
     }
-    
+
     public Date getFecha1() {
         return fecha1;
     }
-    
+
     public void setFecha1(Date fecha1) {
         this.fecha1 = fecha1;
     }
-    
+
     public File getFileLeer() {
         return fileLeer;
     }
-    
+
     public void setFileLeer(File fileLeer) {
         this.fileLeer = fileLeer;
     }
-    
+
     public boolean isGestionarCobro() {
         return gestionarCobro;
     }
-    
+
     public void setGestionarCobro(boolean gestionarCobro) {
         this.gestionarCobro = gestionarCobro;
     }
-    
+
     public boolean isPantallaInicial() {
         return pantallaInicial;
     }
-    
+
     public void setPantallaInicial(boolean pantallaInicial) {
         this.pantallaInicial = pantallaInicial;
     }
-    
+
     public boolean isValoresGeneredos() {
         return valoresGeneredos;
     }
-    
+
     public void setValoresGeneredos(boolean valoresGeneredos) {
         this.valoresGeneredos = valoresGeneredos;
     }
-    
+
     public List<TotalParaCobrar> getListaTotalCobros() {
         return listaTotalCobros;
     }
-    
+
     public void setListaTotalCobros(List<TotalParaCobrar> listaTotalCobros) {
         this.listaTotalCobros = listaTotalCobros;
     }
-    
+
     public String getObservacion() {
         return observacion;
     }
-    
+
     public void setObservacion(String observacion) {
         this.observacion = observacion;
     }
-    
+
     public String getObserv() {
         return observ;
     }
-    
+
     public void setObserv(String observ) {
         this.observ = observ;
     }
-    
+
     public StreamedContent getTxtStream() {
         return txtStream;
     }
-    
+
     public void setTxtStream(StreamedContent txtStream) {
         this.txtStream = txtStream;
     }
-    
+
     public boolean isPagoDirecto() {
         return pagoDirecto;
     }
-    
+
     public void setPagoDirecto(boolean pagoDirecto) {
         this.pagoDirecto = pagoDirecto;
     }
-    
+
     public TerminalBean getTerminal() {
         return terminal;
     }
-    
+
     public void setTerminal(TerminalBean terminal) {
         this.terminal = terminal;
     }
-    
+
     public List<TerminalBean> getListaTermianles() {
         return listaTermianles;
     }
-    
+
     public void setListaTermianles(List<TerminalBean> listaTermianles) {
         this.listaTermianles = listaTermianles;
     }
-    
+
     public List<Cliente> getListaClientes() {
         return listaClientes;
     }
-    
+
     public void setListaClientes(List<Cliente> listaClientes) {
         this.listaClientes = listaClientes;
     }
-    
+
     public Cliente getCliente() {
         return cliente;
     }
-    
+
     public void setCliente(Cliente cliente) {
         this.cliente = cliente;
     }
-    
+
     public Date getFechaDep() {
         return fechaDep;
     }
-    
+
     public void setFechaDep(Date fechaDep) {
         this.fechaDep = fechaDep;
     }
-    
+
     public BigDecimal getSuma() {
         return suma;
     }
-    
+
     public void setSuma(BigDecimal suma) {
         this.suma = suma;
     }
-    
+
     public List<Pagosbancorechazados> getListaPagosbancorechazados() {
         return listaPagosbancorechazados;
     }
-    
+
     public void setListaPagosbancorechazados(List<Pagosbancorechazados> listaPagosbancorechazados) {
         this.listaPagosbancorechazados = listaPagosbancorechazados;
     }
-    
+
 }
