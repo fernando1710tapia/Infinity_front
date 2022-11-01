@@ -19,6 +19,9 @@ import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,9 +33,6 @@ import javax.annotation.PostConstruct;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Named;
-import org.primefaces.model.chart.Axis;
-import org.primefaces.model.chart.AxisType;
-import org.primefaces.model.chart.ChartSeries;
 import org.primefaces.model.charts.ChartData;
 import org.primefaces.model.charts.axes.cartesian.CartesianScales;
 import org.primefaces.model.charts.axes.cartesian.linear.CartesianLinearAxes;
@@ -40,7 +40,6 @@ import org.primefaces.model.charts.axes.cartesian.linear.CartesianLinearTicks;
 import org.primefaces.model.charts.bar.BarChartDataSet;
 import org.primefaces.model.charts.bar.BarChartModel;
 import org.primefaces.model.charts.bar.BarChartOptions;
-import org.primefaces.model.charts.optionconfig.title.Title;
 import org.primefaces.model.charts.optionconfig.tooltip.Tooltip;
 import org.primefaces.shaded.json.JSONArray;
 import org.primefaces.shaded.json.JSONObject;
@@ -70,7 +69,7 @@ public class DashboardBean extends ReusableBean implements Serializable {
 
     private String nombrecliente;
 
-    private BigDecimal sumatotal;
+    private String sumatotal;
 
     private Integer facturas;
 
@@ -121,7 +120,8 @@ public class DashboardBean extends ReusableBean implements Serializable {
     public void obtenerprimerCliente() {
         if (!listaMejorcliente.isEmpty()) {
             nombrecliente = this.listaMejorcliente.get(0).getNombrecliente();
-            sumatotal = this.listaMejorcliente.get(0).getSumatotal();
+            DecimalFormat formato = new DecimalFormat("###,##0.00");            
+            sumatotal = formato.format(this.listaMejorcliente.get(0).getSumatotal());
             facturas = this.listaMejorcliente.get(0).getFacturas();
         }
     }
@@ -297,14 +297,14 @@ public class DashboardBean extends ReusableBean implements Serializable {
         switch (tipo) {
 //Despachos
             case 1:
-                r = codigos.get(cod.substring(0, 4));
+                r = codigos.get(cod.substring(6, 10));
                 g = "255";
                 b = "0";
                 break;
 //ventas
             case 2:
                 r = "0";
-                g = codigos.get(cod.substring(0, 4));
+                g = codigos.get(cod.substring(6, 10));
                 b = "255";
                 break;
         }
@@ -330,30 +330,30 @@ public class DashboardBean extends ReusableBean implements Serializable {
         BarChartDataSet barDataSet = new BarChartDataSet();
         BarChartDataSet barDataSet2 = new BarChartDataSet();
 
-        for (int i = 0; i < listaDespachoTotalDto.size(); i++) {
-            barDataSet = new BarChartDataSet();
-            barDataSet.setLabel(listaDespachoTotalDto.get(i).getNombreProducto());
-            barDataSet.setBackgroundColor(coloresProducto(listaDespachoTotalDto.get(i).getNombreProducto(), 1)[0]);
-            barDataSet.setBorderColor(coloresProducto(listaDespachoTotalDto.get(i).getNombreProducto(), 1)[1]);
-            barDataSet.setStack("Stack 0");
-            barDataSet.setBorderWidth(1);
-            List<Number> values = new ArrayList<>();
-            values.add(listaDespachoTotalDto.get(i).getVolumenTotal());
-            barDataSet.setData(values);
-            barDataSetList.add(barDataSet);
-        }
-
         for (int i = 0; i < listaVentaTotalDto.size(); i++) {
             barDataSet2 = new BarChartDataSet();
             barDataSet2.setLabel(listaVentaTotalDto.get(i).getNombreProducto());
             barDataSet2.setBackgroundColor(coloresProducto(listaVentaTotalDto.get(i).getNombreProducto(), 2)[0]);
             barDataSet2.setBorderColor(coloresProducto(listaVentaTotalDto.get(i).getNombreProducto(), 2)[1]);
-            barDataSet2.setStack("Stack 1");
+            barDataSet2.setStack("Stack 0");
             barDataSet2.setBorderWidth(1);
             List<Number> values2 = new ArrayList<>();
             values2.add(listaVentaTotalDto.get(i).getVolumenTotal());
             barDataSet2.setData(values2);
             barDataSetList.add(barDataSet2);
+        }
+
+        for (int i = 0; i < listaDespachoTotalDto.size(); i++) {
+            barDataSet = new BarChartDataSet();
+            barDataSet.setLabel(listaDespachoTotalDto.get(i).getNombreProducto());
+            barDataSet.setBackgroundColor(coloresProducto(listaDespachoTotalDto.get(i).getNombreProducto(), 1)[0]);
+            barDataSet.setBorderColor(coloresProducto(listaDespachoTotalDto.get(i).getNombreProducto(), 1)[1]);
+            barDataSet.setStack("Stack 1");
+            barDataSet.setBorderWidth(1);
+            List<Number> values = new ArrayList<>();
+            values.add(listaDespachoTotalDto.get(i).getVolumenTotal());
+            barDataSet.setData(values);
+            barDataSetList.add(barDataSet);
         }
 
         for (int i = 0; i < barDataSetList.size(); i++) {
@@ -433,11 +433,11 @@ public class DashboardBean extends ReusableBean implements Serializable {
         this.nombrecliente = nombrecliente;
     }
 
-    public BigDecimal getSumatotal() {
+    public String getSumatotal() {
         return sumatotal;
     }
 
-    public void setSumatotal(BigDecimal sumatotal) {
+    public void setSumatotal(String sumatotal) {
         this.sumatotal = sumatotal;
     }
 

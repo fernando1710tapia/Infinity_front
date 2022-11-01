@@ -196,7 +196,24 @@
                         </div>
                         <p:graphicImage name="images/dashboard/graph-red.svg" library="apollo-layout"/>
                     </div>
-                </div>            
+                </div>       
+                <div class="p-col-12">
+                    <div class="card">
+                        <div class="p-grid">
+                            <div class="p-field p-col-12 p-md-6">
+                                <p:outputLabel for="fechaF" value="Fecha de Venta y Despacho "/>
+                                <p:datePicker id="fechaF" value="#{dashboardBean.date}" showIcon="true" pattern="dd/MM/yyyy" maxdate="#{dashboardBean.today}">
+                                    <p:ajax event="dateSelect" listener="#{dashboardBean.actualizarGrafico()}" update="barras"/>
+                                </p:datePicker>
+                            </div>
+                            <div class="p-col-12">
+                                <p:panel id="barras" header="Ventas / Despachos Totales " styleClass="chart">
+                                    <p:barChart model="#{dashboardBean.barModel}" style="height:300px" widgetVar="chart" />
+                                </p:panel>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="p-col-12 ">
                     <p:panel header="Status" styleClass="knobs ">
                         <div class="p-grid">
@@ -224,7 +241,7 @@
                     </p:panel>
                 </div>           
 
-                <div class="p-col-12 p-lg-7 ">
+                <!--<div class="p-col-12 p-lg-7 ">
                     <div class="p-grid">
                         <div class="p-col-12">
                             <p:panel header="Ventas Totales" styleClass="chart">
@@ -232,7 +249,7 @@
                             </p:panel>
 
                         </div>
-                        <!--<div class="p-col-12">
+                        <div class="p-col-12">
                             <div class="sales-panel">
                                 <h:form id="form">
                                     <p:dataTable id="ordersTable" var="order" value="#{dashboardView.orders}" selectionMode="single" reflow="true" paginatorPosition="bottom"
@@ -261,11 +278,11 @@
                                     </p:dataTable>
                                 </h:form>
                             </div>
-                        </div>-->
+                        </div>
                     </div>
-                </div>
+                </div>-->
 
-                <div class="p-col-12 p-md-5">
+                <!--<div class="p-col-12 p-md-5">
                     <p:panel header="Venta Total por Productos" styleClass="disk-spaces">
                         <span>4.2 TB Used</span>
                         <p:progressBar value="75" widgetVar="pb1"/>
@@ -279,7 +296,7 @@
                         <span>1.9 TB Used</span>
                         <p:progressBar value="25" widgetVar="pb4" />
                     </p:panel>
-                </div>
+                </div>-->
                 <div class="p-field p-col-12 p-md-6">
 
                     <!--<div class="p-field p-col-12 p-md-4">
@@ -339,23 +356,7 @@
                         </f:facet>
                     </p:panel>              
 
-                </div>     
-                
-                <div class="p-col-12 p-lg-7 ">
-                    <div class="p-grid">
-                        <div class="p-field p-col-12 p-md-6">
-                            <p:outputLabel for="fechaF" value="Fecha"/>
-                            <p:datePicker id="fechaF" value="#{dashboardBean.date}" showIcon="true" pattern="dd/MM/yyyy" maxdate="#{dashboardBean.today}">
-                                <p:ajax event="dateSelect" listener="#{dashboardBean.actualizarGrafico()}" update="barras"/>
-                            </p:datePicker>
-                        </div>
-                        <div class="p-col-12">
-                            <p:panel id="barras" header="Ventas / Despachos Totales " styleClass="chart">
-                                <p:barChart model="#{dashboardBean.barModel}" style="height:300px" widgetVar="chart" />
-                            </p:panel>
-                        </div>
-                    </div>
-                </div>
+                </div>                                     
             </div>
         </h:form>
     </ui:define>
