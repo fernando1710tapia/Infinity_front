@@ -120,7 +120,7 @@ public class DashboardBean extends ReusableBean implements Serializable {
     public void obtenerprimerCliente() {
         if (!listaMejorcliente.isEmpty()) {
             nombrecliente = this.listaMejorcliente.get(0).getNombrecliente();
-            DecimalFormat formato = new DecimalFormat("###,##0.00");            
+            DecimalFormat formato = new DecimalFormat("###,##0.00");
             sumatotal = formato.format(this.listaMejorcliente.get(0).getSumatotal());
             facturas = this.listaMejorcliente.get(0).getFacturas();
         }
@@ -297,14 +297,22 @@ public class DashboardBean extends ReusableBean implements Serializable {
         switch (tipo) {
 //Despachos
             case 1:
-                r = codigos.get(cod.substring(6, 10));
+                if (codigos.containsKey(cod.substring(6, 10))) {
+                    r = codigos.get(cod.substring(6, 10));
+                } else {
+                    r = "255";
+                }
                 g = "255";
                 b = "0";
                 break;
 //ventas
             case 2:
                 r = "0";
-                g = codigos.get(cod.substring(6, 10));
+                if (codigos.containsKey(cod.substring(6, 10))) {
+                    g = codigos.get(cod.substring(6, 10));
+                } else {
+                    g = "255";
+                }
                 b = "255";
                 break;
         }
