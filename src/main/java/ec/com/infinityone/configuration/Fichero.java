@@ -37,7 +37,8 @@ public class Fichero {
     private static String PRODUCTOSINFE;
     private static String RUTACONEXIONBD;
     private static String PREGUNTAS;
-    
+    private static String COLORESPRODUCTOS;
+   
 
     public static void propiedades() {
         InputStream in = null;
@@ -69,6 +70,7 @@ public class Fichero {
             PRODUCTOSINFE = (String) propiedades.get("PRODUCTOSINFE");
             RUTACONEXIONBD = (String) propiedades.get("CONEXIONBD");
             PREGUNTAS = (String) propiedades.get("PREGUNTAS");
+            COLORESPRODUCTOS = (String) propiedades.get("COLORESPRODUCTOS");
 
             //LOG.log(Level.INFO, "Ruta Reporte", RUTAREPORTE);
             //LOG.log(Level.INFO, "Ruta Servicios", RUTASERVICIOSPERSISTENCIA);
@@ -182,6 +184,14 @@ public class Fichero {
 
     public static void setCARPETAXML(String CARPETAXML) {
         Fichero.CARPETAXML = CARPETAXML;
+    }
+
+    public static String getCOLORESPRODUCTOS() {
+        return COLORESPRODUCTOS;
+    }
+
+    public static void setCOLORESPRODUCTOS(String COLORESPRODUCTOS) {
+        Fichero.COLORESPRODUCTOS = COLORESPRODUCTOS;
     }
 
 }

@@ -22,6 +22,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -82,6 +83,10 @@ public class DashboardBean extends ReusableBean implements Serializable {
     private Date date;
     private Date today;
 
+    private String[] codProd;
+
+    private HashMap<String, String> codigos;
+
     public DashboardBean() {
     }
 
@@ -94,12 +99,23 @@ public class DashboardBean extends ReusableBean implements Serializable {
         mejorcliente = new Mejorcliente();
         date = new Date();
         today = new Date();
+        codProd = Fichero.getCOLORESPRODUCTOS().split(",");
 
+        obtenerCodigosColores();
         obtenerListamejorCliente();
         obtenerprimerCliente();
         actualizarGrafico();
 
         x = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
+    }
+
+    public void obtenerCodigosColores() {
+        codigos = new HashMap<>();
+        for (int i = 0; i < codProd.length; i++) {
+            String prod = codProd[i].substring(0, 4);
+            String cod = codProd[i].substring(4);
+            codigos.put(prod, cod);
+        }
     }
 
     public void obtenerprimerCliente() {
@@ -273,18 +289,38 @@ public class DashboardBean extends ReusableBean implements Serializable {
 //        yAxis.setMin(0);
 //        yAxis.setMax(200);
 //    }
-    public String[] coloresProducto(String cod) {
-        String[] extra = {"rgba(222, 162, 66, .7)", "rgb(222, 162, 66)"};
-        String[] diesel = {"rgba(57, 163, 244, .7)", "rgb(57, 163, 244)"};
-        if (!cod.isEmpty()) {
-            if (cod.substring(0, 4).equals("0101")) {
-                return extra;
-            }
-            if (cod.substring(0, 4).equals("0121")) {
-                return diesel;
-            }
+    public String[] coloresProducto(String cod, int tipo) {
+        String r = "";
+        String g = "";
+        String b = "";
+        String[] producto = new String[2];
+        switch (tipo) {
+//Despachos
+            case 1:
+                r = codigos.get(cod.substring(0, 4));
+                g = "255";
+                b = "0";
+                break;
+//ventas
+            case 2:
+                r = "0";
+                g = codigos.get(cod.substring(0, 4));
+                b = "255";
+                break;
         }
-        return new String[1];
+        producto[0] = "rgba(" + r + ", " + g + ", " + b + ", .7)";
+        producto[1] = "rgba(" + r + ", " + g + ", " + b + ")";
+//        String[] extra = {"rgba(222, 162, 66, .7)", "rgb(222, 162, 66)"};
+//        String[] diesel = {"rgba(57, 163, 244, .7)", "rgb(57, 163, 244)"};
+//        if (!cod.isEmpty()) {
+//            if (cod.substring(0, 4).equals("0101")) {
+//                return extra;
+//            }
+//            if (cod.substring(0, 4).equals("0121")) {
+//                return diesel;
+//            }
+//        }
+        return producto;
     }
 
     public void createBarModel() {
@@ -297,8 +333,8 @@ public class DashboardBean extends ReusableBean implements Serializable {
         for (int i = 0; i < listaDespachoTotalDto.size(); i++) {
             barDataSet = new BarChartDataSet();
             barDataSet.setLabel(listaDespachoTotalDto.get(i).getNombreProducto());
-            barDataSet.setBackgroundColor(coloresProducto(listaDespachoTotalDto.get(i).getNombreProducto())[0]);
-            barDataSet.setBorderColor(coloresProducto(listaDespachoTotalDto.get(i).getNombreProducto())[1]);
+            barDataSet.setBackgroundColor(coloresProducto(listaDespachoTotalDto.get(i).getNombreProducto(), 1)[0]);
+            barDataSet.setBorderColor(coloresProducto(listaDespachoTotalDto.get(i).getNombreProducto(), 1)[1]);
             barDataSet.setStack("Stack 0");
             barDataSet.setBorderWidth(1);
             List<Number> values = new ArrayList<>();
@@ -310,8 +346,8 @@ public class DashboardBean extends ReusableBean implements Serializable {
         for (int i = 0; i < listaVentaTotalDto.size(); i++) {
             barDataSet2 = new BarChartDataSet();
             barDataSet2.setLabel(listaVentaTotalDto.get(i).getNombreProducto());
-            barDataSet2.setBackgroundColor(coloresProducto(listaVentaTotalDto.get(i).getNombreProducto())[0]);
-            barDataSet2.setBorderColor(coloresProducto(listaVentaTotalDto.get(i).getNombreProducto())[1]);
+            barDataSet2.setBackgroundColor(coloresProducto(listaVentaTotalDto.get(i).getNombreProducto(), 2)[0]);
+            barDataSet2.setBorderColor(coloresProducto(listaVentaTotalDto.get(i).getNombreProducto(), 2)[1]);
             barDataSet2.setStack("Stack 1");
             barDataSet2.setBorderWidth(1);
             List<Number> values2 = new ArrayList<>();
