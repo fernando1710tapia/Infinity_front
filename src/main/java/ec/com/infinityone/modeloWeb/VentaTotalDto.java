@@ -23,6 +23,10 @@ public class VentaTotalDto implements Serializable {
 
     private Integer facturas;
 
+    private BigDecimal volumenTotalD;    
+
+    private Integer guias;
+
     public VentaTotalDto() {
     }
 
@@ -56,6 +60,22 @@ public class VentaTotalDto implements Serializable {
 
     public void setFacturas(Integer facturas) {
         this.facturas = facturas;
+    }
+
+    public BigDecimal getVolumenTotalD() {
+        return volumenTotalD;
+    }
+
+    public void setVolumenTotalD(BigDecimal volumenTotalD) {
+        this.volumenTotalD = volumenTotalD;
+    }
+
+    public Integer getGuias() {
+        return guias;
+    }
+
+    public void setGuias(Integer guias) {
+        this.guias = guias;
     }
 
     

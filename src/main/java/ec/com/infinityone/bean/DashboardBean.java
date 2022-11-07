@@ -5,6 +5,7 @@
  */
 package ec.com.infinityone.bean;
 
+import ec.com.infinityone.catalogo.servicios.TerminalServicio;
 import ec.com.infinityone.configuration.Fichero;
 import ec.com.infinityone.modeloWeb.DespachoTotalDto;
 import ec.com.infinityone.modeloWeb.Mejorcliente;
@@ -28,10 +29,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
+import javax.inject.Inject;
 import javax.inject.Named;
 import org.primefaces.model.charts.ChartData;
 import org.primefaces.model.charts.axes.cartesian.CartesianScales;
@@ -51,6 +54,9 @@ import org.primefaces.shaded.json.JSONObject;
 @Named
 @ViewScoped
 public class DashboardBean extends ReusableBean implements Serializable {
+
+    @Inject
+    protected TerminalServicio termServicio;
 
     /*
     Variable que almacena varios Bancos
@@ -86,6 +92,8 @@ public class DashboardBean extends ReusableBean implements Serializable {
 
     private HashMap<String, String> codigos;
 
+    private List<TerminalBean> listaTermianles;
+
     public DashboardBean() {
     }
 
@@ -100,12 +108,19 @@ public class DashboardBean extends ReusableBean implements Serializable {
         today = new Date();
         codProd = Fichero.getCOLORESPRODUCTOS().split(",");
 
+        obtenerTerminales();
+
         obtenerCodigosColores();
         obtenerListamejorCliente();
         obtenerprimerCliente();
         actualizarGrafico();
 
         x = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
+    }
+
+    public void obtenerTerminales() {
+        listaTermianles = new ArrayList<>();
+        listaTermianles = termServicio.obtenerTerminal();
     }
 
     public void obtenerCodigosColores() {
@@ -190,6 +205,8 @@ public class DashboardBean extends ReusableBean implements Serializable {
                 ventaTotalDto.setNombreProducto(ventTot.getString("nombreProducto"));
                 ventaTotalDto.setVolumenTotal(ventTot.getBigDecimal("volumenTotal"));
                 ventaTotalDto.setFacturas(ventTot.getInt("facturas"));
+                ventaTotalDto.setVolumenTotalD(ventTot.getBigDecimal("volumenTotalD"));
+                ventaTotalDto.setGuias(ventTot.getInt("guias"));
                 listaVentaTotalDto.add(ventaTotalDto);
                 ventaTotalDto = new VentaTotalDto();
             }
@@ -337,54 +354,106 @@ public class DashboardBean extends ReusableBean implements Serializable {
         List<BarChartDataSet> barDataSetList = new ArrayList<>();
         BarChartDataSet barDataSet = new BarChartDataSet();
         BarChartDataSet barDataSet2 = new BarChartDataSet();
-
-        for (int i = 0; i < listaVentaTotalDto.size(); i++) {
-            barDataSet2 = new BarChartDataSet();
-            barDataSet2.setLabel(listaVentaTotalDto.get(i).getNombreProducto());
-            barDataSet2.setBackgroundColor(coloresProducto(listaVentaTotalDto.get(i).getNombreProducto(), 2)[0]);
-            barDataSet2.setBorderColor(coloresProducto(listaVentaTotalDto.get(i).getNombreProducto(), 2)[1]);
-            barDataSet2.setStack("Stack 0");
-            barDataSet2.setBorderWidth(1);
-            List<Number> values2 = new ArrayList<>();
-            values2.add(listaVentaTotalDto.get(i).getVolumenTotal());
-            barDataSet2.setData(values2);
-            barDataSetList.add(barDataSet2);
-        }
-
-        for (int i = 0; i < listaDespachoTotalDto.size(); i++) {
-            barDataSet = new BarChartDataSet();
-            barDataSet.setLabel(listaDespachoTotalDto.get(i).getNombreProducto());
-            barDataSet.setBackgroundColor(coloresProducto(listaDespachoTotalDto.get(i).getNombreProducto(), 1)[0]);
-            barDataSet.setBorderColor(coloresProducto(listaDespachoTotalDto.get(i).getNombreProducto(), 1)[1]);
-            barDataSet.setStack("Stack 1");
-            barDataSet.setBorderWidth(1);
-            List<Number> values = new ArrayList<>();
-            values.add(listaDespachoTotalDto.get(i).getVolumenTotal());
-            barDataSet.setData(values);
-            barDataSetList.add(barDataSet);
-        }
-
-        for (int i = 0; i < barDataSetList.size(); i++) {
-            data.addChartDataSet(barDataSetList.get(i));
-        }
-
+        HashMap<String, List<VentaTotalDto>> mapaVentas = new HashMap<>();
+        List<VentaTotalDto> VentaTotalDtoAux = new ArrayList<>();
         List<String> labels = new ArrayList<>();
-        List<String> nombres = new ArrayList<>();
-        for (int i = 0; i < listaVentaTotalDto.size(); i++) {
-            nombres.add(listaVentaTotalDto.get(i).getNombreTerminal());
-        }
-        Set nuevaLista = new HashSet<>(nombres);
-        nombres.clear();
-        nombres.addAll(nuevaLista);
 
-        for (int i = 0; i < nombres.size(); i++) {
-            labels.add(nombres.get(i));
+        mapaVentas = new HashMap<>();
+        for (int i = 0; i < listaTermianles.size(); i++) {
+            for (int j = 0; j < listaVentaTotalDto.size(); j++) {
+                String cod = listaVentaTotalDto.get(j).getNombreTerminal().substring(0, 1);
+                if (listaVentaTotalDto.get(j).getNombreTerminal().substring(0, 2).equals(listaTermianles.get(i).getCodigo())) {
+                    if (!mapaVentas.containsKey(listaVentaTotalDto.get(j).getNombreTerminal())) {
+                        VentaTotalDtoAux = new ArrayList<>();
+                    }
+                    VentaTotalDtoAux.add(listaVentaTotalDto.get(j));
+                    mapaVentas.put(listaVentaTotalDto.get(j).getNombreTerminal(), VentaTotalDtoAux);
+                }
+            }
         }
+
+        if (!mapaVentas.isEmpty()) {
+            for (Map.Entry<String, List<VentaTotalDto>> entry : mapaVentas.entrySet()) {
+                for (int i = 0; i < entry.getValue().size(); i++) {
+                    //ventas
+                    barDataSet2 = new BarChartDataSet();
+                    barDataSet2.setLabel(entry.getValue().get(i).getNombreProducto());
+                    barDataSet2.setBackgroundColor(coloresProducto(entry.getValue().get(i).getNombreProducto(), 2)[0]);
+                    barDataSet2.setBorderColor(coloresProducto(entry.getValue().get(i).getNombreProducto(), 2)[1]);
+                    barDataSet2.setStack("Ventas");
+                    barDataSet2.setBorderWidth(1);
+                    List<Number> values2 = new ArrayList<>();
+                    values2.add(entry.getValue().get(i).getVolumenTotal());
+                    barDataSet2.setData(values2);
+                    barDataSetList.add(barDataSet2);
+                    //despachos
+                    barDataSet = new BarChartDataSet();
+                    barDataSet.setLabel(entry.getValue().get(i).getNombreProducto());
+                    barDataSet.setBackgroundColor(coloresProducto(entry.getValue().get(i).getNombreProducto(), 1)[0]);
+                    barDataSet.setBorderColor(coloresProducto(entry.getValue().get(i).getNombreProducto(), 1)[1]);
+                    barDataSet.setStack("Despachos");
+                    barDataSet.setBorderWidth(1);
+                    List<Number> values = new ArrayList<>();
+                    values.add(entry.getValue().get(i).getVolumenTotalD());
+                    barDataSet.setData(values);
+                    barDataSetList.add(barDataSet);
+                }
+                for (int i = 0; i < barDataSetList.size(); i++) {
+                    data.addChartDataSet(barDataSetList.get(i));
+                }                
+                labels.add(entry.getKey());
+                data.setLabels(labels);
+                
+                //data = new ChartData();
+            }
+            barModel.setData(data);
+            barDataSetList = new ArrayList<>();
+        }
+
+//        for (int i = 0; i < listaVentaTotalDto.size(); i++) {
+//            barDataSet2 = new BarChartDataSet();
+//            barDataSet2.setLabel(listaVentaTotalDto.get(i).getNombreProducto());
+//            barDataSet2.setBackgroundColor(coloresProducto(listaVentaTotalDto.get(i).getNombreProducto(), 2)[0]);
+//            barDataSet2.setBorderColor(coloresProducto(listaVentaTotalDto.get(i).getNombreProducto(), 2)[1]);
+//            barDataSet2.setStack("Stack 0");
+//            barDataSet2.setBorderWidth(1);
+//            List<Number> values2 = new ArrayList<>();
+//            values2.add(listaVentaTotalDto.get(i).getVolumenTotal());
+//            barDataSet2.setData(values2);
+//            barDataSetList.add(barDataSet2);
+//        }
+//        for (int i = 0; i < listaDespachoTotalDto.size(); i++) {
+//            barDataSet = new BarChartDataSet();
+//            barDataSet.setLabel(listaDespachoTotalDto.get(i).getNombreProducto());
+//            barDataSet.setBackgroundColor(coloresProducto(listaDespachoTotalDto.get(i).getNombreProducto(), 1)[0]);
+//            barDataSet.setBorderColor(coloresProducto(listaDespachoTotalDto.get(i).getNombreProducto(), 1)[1]);
+//            barDataSet.setStack("Stack 1");
+//            barDataSet.setBorderWidth(1);
+//            List<Number> values = new ArrayList<>();
+//            values.add(listaDespachoTotalDto.get(i).getVolumenTotal());
+//            barDataSet.setData(values);
+//            barDataSetList.add(barDataSet);
+//        }
+//        for (int i = 0; i < barDataSetList.size(); i++) {
+//            data.addChartDataSet(barDataSetList.get(i));
+//        }
+//
+//        List<String> nombres = new ArrayList<>();
+//        for (int i = 0; i < listaVentaTotalDto.size(); i++) {
+//            nombres.add(listaVentaTotalDto.get(i).getNombreTerminal());
+//        }
+//        Set nuevaLista = new HashSet<>(nombres);
+//        nombres.clear();
+//        nombres.addAll(nuevaLista);
+//
+//        for (int i = 0; i < nombres.size(); i++) {
+//            labels.add(nombres.get(i));
+//        }
 //        if (!listaVentaTotalDto.isEmpty()) {
 //            labels.add(listaVentaTotalDto.get(0).getNombreTerminal());
 //        }
-        data.setLabels(labels);
-        barModel.setData(data);
+//        data.setLabels(labels);
+//        barModel.setData(data);
 
         //Options
         BarChartOptions options = new BarChartOptions();
@@ -413,7 +482,7 @@ public class DashboardBean extends ReusableBean implements Serializable {
 
     public void actualizarGrafico() {
         obtenerVentaTotal();
-        obtenerDespachoTotal();
+        //obtenerDespachoTotal();
         createBarModel();
     }
 
