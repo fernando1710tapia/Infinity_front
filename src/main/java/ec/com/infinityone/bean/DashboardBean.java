@@ -349,14 +349,18 @@ public class DashboardBean extends ReusableBean implements Serializable {
     }
 
     public void createBarModel() {
+        boolean bandera = false;
         barModel = new BarChartModel();
         ChartData data = new ChartData();
         List<BarChartDataSet> barDataSetList = new ArrayList<>();
         BarChartDataSet barDataSet = new BarChartDataSet();
         BarChartDataSet barDataSet2 = new BarChartDataSet();
+//        List<Number> values = new ArrayList<>();
+//        List<Number> values2 = new ArrayList<>();
         HashMap<String, List<VentaTotalDto>> mapaVentas = new HashMap<>();
         List<VentaTotalDto> VentaTotalDtoAux = new ArrayList<>();
         List<String> labels = new ArrayList<>();
+        VentaTotalDto ventaTotalDtoAux = new VentaTotalDto();
 
         mapaVentas = new HashMap<>();
         for (int i = 0; i < listaTermianles.size(); i++) {
@@ -372,44 +376,134 @@ public class DashboardBean extends ReusableBean implements Serializable {
             }
         }
 
+        List<String> nomProd = new ArrayList<>();
+        for (int i = 0; i < listaVentaTotalDto.size(); i++) {
+            nomProd.add(listaVentaTotalDto.get(i).getNombreProducto());
+        }
+        Set nuevaLista = new HashSet<>(nomProd);
+        nomProd.clear();
+        nomProd.addAll(nuevaLista);
+
+        List<String> nombres = new ArrayList<>();
+        for (int i = 0; i < listaVentaTotalDto.size(); i++) {
+            nombres.add(listaVentaTotalDto.get(i).getNombreTerminal());
+        }
+        Set nuevaListaT = new HashSet<>(nombres);
+        nombres.clear();
+        nombres.addAll(nuevaListaT);
+
         if (!mapaVentas.isEmpty()) {
-            for (Map.Entry<String, List<VentaTotalDto>> entry : mapaVentas.entrySet()) {
-                for (int i = 0; i < entry.getValue().size(); i++) {
-                    //ventas
-                    barDataSet2 = new BarChartDataSet();
-                    barDataSet2.setLabel(entry.getValue().get(i).getNombreProducto());
-                    barDataSet2.setBackgroundColor(coloresProducto(entry.getValue().get(i).getNombreProducto(), 2)[0]);
-                    barDataSet2.setBorderColor(coloresProducto(entry.getValue().get(i).getNombreProducto(), 2)[1]);
-                    barDataSet2.setStack("Ventas");
-                    barDataSet2.setBorderWidth(1);
-                    List<Number> values2 = new ArrayList<>();
-                    values2.add(entry.getValue().get(i).getVolumenTotal());
-                    barDataSet2.setData(values2);
-                    barDataSetList.add(barDataSet2);
-                    //despachos
-                    barDataSet = new BarChartDataSet();
-                    barDataSet.setLabel(entry.getValue().get(i).getNombreProducto());
-                    barDataSet.setBackgroundColor(coloresProducto(entry.getValue().get(i).getNombreProducto(), 1)[0]);
-                    barDataSet.setBorderColor(coloresProducto(entry.getValue().get(i).getNombreProducto(), 1)[1]);
-                    barDataSet.setStack("Despachos");
-                    barDataSet.setBorderWidth(1);
-                    List<Number> values = new ArrayList<>();
-                    values.add(entry.getValue().get(i).getVolumenTotalD());
-                    barDataSet.setData(values);
-                    barDataSetList.add(barDataSet);
+
+            for (int i = 0; i < nomProd.size(); i++) {
+                for (int j = 0; j < listaVentaTotalDto.size(); j++) {
+                    if (listaVentaTotalDto.get(j).getNombreProducto().equals(nomProd.get(i))) {
+                        ventaTotalDtoAux = listaVentaTotalDto.get(j);
+                        break;
+                    }
                 }
-                for (int i = 0; i < barDataSetList.size(); i++) {
-                    data.addChartDataSet(barDataSetList.get(i));
-                }                
-                labels.add(entry.getKey());
-                data.setLabels(labels);
-                
-                //data = new ChartData();
+                //ventas
+                barDataSet2 = new BarChartDataSet();
+                barDataSet2.setLabel(ventaTotalDtoAux.getNombreProducto());
+                barDataSet2.setBackgroundColor(coloresProducto(ventaTotalDtoAux.getNombreProducto(), 2)[0]);
+                barDataSet2.setBorderColor(coloresProducto(ventaTotalDtoAux.getNombreProducto(), 2)[1]);
+                barDataSet2.setStack("Ventas");
+                barDataSet2.setBorderWidth(1);
+                List<Number> values2 = new ArrayList<>();
+                for (Map.Entry<String, List<VentaTotalDto>> entry : mapaVentas.entrySet()) {
+                    bandera = false;
+                    for (int k = 0; k < listaVentaTotalDto.size(); k++) {
+                        if (listaVentaTotalDto.get(k).getNombreProducto().equals(nomProd.get(i)) && listaVentaTotalDto.get(k).getNombreTerminal().equals(entry.getKey())) {
+                            values2.add(listaVentaTotalDto.get(k).getVolumenTotal());
+                            bandera = true;
+                        }
+                    }
+                    if (!bandera) {
+                        values2.add(new BigDecimal(0));
+                    }
+                }
+                barDataSet2.setData(values2);
+                barDataSetList.add(barDataSet2);
+
+                //despachos
+                barDataSet = new BarChartDataSet();
+                barDataSet.setLabel("DES-" + ventaTotalDtoAux.getNombreProducto().substring(5));
+                barDataSet.setBackgroundColor(coloresProducto(ventaTotalDtoAux.getNombreProducto(), 1)[0]);
+                barDataSet.setBorderColor(coloresProducto(ventaTotalDtoAux.getNombreProducto(), 1)[1]);
+                barDataSet.setStack("Despachos");
+                barDataSet.setBorderWidth(1);
+                List<Number> values = new ArrayList<>();
+                for (Map.Entry<String, List<VentaTotalDto>> entry : mapaVentas.entrySet()) {
+                    bandera = false;
+                    for (int k = 0; k < listaVentaTotalDto.size(); k++) {
+                        if (listaVentaTotalDto.get(k).getNombreProducto().equals(nomProd.get(i)) && listaVentaTotalDto.get(k).getNombreTerminal().equals(entry.getKey())) {
+                            values.add(listaVentaTotalDto.get(k).getVolumenTotalD());
+                            bandera = true;
+                        }
+                    }
+                    if (!bandera) {
+                        values.add(new BigDecimal(0));
+                    }
+                }
+                barDataSet.setData(values);
+                barDataSetList.add(barDataSet);
             }
-            barModel.setData(data);
-            barDataSetList = new ArrayList<>();
+
+            for (Map.Entry<String, List<VentaTotalDto>> entry : mapaVentas.entrySet()) {
+                labels.add(entry.getKey());
+            }
+
+            for (int i = 0; i < barDataSetList.size(); i++) {
+                data.addChartDataSet(barDataSetList.get(i));
+            }
+//            data.addChartDataSet(barDataSet2);
+//            data.addChartDataSet(barDataSet);
+            //}
         }
 
+//        if (!mapaVentas.isEmpty()) {
+//            for (Map.Entry<String, List<VentaTotalDto>> entry : mapaVentas.entrySet()) {
+//                for (int i = 0; i < entry.getValue().size(); i++) {
+//                    //ventas
+//                    barDataSet2 = new BarChartDataSet();
+//                    barDataSet2.setLabel(entry.getValue().get(i).getNombreProducto());
+//                    barDataSet2.setBackgroundColor(coloresProducto(entry.getValue().get(i).getNombreProducto(), 2)[0]);
+//                    barDataSet2.setBorderColor(coloresProducto(entry.getValue().get(i).getNombreProducto(), 2)[1]);
+//                    barDataSet2.setStack("Ventas");
+//                    barDataSet2.setBorderWidth(1);
+////                    List<Number> values2 = new ArrayList<>();
+//                    for (int j = 0; j < listaVentaTotalDto.size(); j++) {
+//                        if (entry.getValue().get(i).getNombreProducto().equals(listaVentaTotalDto.get(j).getNombreProducto())) {
+//                            values2.add(listaVentaTotalDto.get(j).getVolumenTotal());
+//                        }
+//
+//                    }
+////                    barDataSet2.setData(values2);
+//                    //despachos
+//                    barDataSet = new BarChartDataSet();
+//                    barDataSet.setLabel(entry.getValue().get(i).getNombreProducto());
+//                    barDataSet.setBackgroundColor(coloresProducto(entry.getValue().get(i).getNombreProducto(), 1)[0]);
+//                    barDataSet.setBorderColor(coloresProducto(entry.getValue().get(i).getNombreProducto(), 1)[1]);
+//                    barDataSet.setStack("Despachos");
+//                    barDataSet.setBorderWidth(1);
+////                    List<Number> values = new ArrayList<>();
+//                    for (int j = 0; j < listaVentaTotalDto.size(); j++) {
+////                        if (entry.getValue().get(i).getNombreProducto().equals(listaVentaTotalDto.get(j).getNombreProducto())) {
+//                        values.add(listaVentaTotalDto.get(j).getVolumenTotalD());
+////                        }
+//                    }
+////                    barDataSet.setData(values);
+//                    //barDataSetList.add(barDataSet);
+//                }
+//                barDataSet.setData(values);
+//                barDataSet2.setData(values2);
+//
+//                labels.add(entry.getKey());
+//
+//                //data = new ChartData();
+//            }
+//            data.addChartDataSet(barDataSet2);
+//            data.addChartDataSet(barDataSet);
+//        }
 //        for (int i = 0; i < listaVentaTotalDto.size(); i++) {
 //            barDataSet2 = new BarChartDataSet();
 //            barDataSet2.setLabel(listaVentaTotalDto.get(i).getNombreProducto());
@@ -454,7 +548,8 @@ public class DashboardBean extends ReusableBean implements Serializable {
 //        }
 //        data.setLabels(labels);
 //        barModel.setData(data);
-
+        data.setLabels(labels);
+        barModel.setData(data);
         //Options
         BarChartOptions options = new BarChartOptions();
         CartesianScales cScales = new CartesianScales();
@@ -479,6 +574,137 @@ public class DashboardBean extends ReusableBean implements Serializable {
 
         barModel.setOptions(options);
     }
+    //public void createBarModel() {
+    //        barModel = new BarChartModel();
+    //        ChartData data = new ChartData();
+    //        List<BarChartDataSet> barDataSetList = new ArrayList<>();
+    //        BarChartDataSet barDataSet = new BarChartDataSet();
+    //        BarChartDataSet barDataSet2 = new BarChartDataSet();
+    //        HashMap<String, List<VentaTotalDto>> mapaVentas = new HashMap<>();
+    //        List<VentaTotalDto> VentaTotalDtoAux = new ArrayList<>();
+    //        List<String> labels = new ArrayList<>();
+    //
+    //        mapaVentas = new HashMap<>();
+    //        for (int i = 0; i < listaTermianles.size(); i++) {
+    //            for (int j = 0; j < listaVentaTotalDto.size(); j++) {
+    //                String cod = listaVentaTotalDto.get(j).getNombreTerminal().substring(0, 1);
+    //                if (listaVentaTotalDto.get(j).getNombreTerminal().substring(0, 2).equals(listaTermianles.get(i).getCodigo())) {
+    //                    if (!mapaVentas.containsKey(listaVentaTotalDto.get(j).getNombreTerminal())) {
+    //                        VentaTotalDtoAux = new ArrayList<>();
+    //                    }
+    //                    VentaTotalDtoAux.add(listaVentaTotalDto.get(j));
+    //                    mapaVentas.put(listaVentaTotalDto.get(j).getNombreTerminal(), VentaTotalDtoAux);
+    //                }
+    //            }
+    //        }
+    //
+    //        if (!mapaVentas.isEmpty()) {
+    //            for (Map.Entry<String, List<VentaTotalDto>> entry : mapaVentas.entrySet()) {
+    //                for (int i = 0; i < entry.getValue().size(); i++) {
+    //                    //ventas
+    //                    barDataSet2 = new BarChartDataSet();
+    //                    barDataSet2.setLabel(entry.getValue().get(i).getNombreProducto());
+    //                    barDataSet2.setBackgroundColor(coloresProducto(entry.getValue().get(i).getNombreProducto(), 2)[0]);
+    //                    barDataSet2.setBorderColor(coloresProducto(entry.getValue().get(i).getNombreProducto(), 2)[1]);
+    //                    barDataSet2.setStack("Ventas");
+    //                    barDataSet2.setBorderWidth(1);
+    //                    List<Number> values2 = new ArrayList<>();
+    //                    values2.add(entry.getValue().get(i).getVolumenTotal());
+    //                    barDataSet2.setData(values2);
+    //                    barDataSetList.add(barDataSet2);
+    //                    //despachos
+    //                    barDataSet = new BarChartDataSet();
+    //                    barDataSet.setLabel(entry.getValue().get(i).getNombreProducto());
+    //                    barDataSet.setBackgroundColor(coloresProducto(entry.getValue().get(i).getNombreProducto(), 1)[0]);
+    //                    barDataSet.setBorderColor(coloresProducto(entry.getValue().get(i).getNombreProducto(), 1)[1]);
+    //                    barDataSet.setStack("Despachos");
+    //                    barDataSet.setBorderWidth(1);
+    //                    List<Number> values = new ArrayList<>();
+    //                    values.add(entry.getValue().get(i).getVolumenTotalD());
+    //                    barDataSet.setData(values);
+    //                    barDataSetList.add(barDataSet);
+    //                }
+    //                for (int i = 0; i < barDataSetList.size(); i++) {
+    //                    data.addChartDataSet(barDataSetList.get(i));
+    //                }                
+    //                labels.add(entry.getKey());
+    //                data.setLabels(labels);
+    //                
+    //                //data = new ChartData();
+    //            }
+    //            barModel.setData(data);
+    //            barDataSetList = new ArrayList<>();
+    //        }
+    //
+    ////        for (int i = 0; i < listaVentaTotalDto.size(); i++) {
+    ////            barDataSet2 = new BarChartDataSet();
+    ////            barDataSet2.setLabel(listaVentaTotalDto.get(i).getNombreProducto());
+    ////            barDataSet2.setBackgroundColor(coloresProducto(listaVentaTotalDto.get(i).getNombreProducto(), 2)[0]);
+    ////            barDataSet2.setBorderColor(coloresProducto(listaVentaTotalDto.get(i).getNombreProducto(), 2)[1]);
+    ////            barDataSet2.setStack("Stack 0");
+    ////            barDataSet2.setBorderWidth(1);
+    ////            List<Number> values2 = new ArrayList<>();
+    ////            values2.add(listaVentaTotalDto.get(i).getVolumenTotal());
+    ////            barDataSet2.setData(values2);
+    ////            barDataSetList.add(barDataSet2);
+    ////        }
+    ////        for (int i = 0; i < listaDespachoTotalDto.size(); i++) {
+    ////            barDataSet = new BarChartDataSet();
+    ////            barDataSet.setLabel(listaDespachoTotalDto.get(i).getNombreProducto());
+    ////            barDataSet.setBackgroundColor(coloresProducto(listaDespachoTotalDto.get(i).getNombreProducto(), 1)[0]);
+    ////            barDataSet.setBorderColor(coloresProducto(listaDespachoTotalDto.get(i).getNombreProducto(), 1)[1]);
+    ////            barDataSet.setStack("Stack 1");
+    ////            barDataSet.setBorderWidth(1);
+    ////            List<Number> values = new ArrayList<>();
+    ////            values.add(listaDespachoTotalDto.get(i).getVolumenTotal());
+    ////            barDataSet.setData(values);
+    ////            barDataSetList.add(barDataSet);
+    ////        }
+    ////        for (int i = 0; i < barDataSetList.size(); i++) {
+    ////            data.addChartDataSet(barDataSetList.get(i));
+    ////        }
+    ////
+    ////        List<String> nombres = new ArrayList<>();
+    ////        for (int i = 0; i < listaVentaTotalDto.size(); i++) {
+    ////            nombres.add(listaVentaTotalDto.get(i).getNombreTerminal());
+    ////        }
+    ////        Set nuevaLista = new HashSet<>(nombres);
+    ////        nombres.clear();
+    ////        nombres.addAll(nuevaLista);
+    ////
+    ////        for (int i = 0; i < nombres.size(); i++) {
+    ////            labels.add(nombres.get(i));
+    ////        }
+    ////        if (!listaVentaTotalDto.isEmpty()) {
+    ////            labels.add(listaVentaTotalDto.get(0).getNombreTerminal());
+    ////        }
+    ////        data.setLabels(labels);
+    ////        barModel.setData(data);
+    //
+    //        //Options
+    //        BarChartOptions options = new BarChartOptions();
+    //        CartesianScales cScales = new CartesianScales();
+    //        CartesianLinearAxes linearAxes = new CartesianLinearAxes();
+    //        linearAxes.setOffset(true);
+    //        //linearAxes.setBeginAtZero(true);
+    //        CartesianLinearTicks ticks = new CartesianLinearTicks();
+    //        linearAxes.setTicks(ticks);
+    //        linearAxes.setStacked(true);
+    //        cScales.addXAxesData(linearAxes);
+    //        cScales.addYAxesData(linearAxes);
+    //        options.setScales(cScales);
+    //
+    ////        Title title = new Title();
+    ////        title.setDisplay(true);
+    ////        title.setText("Bar Chart");
+    ////        options.setTitle(title);
+    //        Tooltip tooltip = new Tooltip();
+    //        tooltip.setMode("index");
+    //        tooltip.setIntersect(false);
+    //        options.setTooltip(tooltip);
+    //
+    //        barModel.setOptions(options);
+    //    }
 
     public void actualizarGrafico() {
         obtenerVentaTotal();
