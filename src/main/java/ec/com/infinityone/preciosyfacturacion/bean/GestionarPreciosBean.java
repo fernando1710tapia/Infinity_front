@@ -1329,8 +1329,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
         String fechaI = date.format(fechaVencimiento) + "T12:00:00";
 
         JSONObject detalle = new JSONObject();
-        JSONObject detallePK = new JSONObject();
-        Detalleprecio detPrecioAux = new Detalleprecio();
+        JSONObject detallePK = new JSONObject();        
 
         detallePK.put("codigocomercializadora", detalleP.get(j).getDetalleprecioPK().getCodigocomercializadora());
         detallePK.put("codigoterminal", detalleP.get(j).getDetalleprecioPK().getCodigoterminal());

@@ -39,6 +39,8 @@ import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.Connection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -771,7 +773,7 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
     }
 
     public void seleccionarTerm() {
-        if (terminal != null) {
+        if (terminal.getCodigo() != null) {
             codigoTerm = terminal.getCodigo();
         }
     }
@@ -791,11 +793,11 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
             listaprecios = new ArrayList<>();
             terminalProducto();
         } else {
+            listaprecioPK.setCodigocomercializadora(comercializadora.getCodigo());
+            listaprecio1.setListaprecioPK(listaprecioPK);
             agregarTerminal = true;
-            if (addItems()) {
-                PrimeFaces.current().executeScript("PF('configTermDialog').show()");
-                listaGuardada = true;
-            }
+            configTerminal(1);
+            //PrimeFaces.current().executeScript("PF('configTermDialog').show()");
         }
         contOk = 0;
         contError = 0;
@@ -803,16 +805,22 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
 
     public void saveLista() {
         if (guardarTerminal) {
-            if (!terminal.getCodigo().isEmpty()) {
+            if (terminal.getCodigo() != null) {
                 addItemsTerminalProd();
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "Seleccione un terminal");
+                editarPrecio = false;
             }
         } else {
             editItemsTerminalProd();
         }
-        listaprecios = new ArrayList<>();
-        obtenerPrecio(comercializadora.getCodigo());
-        contOk = 0;
-        contError = 0;
+        if (mostrarPantallaIncial) {
+            listaprecios = new ArrayList<>();
+            obtenerPrecio(comercializadora.getCodigo());
+            contOk = 0;
+            contError = 0;
+        }
+
     }
 
     public void guardarMargen() {
@@ -849,7 +857,12 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
             configurarTerminal = false;
             agregarTerminal = false;
             listaprecios = new ArrayList<>();
-            obtenerPrecio(comercializadora.getCodigo());
+            if (addItems()) {
+                listaGuardada = true;
+                obtenerPrecio(comercializadora.getCodigo());
+
+            }
+
             //PrimeFaces.current().executeScript("PF('nuevo').hide()");
         }
     }
@@ -961,51 +974,175 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
         }
     }
 
+    public List<JSONObject> addItemsArregloJSON(List<Comercializadoraproducto> listaProductosComer, ObjetoNivel1 terminal) {
+        JSONObject obj = new JSONObject();
+        JSONObject objPK = new JSONObject();
+        JSONObject objEnvRest = new JSONObject();
+        List<JSONObject> arrObj = new ArrayList<>();
+        List<JSONObject> listObjEnvRest = new ArrayList<>();
+
+        objPK.put("codigocomercializadora", listaprecio1.getListaprecioPK().getCodigocomercializadora());
+        objPK.put("codigo", listaprecio1.getListaprecioPK().getCodigo());
+        obj.put("listaprecioPK", objPK);
+        obj.put("nombre", listaprecio1.getNombre());
+        obj.put("tipo", listaprecio1.getTipo());
+        obj.put("activo", estadoPrecio);
+        obj.put("usuarioactual", dataUser.getUser().getNombrever());
+
+        for (int indice = 0; indice < listaProductosComer.size(); indice++) {
+            if (listaListapreciobean.get(indice).getMargenValor() != null) {
+                arrObj.add(addItemsDetailPAux(indice, terminal));
+            }
+        }
+
+        objEnvRest.put("listaPrecio", obj);
+        objEnvRest.put("detalleListaPrecio", arrObj);
+        listObjEnvRest.add(objEnvRest);
+        obj = new JSONObject();
+        objPK = new JSONObject();
+        arrObj = new ArrayList<>();
+        objEnvRest = new JSONObject();
+
+        return listObjEnvRest;
+
+    }
+
+    public JSONObject addItemsDetailPAux(int indice, ObjetoNivel1 terminal) {
+
+        JSONObject detalle = new JSONObject();
+        JSONObject detallePK = new JSONObject();
+        detallePK.put("codigocomercializadora", listaProductosComer.get(indice).getComercializadoraproductoPK().getCodigocomercializadora());
+        detallePK.put("codigolistaprecio", codigoListaPrecioT);
+        detallePK.put("codigoterminal", terminal.getCodigo());
+        detallePK.put("codigoproducto", listaProductosComer.get(indice).getComercializadoraproductoPK().getCodigoproducto());
+        detallePK.put("codigomedida", listaProductosComer.get(indice).getComercializadoraproductoPK().getCodigomedida());
+        detalle.put("listaprecioterminalproductoPK", detallePK);
+        if (tipoT.equals("MPO - Margen sobre el precio en terminal")) {
+            if (listaListapreciobean.get(indice).getMargenValor() != null) {
+                detalle.put("margenporcentaje", listaListapreciobean.get(indice).getMargenValor());
+                detalle.put("margenvalorcomercializadora", -99);
+            }
+        } else {
+            if (listaListapreciobean.get(indice).getMargenValor() != null) {
+                detalle.put("margenvalorcomercializadora", listaListapreciobean.get(indice).getMargenValor());
+                detalle.put("margenporcentaje", -99);
+            }
+        }
+        detalle.put("usuarioactual", dataUser.getUser().getNombrever());
+
+        return detalle;
+    }
+
+    public boolean addItemsPriceAux(List<JSONObject> arregloJSON) {
+        try {
+
+            DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
+            String respuesta;
+            //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.precio/agregar";
+            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.listaprecio/agregarlote";
+
+            url = new URL(direcc);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-type", "application/json");
+
+            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+            //JSONObject arrObj = new JSONObject();               
+
+            //arrObj.put("", arregloJSON);
+            respuesta = arregloJSON.toString();
+            writer.write(respuesta);
+            writer.close();
+
+            if (connection.getResponseCode() == 200) {
+                this.dialogo(FacesMessage.SEVERITY_INFO, "SE HA REGISTRADO CON EXITO");
+                System.out.println("Se ha registrado con exito");
+                return true;
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
+                System.out.println("Error al añadir:" + connection.getResponseCode());
+                System.out.println("Error:" + connection.getErrorStream());
+                System.out.println(connection.getResponseMessage());
+                return false;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public void addItemsTerminalProd() {
         listaprecios = new ArrayList<>();
+        List<JSONObject> arregloJSON = new ArrayList<>();
         List<ObjetoNivel1> listaTerminalAux = new ArrayList<>();
-        obtenerPrecio(comercializadoraT);
-        contOk = 0;
-        contError = 0;
-        StringBuilder cadenaInfo = new StringBuilder();
-        StringBuilder cadenaErro = new StringBuilder();
         if (listaGuardada) {
+            obtenerPrecio(comercializadoraT);
             Collections.sort(listaprecios, new Comparator<Listaprecio>() {
                 @Override
                 public int compare(Listaprecio lp1, Listaprecio lp2) {
                     return new Long(lp1.getListaprecioPK().getCodigo()).compareTo(lp2.getListaprecioPK().getCodigo());
                 }
             });
-//            int tam = obtenerListasPrecio().size();
-//            List<Listaprecio> lpAux = obtenerListasPrecio();
-//            codigoListaPrecioT = lpAux.get(tam).getListaprecioPK().getCodigo();
-
             codigoListaPrecioT = listaprecios.get(listaprecios.size() - 1).getListaprecioPK().getCodigo();
         }
         listaTerminalAux.add(terminal);
         for (int i = 0; i < listaTerminalAux.size(); i++) {
-            for (int indice = 0; indice < listaProductosComer.size(); indice++) {
-                if (listaListapreciobean.get(indice).getMargenValor() != null) {
-                    if (addItemsTerminal(i, indice, terminal)) {
-                        contOk++;
-                    } else {
-                        contError++;
-                    }
-                }
-            }
+            arregloJSON.addAll(addItemsArregloJSON(listaProductosComer, terminal));
         }
-        cadenaInfo.append("\nListas de precios insertadas correctamente: ").append(contOk).toString();
-        cadenaErro.append("\nListas de precios no insertadas: ").append(contError).append(". Contacte con el Administrador del sistema").toString();
-        this.dialogo(FacesMessage.SEVERITY_INFO, cadenaInfo.toString());
-        if (contError != 0) {
-            this.dialogo(FacesMessage.SEVERITY_ERROR, cadenaErro.toString());
+        if (addItemsPriceAux(arregloJSON)) {
+            mostrarPantallaIncial = true;
+            configurarTerminal = false;
+            mostarListaPrecio = false;
         }
-        mostrarPantallaIncial = true;
-        configurarTerminal = false;
-        mostarListaPrecio = false;
+
     }
 
-    public Boolean addItemsTerminal(int i, int indice, ObjetoNivel1 terminal) {
+//    public void addItemsTerminalProd() {
+//        listaprecios = new ArrayList<>();
+//        List<ObjetoNivel1> listaTerminalAux = new ArrayList<>();
+//        obtenerPrecio(comercializadoraT);
+//        contOk = 0;
+//        contError = 0;
+//        StringBuilder cadenaInfo = new StringBuilder();
+//        StringBuilder cadenaErro = new StringBuilder();
+//        if (listaGuardada) {
+//            Collections.sort(listaprecios, new Comparator<Listaprecio>() {
+//                @Override
+//                public int compare(Listaprecio lp1, Listaprecio lp2) {
+//                    return new Long(lp1.getListaprecioPK().getCodigo()).compareTo(lp2.getListaprecioPK().getCodigo());
+//                }
+//            });
+////            int tam = obtenerListasPrecio().size();
+////            List<Listaprecio> lpAux = obtenerListasPrecio();
+////            codigoListaPrecioT = lpAux.get(tam).getListaprecioPK().getCodigo();
+//
+//            codigoListaPrecioT = listaprecios.get(listaprecios.size() - 1).getListaprecioPK().getCodigo();
+//        }
+//        listaTerminalAux.add(terminal);
+//        for (int i = 0; i < listaTerminalAux.size(); i++) {
+//            for (int indice = 0; indice < listaProductosComer.size(); indice++) {                
+//                if (listaListapreciobean.get(indice).getMargenValor() != null) {
+//                    if (addItemsTerminal(i, indice, terminal)) {
+//                        contOk++;
+//                    } else {
+//                        contError++;
+//                    }
+//                }
+//            }
+//        }
+//        cadenaInfo.append("\nListas de precios insertadas correctamente: ").append(contOk).toString();
+//        cadenaErro.append("\nListas de precios no insertadas: ").append(contError).append(". Contacte con el Administrador del sistema").toString();
+//        this.dialogo(FacesMessage.SEVERITY_INFO, cadenaInfo.toString());
+//        if (contError != 0) {
+//            this.dialogo(FacesMessage.SEVERITY_ERROR, cadenaErro.toString());
+//        }
+//        mostrarPantallaIncial = true;
+//        configurarTerminal = false;
+//        mostarListaPrecio = false;
+//    }
+    public Boolean addItemsTerminal(int indice, ObjetoNivel1 terminal) {
         try {
             String respuesta;
 
@@ -1141,7 +1278,6 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
 //            }
 //            JSONObject objetoJson = new JSONObject(resp);
 //            JSONArray retorno = objetoJson.getJSONArray("retorno");
-
 //            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
 //
 //            JSONObject obj = new JSONObject();
@@ -1271,6 +1407,7 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
             for (int i = 0; i < listaComercializadora.size(); i++) {
                 if (listaComercializadora.get(i).getCodigo().equals(listaprecio1.getListaprecioPK().getCodigocomercializadora())) {
                     comercializadoraNombreT = listaComercializadora.get(i).getObjRelacionado();
+                    break;
                 }
             }
             codigoListaPrecioT = listaprecio1.getListaprecioPK().getCodigo();
