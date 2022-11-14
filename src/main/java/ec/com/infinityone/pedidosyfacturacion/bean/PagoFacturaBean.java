@@ -1553,7 +1553,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                         //9. CÓDIGO DE BANCO
                         + String.format("%10s", "36").replace(' ', '0') + separador
                         //10. TIPO DE CUENTA
-                        + cliAux.getTipocuentadebito() + separador
+                        + String.format("%3s", cliAux.getTipocuentadebito()) + separador                        
                         //11. NÚMERO DE CUENTA
                         + String.format("%20s", cliAux.getCuentadebito()).replace(' ', '0') + separador
                         //12. Tipo ID Beneficiario/Deudor
