@@ -1015,7 +1015,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         String fechaAcr = fechaAcreditacionProrrogada.substring(0, 4) + fechaAcreditacionProrrogada.substring(5, 7) + fechaAcreditacionProrrogada.substring(8, 10);
 
         try {
-            nombreArchivo = "/COBROSRET_" + fechaAcr + "_01_XXX" + ".txt";
+            nombreArchivo = "/COBROSRET_" + fechaAcr + "_01_KSZ" + ".txt";
 
             //crea el flujo para escribir en el archivo
             //flwriter = new FileWriter("C:\\archivos\\Facturas_Banco" + codBanco + "_" + fechaHora + "_" + usuario + ".txt");
@@ -1044,7 +1044,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                 //1	Código Orientación	Carácter 	2
                 linea = linea + "CO" + separador;
                 //2	Cuenta Empresa	Numérico 	20
-                linea = linea + String.format("%20s", "12345") + separador;
+                linea = linea + String.format("%20s", "6193390") + separador;
                 //3	Secuencial	Numérico	16
                 linea = linea + String.format("%16s", String.valueOf(contadorFacturas)) + separador;
                 //4	Comprobante de Cobro	Carácter	20
