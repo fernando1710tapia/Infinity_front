@@ -840,16 +840,15 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
 //    }
     public void generarArchivos() throws Throwable {
         String nombreArchivoGenerado = "";
-        List<Factura> listaFacturaBancos = new ArrayList<>();
         List<Factura> listaFacturaMapa = new ArrayList<>();
         List<String> listaArchivos = new ArrayList<>();
         HashMap<String, List<Factura>> mapaFacturas = new HashMap<>();
+        List<JSONObject> arregloJSON = new ArrayList<>();
         int numeroRegistros = 0;
         BigDecimal valorTotalArchivo = new BigDecimal("0");
         if (listaFacturaSeleccionada != null) {
             if (!listaFacturaSeleccionada.isEmpty()) {
                 for (int i = 0; i < listaBancos.size(); i++) {
-                    listaFacturaBancos = new ArrayList<>();
                     listaFacturaMapa = new ArrayList<>();
                     mapaFacturas = new HashMap<>();
                     for (int j = 0; j < listaFacturaSeleccionada.size(); j++) {
@@ -886,6 +885,9 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
 
                 }
                 zip(listaArchivos);
+                arregloJSON.addAll(factEnviadasXCobrar(listaFacturaSeleccionada));
+                addItemsPriceAux(arregloJSON, 3);
+
                 temporalServicios.eliminarRegistrosTemporales(fechaConvertida, dataUser.getUser().getNombrever().replace(" ", ""), codigoComer);
             } else {
                 this.dialogo(FacesMessage.SEVERITY_WARN, "No existen facturas");
@@ -1553,7 +1555,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                         //9. CÓDIGO DE BANCO
                         + String.format("%10s", "36").replace(' ', '0') + separador
                         //10. TIPO DE CUENTA
-                        + String.format("%3s", cliAux.getTipocuentadebito()) + separador                        
+                        + String.format("%3s", cliAux.getTipocuentadebito()) + separador
                         //11. NÚMERO DE CUENTA
                         + String.format("%20s", cliAux.getCuentadebito()).replace(' ', '0') + separador
                         //12. Tipo ID Beneficiario/Deudor
@@ -1824,58 +1826,58 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                         //Constante
                         detallepago.setConstanteCabe_10(linea.substring(0, 10));
                         //Motivo Bancario
-                        detallepago.setMotivo_bancario(linea.substring(11, 16));
+                        detallepago.setMotivo_bancario(linea.substring(10, 15));
                         //Constante
-                        detallepago.setConstanteCabe_2(linea.substring(17, 19));
+                        detallepago.setConstanteCabe_2(linea.substring(15, 17));
                         //Fecha Creación   
-                        detallepago.setFechaCrea(linea.substring(20, 28));
+                        detallepago.setFechaCrea(linea.substring(17, 25));
                         //Fecha Inicio de Proceso
-                        Date fecha = date2.parse(linea.substring(29, 37));
+                        Date fecha = date2.parse(linea.substring(25, 33));
                         detallepago.setFechaProc(date1.format(fecha));
                         //Cantidad de ítems cargados
-                        detallepago.setCantItemsCarga(linea.substring(38, 46));
+                        detallepago.setCantItemsCarga(linea.substring(33, 39));
                         //Cantidad de ítems ok
-                        detallepago.setCantItemsOk(linea.substring(47, 55));
+                        detallepago.setCantItemsOk(linea.substring(39, 45));
                         //Valor de ítems ok
-                        detallepago.setValItemsOk(linea.substring(56, 69));
+                        detallepago.setValItemsOk(linea.substring(45, 60));
                         //Valor Total Retenido Renta Bienes
-                        detallepago.setValTotRetRentBienes(linea.substring(70, 80));
+                        detallepago.setValTotRetRentBienes(linea.substring(60, 70));
                         //Valor Total Retenido Renta Servicios
-                        detallepago.setValTotRetRentServicios(linea.substring(81, 91));
+                        detallepago.setValTotRetRentServicios(linea.substring(70, 80));
                         //Valor Total Retenido Iva Bienes
-                        detallepago.setValTotRetIvaBienes(linea.substring(92, 102));
+                        detallepago.setValTotRetIvaBienes(linea.substring(80, 90));
                         //Valor Total Retenido Iva Servicios
-                        detallepago.setValTotRetIvaServicios(linea.substring(103, 113));
+                        detallepago.setValTotRetIvaServicios(linea.substring(90, 100));
                         //Valor Total Retenido Iva Servicios
-                        detallepago.setConstanteCabe_6(linea.substring(114, 124));
+                        detallepago.setConstanteCabe_6(linea.substring(100, 106));
                         while (scanner.hasNextLine()) {
 
                             linea = scanner.nextLine();
                             //Constante
                             detallepago.setConstanteDet_2(linea.substring(0, 2));
                             //Tipo de Cuenta                           
-                            detallepago.setTipCuenta(linea.substring(3, 4));
+                            detallepago.setTipCuenta(linea.substring(2, 3));
                             //Número de cuenta
-                            detallepago.setNumCuenta(linea.substring(5, 15));
+                            detallepago.setNumCuenta(linea.substring(3, 13));
                             //Valor Procesado
-                            BigDecimal valPro = new BigDecimal(linea.substring(16, 29));
+                            BigDecimal valPro = new BigDecimal(linea.substring(13, 28));
                             detallepago.setValorProcesado((valPro.movePointLeft(2)).toString());
                             //Motivo Bancario
-                            detallepago.setMotBancario(linea.substring(30, 35));
+                            detallepago.setMotBancario(linea.substring(28, 33));
                             //Constante
-                            detallepago.setConstanteDet_3(linea.substring(36, 39));
+                            detallepago.setConstanteDet_3(linea.substring(33, 36));
                             //Contrapartida
-                            detallepago.setContrapartida(linea.substring(40, 60));
+                            detallepago.setContrapartida(linea.substring(36, 64));
                             //Código de Proceso
-                            detallepago.setCondProc(linea.substring(61, 63));
+                            detallepago.setCondProc(linea.substring(64, 66));
                             //Valor Retenido Renta Bienes
-                            detallepago.setValRetRentBienes(linea.substring(64, 74));
+                            detallepago.setValRetRentBienes(linea.substring(66, 76));
                             //Valor Retenido Renta Servicios
-                            detallepago.setValRetRentServicios(linea.substring(75, 85));
+                            detallepago.setValRetRentServicios(linea.substring(76, 86));
                             //Valor Retenido Iva Bienes
                             detallepago.setValRetIvaBienes(linea.substring(86, 96));
                             //Valor Retenido Iva Servicios
-                            detallepago.setValRetIvaServicios(linea.substring(97, 107));
+                            detallepago.setValRetIvaServicios(linea.substring(96, 106));
 
                             String numFact = detallepago.getContrapartida().trim();
                             String numDet = detallepago.getMotivo_bancario().trim() + detallepago.getFechaProc().trim() + horaFormat.format(new Date());
@@ -1952,7 +1954,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                             listaDetallePago.add(detallepago);
                             pagosbancorechazados = new Pagosbancorechazados();
                             pagosbancorechazadosPK = new PagosbancorechazadosPK();
-                            detallepago = new Detallepago();
+                            //detallepago = new Detallepago();
                             detallepagoPK = new DetallepagoPK();
                             pagofactura = new Pagofactura();
                             pagofacturaPK = new PagofacturaPK();
@@ -1997,16 +1999,87 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 
     public void guardarPagosBancoRechazado() throws ParseException {
         listaFacturaAux = new ArrayList<>();
+        List<JSONObject> arregloJSON = new ArrayList<>();
         if (!listaPagosbancorechazados.isEmpty()) {
-            for (int i = 0; i < listaPagosbancorechazados.size(); i++) {
-                if (!addPagoFacturabancoRechazado(listaPagosbancorechazados.get(i))) {
-                    this.dialogo(FacesMessage.SEVERITY_ERROR, "Error de guardado detalle pago N." + i + 1);
-                }
-            }
+//            for (int i = 0; i < listaPagosbancorechazados.size(); i++) {
+//                if (!addPagoFacturabancoRechazado(listaPagosbancorechazados.get(i))) {
+//                    this.dialogo(FacesMessage.SEVERITY_ERROR, "Error de guardado detalle pago N." + i + 1);
+//                }
+//            }
+            arregloJSON.addAll(addPagoFacturaRechazadosArregloJSON(listaPagosbancorechazados));
+            addItemsPriceAux(arregloJSON, 2);
         } else {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "Error de carga, el archivo se encuentra vacio");
         }
 
+    }
+
+    public List<JSONObject> addPagoFacturaRechazadosArregloJSON(List<Pagosbancorechazados> listaPagosbancorechazados) {
+        List<JSONObject> arrObj = new ArrayList<>();
+        for (int indice = 0; indice < listaPagosbancorechazados.size(); indice++) {
+            arrObj.add(addIPagoFacturaRechazadosDetail(listaPagosbancorechazados.get(indice)));
+        }        
+        return arrObj;
+    }
+
+    public JSONObject addIPagoFacturaRechazadosDetail(Pagosbancorechazados pagosbancorechazados) {
+
+        DateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        JSONObject detalle = new JSONObject();
+        JSONObject detallePK = new JSONObject();
+
+        detallePK.put("bcoCodigobanco", pagosbancorechazados.getPagosbancorechazadosPK().getBcoCodigobanco());
+        detallePK.put("bcoCodigocliente", pagosbancorechazados.getPagosbancorechazadosPK().getBcoCodigocliente());
+        detallePK.put("bcoNumerofactura", pagosbancorechazados.getPagosbancorechazadosPK().getBcoNumerofactura());
+        detallePK.put("fechaactual", date.format(pagosbancorechazados.getPagosbancorechazadosPK().getFechaactual()));
+        detalle.put("pagosbancorechazadosPK", detallePK);
+
+        detalle.put("bcoValorconrubro", pagosbancorechazados.getBcoValorconrubro());
+        detalle.put("bcoRuccliente", pagosbancorechazados.getBcoRuccliente());
+        detalle.put("bcoNombrecliente", pagosbancorechazados.getBcoNombrecliente());
+        detalle.put("bcoNombrebanco", pagosbancorechazados.getBcoNombrebanco());
+        detalle.put("bcoFechaproceso", pagosbancorechazados.getBcoFechaproceso());
+        detalle.put("registrook", pagosbancorechazados.getRegistrook());
+        if (pagosbancorechazados.getPysFechaacreditacionprorrogada() != null) {
+            detalle.put("pysCodigobanco", pagosbancorechazados.getPysCodigobanco());
+            detalle.put("pysCodigocliente", pagosbancorechazados.getPysCodigocliente());
+            detalle.put("pysFechaacreditacionprorrogada", date.format(pagosbancorechazados.getPysFechaacreditacionprorrogada()));
+            detalle.put("pysNombrebanco", pagosbancorechazados.getPysNombrebanco());
+            detalle.put("pysNombrecliente", pagosbancorechazados.getPysNombrecliente());
+            detalle.put("pysNumerofactura", pagosbancorechazados.getPysNumerofactura());
+            detalle.put("pysRuccliente", pagosbancorechazados.getPysRuccliente());
+            detalle.put("pysValorconrubro", pagosbancorechazados.getPysValorconrubro());
+        } else {
+            detalle.put("pysCodigobanco", " ");
+            detalle.put("pysCodigocliente", " ");
+            detalle.put("pysFechaacreditacionprorrogada", date.format(new Date()));
+            detalle.put("pysNombrebanco", " ");
+            detalle.put("pysNombrecliente", " ");
+            detalle.put("pysNumerofactura", " ");
+            detalle.put("pysRuccliente", " ");
+            detalle.put("pysValorconrubro", -1);
+        }
+
+        return detalle;
+    }
+
+    public List<JSONObject> factEnviadasXCobrar(List<Factura> listaFacturas) {
+        List<JSONObject> arrObj = new ArrayList<>();
+        for (int indice = 0; indice < listaFacturas.size(); indice++) {
+            arrObj.add(addFactEnviadasXCobrarDetail(listaFacturas.get(indice)));
+        }        
+        return arrObj;
+    }
+
+    public JSONObject addFactEnviadasXCobrarDetail(Factura listaFacturas) {
+
+        JSONObject obj = new JSONObject();
+
+        obj.put("codigocomercializadora", listaFacturas.getFacturaPK().getCodigocomercializadora());
+        obj.put("numerofactura", listaFacturas.getFacturaPK().getNumero());
+        obj.put("usuarioactual", listaFacturas.getUsuarioactual());
+
+        return obj;
     }
 
     public Boolean addPagoFacturabancoRechazado(Pagosbancorechazados pagosbancorechazados) {
@@ -2074,34 +2147,144 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
     public void guardar() throws ParseException {
         int detOk = 0;
         int detError = 0;
+        List<JSONObject> arregloJSON = new ArrayList<>();
         Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
         observacion = params.get("recibopago:observacion");
         if (!observacion.isEmpty()) {
             if (!listaPagosBancoRechazadoAux.isEmpty()) {
-                if (addPagoFactura()) {
-                    for (int indice = 0; indice < listaPagosBancoRechazadoAux.size(); indice++) {
-                        if (!addDetPago(listaPagosBancoRechazadoAux.get(indice))) {
-                            detError++;
-                        } else {
-                            detOk++;
-                        }
-                    }
-                }
-                if (detError > 0) {
-                    this.dialogo(FacesMessage.SEVERITY_ERROR, "Detalles no registrados: " + detError);
-                }
-                if (detOk > 0) {
-                    this.dialogo(FacesMessage.SEVERITY_INFO, "Detalles registrados: " + detOk);
-                }
+                arregloJSON.addAll(addItemsArregloJSON(listaPagosBancoRechazadoAux));
+//                if (addPagoFactura()) {
+//                    for (int indice = 0; indice < listaPagosBancoRechazadoAux.size(); indice++) {
+//                        if (!addDetPago(listaPagosBancoRechazadoAux.get(indice))) {
+//                            detError++;
+//                        } else {
+//                            detOk++;
+//                        }
+//                    }
+//                }                
+//                if (detError > 0) {
+//                    this.dialogo(FacesMessage.SEVERITY_ERROR, "Detalles no registrados: " + detError);
+//                }
+//                if (detOk > 0) {
+//                    this.dialogo(FacesMessage.SEVERITY_INFO, "Detalles registrados: " + detOk);
+//                }
+                addItemsPriceAux(arregloJSON, 1);
                 guardarPagosBancoRechazado();
                 listaPagosbancorechazados = new ArrayList<>();
             } else {
-                this.dialogo(FacesMessage.SEVERITY_ERROR, "Error de carga, el archivo se encuentra vacio");
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "Los pagos no coinciden");
+                guardarPagosBancoRechazado();
+                listaPagosbancorechazados = new ArrayList<>();
             }
         } else {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "Ingrese una observación");
         }
 
+    }
+
+    public List<JSONObject> addItemsArregloJSON(List<Pagosbancorechazados> listaPagosBancoRechazado) {
+        String respuesta;
+        DateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
+        JSONObject obj = new JSONObject();
+        JSONObject objPK = new JSONObject();
+        JSONObject objEnvRest = new JSONObject();
+        List<JSONObject> arrObj = new ArrayList<>();
+        List<JSONObject> listObjEnvRest = new ArrayList<>();
+
+        objPK.put("codigoabastecedora", listaPagofacturaArchivoSubida.get(0).getPagofacturaPK().getCodigoabastecedora());
+        objPK.put("codigocomercializadora", listaPagofacturaArchivoSubida.get(0).getPagofacturaPK().getCodigocomercializadora());
+        objPK.put("numero", listaPagofacturaArchivoSubida.get(0).getPagofacturaPK().getNumero());
+        objPK.put("codigobanco", listaPagofacturaArchivoSubida.get(0).getPagofacturaPK().getCodigobanco());
+        obj.put("pagofacturaPK", objPK);
+        String fechaS = date.format(listaPagofacturaArchivoSubida.get(0).getFecha());
+        obj.put("fecha", fechaS);
+        obj.put("activo", listaPagofacturaArchivoSubida.get(0).getActivo());
+        obj.put("valor", suma);
+        obj.put("observacion", observacion);
+        String fechaR = date.format(listaPagofacturaArchivoSubida.get(0).getFecharegistro());
+        obj.put("fecharegistro", fechaR);
+        obj.put("usuarioactual", listaPagofacturaArchivoSubida.get(0).getUsuarioactual());
+
+        for (int indice = 0; indice < listaPagosBancoRechazado.size(); indice++) {
+            arrObj.add(addItemsDetailPAux(listaPagosBancoRechazado.get(indice)));
+        }
+
+        objEnvRest.put("pago", obj);
+        objEnvRest.put("detallepago", arrObj);
+        listObjEnvRest.add(objEnvRest);
+        obj = new JSONObject();
+        objPK = new JSONObject();
+        arrObj = new ArrayList<>();
+        objEnvRest = new JSONObject();
+
+        return listObjEnvRest;
+
+    }
+
+    public JSONObject addItemsDetailPAux(Pagosbancorechazados pagosbancorechazados) {
+
+        JSONObject detalle = new JSONObject();
+        JSONObject detallePK = new JSONObject();
+        detallePK.put("codigoabastecedora", listaPagofacturaArchivoSubida.get(0).getPagofacturaPK().getCodigoabastecedora());
+        detallePK.put("codigocomercializadora", listaPagofacturaArchivoSubida.get(0).getPagofacturaPK().getCodigocomercializadora());
+        detallePK.put("numeronotapedido", pagosbancorechazados.getPysNumeronotapedido());
+        detallePK.put("numero", listaPagofacturaArchivoSubida.get(0).getPagofacturaPK().getNumero());
+        detallePK.put("codigobanco", pagosbancorechazados.getPysCodigobanco());
+        detallePK.put("numerofactura", pagosbancorechazados.getPysNumerofactura());
+        detalle.put("detallepagoPK", detallePK);
+        detalle.put("valor", pagosbancorechazados.getPysValorconrubro());
+        detalle.put("activo", true);
+        detalle.put("usuarioactual", listaPagofacturaArchivoSubida.get(0).getUsuarioactual());
+
+        return detalle;
+    }
+//proceso: 1=pagos; 2=pagos rechazados
+
+    public void addItemsPriceAux(List<JSONObject> arregloJSON, int proceso) {
+        try {
+
+            String respuesta;
+            String direcc = "";
+
+            //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.precio/agregar";
+            switch (proceso) {
+                case 1:
+                    direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.pagofactura/agregarlote";
+                    break;
+                case 2:
+                    direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.pagosbancorechazados/crearLote";
+                    break;
+                case 3:
+                    direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura/actualizarenviadaxcobrarlote";
+                    break;
+            }
+
+            url = new URL(direcc);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-type", "application/json");
+
+            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+            //JSONObject arrObj = new JSONObject();               
+
+            //arrObj.put("", arregloJSON); 
+            respuesta = arregloJSON.toString();
+            writer.write(respuesta);
+            writer.close();
+
+            if (connection.getResponseCode() == 200) {
+                this.dialogo(FacesMessage.SEVERITY_INFO, "SE HA REGISTRADO CON EXITO");
+                System.out.println("Se ha registrado con exito");
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
+                System.out.println("Error al añadir:" + connection.getResponseCode());
+                System.out.println("Error:" + connection.getErrorStream());
+                System.out.println(connection.getResponseMessage());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public Boolean addPagoFactura() {
@@ -2165,16 +2348,6 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             //List<JSONObject> listObj = new ArrayList<>();
             JSONObject obj = new JSONObject();
             JSONObject objPk = new JSONObject();
-//            objPk.put("codigoabastecedora", listaDetallePagofacturaArchivoSubida.get(indice).getDetallepagoPK().getCodigoabastecedora());
-//            objPk.put("codigocomercializadora", listaDetallePagofacturaArchivoSubida.get(indice).getDetallepagoPK().getCodigocomercializadora());
-//            objPk.put("numeronotapedido", listaDetallePagofacturaArchivoSubida.get(indice).getDetallepagoPK().getNumeronotapedido());
-//            objPk.put("numero", listaDetallePagofacturaArchivoSubida.get(indice).getDetallepagoPK().getNumero());
-//            objPk.put("codigobanco", listaDetallePagofacturaArchivoSubida.get(indice).getDetallepagoPK().getCodigobanco());
-//            objPk.put("numerofactura", listaDetallePagofacturaArchivoSubida.get(indice).getDetallepagoPK().getNumerofactura());
-//            obj.put("detallepagoPK", objPk);
-//            obj.put("valor", listaDetallePagofacturaArchivoSubida.get(indice).getValor());
-//            obj.put("activo", listaDetallePagofacturaArchivoSubida.get(indice).getActivo());
-//            obj.put("usuarioactual", listaDetallePagofacturaArchivoSubida.get(indice).getUsuarioactual());
 
             objPk.put("codigoabastecedora", listaPagofacturaArchivoSubida.get(0).getPagofacturaPK().getCodigoabastecedora());
             objPk.put("codigocomercializadora", listaPagofacturaArchivoSubida.get(0).getPagofacturaPK().getCodigocomercializadora());
@@ -2189,16 +2362,6 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             respuesta = obj.toString();
             writer.write(respuesta);
             writer.close();
-//                    obj = new JSONObject();
-//                    objPk = new JSONObject();
-//                    listObj.add(obj);
-//                    objPk = new JSONObject();
-//                    obj = new JSONObject();
-//                }
-//            }
-//            respuesta = listObj.toString();
-//            writer.write(respuesta);
-//            writer.close();
             if (connection.getResponseCode() == 200) {
                 //this.dialogo(FacesMessage.SEVERITY_INFO, "LISTA DETALLES DE PAGOS REGISTRADA EXITOSAMENTE");                
                 return true;
