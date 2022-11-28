@@ -1858,26 +1858,26 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                             //Tipo de Cuenta                           
                             detallepago.setTipCuenta(linea.substring(2, 3));
                             //Número de cuenta
-                            detallepago.setNumCuenta(linea.substring(3, 13));
+                            detallepago.setNumCuenta(linea.substring(3, 37));
                             //Valor Procesado
-                            BigDecimal valPro = new BigDecimal(linea.substring(13, 28));
+                            BigDecimal valPro = new BigDecimal(linea.substring(37, 52));
                             detallepago.setValorProcesado((valPro.movePointLeft(2)).toString());
                             //Motivo Bancario
-                            detallepago.setMotBancario(linea.substring(28, 33));
+                            detallepago.setMotBancario(linea.substring(52, 57));
                             //Constante
-                            detallepago.setConstanteDet_3(linea.substring(33, 36));
+                            detallepago.setConstanteDet_3(linea.substring(57, 60));
                             //Contrapartida
-                            detallepago.setContrapartida(linea.substring(36, 64));
+                            detallepago.setContrapartida(linea.substring(60, 88));
                             //Código de Proceso
-                            detallepago.setCondProc(linea.substring(64, 66));
+                            detallepago.setCondProc(linea.substring(88, 90));
                             //Valor Retenido Renta Bienes
-                            detallepago.setValRetRentBienes(linea.substring(66, 76));
+                            detallepago.setValRetRentBienes(linea.substring(90, 100));
                             //Valor Retenido Renta Servicios
-                            detallepago.setValRetRentServicios(linea.substring(76, 86));
+                            detallepago.setValRetRentServicios(linea.substring(100, 110));
                             //Valor Retenido Iva Bienes
-                            detallepago.setValRetIvaBienes(linea.substring(86, 96));
+                            detallepago.setValRetIvaBienes(linea.substring(110, 120));
                             //Valor Retenido Iva Servicios
-                            detallepago.setValRetIvaServicios(linea.substring(96, 106));
+                            detallepago.setValRetIvaServicios(linea.substring(120, 130));
 
                             String numFact = detallepago.getContrapartida().trim();
                             String numDet = detallepago.getMotivo_bancario().trim() + detallepago.getFechaProc().trim() + horaFormat.format(new Date());
