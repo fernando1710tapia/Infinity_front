@@ -314,26 +314,57 @@ public class DashboardBean extends ReusableBean implements Serializable {
         switch (tipo) {
 //Despachos
             case 1:
+//                if (codigos.containsKey(cod.substring(6, 10))) {
+//                    r = codigos.get(cod.substring(6, 10));
+//                } else {
+//                    r = "255";
+//                }
+//                g = "255";
+//                b = "0";
+                
+                //
+//                System.out.println("FT:: DESPACHOS-PRODU-COLOR. "+cod);
                 if (codigos.containsKey(cod.substring(6, 10))) {
-                    r = codigos.get(cod.substring(6, 10));
+                    
+                    r = (codigos.get(cod.substring(6, 10))).substring(0, 3);
+                    g = (codigos.get(cod.substring(6, 10))).substring(3, 6);
+                    b = (codigos.get(cod.substring(6, 10))).substring(6);
+//                    System.out.println("FT:: COLOR. "+r+" - "+g+" - "+b );
                 } else {
                     r = "255";
-                }
-                g = "255";
-                b = "0";
+                    g = "255";
+                    b = "255";
+                } 
+//                g = "255";
+//                b = "0";
+                //
+                
                 break;
 //ventas
             case 2:
-                r = "0";
+//                r = "0";
+//                if (codigos.containsKey(cod.substring(6, 10))) {
+//                    g = codigos.get(cod.substring(6, 10));
+//                } else {
+//                    g = "255";
+//                }
+//                b = "255";
+                
+//                System.out.println("FT:: VENTAS-PRODU-COLOR. "+cod);
                 if (codigos.containsKey(cod.substring(6, 10))) {
-                    g = codigos.get(cod.substring(6, 10));
+                                    
+                    r = (codigos.get(cod.substring(6, 10))).substring(9);
+                    g = (codigos.get(cod.substring(6, 10))).substring(0, 3);
+                    b = (codigos.get(cod.substring(6, 10))).substring(3, 6);
+//                    System.out.println("FT:: COLOR. "+r+" - "+g+" - "+b );
                 } else {
+                    r = "255";
                     g = "255";
-                }
-                b = "255";
+                    b = "255";
+                } 
                 break;
         }
-        producto[0] = "rgba(" + r + ", " + g + ", " + b + ", .7)";
+        producto[0] = "rgba(" + r + ", " + g + ", " + b + ")";
         producto[1] = "rgba(" + r + ", " + g + ", " + b + ")";
 //        String[] extra = {"rgba(222, 162, 66, .7)", "rgb(222, 162, 66)"};
 //        String[] diesel = {"rgba(57, 163, 244, .7)", "rgb(57, 163, 244)"};
@@ -403,7 +434,7 @@ public class DashboardBean extends ReusableBean implements Serializable {
                 }
                 //ventas
                 barDataSet2 = new BarChartDataSet();
-                barDataSet2.setLabel(ventaTotalDtoAux.getNombreProducto());
+                 barDataSet2.setLabel(ventaTotalDtoAux.getNombreProducto()); // +" -Docs: "+ventaTotalDtoAux.getFacturas()+" -Vol: "
                 barDataSet2.setBackgroundColor(coloresProducto(ventaTotalDtoAux.getNombreProducto(), 2)[0]);
                 barDataSet2.setBorderColor(coloresProducto(ventaTotalDtoAux.getNombreProducto(), 2)[1]);
                 barDataSet2.setStack("Ventas");
@@ -413,20 +444,30 @@ public class DashboardBean extends ReusableBean implements Serializable {
                     bandera = false;
                     for (int k = 0; k < listaVentaTotalDto.size(); k++) {
                         if (listaVentaTotalDto.get(k).getNombreProducto().equals(nomProd.get(i)) && listaVentaTotalDto.get(k).getNombreTerminal().equals(entry.getKey())) {
+                                
+//                            System.out.println("FT::valores y etiquetas: "+listaVentaTotalDto.get(k).getNombreProducto()+" - "+listaVentaTotalDto.get(k).getVolumenTotal());
                             values2.add(listaVentaTotalDto.get(k).getVolumenTotal());
+//                            if(listaVentaTotalDto.get(k).getVolumenTotal().compareTo(BigDecimal.ZERO)!=0){
+//                                System.out.println("FT::valores y etiquetas dentro del IF: "+listaVentaTotalDto.get(k).getNombreProducto()+" - "+listaVentaTotalDto.get(k).getVolumenTotal());
+//                                barDataSet2.setLabel(ventaTotalDtoAux.getNombreProducto());
+//                                 
+//                            }
                             bandera = true;
                         }
                     }
                     if (!bandera) {
-                        values2.add(new BigDecimal(0));
+//                        System.out.println("FT::  if (!bandera)");
+                        values2.add(new BigDecimal(0)); 
+//                        barDataSet2.setLabel(" --- ");
                     }
                 }
+                
                 barDataSet2.setData(values2);
                 barDataSetList.add(barDataSet2);
 
                 //despachos
                 barDataSet = new BarChartDataSet();
-                barDataSet.setLabel("DES-" + ventaTotalDtoAux.getNombreProducto().substring(5));
+                barDataSet.setLabel("DES-" + ventaTotalDtoAux.getNombreProducto().substring(5)); //+" -Docs: "+ventaTotalDtoAux.getGuias()+" -Vol: "
                 barDataSet.setBackgroundColor(coloresProducto(ventaTotalDtoAux.getNombreProducto(), 1)[0]);
                 barDataSet.setBorderColor(coloresProducto(ventaTotalDtoAux.getNombreProducto(), 1)[1]);
                 barDataSet.setStack("Despachos");
@@ -437,11 +478,19 @@ public class DashboardBean extends ReusableBean implements Serializable {
                     for (int k = 0; k < listaVentaTotalDto.size(); k++) {
                         if (listaVentaTotalDto.get(k).getNombreProducto().equals(nomProd.get(i)) && listaVentaTotalDto.get(k).getNombreTerminal().equals(entry.getKey())) {
                             values.add(listaVentaTotalDto.get(k).getVolumenTotalD());
+                            System.out.println("FT::valores y etiquetas: "+listaVentaTotalDto.get(k).getNombreProducto()+" - "+listaVentaTotalDto.get(k).getVolumenTotal());
+//                            if(listaVentaTotalDto.get(k).getVolumenTotalD().compareTo(BigDecimal.ZERO)==0){
+//                                barDataSet.setLabel("DES-" + ventaTotalDtoAux.getNombreProducto().substring(5));
+//                                barDataSet.setLabel("DES-" + ventaTotalDtoAux.getNombreProducto().substring(5)+" -SIN DATOS EN ESTE TERMINAL- ");
+//                                System.out.println("FT::valores y etiquetas DENTRO DEL IF: "+listaVentaTotalDto.get(k).getNombreProducto()+" - "+listaVentaTotalDto.get(k).getVolumenTotal());
+//                            }
+
                             bandera = true;
                         }
                     }
                     if (!bandera) {
                         values.add(new BigDecimal(0));
+//                        barDataSet.setLabel(" --- ");
                     }
                 }
                 barDataSet.setData(values);

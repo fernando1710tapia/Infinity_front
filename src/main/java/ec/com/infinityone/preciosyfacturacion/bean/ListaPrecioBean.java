@@ -66,6 +66,10 @@ import org.primefaces.model.StreamedContent;
 import org.primefaces.model.Visibility;
 import org.primefaces.shaded.json.JSONArray;
 import org.primefaces.shaded.json.JSONObject;
+import org.primefaces.event.FileUploadEvent;
+import org.primefaces.model.file.UploadedFile;
+import java.util.Scanner;
+import javax.faces.context.FacesContext;
 
 /**
  *
@@ -199,7 +203,15 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
 
     private int contOk;
     private int contError;
+    
+    private String ubicacion;
+    
+    private List<Listaprecioterminalproducto> listaprecioterminalproductoArchivoSubida;
+    
+    private List<ComercializadoraBean> listaComercializadoraAux;
 
+    private Listaprecioterminalproducto unaListaPrecioTerminalProducto;
+    private ListaprecioterminalproductoPK unaListaPrecioTerminalProductoPk;
     /**
      * Constructor por defecto
      */
@@ -244,6 +256,8 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
         mostarListaPrecio = false;
         contOk = 0;
         contError = 0;
+        unaListaPrecioTerminalProducto = new Listaprecioterminalproducto();
+        unaListaPrecioTerminalProductoPk = new ListaprecioterminalproductoPK();
 
         obtenerProductos();
         obtenerMedida();
@@ -771,7 +785,7 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
             codigoComer = comercializadora.getCodigo();
         }
     }
-
+    
     public void seleccionarTerm() {
         if (terminal.getCodigo() != null) {
             codigoTerm = terminal.getCodigo();
@@ -1741,5 +1755,129 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
     public void setTerminal(ObjetoNivel1 terminal) {
         this.terminal = terminal;
     }
+    
+    public void actualizarLoteLista() {
+ 
+        if (habilitarComer) {
+            comercializadora = new ComercializadoraBean();
+            ubicacion = "";
+            listaprecioterminalproductoArchivoSubida = new ArrayList<>();
+        }
+        PrimeFaces.current().executeScript("PF('zip').show()");
+    }
 
+    public List<Listaprecioterminalproducto> getListaprecioterminalproductoArchivoSubida() {
+        return listaprecioterminalproductoArchivoSubida;
+    }
+
+    public void setListaprecioterminalproductoArchivoSubida(List<Listaprecioterminalproducto> listaprecioterminalproductoArchivoSubida) {
+        this.listaprecioterminalproductoArchivoSubida = listaprecioterminalproductoArchivoSubida;
+    }
+    public String getUbicacion() {
+        return ubicacion;
+    }
+
+    public void setUbicacion(String ubicacion) {
+        this.ubicacion = ubicacion;
+    }
+
+    public String handleFileUpload(FileUploadEvent event) {
+        DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
+        DateFormat date1 = new SimpleDateFormat("ddMMyyyy");
+        DateFormat date2 = new SimpleDateFormat("yyyyMMdd");
+        DateFormat horaFormat = new SimpleDateFormat("hhmmss");
+        String ruta_temporal = Fichero.getCARPETAREPORTES();
+        StringBuilder cadenaInfo = new StringBuilder();
+        StringBuilder cadenaErro = new StringBuilder();
+         
+        //String ruta_temporal = "C:\\archivos\\";
+        UploadedFile uploadedFile = event.getFile();
+        ubicacion = "";
+        Scanner scanner;
+        String fileName = uploadedFile.getFileName();
+        byte[] contents = uploadedFile.getContent();
+        try {
+            FileOutputStream fos = new FileOutputStream(ruta_temporal + fileName.replace(" ", ""));
+            fos.write(contents);
+            ubicacion = ruta_temporal + fileName.replace(" ", "");
+            fos.close();
+            File file = new File(ubicacion);
+            //se pasa el flujo al objeto scanner
+            scanner = new Scanner(file);
+
+            Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+            codigoComer = comercializadora.getCodigo();
+            if (codigoComer != null ) {
+                
+                listaComercializadoraAux = new ArrayList<>();
+                listaComercializadoraAux = comercializadoraServicio.obtenerComercializadoraId(codigoComer);
+                comercializadora = listaComercializadoraAux.get(0);
+                
+                        while (scanner.hasNextLine()) {
+                            // el objeto scanner lee linea a linea desde el archivo
+                            String linea = scanner.nextLine();
+                            System.out.println("FT:: linea a actualizar: "+linea);
+                            //Scanner delimitar = new Scanner(linea);
+                            //se usa una expresión regular
+                            //que valida que antes o despues de una coma (,) exista cualquier cosa
+                            //parte la cadena recibida cada vez que encuentre una coma				
+                            //delimitar.useDelimiter("\\s*,\\s*");                  
+                            //pagofacturaPK.setNumero(delimitar.next());                                      
+
+                            //Comercializadora
+                            unaListaPrecioTerminalProductoPk.setCodigocomercializadora(comercializadora.getCodigo());
+                            
+                            //codigo lista de precio
+                            unaListaPrecioTerminalProductoPk.setCodigolistaprecio(new Long(linea.substring(0, 2)));
+                            //codigo terminal
+                            unaListaPrecioTerminalProductoPk.setCodigoterminal(linea.substring(2, 4));
+                            //codigo producto
+                            unaListaPrecioTerminalProductoPk.setCodigoproducto(linea.substring(4, 8));
+                            //codigo medida
+                            unaListaPrecioTerminalProductoPk.setCodigomedida(linea.substring(8, 10));
+
+                            //% MPO
+                            BigDecimal valmpo = new BigDecimal(linea.substring(10, 19));
+                            valmpo = valmpo.movePointLeft(6);
+                            
+                            if (valmpo.compareTo(new BigDecimal("999")) == 0) {
+                                valmpo = new BigDecimal("-99");
+                            }
+                            unaListaPrecioTerminalProducto.setMargenporcentaje(valmpo);
+                            
+                            //% MCO
+                            BigDecimal valmco = new BigDecimal(linea.substring(19, 28));
+                            valmco = valmco.movePointLeft(6);
+                            
+                            if (valmco.compareTo(new BigDecimal("999")) == 0) {
+                                valmco = new BigDecimal("-99");
+                            }
+                            unaListaPrecioTerminalProducto.setMargenvalorcomercializadora(valmco);
+                            
+                            unaListaPrecioTerminalProducto.setListaprecioterminalproductoPK(unaListaPrecioTerminalProductoPk);
+
+                            listaprecioterminalproductoArchivoSubida.add(unaListaPrecioTerminalProducto);
+                       
+                            unaListaPrecioTerminalProducto = new Listaprecioterminalproducto();
+                            unaListaPrecioTerminalProductoPk = new ListaprecioterminalproductoPK();
+                            
+                        }
+                     
+                //se cierra el ojeto scanner
+                scanner.close();
+                FacesContext context = FacesContext.getCurrentInstance();
+                    
+                    this.dialogo(FacesMessage.SEVERITY_INFO, "Se va a actualizar los Margenes de : "+ String.valueOf(listaprecioterminalproductoArchivoSubida.size())+ " Listas de Precios ");
+                
+                return ubicacion;
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_WARN, "Seleccione una comercializadora para poder subir el archivo");
+                return null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
 }
