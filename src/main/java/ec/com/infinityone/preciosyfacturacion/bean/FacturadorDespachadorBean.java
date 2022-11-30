@@ -7,12 +7,12 @@ package ec.com.infinityone.preciosyfacturacion.bean;
 
 import ec.com.infinityone.actorcomercial.bean.ComercializadoraBean;
 import ec.com.infinityone.actorcomercial.serivicios.ComercializadoraServicio;
-import ec.com.infinityone.bean.TerminalBean;
 import ec.com.infinityone.catalogo.servicios.TerminalServicio;
 import ec.com.infinityone.catalogo.servicios.UsuarioServicio;
 import ec.com.infinityone.configuration.Fichero;
 import ec.com.infinityone.modeloWeb.Facturadordespachador;
 import ec.com.infinityone.modeloWeb.FacturadordespachadorPK;
+import ec.com.infinityone.modeloWeb.Terminal;
 import ec.com.infinityone.modeloWeb.Usuario;
 import ec.com.infinityone.preciosyfacturacion.servicios.FacturadorDespachadorServicio;
 import ec.com.infinityone.reusable.ReusableBean;
@@ -54,7 +54,7 @@ public class FacturadorDespachadorBean extends ReusableBean implements Serializa
 
     private List<Facturadordespachador> listaFactDesp;
 
-    private List<TerminalBean> listaTerminal;
+    private List<Terminal> listaTerminal;
 
     private List<Usuario> listaUsuario;
 
@@ -66,7 +66,7 @@ public class FacturadorDespachadorBean extends ReusableBean implements Serializa
 
     private FacturadordespachadorPK facturadordespachadorPK;
 
-    private TerminalBean terminal;
+    private Terminal terminal;
 
     private Usuario usuarioD;
 
@@ -101,7 +101,7 @@ public class FacturadorDespachadorBean extends ReusableBean implements Serializa
         listaTerminal = new ArrayList<>();
         listaUsuario = new ArrayList<>();
         comercializadora = new ComercializadoraBean();
-        terminal = new TerminalBean();
+        terminal = new Terminal();
         usuarioD = new Usuario();
         facturadordespachador = new Facturadordespachador();
         facturadordespachadorPK = new FacturadordespachadorPK();
@@ -211,8 +211,8 @@ public class FacturadorDespachadorBean extends ReusableBean implements Serializa
             objPK.put("codigousuario", usuarioD.getCodigo());
             term.put("codigo", terminal.getCodigo());
             term.put("nombre", terminal.getNombre());
-            term.put("activo", terminal.getActivo());
-            term.put("usuarioactual", terminal.getUsuario());
+            term.put("activo", terminal.isActivo());
+            term.put("usuarioactual", terminal.getUsuarioactual());
             obj.put("terminal", term);
             obj.put("facturadordespachadorPK", objPK);
             obj.put("activo", estadoDespProd);
@@ -378,19 +378,19 @@ public class FacturadorDespachadorBean extends ReusableBean implements Serializa
         this.listaFactDesp = listaFactDesp;
     }
 
-    public List<TerminalBean> getListaTerminal() {
+    public List<Terminal> getListaTerminal() {
         return listaTerminal;
     }
 
-    public void setListaTerminal(List<TerminalBean> listaTerminal) {
+    public void setListaTerminal(List<Terminal> listaTerminal) {
         this.listaTerminal = listaTerminal;
     }
 
-    public TerminalBean getTerminal() {
+    public Terminal getTerminal() {
         return terminal;
     }
 
-    public void setTerminal(TerminalBean terminal) {
+    public void setTerminal(Terminal terminal) {
         this.terminal = terminal;
     }
 

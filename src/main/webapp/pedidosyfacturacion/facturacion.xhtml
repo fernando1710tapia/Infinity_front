@@ -66,7 +66,7 @@
                                         <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
                                         <f:selectItems value="#{facturacionBean.listaTermianles}"
                                                        var="terminal"
-                                                       itemLabel="#{terminal.objRelacionado}"
+                                                       itemLabel="#{terminal.codigo} - #{terminal.nombre}"
                                                        itemValue="#{terminal}" />
                                         <p:ajax event="change" listener="#{facturacionBean.seleccionarTerminal(1)}" update="form cli"/>
                                     </p:selectOneMenu> 
@@ -256,7 +256,7 @@
                                         <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
                                         <f:selectItems value="#{facturacionBean.listaTermianles}"
                                                        var="terminal"
-                                                       itemLabel="#{terminal.objRelacionado}"
+                                                       itemLabel="#{terminal.codigo} - #{terminal.nombre}"
                                                        itemValue="#{terminal}" />
                                         <p:ajax event="change" listener="#{facturacionBean.seleccionarTerminal(2)}" update="formNuevo cli2"/>
                                     </p:selectOneMenu> 

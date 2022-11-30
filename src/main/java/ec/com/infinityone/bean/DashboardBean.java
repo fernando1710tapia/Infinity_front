@@ -9,6 +9,7 @@ import ec.com.infinityone.catalogo.servicios.TerminalServicio;
 import ec.com.infinityone.configuration.Fichero;
 import ec.com.infinityone.modeloWeb.DespachoTotalDto;
 import ec.com.infinityone.modeloWeb.Mejorcliente;
+import ec.com.infinityone.modeloWeb.Terminal;
 import ec.com.infinityone.modeloWeb.Usuario;
 import ec.com.infinityone.modeloWeb.VentaTotalDto;
 import ec.com.infinityone.reusable.ReusableBean;
@@ -21,8 +22,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -92,7 +91,7 @@ public class DashboardBean extends ReusableBean implements Serializable {
 
     private HashMap<String, String> codigos;
 
-    private List<TerminalBean> listaTermianles;
+    private List<Terminal> listaTermianles;
 
     public DashboardBean() {
     }

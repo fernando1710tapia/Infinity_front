@@ -61,7 +61,7 @@
                                             <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
                                             <f:selectItems value="#{notapedidoBean.listaTermianles}"
                                                            var="ter"
-                                                           itemLabel="#{ter.objRelacionado}"
+                                                           itemLabel="#{ter.codigo} - #{ter.nombre}"                                                           
                                                            itemValue="#{ter}" />
                                             <p:ajax event="change" listener="#{notapedidoBean.seleccionarTerminal(1)}" update="cli"/>
                                         </p:selectOneMenu> 
@@ -181,7 +181,7 @@
                             </p:selectOneMenu> 
                         </div>                           
                     </div>
-                    <div class="p-field p-col-12 p-md-4">
+                    <div class="p-field p-col-12 p-md-3">
                         <div class="ui-inputgroup">
                             <span class="ui-inputgroup-addon">
                                 <i class="fa fa-shopping-cart"></i>
@@ -192,10 +192,10 @@
                                              disabled="#{!notapedidoBean.habilitarTerminal}">
                                 <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
                                 <f:selectItems value="#{notapedidoBean.listaTermianles}"
-                                               var="ter"
-                                               itemLabel="#{ter.objRelacionado}"
+                                               var="ter"                                               
+                                               itemLabel="#{ter.codigo}-#{ter.nombre}"
                                                itemValue="#{ter}" />
-                                <p:ajax event="change" listener="#{notapedidoBean.seleccionarTerminal(2)}" update="cliente" />
+                                <p:ajax event="change" listener="#{notapedidoBean.seleccionarTerminal(2)}" update="cliente todos" />
                             </p:selectOneMenu> 
                         </div> 
                     </div>
@@ -220,6 +220,17 @@
                             </p:selectOneMenu>
                         </div>
                     </div>
+                    <div class="p-field p-col-12 p-md-1">
+                        <p:outputLabel for="todos"  value="Todos"/>
+                        <div class="ui-inputgroup">
+                            <p:toggleSwitch id="todos" value="#{notapedidoBean.todosClientes}" > 
+                                <p:ajax event="change" listener="#{notapedidoBean.todosCli()}"
+                                        update="cliente"/>
+                            </p:toggleSwitch>
+                        </div>
+                    </div>
+
+
                     <!--<div class="p-field p-col-12 p-md-6">
 
                         <div class="ui-inputgroup">

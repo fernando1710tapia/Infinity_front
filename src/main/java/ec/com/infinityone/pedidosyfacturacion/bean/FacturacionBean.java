@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import ec.com.infinityone.actorcomercial.serivicios.ClienteServicio;
 import ec.com.infinityone.actorcomercial.serivicios.ComercializadoraServicio;
-import ec.com.infinityone.bean.TerminalBean;
 import ec.com.infinityone.catalogo.servicios.TerminalServicio;
 import ec.com.infinityone.modeloWeb.Abastecedora;
 import ec.com.infinityone.modeloWeb.Banco;
@@ -131,7 +130,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
     /*
     Variable Comercializadora
      */
-    protected TerminalBean terminal;
+    protected Terminal terminal;
     /*
     Variable para renderizar la pantalla
      */
@@ -147,7 +146,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
     /*
     Variable para almacenar los datos comercializadora
      */
-    protected List<TerminalBean> listaTermianles;
+    protected List<Terminal> listaTermianles;
     /*
     Variable para almacenar los datos clientes
      */
@@ -440,7 +439,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             seleccionarComercializadora();
         }
 //        if (terminal != null) {
-//            terminal = new TerminalBean();
+//            terminal = new Terminal();
 //        } else {
 //            seleccionarTerminal();
 //        }        
@@ -656,7 +655,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     habilitarComer = true;
                     habilitarTerminal = true;
                     habilitarCli = true;
-                    terminal = new TerminalBean();
+                    terminal = new Terminal();
                     break;
                 case "adco":
                     habilitarComer = false;
@@ -3437,11 +3436,11 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         this.codComer = codComer;
     }
 
-    public List<TerminalBean> getListaTermianles() {
+    public List<Terminal> getListaTermianles() {
         return listaTermianles;
     }
 
-    public void setListaTermianles(List<TerminalBean> listaTermianles) {
+    public void setListaTermianles(List<Terminal> listaTermianles) {
         this.listaTermianles = listaTermianles;
     }
 
@@ -3493,11 +3492,11 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         this.tipoFecha = tipoFecha;
     }
 
-    public TerminalBean getTerminal() {
+    public Terminal getTerminal() {
         return terminal;
     }
 
-    public void setTerminal(TerminalBean terminal) {
+    public void setTerminal(Terminal terminal) {
         this.terminal = terminal;
     }
 

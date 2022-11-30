@@ -8,12 +8,12 @@ package ec.com.infinityone.pedidosyfacturacion.bean;
 import ec.com.infinityone.actorcomercial.bean.ComercializadoraBean;
 import ec.com.infinityone.actorcomercial.serivicios.ClienteServicio;
 import ec.com.infinityone.actorcomercial.serivicios.ComercializadoraServicio;
-import ec.com.infinityone.bean.TerminalBean;
 import ec.com.infinityone.catalogo.servicios.TerminalServicio;
 import ec.com.infinityone.configuration.Fichero;
 import ec.com.infinityone.modeloWeb.Cliente;
 import ec.com.infinityone.modeloWeb.Consultaguiaremision;
 import ec.com.infinityone.modeloWeb.ConsultaguiaremisionPK;
+import ec.com.infinityone.modeloWeb.Terminal;
 import ec.com.infinityone.reusable.ReusableBean;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -123,7 +123,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
     /*
     Variable Comercializadora
      */
-    protected TerminalBean terminal;
+    protected Terminal terminal;
     /*
     Variable que almacena el código del terminal
      */
@@ -131,7 +131,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
     /*
     Variable para almacenar los datos comercializadora
      */
-    protected List<TerminalBean> listaTermianles;
+    protected List<Terminal> listaTermianles;
 
     protected List<Cliente> listaClientes;
     /**
@@ -277,7 +277,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
             seleccionarComercializdora();
         }
         if (habilitarTerminal) {
-            terminal = new TerminalBean();
+            terminal = new Terminal();
         } else {
             seleccionarTerminal();
         }
@@ -1224,19 +1224,19 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
         this.soloVigente = soloVigente;
     }
 
-    public TerminalBean getTerminal() {
+    public Terminal getTerminal() {
         return terminal;
     }
 
-    public void setTerminal(TerminalBean terminal) {
+    public void setTerminal(Terminal terminal) {
         this.terminal = terminal;
     }
 
-    public List<TerminalBean> getListaTermianles() {
+    public List<Terminal> getListaTermianles() {
         return listaTermianles;
     }
 
-    public void setListaTermianles(List<TerminalBean> listaTermianles) {
+    public void setListaTermianles(List<Terminal> listaTermianles) {
         this.listaTermianles = listaTermianles;
     }
 

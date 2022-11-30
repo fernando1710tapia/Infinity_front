@@ -40,7 +40,7 @@
                                                        var="comer"
                                                        itemLabel="#{comer.objRelacionado}"
                                                        itemValue="#{comer}" />
-                                        <p:ajax event="change" listener="#{notaCreditoBean.seleccionarComer()}" update="form cli"/>
+                                        <p:ajax event="change" listener="#{notaCreditoBean.seleccionarComer(2)}" update="form cli"/>
                                     </p:selectOneMenu> 
                                 </div>
                             </div>
@@ -56,7 +56,7 @@
                                         <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
                                         <f:selectItems value="#{notaCreditoBean.listaTermianles}"
                                                        var="terminal"
-                                                       itemLabel="#{terminal.objRelacionado}"
+                                                       itemLabel="#{terminal.codigo} - #{terminal.nombre}"
                                                        itemValue="#{terminal}" />
                                         <p:ajax event="change" listener="#{notaCreditoBean.seleccionarTerminal}"/>
                                     </p:selectOneMenu> 
@@ -77,7 +77,7 @@
                                                        var="cliente"
                                                        itemLabel="#{cliente.codigo} - #{cliente.nombrecomercial}"
                                                        itemValue="#{cliente}" />
-                                        <p:ajax event="change" listener="#{notaCreditoBean.seleccionarCliente()}"
+                                        <p:ajax event="change" listener="#{notaCreditoBean.seleccionarCliente(2)}"
                                                 update="terminal"/>
                                     </p:selectOneMenu> 
                                 </div>
@@ -199,7 +199,7 @@
                                                var="comer"
                                                itemLabel="#{comer.objRelacionado}"
                                                itemValue="#{comer}" />
-                                <p:ajax event="change" listener="#{notaCreditoBean.seleccionarComercializdora}"
+                                <p:ajax event="change" listener="#{notaCreditoBean.seleccionarComercializadora()}"
                                         update="formNuevo"/>
                             </p:selectOneMenu> 
                         </div>
@@ -216,7 +216,7 @@
                                 <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
                                 <f:selectItems value="#{notaCreditoBean.listaTermianles}"
                                                var="terminal"
-                                               itemLabel="#{terminal.objRelacionado}"
+                                               itemLabel="#{terminal.codigo} - #{terminal.nombre}"                                               
                                                itemValue="#{terminal}" />
                                 <p:ajax event="change" listener="#{notaCreditoBean.seleccionarTerminal}"/>
                             </p:selectOneMenu> 

@@ -6,8 +6,8 @@
 package ec.com.infinityone.pedidosyfacturacion.bean;
 
 import ec.com.infinityone.actorcomercial.bean.ComercializadoraBean;
-import ec.com.infinityone.bean.TerminalBean;
 import ec.com.infinityone.modeloWeb.Cliente;
+import ec.com.infinityone.modeloWeb.Terminal;
 import java.io.Serializable;
 import javax.faces.view.ViewScoped;
 import javax.inject.Named;
@@ -34,7 +34,7 @@ public class NotaCreditoBean extends FacturacionBean implements Serializable {
             seleccionarComercializadora();
         }
         if (habilitarTerminal) {
-            terminal = new TerminalBean();
+            terminal = new Terminal();
         } else {
             seleccionarTerminal(2);
         }

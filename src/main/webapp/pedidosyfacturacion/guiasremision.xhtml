@@ -64,7 +64,7 @@
                                             <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
                                             <f:selectItems value="#{guiasRemisionBean.listaTermianles}"
                                                            var="terminal"
-                                                           itemLabel="#{terminal.objRelacionado}"
+                                                           itemLabel="#{terminal.codigo} - #{terminal.nombre}"                                                           
                                                            itemValue="#{terminal}" />
                                             <p:ajax event="change" listener="#{guiasRemisionBean.seleccionarTerminal}"/>
                                         </p:selectOneMenu> 
@@ -378,7 +378,7 @@
                                 <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
                                 <f:selectItems value="#{guiasRemisionBean.listaTermianles}"
                                                var="terminal"
-                                               itemLabel="#{terminal.objRelacionado}"
+                                               itemLabel="#{terminal.codigo} - #{terminal.nombre}"                                               
                                                itemValue="#{terminal}" />
                                 <p:ajax event="change" listener="#{guiasRemisionBean.seleccionarTerminal}"/>
                             </p:selectOneMenu> 

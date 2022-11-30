@@ -21,7 +21,6 @@ import ec.com.infinityone.pedidosyfacturacion.servicios.FacturaServicio;
 import ec.com.infinityone.reusable.ReusableBean;
 import ec.com.infinityone.actorcomercial.bean.ComercializadoraBean;
 import ec.com.infinityone.actorcomercial.serivicios.ClienteServicio;
-import ec.com.infinityone.bean.TerminalBean;
 import ec.com.infinityone.catalogo.servicios.TerminalServicio;
 import ec.com.infinityone.configuration.Fichero;
 import ec.com.infinityone.modeloWeb.Cliente;
@@ -29,6 +28,7 @@ import ec.com.infinityone.modeloWeb.Pagosbancorechazados;
 import ec.com.infinityone.modeloWeb.PagosbancorechazadosPK;
 import ec.com.infinityone.modeloWeb.Temporalparacobrar;
 import ec.com.infinityone.modeloWeb.TemporalparacobrarPK;
+import ec.com.infinityone.modeloWeb.Terminal;
 import ec.com.infinityone.modeloWeb.TotalParaCobrar;
 import ec.com.infinityone.pedidosyfacturacion.servicios.TemporalCobrarServicios;
 import ec.com.infinityone.pedidosyfacturacion.servicios.TotalCobrarServicios;
@@ -204,7 +204,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
     /*
     Variable Terminal
      */
-    protected TerminalBean terminal;
+    protected Terminal terminal;
     /*
     Variable que almacena el código del terminal
      */
@@ -212,7 +212,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
     /*
     Variable para almacenar los datos comercializadora
      */
-    protected List<TerminalBean> listaTermianles;
+    protected List<Terminal> listaTermianles;
     /*
     Variable Cliente
      */
@@ -3288,19 +3288,19 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         this.pagoDirecto = pagoDirecto;
     }
 
-    public TerminalBean getTerminal() {
+    public Terminal getTerminal() {
         return terminal;
     }
 
-    public void setTerminal(TerminalBean terminal) {
+    public void setTerminal(Terminal terminal) {
         this.terminal = terminal;
     }
 
-    public List<TerminalBean> getListaTermianles() {
+    public List<Terminal> getListaTermianles() {
         return listaTermianles;
     }
 
-    public void setListaTermianles(List<TerminalBean> listaTermianles) {
+    public void setListaTermianles(List<Terminal> listaTermianles) {
         this.listaTermianles = listaTermianles;
     }
 

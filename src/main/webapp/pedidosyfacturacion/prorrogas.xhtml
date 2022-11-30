@@ -48,7 +48,7 @@
                                                            var="comer"
                                                            itemLabel="#{comer.objRelacionado}"
                                                            itemValue="#{comer}" />
-                                            <p:ajax event="change" listener="#{facturacionBean.seleccionarComer()}" update="form cli"/>
+                                            <p:ajax event="change" listener="#{facturacionBean.seleccionarComer(2)}" update="form cli"/>
                                         </p:selectOneMenu> 
                                     </div>
                                 </div>
@@ -65,7 +65,7 @@
                                             <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
                                             <f:selectItems value="#{facturacionBean.listaTermianles}"
                                                            var="terminal"
-                                                           itemLabel="#{terminal.objRelacionado}"
+                                                           itemLabel="#{terminal.codigo} - #{terminal.nombre}"
                                                            itemValue="#{terminal}" />
                                             <p:ajax event="change" listener="#{facturacionBean.seleccionarTerminal}"/>
                                         </p:selectOneMenu> 
@@ -87,7 +87,7 @@
                                                            var="cliente"
                                                            itemLabel="#{cliente.codigo} - #{cliente.nombrecomercial}"
                                                            itemValue="#{cliente}" />
-                                            <p:ajax event="change" listener="#{facturacionBean.seleccionarCliente()}"
+                                            <p:ajax event="change" listener="#{facturacionBean.seleccionarCliente(2)}"
                                                     update="terminal"/>
                                         </p:selectOneMenu> 
                                     </div>
@@ -207,7 +207,7 @@
                                                var="comer"
                                                itemLabel="#{comer.objRelacionado}"
                                                itemValue="#{comer}" />
-                                <p:ajax event="change" listener="#{facturacionBean.seleccionarComercializdora}"
+                                <p:ajax event="change" listener="#{facturacionBean.seleccionarComercializadora()}"
                                         update="formNuevo"/>
                             </p:selectOneMenu> 
                         </div>
@@ -224,7 +224,7 @@
                                 <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
                                 <f:selectItems value="#{facturacionBean.listaTermianles}"
                                                var="terminal"
-                                               itemLabel="#{terminal.objRelacionado}"
+                                               itemLabel="#{terminal.codigo} - #{terminal.nombre}"
                                                itemValue="#{terminal}" />
                                 <p:ajax event="change" listener="#{facturacionBean.seleccionarTerminal}"/>
                             </p:selectOneMenu> 
@@ -343,7 +343,7 @@
                                                var="comer"
                                                itemLabel="#{comer.objRelacionado}"
                                                itemValue="#{comer}" />
-                                <p:ajax event="change" listener="#{facturacionBean.seleccionarComercializdora}"/>
+                                <p:ajax event="change" listener="#{facturacionBean.seleccionarComercializadora()}"/>
                             </p:selectOneMenu> 
                         </div>
                     </div>

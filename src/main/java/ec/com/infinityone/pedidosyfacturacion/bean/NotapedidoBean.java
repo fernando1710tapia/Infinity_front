@@ -128,7 +128,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
     /*
     Variable Comercializadora
      */
-    private TerminalBean terminal;
+    private Terminal terminal;
     /*
     Variable que almacena el código de la comercializadora
      */
@@ -212,7 +212,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
     /*
     Variable para almacenar los datos comercializadora
      */
-    private List<TerminalBean> listaTermianles;
+    private List<Terminal> listaTermianles;
     /*
     Variable para almacenar los datos clientes
      */
@@ -294,6 +294,8 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
      */
     private EnvioPedido envioPedidoAuxiliar;
 
+    private boolean todosClientes;
+
     /**
      * Constructor por defecto
      */
@@ -311,6 +313,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
         cliente = new Cliente();
         obtenerTerminales();
         obtenerComercializadora();
+        todosClientes = false;
 
         //habilitarBusqueda();
     }
@@ -463,6 +466,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                 listaClientesAux = clienteServicio.obtenerClientesPorComercializadora(codComer);
             } else {
                 listaClientesAux = clienteServicio.obtenerClientesPorComercializadoraActiva(codComer);
+                todosClientes = false;
             }
             for (int i = 0; i < listaClientesAux.size(); i++) {
                 if (listaClientesAux.get(i).getCodigoterminaldefecto().getCodigo().equals(codTerminal)) {
@@ -503,9 +507,9 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
 //                for (int i = 0; i < listaTermianles.size(); i++) {
 //                    if (cliente.getCodigoterminaldefecto().equals(listaTermianles.get(i).getCodigo())) {
 //                        terminal = listaTermianles.get(i);
-                codTerminal = cliente.getCodigoterminaldefecto().getCodigo() + " - " + cliente.getCodigoterminaldefecto().getNombre();
+                //codTerminal = cliente.getCodigoterminaldefecto().getCodigo() + " - " + cliente.getCodigoterminaldefecto().getNombre();
 //                    }
-                np.setCodigoterminal(cliente.getCodigoterminaldefecto());
+                //np.setCodigoterminal(cliente.getCodigoterminaldefecto());
 //                }
             }
 
@@ -549,7 +553,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                     habilitarComer = true;
                     habilitarCli = true;
                     habilitarTerminal = true;
-                    terminal = new TerminalBean();
+                    terminal = new Terminal();
                     break;
                 case "adco":
                     habilitarComer = false;
@@ -811,6 +815,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             } else {
                 npPK.setNumero("");
                 np.setNotapedidoPK(npPK);
+                np.setCodigoterminal(terminal);
                 np.setActiva(true);
                 np.setFechaventa(fechV.format(fechaVenta));
                 np.setFechadespacho(fechD.format(fechaDespacho));
@@ -1224,6 +1229,15 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
         }
     }
 
+    public void todosCli() {
+        if (todosClientes) {
+            listaClientes = new ArrayList<>();
+            listaClientes = clienteServicio.obtenerClientesPorComercializadoraActiva(codComer);
+        } else {
+            seleccionarTerminal(2);
+        }
+    }
+
     public boolean isMostarNotaPedido() {
         return mostarNotaPedido;
     }
@@ -1248,11 +1262,11 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
         this.comerServicio = comerServicio;
     }
 
-    public TerminalBean getTerminal() {
+    public Terminal getTerminal() {
         return terminal;
     }
 
-    public void setTerminal(TerminalBean terminal) {
+    public void setTerminal(Terminal terminal) {
         this.terminal = terminal;
     }
 
@@ -1416,11 +1430,11 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
         this.abas = abas;
     }
 
-    public List<TerminalBean> getListaTermianles() {
+    public List<Terminal> getListaTermianles() {
         return listaTermianles;
     }
 
-    public void setListaTermianles(List<TerminalBean> listaTermianles) {
+    public void setListaTermianles(List<Terminal> listaTermianles) {
         this.listaTermianles = listaTermianles;
     }
 
@@ -1566,6 +1580,14 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
 
     public void setFechaFinal(Date fechaFinal) {
         this.fechaFinal = fechaFinal;
+    }
+
+    public boolean isTodosClientes() {
+        return todosClientes;
+    }
+
+    public void setTodosClientes(boolean todosClientes) {
+        this.todosClientes = todosClientes;
     }
 
 }
