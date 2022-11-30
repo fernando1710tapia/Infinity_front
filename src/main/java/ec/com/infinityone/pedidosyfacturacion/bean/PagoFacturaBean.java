@@ -875,10 +875,13 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
 //                    }
 
                     if (!mapaFacturas.isEmpty()) {
+                        
+                        int contadorArchivos = 0;
 
                         for (Map.Entry<String, List<Factura>> entry : mapaFacturas.entrySet()) {
+                            contadorArchivos++;
                             System.out.println("FT::- CREANDO ARCHIVO - clave=" + entry.getKey() + ", valor=" + entry.getValue());
-                            nombreArchivoGenerado = crearArchivo(entry.getValue(), entry.getKey(), listaBancos.get(i).getCodigo(), numeroRegistros, valorTotalArchivo);
+                            nombreArchivoGenerado = crearArchivo(entry.getValue(), entry.getKey(), listaBancos.get(i).getCodigo(), numeroRegistros, valorTotalArchivo, contadorArchivos);
                             listaArchivos.add(nombreArchivoGenerado);
                         }
                     }
@@ -941,14 +944,14 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
         return nombreArchivoGenerado;
     }
 
-    public String crearArchivo(List<Factura> listaFactura, String fechaAcreditacionProrrogada, String codBanco, int cantidadRegsitros, BigDecimal valorTotal) throws Throwable {
+    public String crearArchivo(List<Factura> listaFactura, String fechaAcreditacionProrrogada, String codBanco, int cantidadRegsitros, BigDecimal valorTotal, int contadorArchivos) throws Throwable {
         String nombreArchivoGenerado = "";
         switch (codBanco) {
             case "36":
                 nombreArchivoGenerado = crearArchivo36(listaFactura, fechaAcreditacionProrrogada, codBanco, cantidadRegsitros, valorTotal);
                 break;
             case "37":
-                nombreArchivoGenerado = crearArchivo37(listaFactura, fechaAcreditacionProrrogada, codBanco, cantidadRegsitros, valorTotal);
+                nombreArchivoGenerado = crearArchivo37(listaFactura, fechaAcreditacionProrrogada, codBanco, cantidadRegsitros, valorTotal, contadorArchivos);
                 break;
             default:
                 throw new Throwable("Error Capturado: PagoFacturaBean.crearArchivo Banco: " + codBanco + " NO tiene configuración para creación de archivo de pagos! ");
@@ -1001,7 +1004,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         Archivo de facturación de la Empresa con código 980. Fecha de carga: 27 de febrero del 2012						
         Es: REM_20120227_980.TXT						
      */
-    public String crearArchivo37(List<Factura> listaFactura, String fechaAcreditacionProrrogada, String codBanco, int cantidadRegsitros, BigDecimal valorTotal) throws Throwable {
+    public String crearArchivo37(List<Factura> listaFactura, String fechaAcreditacionProrrogada, String codBanco, int cantidadRegsitros, BigDecimal valorTotal, int contadorArchivos) throws Throwable {
         FileWriter flwriter = null;
 
 //        COBROSRET_AAAAAMMDD_NN_XX.TXT
@@ -1015,9 +1018,10 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         Cliente cliAux = new Cliente();
         List<Cliente> listaClientesAux = new ArrayList<>();
         String fechaAcr = fechaAcreditacionProrrogada.substring(0, 4) + fechaAcreditacionProrrogada.substring(5, 7) + fechaAcreditacionProrrogada.substring(8, 10);
-
+        String fechaHoy = fechaHora.substring(0, 4) + fechaHora.substring(5, 7) + fechaHora.substring(8, 10);
+        String contadorArchivosS = String.format("%2s", String.valueOf(contadorArchivos)).replace(' ', '0');
         try {
-            nombreArchivo = "/COBROSRET_" + fechaAcr + "_01_KSZ" + ".txt";
+            nombreArchivo = "/COBROSRET_" + fechaHoy  + "_"+contadorArchivosS+"_KSZ-"+fechaAcr + ".txt";
 
             //crea el flujo para escribir en el archivo
             //flwriter = new FileWriter("C:\\archivos\\Facturas_Banco" + codBanco + "_" + fechaHora + "_" + usuario + ".txt");
