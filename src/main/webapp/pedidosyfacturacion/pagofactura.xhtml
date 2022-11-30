@@ -368,7 +368,7 @@
                                             <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
                                             <f:selectItems value="#{pagoFacturaBean.listaTermianles}"
                                                            var="terminal"
-                                                           itemLabel="#{terminal.objRelacionado}"
+                                                           itemLabel="#{terminal.codigo} - #{terminal.nombre}"
                                                            itemValue="#{terminal}" />
                                             <p:ajax event="change" listener="#{pagoFacturaBean.seleccionarTerminal}"/>
                                         </p:selectOneMenu> 

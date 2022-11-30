@@ -32,13 +32,13 @@ public class TerminalServicio {
     /*
     Variable para instanciar al objeto nivel 1
      */
-    private List<TerminalBean> listaTerminales;
+    private List<Terminal> listaTerminales;
     /*
     Varibale para guardar terminales activos
      */
     private List<Terminal> listaTerminalesActivos;
 
-    public List<TerminalBean> obtenerTerminal() {
+    public List<Terminal> obtenerTerminal() {
         try {
             //URL url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.terminal");
             URL url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.terminal");
@@ -49,7 +49,7 @@ public class TerminalServicio {
             connection.setRequestProperty("Accept", "application/json");
 
             listaTerminales = new ArrayList<>();
-            TerminalBean term = new TerminalBean();
+            Terminal term = new Terminal();
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
             BufferedReader br = new BufferedReader(reader);
@@ -65,9 +65,9 @@ public class TerminalServicio {
                     JSONObject terminal = retorno.getJSONObject(indice);
                     term.setCodigo(terminal.getString("codigo"));
                     term.setNombre(terminal.getString("nombre"));
-                    term.setObjRelacionado(terminal.getString("codigo") + " - " + terminal.getString("nombre"));
+                    //term.setObjRelacionado(terminal.getString("codigo") + " - " + terminal.getString("nombre"));
                     listaTerminales.add(term);
-                    term = new TerminalBean();
+                    term = new Terminal();
                 }
             }
             if (connection.getResponseCode() != 200) {

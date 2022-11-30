@@ -61,7 +61,7 @@
                                         <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
                                         <f:selectItems value="#{consultaFacturasClienteBean.listaTermianles}"
                                                        var="terminal"
-                                                       itemLabel="#{terminal.objRelacionado}"
+                                                       itemLabel="#{terminal.codigo} - #{terminal.nombre}"
                                                        itemValue="#{terminal}" />
                                         <p:ajax event="change" listener="#{consultaFacturasClienteBean.seleccionarTerminal}"/>
                                     </p:selectOneMenu> 
@@ -312,8 +312,8 @@
                                              disabled="#{!consultaFacturasClienteBean.habilitarTerminal}">
                                 <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
                                 <f:selectItems value="#{consultaFacturasClienteBean.listaTermianles}"
-                                               var="terminal"
-                                               itemLabel="#{terminal.objRelacionado}"
+                                               var="terminal"                                               
+                                               itemLabel="#{terminal.codigo} - #{terminal.nombre}"
                                                itemValue="#{terminal}" />
                                 <p:ajax event="change" listener="#{consultaFacturasClienteBean.seleccionarTerminal}"/>
                             </p:selectOneMenu> 

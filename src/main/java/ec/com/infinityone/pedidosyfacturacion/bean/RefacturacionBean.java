@@ -7,9 +7,9 @@ package ec.com.infinityone.pedidosyfacturacion.bean;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ec.com.infinityone.actorcomercial.bean.ComercializadoraBean;
-import ec.com.infinityone.bean.TerminalBean;
 import ec.com.infinityone.configuration.Fichero;
 import ec.com.infinityone.modeloWeb.Cliente;
+import ec.com.infinityone.modeloWeb.Comercializadoraproducto;
 import ec.com.infinityone.modeloWeb.Detallefactura;
 import ec.com.infinityone.modeloWeb.DetallefacturaPK;
 import ec.com.infinityone.modeloWeb.Detallenotapedido;
@@ -17,8 +17,13 @@ import ec.com.infinityone.modeloWeb.DetallenotapedidoPK;
 import ec.com.infinityone.modeloWeb.EnvioRefactura;
 import ec.com.infinityone.modeloWeb.Factura;
 import ec.com.infinityone.modeloWeb.FacturaPK;
+import ec.com.infinityone.modeloWeb.Listaprecio;
+import ec.com.infinityone.modeloWeb.ListaprecioPK;
 import ec.com.infinityone.modeloWeb.Medida;
+import ec.com.infinityone.modeloWeb.Precio;
+import ec.com.infinityone.modeloWeb.PrecioPK;
 import ec.com.infinityone.modeloWeb.Producto;
+import ec.com.infinityone.modeloWeb.Terminal;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -53,6 +58,7 @@ import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.ToggleEvent;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.Visibility;
@@ -83,6 +89,20 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
     Litsa que almacena varios tipos de enviofactura
      */
     private List<EnvioRefactura> listaEnvRefacNueva;
+    /*
+    Variable Precio
+     */
+    private List<Precio> listaPrecios;
+    /*
+    Variable Lista Precio
+     */
+    private Listaprecio precioLista;
+    /*
+    Variable Lista Precio PK
+     */
+    private ListaprecioPK precioListaPK;
+
+    private Comercializadoraproducto comerProduct;
 
     private BigDecimal volAuxiliar = new BigDecimal(0);
 
@@ -100,7 +120,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
             seleccionarComercializadora();
         }
         if (habilitarTerminal) {
-            terminal = new TerminalBean();
+            terminal = new Terminal();
         } else {
             seleccionarTerminal(2);
         }
@@ -366,6 +386,104 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
             //obtenerFacturasRefacturar();
         } else {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "LA COMERCIALIZADORA SE ENCUENTRA INACTIVA");
+        }
+    }
+
+    public void verPreciosVigentes() {
+        if (codComer.isEmpty() || codTerminal.equals("-1")) {
+            this.dialogo(FacesMessage.SEVERITY_WARN, "Seleccione una comercializadora y un terminal");
+        } else {
+            String prodSinFe = Fichero.getPRODUCTOSINFE();
+            obtenerPreciosVigentes(codComer, codTerminal, prodSinFe);
+            PrimeFaces.current().executeScript("PF('nuevo').show()");
+        }
+    }
+
+    public void obtenerPreciosVigentes(String codComer, String codTerminal, String prodSinFe) {
+        try {
+            //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.precio/porComer?codigocomercializadora=" + codComer);
+            url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.precio/preciovigenteproductoespecial?codigocomercializadora=" + codComer
+                    + "&codigoterminal=" + codTerminal
+                    + "&productosinfe=" + prodSinFe);
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+
+            listaPrecios = new ArrayList<>();
+            precioLista = new Listaprecio();
+            precioListaPK = new ListaprecioPK();
+
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+
+            BufferedReader br = new BufferedReader(reader);
+            String tmp = null;
+            String respuesta = "";
+            while ((tmp = br.readLine()) != null) {
+                respuesta += tmp;
+            }
+            JSONObject precioJson = new JSONObject(respuesta);
+            JSONArray retorno = precioJson.getJSONArray("retorno");
+            for (int indice = 0; indice < retorno.length(); indice++) {
+                if (!retorno.isNull(indice)) {
+                    JSONObject prec = retorno.getJSONObject(indice);
+                    JSONObject precPK = prec.getJSONObject("precioPK");
+                    JSONObject listPrecio = prec.getJSONObject("listaprecio");
+                    JSONObject listPrecioPK = listPrecio.getJSONObject("listaprecioPK");
+                    JSONObject comerProd = prec.getJSONObject("comercializadoraproducto");
+                    JSONObject prod = comerProd.getJSONObject("producto");
+                    precioPK.setCodigocomercializadora(precPK.getString("codigocomercializadora"));
+                    precioPK.setCodigoterminal(precPK.getString("codigoterminal"));
+                    precioPK.setCodigoproducto(precPK.getString("codigoproducto"));
+                    precioPK.setCodigomedida(precPK.getString("codigomedida"));
+                    precioPK.setCodigolistaprecio(precPK.getLong("codigolistaprecio"));
+                    Long lDateIni = precPK.getLong("fechainicio");
+                    Date dateIni = new Date(lDateIni);
+                    precioPK.setFechainicio(dateIni);
+                    precioPK.setSecuencial(precPK.getInt("secuencial"));
+                    precioPK.setCodigoPrecio(precPK.getLong("codigoPrecio"));
+                    precio.setPrecioPK(precioPK);
+                    if (!prec.isNull("fechafin")) {
+                        Long lDateFin = prec.getLong("fechafin");
+                        Date dateFin = new Date(lDateFin);
+                        precio.setFechafin(dateFin);
+                    }
+                    precio.setActivo(prec.getBoolean("activo"));
+                    if (precio.getActivo()) {
+//                    precio.setActivoS("S");
+                    } else {
+//                   precio.setActivoS("N");
+                    }
+                    precio.setObservacion(prec.getString("observacion"));
+                    precio.setPrecioproducto(prec.getBigDecimal("precioproducto"));
+                    precio.setUsuarioactual(prec.getString("usuarioactual"));
+                    /*------------------Precio Lista------------------------------*/
+                    precioLista.setNombre(listPrecio.getString("nombre"));
+                    precioLista.setTipo(listPrecio.getString("tipo"));
+                    precioListaPK.setCodigo(listPrecioPK.getLong("codigo"));
+                    precioLista.setListaprecioPK(precioListaPK);
+                    precio.setListaprecio(precioLista);
+                    /*------------------Producto------------------------------*/
+                    producto.setCodigo(prod.getString("codigo"));
+                    producto.setNombre(prod.getString("nombre"));
+                    /*------------------Comercializadora Producto------------------------------*/
+                    comerProduct.setProducto(producto);
+                    precio.setComercializadoraproducto(comerProduct);
+                    listaPrecios.add(precio);
+                    precio = new Precio();
+                    precioPK = new PrecioPK();
+                    precioLista = new Listaprecio();
+                    precioListaPK = new ListaprecioPK();
+                }
+
+            }
+            if (connection.getResponseCode() != 200) {
+                System.out.println(connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -751,7 +869,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
             File initialFile = new File(pdf.getAbsolutePath());
             InputStream targetStream = new FileInputStream(initialFile);
             //pdfStream = new DefaultStreamedContent();
-            pdfStream = new DefaultStreamedContent(targetStream, "application/pdf", nombreDocumento + env.getFactura().getFacturaPK().getNumero() + ".pdf");            
+            pdfStream = new DefaultStreamedContent(targetStream, "application/pdf", nombreDocumento + env.getFactura().getFacturaPK().getNumero() + ".pdf");
             //DefaultStreamedContent.builder().contentType("application/pdf").name(nombreDocumento + ".pdf").stream(() -> new FileInputStream(targetStream)).build();
             System.err.print(pdf.getAbsolutePath());
             System.out.println(pdf.getAbsolutePath());
@@ -798,6 +916,14 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
 
     public void setVolAuxiliar(BigDecimal volAuxiliar) {
         this.volAuxiliar = volAuxiliar;
+    }
+
+    public List<Precio> getListaPrecios() {
+        return listaPrecios;
+    }
+
+    public void setListaPrecios(List<Precio> listaPrecios) {
+        this.listaPrecios = listaPrecios;
     }
 
 }
