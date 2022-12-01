@@ -23,6 +23,8 @@
                                 <p:toolbarGroup>
                                     <p:commandButton value="Nuevo" icon="pi pi-plus" actionListener="#{listaPrecioBean.nuevaListaPrecio()}" update="form :formNuevo :formTerminalProd" immediate="true"
                                                      styleClass="ui-button-success" style="margin-right: .5rem" />
+                                    <p:commandButton value="Actualizar Listas P." icon="pi pi-plus" actionListener="#{listaPrecioBean.actualizarLoteLista()}" update="form actualizarlistap"
+                                                     styleClass="ui-button-info" style="margin-right: .5rem" />
                                 </p:toolbarGroup>
                                 <p:toolbarGroup>
                                     <p:commandButton value="Export" icon="pi pi-upload" styleClass="ui-button-help" ajax="false">
@@ -401,6 +403,83 @@
         <p:confirmDialog global="true" showEffect="fade" width="300">
             <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
             <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
-        </p:confirmDialog>                    
+        </p:confirmDialog>
+                
+        <p:dialog header="Actulizar Lista de Precio" width="80%" height="500px" showEffect="fade" modal="true" widgetVar="zip" responsive="true">
+            <h:form id="actualizarlistap">
+                <p:outputPanel rendered="true">
+                    <div class="p-grid crud-demo">                        
+                        <div class="ui-fluid p-col-12 p-formgrid p-grid">                            
+                            <div class="p-field p-col-12 p-md-6">
+                                <p:outputLabel for="comercializadora" value="Comercializadora"/>
+                                <div class="ui-inputgroup">
+                                    <span class="ui-inputgroup-addon">
+                                        <i class="fa fa-money"></i>
+                                    </span>
+                                    <p:selectOneMenu id="comercializadora" value="#{listaPrecioBean.comercializadora}" title="Comercializadora"
+                                                     panelStyle="width:175px" style="min-width: 80%;" 
+                                                     autoWidth="false" converter="converterg"
+                                                     filter="true" filterMatchMode="startsWith"
+                                                     disabled="#{!listaPrecioBean.habilitarComer}" required="true" requiredMessage="Seleccione una Comercializadora">
+                                        <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+                                        <f:selectItems value="#{listaPrecioBean.listaComercializadora}"
+                                                       var="comer"
+                                                       itemLabel="#{comer.objRelacionado}"
+                                                       itemValue="#{comer}" />
+                                        <p:ajax event="change" listener="#{listaPrecioBean.seleccionarComer()}"/>                                            
+                                    </p:selectOneMenu>
+                                </div>                            
+                            </div>     
+                            
+                            <div class="p-field p-col-12 p-md-12">
+                            <p:outputLabel for="archivo" value="Subir Archivo"/>
+                                <p:fileUpload id="archivo" listener="#{listaPrecioBean.handleFileUpload}"                                              
+                                              mode="advanced" multiple="false"
+                                              update="ubi dt-cobros" auto="true"
+                                              sizeLimit="102400" allowTypes="/(\.|\/)(txt)$/"
+                                              invalidSizeMessage="Tamaño máximo permitido: 100 KB"
+                                              invalidFileMessage="Solo archivo de tipo txt está permitido"/>    
+                                <p:outputLabel id="ubi" value="#{listaPrecioBean.ubicacion}"/>
+                            </div>                            
+                            <p:dataTable id="dt-cobros" widgetVar="dtProducts" var="listaPrecio" value="#{listaPrecioBean.listaprecioterminalproductoArchivoSubida}" reflow="true" styleClass="products-table"
+                                         paginator="true" rows="15" rowSelectMode="add" paginatorPosition="bottom">                                        
+                                <f:facet name="header">
+                                    <div class="products-table-header">
+                                        <span style="font-weight: bold">Listas de Precio a actualizar</span>
+                                    </div>
+                                </f:facet>  
+                                <!--<p:column selectionMode="multiple" style="width:16px;text-align:center"/>-->
+
+                                <p:column headerText="Lista de Precio" sortBy="#{listaPrecio.listaprecioterminalproductoPK.codigolistaprecio}" filterBy="#{listaPrecio.listaprecioterminalproductoPK.codigolistaprecio}" width="30%">
+                                    <h:outputText value="#{listaPrecio.listaprecioterminalproductoPK.codigolistaprecio}" />
+                                </p:column>
+                                <p:column headerText="Terminal" sortBy="#{listaPrecio.listaprecioterminalproductoPK.codigoterminal}" filterBy="#{listaPrecio.listaprecioterminalproductoPK.codigoterminal}" width="20%">
+                                    <h:outputText value="#{listaPrecio.listaprecioterminalproductoPK.codigoterminal}" />
+                                </p:column>
+                                <p:column headerText="Producto" sortBy="#{listaPrecio.listaprecioterminalproductoPK.codigoproducto}" filterBy="#{listaPrecio.listaprecioterminalproductoPK.codigoproducto}" width="20%">
+                                    <h:outputText value="#{listaPrecio.listaprecioterminalproductoPK.codigoproducto}" />
+                                </p:column>
+                                <p:column headerText="Medida" sortBy="#{listaPrecio.listaprecioterminalproductoPK.codigomedida}" filterBy="#{listaPrecio.listaprecioterminalproductoPK.codigomedida}" width="20%">
+                                    <h:outputText value="#{listaPrecio.listaprecioterminalproductoPK.codigomedida}" />
+                                </p:column>
+                                <p:column headerText="% MCO" sortBy="#{listaPrecio.margenporcentaje}" filterBy="#{listaPrecio.margenporcentaje}" width="20%">
+                                    <h:outputText value="#{listaPrecio.margenporcentaje}" />
+                                </p:column>
+                                <p:column headerText="% MPO" sortBy="#{listaPrecio.margenvalorcomercializadora}" filterBy="#{listaPrecio.margenvalorcomercializadora}" width="20%">
+                                    <h:outputText value="#{listaPrecio.margenvalorcomercializadora}" />
+                                </p:column>
+                                
+                            </p:dataTable>
+                        </div> 
+                    </div>
+                </p:outputPanel>
+                <div class="p-grid p-col-12 p-justify-end">                     
+                    <p:commandButton value="Actualizar" icon="pi pi-check" actionListener="#{listaPrecioBean.guardar}" process="@this"  
+                                     update="@this :form actualizarlistap" styleClass="p-mr-2" />                    
+                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('zip').hide()" class="ui-button-secondary" />
+                </div>
+            </h:form>
+        </p:dialog>
+
     </ui:define>
 </ui:composition>
