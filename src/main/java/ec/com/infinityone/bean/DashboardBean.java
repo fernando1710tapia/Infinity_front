@@ -352,9 +352,9 @@ public class DashboardBean extends ReusableBean implements Serializable {
 //                System.out.println("FT:: VENTAS-PRODU-COLOR. "+cod);
                 if (codigos.containsKey(cod.substring(6, 10))) {
                                     
-                    r = (codigos.get(cod.substring(6, 10))).substring(9);
-                    g = (codigos.get(cod.substring(6, 10))).substring(0, 3);
-                    b = (codigos.get(cod.substring(6, 10))).substring(3, 6);
+                    r = (codigos.get(cod.substring(6, 10))).substring(9, 12);
+                    g = (codigos.get(cod.substring(6, 10))).substring(12, 15);
+                    b = (codigos.get(cod.substring(6, 10))).substring(15, 18);
 //                    System.out.println("FT:: COLOR. "+r+" - "+g+" - "+b );
                 } else {
                     r = "255";

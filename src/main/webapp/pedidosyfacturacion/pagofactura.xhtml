@@ -535,8 +535,8 @@
                                 <p:outputLabel for="archivo" value="Subir Archivo"/>
                                 <p:fileUpload id="archivo" listener="#{pagoFacturaBean.handleFileUpload}"                                              
                                               mode="advanced" multiple="false"
-                                              update="ubi dt-cobros" auto="true"
-                                              sizeLimit="102400" allowTypes="/(\.|\/)(txt)$/"
+                                              update="ubi dt-cobros" auto="true"                                              
+                                              sizeLimit="102400" allowTypes="/(\.|\/)(txt|TXT)$/"
                                               invalidSizeMessage="Maximum file size allowed is 100 KB"
                                               invalidFileMessage="only txt is allowed"/>    
                                 <p:outputLabel id="ubi" value="#{pagoFacturaBean.ubicacion}"/>
