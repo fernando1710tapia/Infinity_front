@@ -224,6 +224,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
                         factPk.setCodigocomercializadora(faPK.getString("codigocomercializadora"));
                         fact.setCodigocliente(fa.getString("codigocliente"));
                         fact.setValortotal(fa.getBigDecimal("valortotal"));
+                        fact.setValorconrubro(fa.getBigDecimal("valorconrubro"));
                         fact.setOeenpetro(fa.getBoolean("oeenpetro"));
                         fact.setCodigobanco(fa.getString("codigobanco"));
                         fact.setActiva(fa.getBoolean("activa"));
@@ -414,6 +415,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
             listaPrecios = new ArrayList<>();
             precioLista = new Listaprecio();
             precioListaPK = new ListaprecioPK();
+            comerProduct = new Comercializadoraproducto();
 
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
@@ -472,6 +474,8 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
                     precio.setComercializadoraproducto(comerProduct);
                     listaPrecios.add(precio);
                     precio = new Precio();
+                    producto = new Producto();
+                    comerProduct = new Comercializadoraproducto();  
                     precioPK = new PrecioPK();
                     precioLista = new Listaprecio();
                     precioListaPK = new ListaprecioPK();
@@ -716,6 +720,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
                         factPk.setCodigocomercializadora(faPK.getString("codigocomercializadora"));
                         fact.setCodigocliente(fa.getString("codigocliente"));
                         fact.setValortotal(fa.getBigDecimal("valortotal"));
+                        fact.setValorconrubro(fa.getBigDecimal("valorconrubro"));
                         fact.setOeenpetro(fa.getBoolean("oeenpetro"));
                         fact.setCodigobanco(fa.getString("codigobanco"));
                         fact.setActiva(fa.getBoolean("activa"));
