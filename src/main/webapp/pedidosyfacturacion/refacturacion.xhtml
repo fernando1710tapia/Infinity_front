@@ -58,7 +58,7 @@
                                                        var="terminal"
                                                        itemLabel="#{terminal.codigo} - #{terminal.nombre}"
                                                        itemValue="#{terminal}" />
-                                        <p:ajax event="change" listener="#{refacturacionBean.seleccionarTerminal}"/>
+                                        <p:ajax event="change" listener="#{refacturacionBean.seleccionarTerminal(1)}"/>
                                     </p:selectOneMenu> 
                                 </div>
                             </div>
@@ -185,8 +185,11 @@
                                         <p:column headerText="Número NP" sortBy="#{termP.factura.facturaPK.numeronotapedido}" filterBy="#{termP.factura.facturaPK.numeronotapedido}" width="10%">
                                             <h:outputText style="color:#87ea2a" value="#{termP.factura.facturaPK.numeronotapedido}" />
                                         </p:column>
-                                        <p:column headerText="Valor" filterBy="#{termP.factura.valortotal}" width="5%">
+                                        <p:column headerText="Valor total" filterBy="#{termP.factura.valortotal}" width="5%">
                                             <h:outputText value="#{termP.factura.valortotal}" />
+                                        </p:column>
+                                        <p:column headerText="Valor con rubros" filterBy="#{termP.factura.valorconrubro}" width="5%">
+                                            <h:outputText value="#{termP.factura.valorconrubro}" />
                                         </p:column>
                                         <p:column headerText="Estado" width="8%">
                                             <h:outputText styleClass="product-badge status-#{estilos.tipoActivoBool(termP.factura.activa)}" value="#{estilos.valorBoolActivo(termP.factura.activa)}" />
@@ -247,7 +250,7 @@
                             <h2 style="color:#87ea2a">REFACTURAR</h2>
                             <p:growl id="messages" showDetail="true" />
                             <div class="ui-fluid p-formgrid p-grid">                            
-                                <div class="p-field p-col-12 p-md-6">
+                                <div class="p-field p-col-12 p-md-5">
                                     <div class="ui-inputgroup">
                                         <span class="ui-inputgroup-addon">
                                             <i class="fa fa-shopping-cart"></i>
@@ -265,7 +268,7 @@
                                         </p:selectOneMenu> 
                                     </div>
                                 </div>
-                                <div class="p-field p-col-12 p-md-6">
+                                <div class="p-field p-col-12 p-md-5">
                                     <div class="ui-inputgroup">
                                         <span class="ui-inputgroup-addon">
                                             <i class="fa fa-shopping-cart"></i>
@@ -283,6 +286,9 @@
                                         </p:selectOneMenu> 
                                     </div>
                                 </div>
+                                <div class="p-field p-col-12 p-md-2">                                    
+                                    <p:commandButton id="btnProdAsf" value="Ver precios vigentes" icon="pi pi-dollar" actionListener="#{refacturacionBean.verPreciosVigentes()}" immediate="true" update="formNuevo :formPrecios" styleClass="p-mr-2" />                                    
+                                </div>                                                                            
                                 <div class="p-field p-col-12 p-md-4">  
                                     <p:outputLabel for="tipoBus">Tipo de Fecha</p:outputLabel>
                                     <p:selectOneRadio id="tipoBus" value="#{refacturacionBean.tipoFecha}" layout="responsive" columns="2" required="true">
@@ -294,8 +300,8 @@
                                     <p:outputLabel for="fecha1" value="Fecha"/>
                                     <p:datePicker id="fecha1" value="#{refacturacionBean.fechaI}" showIcon="true" pattern="dd/MM/yyyy" required="true"/>                                               
                                 </div>
-                                <div class="p-field p-col-12 p-md-2">
-                                    <p:outputLabel for="search" value="."/>
+                                <div class="p-field p-col-12 p-md-2">                                    
+                                    <p:outputLabel value="&#160;"/>  
                                     <p:commandButton id="search" value="Buscar" icon="pi pi-search-plus" actionListener="#{refacturacionBean.obtenerFacturasRefacturar()}" update="formNuevo" />
                                 </div>
                             </div>                              
@@ -309,10 +315,7 @@
                                         <!--<span class="filter-container ui-input-icon-left">
                                             <i class="pi pi-search"></i>
                                             <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar" />
-                                        </span>-->
-                                        <span>
-                                            <p:commandButton id="btnProdAsf" value="Precios Prod. Asfaltos" icon="pi pi-dollar" actionListener="#{refacturacionBean.verPreciosVigentes()}" immediate="true" update="form :formPrecios" styleClass="p-mr-2" />
-                                        </span>
+                                        </span>-->                                        
                                     </div>
                                 </f:facet>
 
@@ -369,32 +372,36 @@
             </p:outputPanel>
         </h:form>
 
-        <p:dialog header="Precios Vigentes" width="40%" showEffect="fade" modal="true" widgetVar="nuevo" responsive="true">
+        <p:dialog header="Precios Vigentes" width="40%" height="500px" showEffect="fade" modal="true" widgetVar="nuevo" responsive="true">
             <h:form id="formPrecios">
                 <p:outputPanel rendered = "true">
-                    <p:dataTable id="dt-prrecios" widgetVar="dtPrecios" var="prec" value="#{refacturacionBean.listaPrecios}" reflow="true" styleClass="products-table"
-                                 paginator="true" rows="5" rowSelectMode="add" paginatorPosition="bottom" >
-                        <f:facet name="header">
-                            <div class="products-table-header">
-                                <span style="font-weight: bold">LISTA PRECIOS VIGENTES</span>
+                    <div class="p-grid crud-demo">
+                        <div class="p-col-12">
+                            <p:dataTable id="dt-prrecios" widgetVar="dtPrecios" var="prec" value="#{refacturacionBean.listaPrecios}" reflow="true" styleClass="products-table"
+                                         paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom" >
+                                <f:facet name="header">
+                                    <div class="products-table-header">
+                                        <!--<span style="font-weight: bold">LISTA PRECIOS VIGENTES</span>-->  
 
-                                <!--<span class="filter-container ui-input-icon-left">
-                                    <i class="pi pi-search"></i>
-                                    <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar" />
-                                </span>-->                                
-                            </div>
-                        </f:facet>
+                                        <span class="filter-container ui-input-icon-left">
+                                            <i class="pi pi-search"></i>
+                                            <p:inputText id="globalFilter" onkeyup="PF('dtPrecios').filter()" placeholder="Buscar" />
+                                        </span>                              
+                                    </div>
+                                </f:facet>
 
-                        <p:column headerText="Producto"  width="10%">
-                            <h:outputText value="#{prec.comercializadoraproducto.producto.codigo} - #{prec.comercializadoraproducto.producto.nombre}" />
-                        </p:column>                         
-                        <p:column headerText="Lista de Precio"  width="15%">
-                            <h:outputText value="#{prec.listaprecio.listaprecioPK.codigo} - #{prec.listaprecio.nombre}" />
-                        </p:column>                       
-                        <p:column headerText="Precio vigente"  width="12%">
-                            <h:outputText value="#{prec.precioproducto}" />
-                        </p:column>                       
-                    </p:dataTable>        
+                                <p:column headerText="Producto" filterBy="#{prec.comercializadoraproducto.producto.codigo}" width="10%">
+                                    <h:outputText value="#{prec.comercializadoraproducto.producto.codigo} - #{prec.comercializadoraproducto.producto.nombre}" />
+                                </p:column>                         
+                                <p:column headerText="Lista de Precio" filterBy="#{prec.listaprecio.nombre}" width="15%">
+                                    <h:outputText value="#{prec.listaprecio.listaprecioPK.codigo} - #{prec.listaprecio.nombre}" />
+                                </p:column>                       
+                                <p:column headerText="Precio vigente"  width="12%">
+                                    <h:outputText value="#{prec.precioproducto}" />
+                                </p:column>                       
+                            </p:dataTable>   
+                        </div>
+                    </div>
                 </p:outputPanel>                
             </h:form>
         </p:dialog>
