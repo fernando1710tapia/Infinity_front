@@ -3053,7 +3053,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             JasperExportManager.exportReportToPdfStream(print, new FileOutputStream(pdf));
             File initialFile = new File(pdf.getAbsolutePath());
             InputStream targetStream = new FileInputStream(initialFile);
-            pdfStream = new DefaultStreamedContent();
+            //pdfStream = new DefaultStreamedContent();
             pdfStream = new DefaultStreamedContent(targetStream, "application/pdf", nombreDocumento + env.getFactura().getFacturaPK().getNumero() + ".pdf");
             //DefaultStreamedContent.builder().contentType("application/pdf").name(nombreDocumento + ".pdf").stream(() -> new FileInputStream(targetStream)).build();
             PrimeFaces.current().executeScript("window.open(" + directory + ",'" + nombreDocumento + "','fullscreen=yes');parent.opener=top;");

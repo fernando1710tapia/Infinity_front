@@ -839,6 +839,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
 
         String path = Fichero.getCARPETAREPORTES() + "/NuevaFactura.jrxml";
         String subreport = Fichero.getCARPETAREPORTES() + "/SubreporteFacturaRubros.jrxml";
+        String subreport1 = Fichero.getCARPETAREPORTES() + "/SubreporteFacturaImpuestos.jrxml";
         System.out.println("PATH:" + path);
         InputStream file = null;
         try {
@@ -846,6 +847,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
 
             JasperReport reporte = JasperCompileManager.compileReport(file);
             JasperReport subreporte = JasperCompileManager.compileReport(subreport);
+            JasperReport subreporte1 = JasperCompileManager.compileReport(subreport1);
 
             Map parametro = new HashMap();
             BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
@@ -855,6 +857,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
 //            BufferedImage imageBar = ImageIO.read(new File("C:\\archivos\\Template\\barras.jpg"));
             parametro.put("numeroComercializadora", env.getFactura().getFacturaPK().getCodigocomercializadora());
             parametro.put("subReporte", subreporte);
+            parametro.put("subReporte1", subreporte1);
             parametro.put("numeroFactura", env.getFactura().getFacturaPK().getNumero());
             parametro.put("logo", image);
             parametro.put("barras", imageBar);
@@ -876,6 +879,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
             //pdfStream = new DefaultStreamedContent();
             pdfStream = new DefaultStreamedContent(targetStream, "application/pdf", nombreDocumento + env.getFactura().getFacturaPK().getNumero() + ".pdf");
             //DefaultStreamedContent.builder().contentType("application/pdf").name(nombreDocumento + ".pdf").stream(() -> new FileInputStream(targetStream)).build();
+            PrimeFaces.current().executeScript("window.open(" + directory + ",'" + nombreDocumento + "','fullscreen=yes');parent.opener=top;");
             System.err.print(pdf.getAbsolutePath());
             System.out.println(pdf.getAbsolutePath());
         } catch (Exception ex) {
