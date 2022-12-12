@@ -475,7 +475,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
                     listaPrecios.add(precio);
                     precio = new Precio();
                     producto = new Producto();
-                    comerProduct = new Comercializadoraproducto();  
+                    comerProduct = new Comercializadoraproducto();
                     precioPK = new PrecioPK();
                     precioLista = new Listaprecio();
                     precioListaPK = new ListaprecioPK();
@@ -485,11 +485,16 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
             if (connection.getResponseCode() != 200) {
                 System.out.println(connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
+//                obtenerPrimerPrecio();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+//    public void obtenerPrimerPrecio() {
+//
+//    }
 
     public void obtenerDetalleNotaPedido(EnvioRefactura envF) throws ParseException {
         try {
