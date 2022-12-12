@@ -2853,6 +2853,8 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     connection.setRequestMethod("PUT");
                     connection.setRequestProperty("Content-type", "application/json");
                     connection.connect();
+
+//facturaauxiliar.
                     facturaauxiliar.setFechaacreditacion(facturaauxiliar.getFechaacreditacion() + "T12:00:00");
                     facturaauxiliar.setFechaacreditacionprorrogada(facturaauxiliar.getFechaacreditacionprorrogada() + "T12:00:00");
                     facturaauxiliar.setFechadespacho(facturaauxiliar.getFechadespacho() + "T12:00:00");
@@ -2877,6 +2879,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                             }
                         }
                         System.out.println("Factura actualizada");
+                        verifcarAnulacionRefactura(facturaauxiliar);
                     } else {
                         System.out.println("Error al añadir: " + connection.getResponseCode());
                         System.out.println("ResponseMesagge: " + connection.getResponseMessage());
@@ -2896,6 +2899,171 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             System.out.println("Error" + e.getMessage());
             e.printStackTrace(System.out);
         }
+    }
+
+    public void verifcarAnulacionRefactura(Factura fact) {
+        try {
+            String respuestaAnulacion = "";
+            //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.notapedido/porId?";
+            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura/porAbascomernprefactura?";
+            url = new URL(direcc
+                    + "&codigoabastecedora=" + fact.getFacturaPK().getCodigoabastecedora()
+                    + "&codigocomercializadora=" + fact.getFacturaPK().getCodigocomercializadora()
+                    + "&numeronp=" + fact.getFacturaPK().getNumeronotapedido()
+                    + "&numerorefactura=" + fact.getFacturaPK().getNumero());
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+
+            BufferedReader br = new BufferedReader(reader);
+            String tmp = null;
+            String respuesta = "";
+            while ((tmp = br.readLine()) != null) {
+                respuesta += tmp;
+            }
+            JSONObject objetoJson = new JSONObject(respuesta);
+            JSONArray retorno = objetoJson.getJSONArray("retorno");
+
+            Factura factAux = new Factura();
+            FacturaPK factAuxPK = new FacturaPK();
+
+            for (int indice = 0; indice < retorno.length(); indice++) {
+                if (!retorno.isNull(indice)) {
+                    JSONObject fac = retorno.getJSONObject(indice);
+                    JSONObject facPK = fac.getJSONObject("facturaPK");
+
+
+                    /*-----------------FACTURA PK-------------------------------------------*/
+                    factAuxPK.setCodigoabastecedora(facPK.getString("codigoabastecedora"));
+                    factAuxPK.setCodigocomercializadora(facPK.getString("codigocomercializadora"));
+                    factAuxPK.setNumero(facPK.getString("numero"));
+                    factAuxPK.setNumeronotapedido(facPK.getString("numeronotapedido"));
+                    factAux.setFacturaPK(factAuxPK);
+                    /*-----------------------------------------------------------------------*/
+                    factAux.setActiva(true);
+                    
+                    if (!fac.isNull("adelantar")) {
+                        factAux.setAdelantar(fac.getBoolean("adelantar"));
+                    }
+                    if (!fac.isNull("ambientesri")) {
+                        factAux.setAmbientesri(fac.getString("ambientesri").charAt(0));
+                    }
+                    if (!fac.isNull("campoadicionalCampo1")) {
+                        factAux.setCampoadicionalCampo1(fac.getString("campoadicionalCampo1"));
+                    }
+                    if (!fac.isNull("campoadicionalCampo2")) {
+                        factAux.setCampoadicionalCampo2(fac.getString("campoadicionalCampo2"));
+                    }
+                    if (!fac.isNull("campoadicionalCampo3")) {
+                        factAux.setCampoadicionalCampo3(fac.getString("campoadicionalCampo3"));
+                    }
+                    if (!fac.isNull("campoadicionalCampo4")) {
+                        factAux.setCampoadicionalCampo4(fac.getString("campoadicionalCampo4"));
+                    }
+                    if (!fac.isNull("campoadicionalCampo5")) {
+                        factAux.setCampoadicionalCampo5(fac.getString("campoadicionalCampo5"));
+                    }
+                    if (!fac.isNull("campoadicionalCampo6")) {
+                        factAux.setCampoadicionalCampo6(fac.getString("campoadicionalCampo6"));
+                    }
+                    if (!fac.isNull("claveacceso")) {
+                        factAux.setClaveacceso(fac.getString("claveacceso"));
+                    }
+                    if (!fac.isNull("clienteformapago")) {
+                        factAux.setClienteformapago(fac.getString("clienteformapago"));
+                    }
+                    if (!fac.isNull("clienteformapagonosri")) {
+                        factAux.setClienteformapagonosri(fac.getString("clienteformapagonosri"));
+                    }
+                    if (!fac.isNull("codigobanco")) {
+                        factAux.setCodigobanco(fac.getString("codigobanco"));
+                    }
+                    if (!fac.isNull("codigocliente")) {
+                        factAux.setCodigocliente(fac.getString("codigocliente"));
+                    }
+                    if (!fac.isNull("codigodocumento")) {
+                        factAux.setCodigodocumento(fac.getString("codigodocumento"));
+                    }
+                    if (!fac.isNull("codigoterminal")) {
+                        factAux.setCodigoterminal(fac.getString("codigoterminal"));
+                    }
+                    factAux.setCorreocliente(fac.getString("correocliente"));
+                    factAux.setDireccioncliente(fac.getString("direccioncliente"));
+                    factAux.setDireccionmatrizcomercializadora(fac.getString("direccionmatrizcomercializadora"));
+
+                    Number errorDoc = fac.getNumber("errordocumento");
+                    factAux.setErrordocumento(errorDoc.shortValue());
+                    factAux.setEsagenteretencion(fac.getBoolean("esagenteretencion"));
+                    factAux.setEscontribuyenteespacial(fac.getString("escontribuyenteespacial"));
+                    factAux.setEstado("PENDIENTE");
+                    /*----------------Fecha Acreditacion------------------------*/
+                    Long fechaAcred = fac.getLong("fechaacreditacion");
+                    Date dateAcerd = new Date(fechaAcred);
+                    SimpleDateFormat dateAc = new SimpleDateFormat("yyyy-MM-dd");
+                    String fechaAcreditacion = dateAc.format(dateAcerd);
+                    factAux.setFechaacreditacion(fechaAcreditacion);
+                    /*------------------Fecha Venta-----------------------------------*/
+                    Long fechaVen = fac.getLong("fechaventa");
+                    Date dateVen = new Date(fechaVen);
+                    String fechaVenta = dateAc.format(dateVen);
+                    factAux.setFechaventa(fechaVenta);
+                    /*------------------Fecha Vencimiento------------------------------*/
+                    Long fechaVenci = fac.getLong("fechavencimiento");
+                    Date dateVenci = new Date(fechaVenci);
+                    String fechaVencimiento = dateAc.format(dateVenci);
+                    factAux.setFechavencimiento(fechaVencimiento);
+                    /*-----------------Fecha Despacho-----------------------------------*/
+                    Long fechaDes = fac.getLong("fechadespacho");
+                    Date dateDes = new Date(fechaDes);
+                    String fechaDespacho = dateAc.format(dateDes);
+                    factAux.setFechadespacho(fechaDespacho);
+                    /*-----------------Fecha Acreditacion Prorrogada--------------------*/
+                    Long fechaAcredPr = fac.getLong("fechaacreditacionprorrogada");
+                    Date dateAcredPr = new Date(fechaAcredPr);
+                    String fechaProrro = dateAc.format(dateAcredPr);
+                    factAux.setFechaacreditacionprorrogada(fechaProrro);
+                    factAux.setFechaautorizacion(fac.getString("fechaautorizacion"));
+
+                    Number hospedado = fac.getNumber("hospedado");
+                    factAux.setHospedado(hospedado.shortValue());
+
+                    factAux.setIvatotal(fac.getBigDecimal("ivatotal"));
+                    factAux.setMoneda(fac.getString("moneda"));
+                    factAux.setNombrecliente(fac.getString("nombrecliente"));
+                    factAux.setNombrecomercializadora(fac.getString("nombrecomercializadora"));
+                    factAux.setNumeroautorizacion(fac.getString("numeroautorizacion"));
+                    factAux.setObligadocontabilidad(fac.getString("obligadocontabilidad"));
+                    factAux.setObservacion(fac.getString("observacion"));
+                    factAux.setOeenpetro(fac.getBoolean("oeenpetro"));
+                    factAux.setPagada(fac.getBoolean("pagada"));
+                    factAux.setPlazocliente(fac.getInt("plazocliente"));
+                    factAux.setRuccliente(fac.getString("ruccliente"));
+                    factAux.setRuccomercializadora(fac.getString("ruccomercializadora"));
+                    factAux.setSeriesri(fac.getString("seriesri"));
+                    factAux.setTelefonocliente(fac.getString("telefonocliente"));
+                    factAux.setTipocomprador(fac.getString("tipocomprador"));
+
+                    factAux.setTipoplazocredito(fac.getString("tipoplazocredito"));
+                    factAux.setUsuarioactual(fac.getString("usuarioactual"));
+                    factAux.setValorconrubro(fac.getBigDecimal("valorconrubro"));
+                    factAux.setValorsinimpuestos(fac.getBigDecimal("valorsinimpuestos"));
+                    factAux.setValortotal(fac.getBigDecimal("valortotal"));
+                }
+            }
+            if (connection.getResponseCode() == 200) {
+                System.out.println("Factura anterior encontrada");
+                actualizarFactura(factAux);
+            } else {
+                System.out.println("Error al añadir:" + connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void verificarAnulacion(EnvioFactura envioFactura) {
@@ -3053,7 +3221,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             JasperExportManager.exportReportToPdfStream(print, new FileOutputStream(pdf));
             File initialFile = new File(pdf.getAbsolutePath());
             InputStream targetStream = new FileInputStream(initialFile);
-            pdfStream = new DefaultStreamedContent();
+            //pdfStream = new DefaultStreamedContent();
             pdfStream = new DefaultStreamedContent(targetStream, "application/pdf", nombreDocumento + env.getFactura().getFacturaPK().getNumero() + ".pdf");
             //DefaultStreamedContent.builder().contentType("application/pdf").name(nombreDocumento + ".pdf").stream(() -> new FileInputStream(targetStream)).build();
             PrimeFaces.current().executeScript("window.open(" + directory + ",'" + nombreDocumento + "','fullscreen=yes');parent.opener=top;");
