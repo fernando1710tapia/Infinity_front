@@ -125,8 +125,11 @@
                                     <div class="detallePrecio" >
                                         <h5>Detalle de pago #{precio.pagofacturaPK.numero}</h5>
                                         <p:dataTable var="detalle" value="#{pagoFacturaBean.listaDetallePago}" reflow="true">                                                                                        
-                                            <p:column headerText="Numero Factura" sortBy="#{detalle.detallepagoPK.numerofactura}">
+                                            <p:column headerText="Factura" sortBy="#{detalle.detallepagoPK.numerofactura}">
                                                 <h:outputText value="#{detalle.detallepagoPK.numerofactura}" />
+                                            </p:column>
+                                            <p:column headerText="Nota Pedido" sortBy="#{detalle.detallepagoPK.numeronotapedido}">
+                                                <h:outputText value="#{detalle.detallepagoPK.numeronotapedido}" />
                                             </p:column>
                                             <p:column headerText="Fecha Venta"  sortBy="#{detalle.factura.fechaventa}">
                                                 <h:outputText value="#{detalle.factura.fechaventa}" />                                                    
@@ -235,6 +238,9 @@
                                     </p:column>
                                     <p:column headerText="Factura" filterBy="#{cobro.facturaPK.numero}" width="15%">
                                         <h:outputText value="#{cobro.facturaPK.numero}" />
+                                    </p:column>
+                                    <p:column headerText="Nota Pedido" filterBy="#{cobro.facturaPK.numeronotapedido}" width="10%">
+                                        <h:outputText value="#{cobro.facturaPK.numeronotapedido}" />
                                     </p:column>
                                     <p:column headerText="Fecha Venta" filterBy="#{cobro.fechaventa}" width="15%">                                            
                                         <h:outputText value="#{cobro.fechaventa}">
@@ -435,7 +441,10 @@
                                     </p:column>
                                     <p:column headerText="Factura" sortBy="#{cobro.facturaPK.numero}" filterBy="#{cobro.facturaPK.numero}" width="20%">
                                         <h:outputText value="#{cobro.facturaPK.numero}" />
-                                    </p:column>                                    
+                                    </p:column>  
+                                    <p:column headerText="Nota Pedido" sortBy="#{cobro.facturaPK.numeronotapedido}" filterBy="#{cobro.facturaPK.numeronotapedido}" width="15%">
+                                        <h:outputText value="#{cobro.facturaPK.numeronotapedido}" />
+                                    </p:column>  
                                     <p:column headerText="Fecha Venta" sortBy="#{cobro.fechaventa}" filterBy="#{cobro.fechaventa}" width="15%">                                            
                                         <h:outputText value="#{cobro.fechaventa}">
                                             <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
@@ -456,12 +465,12 @@
                                             <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                         </h:outputText>
                                     </p:column>
-                                    <p:column headerText="Valor Venta" sortBy="#{cobro.valortotal}" filterBy="#{cobro.valortotal}" width="10%">
+                                    <p:column headerText="Valor Venta" sortBy="#{cobro.valortotal}" filterBy="#{cobro.valortotal}" width="12%">
                                         <h:outputText value="#{cobro.valortotal}">
                                             <f:convertNumber currencySymbol="$" type="currency" />
                                         </h:outputText>
                                     </p:column>
-                                    <p:column headerText="Valor Rubro" sortBy="#{cobro.valorconrubro}" filterBy="#{cobro.valorconrubro}" width="10%">
+                                    <p:column headerText="Valor Rubro" sortBy="#{cobro.valorconrubro}" filterBy="#{cobro.valorconrubro}" width="12%">
                                         <h:outputText value="#{cobro.valorconrubro}">
                                             <f:convertNumber currencySymbol="$" type="currency" />
                                         </h:outputText>
@@ -549,7 +558,9 @@
                                     </div>
                                 </f:facet>  
                                 <!--<p:column selectionMode="multiple" style="width:16px;text-align:center"/>-->
-
+                                <p:column headerText="PyS-NP" sortBy="#{cobro.pysNumeronotapedido}" filterBy="#{cobro.pysNumeronotapedido}" width="12%">
+                                    <h:outputText value="#{cobro.pysNumeronotapedido}" />
+                                </p:column>
                                 <p:column headerText="PyS-Factura" sortBy="#{cobro.pysNumerofactura}" filterBy="#{cobro.pysNumerofactura}" width="16%">
                                     <h:outputText value="#{cobro.pysNumerofactura}" />
                                 </p:column>

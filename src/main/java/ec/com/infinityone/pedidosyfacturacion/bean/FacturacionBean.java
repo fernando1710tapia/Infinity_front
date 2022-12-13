@@ -2879,7 +2879,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                             }
                         }
                         System.out.println("Factura actualizada");
-                        verifcarAnulacionRefactura(facturaauxiliar);
+                        verificarAnulacionRefactura(facturaauxiliar);
                     } else {
                         System.out.println("Error al añadir: " + connection.getResponseCode());
                         System.out.println("ResponseMesagge: " + connection.getResponseMessage());
@@ -2901,7 +2901,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         }
     }
 
-    public void verifcarAnulacionRefactura(Factura fact) {
+    public void verificarAnulacionRefactura(Factura fact) {
         try {
             String respuestaAnulacion = "";
             //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.notapedido/porId?";
@@ -3004,22 +3004,22 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     Date dateAcerd = new Date(fechaAcred);
                     SimpleDateFormat dateAc = new SimpleDateFormat("yyyy-MM-dd");
                     String fechaAcreditacion = dateAc.format(dateAcerd);
-                    factAux.setFechaacreditacion(fechaAcreditacion);
+                    factAux.setFechaacreditacion(fechaAcreditacion + "T12:00:00");
                     /*------------------Fecha Venta-----------------------------------*/
                     Long fechaVen = fac.getLong("fechaventa");
                     Date dateVen = new Date(fechaVen);
                     String fechaVenta = dateAc.format(dateVen);
-                    factAux.setFechaventa(fechaVenta);
+                    factAux.setFechaventa(fechaVenta + "T12:00:00");
                     /*------------------Fecha Vencimiento------------------------------*/
                     Long fechaVenci = fac.getLong("fechavencimiento");
                     Date dateVenci = new Date(fechaVenci);
                     String fechaVencimiento = dateAc.format(dateVenci);
-                    factAux.setFechavencimiento(fechaVencimiento);
+                    factAux.setFechavencimiento(fechaVencimiento + "T12:00:00");
                     /*-----------------Fecha Despacho-----------------------------------*/
                     Long fechaDes = fac.getLong("fechadespacho");
                     Date dateDes = new Date(fechaDes);
                     String fechaDespacho = dateAc.format(dateDes);
-                    factAux.setFechadespacho(fechaDespacho);
+                    factAux.setFechadespacho(fechaDespacho + "T12:00:00");
                     /*-----------------Fecha Acreditacion Prorrogada--------------------*/
                     Long fechaAcredPr = fac.getLong("fechaacreditacionprorrogada");
                     Date dateAcredPr = new Date(fechaAcredPr);
