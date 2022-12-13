@@ -495,20 +495,15 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
 
     public List<Precio> obtenerPrimerPrecio(List<Precio> listaPrecios) {
         List<Precio> listaPreciosAux = new ArrayList<>();
-        if (!listaPrecios.isEmpty()) {
-            List<Precio> listaPreciosComp = new ArrayList<>();
-            listaPreciosComp.addAll(listaPrecios);
-            for (int i = 0; i < listaPrecios.size(); i++) {
-                for (int j = 0; j < listaPreciosComp.size(); j++) {
-                    if ((listaPrecios.get(i).getPrecioPK().getCodigoproducto().equals(listaPreciosComp.get(j).getPrecioPK().getCodigoproducto()))
-                            && (listaPrecios.get(i).getPrecioPK().getCodigomedida().equals(listaPreciosComp.get(j).getPrecioPK().getCodigomedida()))
-                            ) {
-                        listaPreciosAux.add(listaPrecios.get(i));
-                        break;
-                    }
-                }
+        HashMap<String, Precio> mapaPrecios = new HashMap<>();
+        String cadena = "";
 
+        if (!listaPrecios.isEmpty()) {
+            for (int i = 0; i < listaPrecios.size(); i++) {
+                cadena = listaPrecios.get(i).getPrecioPK().getCodigoproducto() + listaPrecios.get(i).getPrecioPK().getCodigomedida() + String.valueOf(listaPrecios.get(i).getPrecioPK().getCodigolistaprecio()) + String.valueOf(listaPrecios.get(i).getPrecioPK().getFechainicio().getTime());
+                mapaPrecios.put(cadena, listaPrecios.get(i));
             }
+            listaPreciosAux = new ArrayList<>(mapaPrecios.values());
         }
         return listaPreciosAux;
     }
