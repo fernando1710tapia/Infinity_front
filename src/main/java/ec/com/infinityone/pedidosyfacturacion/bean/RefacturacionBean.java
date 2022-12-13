@@ -485,16 +485,33 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
             if (connection.getResponseCode() != 200) {
                 System.out.println(connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
-//                obtenerPrimerPrecio();
+            } else {
+                listaPrecios = obtenerPrimerPrecio(listaPrecios);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-//    public void obtenerPrimerPrecio() {
-//
-//    }
+    public List<Precio> obtenerPrimerPrecio(List<Precio> listaPrecios) {
+        List<Precio> listaPreciosAux = new ArrayList<>();
+        if (!listaPrecios.isEmpty()) {
+            List<Precio> listaPreciosComp = new ArrayList<>();
+            listaPreciosComp.addAll(listaPrecios);
+            for (int i = 0; i < listaPrecios.size(); i++) {
+                for (int j = 0; j < listaPreciosComp.size(); j++) {
+                    if ((listaPrecios.get(i).getPrecioPK().getCodigoproducto().equals(listaPreciosComp.get(j).getPrecioPK().getCodigoproducto()))
+                            && (listaPrecios.get(i).getPrecioPK().getCodigomedida().equals(listaPreciosComp.get(j).getPrecioPK().getCodigomedida()))
+                            ) {
+                        listaPreciosAux.add(listaPrecios.get(i));
+                        break;
+                    }
+                }
+
+            }
+        }
+        return listaPreciosAux;
+    }
 
     public void obtenerDetalleNotaPedido(EnvioRefactura envF) throws ParseException {
         try {
