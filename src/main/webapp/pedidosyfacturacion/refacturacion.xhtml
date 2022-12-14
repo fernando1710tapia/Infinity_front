@@ -304,6 +304,15 @@
                                     <p:outputLabel value="&#160;"/>  
                                     <p:commandButton id="search" value="Buscar" icon="pi pi-search-plus" actionListener="#{refacturacionBean.obtenerFacturasRefacturar()}" update="formNuevo" />
                                 </div>
+                                <div class="p-field p-col-12 p-md-2">
+                                    <p:outputLabel for="todas"  value="Por Refacturar"/>
+                                    <div class="ui-inputgroup">
+                                        <p:toggleSwitch id="todas" value="#{refacturacionBean.porRefacturar}" > 
+                                            <p:ajax event="change" listener="#{refacturacionBean.mostrarPorRefacturar()}"
+                                                    update="formNuevo dt-products1"/>
+                                        </p:toggleSwitch>
+                                    </div>
+                                </div>
                             </div>                              
 
                             <p:dataTable id="dt-products1" widgetVar="dtProducts1" var="fact" value="#{refacturacionBean.listaEnvRefac}" reflow="true" styleClass="products-table"
