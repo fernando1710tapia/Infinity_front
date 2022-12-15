@@ -128,6 +128,8 @@ public class Factura implements Serializable{
 
     private Boolean despachada;
 
+    private Boolean enviadaxcobrar;
+
     public Factura() {
     }
     
@@ -626,6 +628,14 @@ public class Factura implements Serializable{
 
     public void setDespachada(Boolean despachada) {
         this.despachada = despachada;
+    }
+
+    public Boolean getEnviadaxcobrar() {
+        return enviadaxcobrar;
+    }
+
+    public void setEnviadaxcobrar(Boolean enviadaxcobrar) {
+        this.enviadaxcobrar = enviadaxcobrar;
     }
 
 }

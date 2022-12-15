@@ -241,6 +241,10 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
      */
     private boolean pagoDirecto;
     /*
+    variable para mostrar pantalla consultarFactura
+     */
+    private boolean consultarFactura;
+    /*
     variable para mostrar la pantalla inicial
      */
     private boolean pantallaInicial;
@@ -312,6 +316,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
         listaPagofacturaArchivoSubida = new ArrayList<>();
         listaPagofactura = new ArrayList<>();
         gestionarCobro = false;
+        consultarFactura = false;
         pagoDirecto = false;
         pantallaInicial = true;
         valoresGeneredos = false;
@@ -357,6 +362,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
         listaPagofacturaArchivoSubida = new ArrayList<>();
         listaPagofactura = new ArrayList<>();
         gestionarCobro = false;
+        consultarFactura = false;
         pagoDirecto = false;
         pantallaInicial = true;
         valoresGeneredos = false;
@@ -671,6 +677,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
 
     public void generarValores() throws ParseException {
         gestionarCobro = false;
+        consultarFactura = false;
         pagoDirecto = false;
         pantallaInicial = false;
         valoresGeneredos = true;
@@ -875,7 +882,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
 //                    }
 
                     if (!mapaFacturas.isEmpty()) {
-                        
+
                         int contadorArchivos = 0;
 
                         for (Map.Entry<String, List<Factura>> entry : mapaFacturas.entrySet()) {
@@ -1021,7 +1028,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         String fechaHoy = fechaHora.substring(0, 4) + fechaHora.substring(5, 7) + fechaHora.substring(8, 10);
         String contadorArchivosS = String.format("%2s", String.valueOf(contadorArchivos)).replace(' ', '0');
         try {
-            nombreArchivo = "/COBROSRET_" + fechaHoy  + "_"+contadorArchivosS+"_KSZ-"+fechaAcr + ".txt";
+            nombreArchivo = "/COBROSRET_" + fechaHoy + "_" + contadorArchivosS + "_KSZ-" + fechaAcr + ".txt";
 
             //crea el flujo para escribir en el archivo
             //flwriter = new FileWriter("C:\\archivos\\Facturas_Banco" + codBanco + "_" + fechaHora + "_" + usuario + ".txt");
@@ -2022,7 +2029,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         List<JSONObject> arrObj = new ArrayList<>();
         for (int indice = 0; indice < listaPagosbancorechazados.size(); indice++) {
             arrObj.add(addIPagoFacturaRechazadosDetail(listaPagosbancorechazados.get(indice)));
-        }        
+        }
         return arrObj;
     }
 
@@ -2071,7 +2078,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         List<JSONObject> arrObj = new ArrayList<>();
         for (int indice = 0; indice < listaFacturas.size(); indice++) {
             arrObj.add(addFactEnviadasXCobrarDetail(listaFacturas.get(indice)));
-        }        
+        }
         return arrObj;
     }
 
@@ -2671,6 +2678,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 
     public void nuevoPagoFactura() {
         gestionarCobro = true;
+        consultarFactura = false;
         pagoDirecto = false;
         pantallaInicial = false;
         valoresGeneredos = false;
@@ -2693,6 +2701,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
     public Pagofactura editarPagoFactura(Pagofactura obj) {
         editarPago = true;
         gestionarCobro = false;
+        consultarFactura = false;
         pagoDirecto = false;
         pagofactura = obj;
         if (pagofactura.getActivo()) {
@@ -2715,13 +2724,17 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         }
     }
 
-    public void actualizarListaCobros() {
+    public void actualizarListaCobros(int tipo) {
         if (comercializadora != null) {
             if (pagoFacturaBean != null) {
                 SimpleDateFormat fechV = new SimpleDateFormat("yyyy/MM/dd");
                 String fechaU = fechV.format(this.fecha);
                 listaFactura = new ArrayList<>();
-                listaFactura = facturaServicio.obtenerFacturasPagos(codigoComer, tipoBusquedaDocumento, fechaU, true, true, false, "01");
+                if (tipo == 1) {
+                    listaFactura = facturaServicio.obtenerFacturasPagos(codigoComer, tipoBusquedaDocumento, fechaU, true, true, false, "01");
+                } else {
+                    listaFactura = facturaServicio.obtenerFacturasValidafrCobros(codigoComer, tipoBusquedaDocumento, fechaU, "01");
+                }
                 if (listaFactura.isEmpty()) {
                     this.dialogo(FacesMessage.SEVERITY_WARN, "No existen registros en la fecha seleccionada");
                 }
@@ -2890,6 +2903,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 
     public void nuevoPagoDirecto() {
         gestionarCobro = false;
+        consultarFactura = false;
         pagoDirecto = true;
         pantallaInicial = false;
         valoresGeneredos = false;
@@ -2912,6 +2926,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         pantallaInicial = true;
         valoresGeneredos = false;
         gestionarCobro = false;
+        consultarFactura = false;
         pagoDirecto = false;
         fecha = new Date();
         listaPagofactura = new ArrayList<>();
@@ -2927,6 +2942,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         pantallaInicial = false;
         valoresGeneredos = false;
         gestionarCobro = true;
+        consultarFactura = false;
         pagoDirecto = false;
         temporalServicios.eliminarRegistrosTemporales(fechaConvertida, dataUser.getUser().getNombrever().replace(" ", ""), codigoComer);
         listaFactura = new ArrayList<>();
@@ -3026,6 +3042,27 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         String fechaFormat = "";
         fechaFormat = cadena.substring(0, 2) + "/" + cadena.substring(2, 4) + "/" + cadena.substring(4);
         return fechaFormat;
+    }
+
+    public void nuevoConsultaFactura() {
+        gestionarCobro = false;
+        consultarFactura = true;
+        pagoDirecto = false;
+        pantallaInicial = false;
+        valoresGeneredos = false;
+        estadoPago = true;
+        editarPago = false;
+        pagofactura = new Pagofactura();
+        pagosbancorechazados = new Pagosbancorechazados();
+        pagosbancorechazadosPK = new PagosbancorechazadosPK();
+        if (habilitarComer) {
+            comercializadora = new ComercializadoraBean();
+        }
+        listaFactura = new ArrayList<>();
+        listaFacturaSeleccionada = new ArrayList<>();
+        listaTotalCobros = new ArrayList<>();
+        tipoBusquedaDocumento = "1";
+        fecha = new Date();
     }
 
     public List<Detallepago> getListaDetallePagofacturaArchivoSubida() {
@@ -3234,6 +3271,14 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 
     public void setGestionarCobro(boolean gestionarCobro) {
         this.gestionarCobro = gestionarCobro;
+    }
+
+    public boolean isConsultarFactura() {
+        return consultarFactura;
+    }
+
+    public void setConsultarFactura(boolean consultarFactura) {
+        this.consultarFactura = consultarFactura;
     }
 
     public boolean isPantallaInicial() {
