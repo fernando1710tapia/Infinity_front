@@ -49,6 +49,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.faces.application.FacesMessage;
 import javax.faces.view.ViewScoped;
 import javax.imageio.ImageIO;
@@ -902,6 +904,29 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
         } catch (Exception ex) {
             //ex.printStackTrace();
             System.out.println("Excepcion: " + ex);
+        }
+    }
+
+    public void mostrarPorRefacturar() {
+        try {
+            List<EnvioRefactura> listaEnvRefacAuxiliar = new ArrayList<>();
+            if (!listaEnvRefac.isEmpty()) {
+                if (porRefacturar) {
+                    for (int i = 0; i < listaEnvRefac.size(); i++) {
+                        if (!listaEnvRefac.get(i).getFactura().getOeanuladaenpetro()) {
+                            listaEnvRefacAuxiliar.add(listaEnvRefac.get(i));
+                        }
+                    }
+                    listaEnvRefac = listaEnvRefacAuxiliar;
+                } else {
+                    obtenerFacturasRefacturar();
+                }
+            } else {
+                porRefacturar = false;
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "PARA PODER VISUALIZAR LAS FACTURAS POR REFACTURAR, PRIMERO REALIZAR UNA BÚSQUEDA CON REGISTROS");
+            }
+        } catch (ParseException ex) {
+            Logger.getLogger(FacturacionBean.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

@@ -357,6 +357,10 @@ public class FacturacionBean extends ReusableBean implements Serializable {
     Variable para ejecutar la acciión solo por procesar
      */
     protected boolean soloporProcesar;
+    /* 
+    Variable para ejecutar la acción mostrar todas
+     */
+    protected boolean porRefacturar;
     /*
     Variable para almacenar el mensaje de anulación de facturas
      */
@@ -515,6 +519,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         listFactSelec = new ArrayList<>();
         anulacion = new NotaPedidoSOAP();
         soloporProcesar = false;
+        porRefacturar = false;
         estadoAnulacion = false;
         facturaauxiliar = new Factura();
         facturaauxiliarPK = new FacturaPK();
@@ -3778,6 +3783,14 @@ public class FacturacionBean extends ReusableBean implements Serializable {
 
     public void setSoloporProcesar(boolean soloporProcesar) {
         this.soloporProcesar = soloporProcesar;
+    }
+
+    public boolean isPorRefacturar() {
+        return porRefacturar;
+    }
+
+    public void setPorRefacturar(boolean porRefacturar) {
+        this.porRefacturar = porRefacturar;
     }
 
     public String getMensajeAnulacion() {
