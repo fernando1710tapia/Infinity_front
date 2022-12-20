@@ -27,7 +27,7 @@
                                                      styleClass="ui-button-info" style="margin-right: .5rem" />
                                     <p:commandButton value="Gestión Directa" icon="pi pi-plus" actionListener="#{pagoFacturaBean.nuevoPagoDirecto()}" update="form :formPagoDirecto"
                                                      styleClass="ui-button-succes" style="margin-right: .5rem" />
-                                    <p:commandButton value="Consultar" icon="pi pi-plus" actionListener="#{pagoFacturaBean.nuevoConsultaFactura()}" update="form :formNuevoConsulta"
+                                    <p:commandButton value="Consultar F. enviadas a cobrar" icon="pi pi-plus" actionListener="#{pagoFacturaBean.nuevoConsultaFactura()}" update="form :formNuevoConsulta"
                                                      styleClass="ui-button-succes" style="margin-right: .5rem" />
 
                                 </p:toolbarGroup>
@@ -498,7 +498,7 @@
                 <div class="p-grid crud-demo">
                     <div class="p-col-12">
                         <div class="card">
-                            <h2 style="color:#87ea2a">CONSULTAR FACTURAS</h2>
+                            <h2 style="color:#87ea2a">FACTURAS ENVIADAS A COBRAR</h2>
                             <p:growl id="messages" showDetail="true" />
                             <div class="ui-fluid p-formgrid p-grid">                                    
                                 <div class="p-field p-col-12 p-md-4">
@@ -561,12 +561,12 @@
                                     <p:column headerText="Cliente"  filterBy="#{cobro.codigocliente}" width="25%">
                                         <h:outputText value="#{cobro.codigocliente} - #{cobro.nombrecliente}" />
                                     </p:column>
-                                    <p:column headerText="Fecha Venta" filterBy="#{cobro.fechaventa}" width="15%">                                            
+                                    <p:column headerText="Fecha Venta" filterBy="#{cobro.fechaventa}" width="11%">                                            
                                         <h:outputText value="#{cobro.fechaventa}">
                                             <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                         </h:outputText>
                                     </p:column>                                   
-                                    <p:column headerText="Fecha Acred. Prorrogada" filterBy="#{cobro.fechaacreditacionprorrogada}" width="15%">                                            
+                                    <p:column headerText="Fecha Acred. Prorrogada" filterBy="#{cobro.fechaacreditacionprorrogada}" width="11%">                                            
                                         <h:outputText value="#{cobro.fechaacreditacionprorrogada}"> 
                                             <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                         </h:outputText>
@@ -582,7 +582,7 @@
                                         <h:outputText styleClass="product-badge status-#{estilos.tipoActivoBool(cobro.pagada)}" value="#{estilos.valorBoolActivoFact(cobro.pagada)}" />
                                     </p:column>
                                     <p:column headerText="Enviada por Cobrar" sortBy="#{estilos.valorBoolActivo(cobro.enviadaxcobrar)}" width="5%">
-                                        <h:outputText styleClass="product-badge status-#{estilos.tipoActivoBool(cobro.enviadaxcobrar)}" value="#{estilos.valorBoolActivoFact(cobro.enviadaxcobrar)}" />
+                                        <h:outputText styleClass="product-badge status-#{estilos.tipoActivoBool(cobro.enviadaxcobrar)}" value="#{estilos.valorBoolActivoPago(cobro.enviadaxcobrar)}" />
                                     </p:column>                                   
                                 </p:dataTable>
                             </div>
