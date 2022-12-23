@@ -24,14 +24,56 @@
         </div>
     </div>
 
-    <p:dialog header="Ayuda" width="60%" height="auto" showEffect="fade" modal="true" widgetVar="ayuda" responsive="true">
+    <p:dialog header="Ayuda" width="70%" showEffect="fade" modal="true" widgetVar="ayuda" responsive="true">    
+        <h:form id="formAyuda">
+            <p:outputPanel rendered = "true">
+                <div class="p-grid panel-demo">
+                    <div class="p-col-12">
+                        <div class="p-grid">
+                            <div class="p-col-4 p-d-flex p-ai-center p-jc-center">
+                                <div class="ui-fluid">
+                                    <p:slideMenu style="width:200px">                                        
+                                        <p:submenu label="Actor Comercial" icon="pi pi-shopping-cart">
+                                            <p:menuitem value="Cliente" url="#" icon="pi pi-user" />                                           
+                                        </p:submenu>
+                                    </p:slideMenu>
+                                </div>
+                            </div>                            
+                            <div class="p-col-7 p-ai-center p-jc-center" id="media">
+                                
+                                <h:outputText value="Cliente"  styleClass="default-header"/>              
+                                
+                                <p:separator ></p:separator>
+                                <p> 
+                                    <h:outputText id="desc" value="#{ayudaBean.descripcion}" rendered="#{ayudaBean.actualizarD}" styleClass="default-header"/>                                     
+                                </p>                                                                                 
+                                
+                                <a href="#{ayudaBean.direcMedia}" target="_blank">Video</a> 
+
+                                    <!--<p:video value="/resources/demo/media/sample-webm.webm"
+                                             controls="true"
+                                             width="420"
+                                             height="250"
+                                             onplay="console.log('WEBM Started Playing')"
+                                             onpause="console.log('WEBM Stopped Playing')">
+                                        Your browser does not support the video element.
+                                        See: <h:outputLink value="https://www.w3schools.com/html/html5_video.asp">HTML5 Video</h:outputLink>
+                                    </p:video>-->
+                            </div>
+                        </div>
+                    </div>
+                </div>  
+            </p:outputPanel>            
+        </h:form>
+    </p:dialog>
+
+    <!--<p:dialog header="Ayuda" width="70%" showEffect="fade" modal="true" widgetVar="ayuda" responsive="true">
         <h:form id="formAyuda">
             <p:outputPanel rendered = "true">
                 <div class="ui-fluid p-formgrid p-grid">
                     <div class="p-col-3">
                         <div class="layout-menu-container">
-                            <div class="menu-scroll-content">
-                                <div class="layout-menu-title">AYUDA</div>
+                            <div class="menu-scroll-content">                                
                                 <h:form id="menuform">               
                                     <fr:menu model="#{ayudaBean.modelAyuda}" />                                                                            
                                 </h:form>
@@ -55,7 +97,7 @@
             </p:outputPanel>            
         </h:form>
     </p:dialog>
-    <!--    </p:outputPanel>
+    </p:outputPanel>
     </h:form>-->
 
     <!--</ui:define>-->
