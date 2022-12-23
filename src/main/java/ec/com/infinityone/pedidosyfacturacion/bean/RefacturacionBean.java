@@ -148,6 +148,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
             String fechaS = date.format(this.fechaI);
             String fechaF = "";
             String dateF = "";
+            String msg = "";
             long diff = new Long(0);
             long diffrence = new Long(0);
             Date secondDate = new Date();
@@ -178,6 +179,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
                                 + "&fechaF=" + fechaF
                                 + "&refacturada=1"
                                 + "&productosinfe=" + Fichero.getPRODUCTOSINFE());
+                        msg = "NO SE ENCONTRARON FACTURAS REFACTURADAS";
                     }
                 }
             } else {
@@ -192,6 +194,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
                         + "&fechaF=" + fechaS
                         + "&refacturada=0"
                         + "&productosinfe=" + Fichero.getPRODUCTOSINFE());
+                msg = "NO SE ENCONTRARON FACTURAS PENDIENTES DE SER REFACTURADAS";
             }
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -213,7 +216,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
             JSONObject objetoJson = new JSONObject(respuesta);
             JSONArray retorno = objetoJson.getJSONArray("retorno");
             if (retorno.isEmpty()) {
-                this.dialogo(FacesMessage.SEVERITY_ERROR, "NO SE ENCONTRARON REGISTROS");
+                this.dialogo(FacesMessage.SEVERITY_ERROR, msg);
             } else {
                 for (int indice = 0; indice < retorno.length(); indice++) {
                     if (!retorno.isNull(indice)) {
@@ -913,10 +916,22 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
             if (!listaEnvRefac.isEmpty()) {
                 if (porRefacturar) {
                     for (int i = 0; i < listaEnvRefac.size(); i++) {
-                        if (!listaEnvRefac.get(i).getFactura().getOeanuladaenpetro()) {
-                            listaEnvRefacAuxiliar.add(listaEnvRefac.get(i));
+                        if (listaEnvRefac.get(i).getFactura().isSeleccionar() == true) {
+                            if (listaEnvRefac.get(i).getFactura().getEstado().trim().equals("PENDIENTE")) {
+                                if (listaEnvRefac.get(i).getFactura().getRefacturada() == false) {
+                                    if (listaEnvRefac.get(i).getFactura().getActiva() == true) {
+                                        if (listaEnvRefac.get(i).getFactura().getPagada() == false) {
+                                            if (listaEnvRefac.get(i).getFactura().getOeenpetro() == true) {
+                                                if (listaEnvRefac.get(i).getFactura().getReliquidada() == false) {
+                                                    listaEnvRefacAuxiliar.add(listaEnvRefac.get(i));
+                                                } 
+                                            } 
+                                        } 
+                                    } 
+                                } 
+                            } 
                         }
-                    }
+                    }                    
                     listaEnvRefac = listaEnvRefacAuxiliar;
                 } else {
                     obtenerFacturasRefacturar();

@@ -87,14 +87,18 @@ public class AyudaBean extends LoginBean implements Serializable {
     public void init() {
 
         actualizarD = true;
-        direcMedia = Fichero.getCARPETAAYUDA() + "\\CLIENTE_2\\index.html";
+        /*direcMedia = Fichero.getCARPETAAYUDA() + "\\CLIENTE_2\\index.html";
         descripcion = "xxxxxxxxxxxxxxxxxxxxxxxx";
         nombreMenu = "Cliente";
-        menu = new MenuBean();
+        menu = new MenuBean();*/
+
+ direcMedia = "https://drive.google.com/file/d/1D99SVsN9ox1hUjI2GwjaEsG2XkNU-sly/view?usp=share_link";
+            descripcion = "Ayuda menu cliente";
+            nombreMenu = "Cliente";
         //crearAtbol();
-        obtenerMenuPadre();
-        obtenerMenuHijo();
-        cargarMenuAyuda();
+        //obtenerMenuPadre();
+        //obtenerMenuHijo();
+        //cargarMenuAyuda();
     }
 
     public void obtenerMenuPadre() {
@@ -258,15 +262,17 @@ public class AyudaBean extends LoginBean implements Serializable {
         direcMedia = Fichero.getCARPETAAYUDA() + "\\CLIENTE_2\\index.html";
     }
 
-    public void update(MenuBean menuH ) {        
+    public void update(MenuBean menuH) {
         if (menuH != null) {
             actualizarD = true;
-            direcMedia = Fichero.getCARPETAAYUDA() + menuH.getUrlAyuda();
-            descripcion = menuH.getDescripcionAyuda();
-            nombreMenu = menuH.getNombre();
+//            direcMedia = Fichero.getCARPETAAYUDA() + menuH.getUrlAyuda();
+//            descripcion = menuH.getDescripcionAyuda();
+//            nombreMenu = menuH.getNombre();
+            direcMedia = "https://drive.google.com/file/d/1D99SVsN9ox1hUjI2GwjaEsG2XkNU-sly/view?usp=share_link";
+            descripcion = "Ayuda menu cliente";
+            nombreMenu = "Cliente";
         }
     }
-  
 
     public void cargarMenuAyuda() {
         DefaultSubMenu primerNivel;
@@ -452,7 +458,7 @@ public class AyudaBean extends LoginBean implements Serializable {
 
     public void mostarPantalla() throws IOException {
         //FacesContext.getCurrentInstance().getExternalContext().redirect("/infinity-web-1/ayuda.xhtml");        
-        PrimeFaces.current().executeScript("PF('nuevo').show()");
+        PrimeFaces.current().executeScript("PF('ayuda').show()");
     }
 
     public TreeNode getRoot() {
