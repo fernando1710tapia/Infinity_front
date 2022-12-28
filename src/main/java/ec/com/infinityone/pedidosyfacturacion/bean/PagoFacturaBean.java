@@ -1115,7 +1115,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 //                21	Número Factura	Numérico	200
                 linea = linea + String.format("%200s", factura.getFacturaPK().getNumero()) + separador;
 
-                // ESCRIBIR LINEA DE DESGLOSE DE RUBROS
+/*                // ESCRIBIR LINEA DE DESGLOSE DE RUBROS
 //                1	TipoProceso	Carácter 	2
                 lineaIva = lineaIva + "DE" + separador;
 
@@ -1159,20 +1159,20 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                 lineasIVA.add(lineaIva);
                 lineaIva = "";
                 System.out.println("FT::linea: " + linea + "aqui se acaba la linea");
-                //escribe los datos en el archivo
+                //escribe los datos en el archivo*/
                 bfwriter.write(linea + "\n");
                 linea = "";
 
             }
 
             System.out.println("FT::ESCRIBIENDO LINEAS DE DESGLOSE: ");
-            for (int i = 0; i < contadorFacturas; i++) {
+            /*for (int i = 0; i < contadorFacturas; i++) {
 
                 //escribe los datos en el archivo
                 bfwriter.write(lineasIVA.get(i) + "\n");
 //                linea = "";
 
-            }
+            }*/
 
             //cierra el buffer intermedio
             bfwriter.close();
