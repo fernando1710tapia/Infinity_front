@@ -3,17 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ec.com.infinityone.bean;
+package ec.com.infinityone.actorcomercial.bean;
 
 import ec.com.infinityone.configuration.Fichero;
-import ec.com.infinityone.modeloWeb.Formapago;
-import ec.com.infinityone.modeloWeb.Formapago;
+import ec.com.infinityone.modeloWeb.Autotanque;
+import ec.com.infinityone.modeloWeb.Conductor;
 import ec.com.infinityone.reusable.ReusableBean;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -28,32 +30,43 @@ import org.primefaces.shaded.json.JSONObject;
 
 /**
  *
- * @author David
+ * @author SonyVaio
  */
 @Named
 @ViewScoped
-public class FormaPagoBean extends ReusableBean implements Serializable {
+public class AutotanqueBean extends ReusableBean implements Serializable {
 
     /*
-    Variable que almacena varias formas de pago
+    Variable que almacena varias autotanques
      */
-    private List<Formapago> listaFormaP;
+    private List<Autotanque> listaAutotanque;
+
+    private List<Conductor> listaConductores;
     /*
-    Variable que almacena varias formas de pago
+    Variable que almacena autotanque
      */
-    private Formapago formaP;
+    private Autotanque autotanque;
+    /*
+    Variable que almacena autotanque
+     */
+    private Conductor conductor;
     /*
     Variable para validar si es guardar o editar
      */
-    private boolean editarFormaP;
+    private boolean editarAutotanque;
     /*
     Variable que establece true or false para el estado de la Medida
      */
-    private boolean estadoFormaP;
+    private boolean estadoAutotanque;
+
+    private BigDecimal volTotal;
+
+    private int comp;
+
     /**
      * Constructor por defecto
      */
-    public FormaPagoBean() {
+    public AutotanqueBean() {
     }
 
     @PostConstruct
@@ -61,33 +74,27 @@ public class FormaPagoBean extends ReusableBean implements Serializable {
      * Funcion para inicializar variables
      */
     public void init() {
-        //direccion = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.formapago";
-        direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.formapago";
-        editarFormaP = false;
-        formaP = new Formapago();
-        obtenerFormaPago();
+        //direccion = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.autotanque";
+        direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.autotanque";
+        editarAutotanque = false;
+        autotanque = new Autotanque();
+        comp = 0;
+        volTotal = new BigDecimal("0.00");
+        obtenerAutotanque();
+        obtenerConductores();
         //getURL();
     }
 
-    public void obtenerFormaPago() {
+    public void obtenerConductores() {
         try {
-            String token = "Infinity eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwYXVsIiwiaXNzIjoiZWMuY29tLmluZmluaXR5b25lIiwiaWF0IjoxNjI1ODUyOTIyLCJleHAiOjE2MjU4NTY1MjJ9.zlpXPvsZeHrmnPdQ_cINdd6SBPoNqF0Sq6Wuin3P6HdriDHoPRkhCYcJNYlfnAb8yUTrCPc9OHFIVjF35wTcaw";
-            //byte[] bytes = token.getBytes();
-            //String basicAuth = "Basic : " + new String(Base64.getEncoder().encode(bytes));  
-            url = new URL(direccion);
+            url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.conductor");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
-            //connection.setRequestProperty("Authorization", token);
-            //connection.setRequestProperty("Access-Control-Allow-Headers", "Authorization");
-            //connection.setRequestProperty("Accept-Charset", "utf-8");
-            //connection.setRequestProperty("Accept-Encoding", "gzip");
-            //connection.setRequestProperty("Accept-Language", "en-US");
-            //connection.setRequestProperty("Access-Control-Allow-Origin", "*");
 
-            listaFormaP = new ArrayList<>();
-            formaP = new Formapago();
+            listaConductores = new ArrayList<>();
+            conductor = new Conductor();
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
             BufferedReader br = new BufferedReader(reader);
@@ -96,17 +103,76 @@ public class FormaPagoBean extends ReusableBean implements Serializable {
             while ((tmp = br.readLine()) != null) {
                 respuesta += tmp;
             }
-            JSONObject formaPJson = new JSONObject(respuesta);
-            JSONArray retorno = formaPJson.getJSONArray("retorno");
+            JSONObject conductorJson = new JSONObject(respuesta);
+            JSONArray retorno = conductorJson.getJSONArray("retorno");
             for (int indice = 0; indice < retorno.length(); indice++) {
-                JSONObject areaM = retorno.getJSONObject(indice);
-                formaP.setCodigo(areaM.getString("codigo"));
-                formaP.setNombre(areaM.getString("nombre"));
-                formaP.setCodigosri(areaM.getString("codigosri"));
-                formaP.setActivo(areaM.getBoolean("activo"));               
-                formaP.setUsuarioactual(areaM.getString("usuarioactual"));
-                listaFormaP.add(formaP);
-                formaP = new Formapago();
+                JSONObject autoT = retorno.getJSONObject(indice);
+                conductor.setCedularuc(autoT.getString("cedularuc"));
+                conductor.setNombre(autoT.getString("nombre"));
+                conductor.setActivo(autoT.getBoolean("activo"));
+                conductor.setUsuarioactual(autoT.getString("usuarioactual"));
+                if (conductor.getActivo()) {
+                    listaConductores.add(conductor);
+                }
+                conductor = new Conductor();
+            }
+
+            System.out.println(connection.getResponseCode());
+            System.out.println(connection.getResponseMessage());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void obtenerAutotanque() {
+        try {
+            url = new URL(direccion);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+
+            listaAutotanque = new ArrayList<>();
+            autotanque = new Autotanque();
+            conductor = new Conductor();
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+
+            BufferedReader br = new BufferedReader(reader);
+            String tmp = null;
+            String respuesta = "";
+            while ((tmp = br.readLine()) != null) {
+                respuesta += tmp;
+            }
+            JSONObject autotanqueJson = new JSONObject(respuesta);
+            JSONArray retorno = autotanqueJson.getJSONArray("retorno");
+            for (int indice = 0; indice < retorno.length(); indice++) {
+                comp = 0;
+                JSONObject autoT = retorno.getJSONObject(indice);
+                JSONObject cond = autoT.getJSONObject("cedularuc");
+
+                autotanque.setPlaca(autoT.getString("placa"));
+                autotanque.setVolumentotal(autoT.getBigDecimal("volumentotal"));
+                autotanque.setCompartimento1(autoT.getBigDecimal("compartimento1"));
+                autotanque.setCompartimento2(autoT.getBigDecimal("compartimento2"));
+                autotanque.setCompartimento3(autoT.getBigDecimal("compartimento3"));
+                autotanque.setCompartimento4(autoT.getBigDecimal("compartimento4"));
+                autotanque.setCompartimento5(autoT.getBigDecimal("compartimento5"));
+                autotanque.setCompartimento6(autoT.getBigDecimal("compartimento6"));
+                autotanque.setCompartimento7(autoT.getBigDecimal("compartimento7"));
+                autotanque.setCompartimento8(autoT.getBigDecimal("compartimento8"));
+                autotanque.setCompartimento9(autoT.getBigDecimal("compartimento9"));
+                autotanque.setCompartimento10(autoT.getBigDecimal("compartimento10"));
+                autotanque.setActivo(autoT.getBoolean("activo"));
+                autotanque.setUsuarioactual(autoT.getString("usuarioactual"));
+                conductor.setCedularuc(cond.getString("cedularuc"));
+                conductor.setNombre(cond.getString("nombre"));
+                conductor.setActivo(cond.getBoolean("activo"));
+                autotanque.setCedularuc(conductor);
+                calcularVol();
+                autotanque.setCompartimentos(comp);
+                listaAutotanque.add(autotanque);
+                autotanque = new Autotanque();
+                conductor = new Conductor();
             }
 
             System.out.println(connection.getResponseCode());
@@ -117,12 +183,12 @@ public class FormaPagoBean extends ReusableBean implements Serializable {
     }
 
     public void save() {
-        if (editarFormaP) {
+        if (editarAutotanque) {
             editItems();
-            obtenerFormaPago();
+            obtenerAutotanque();
         } else {
             addItems();
-            obtenerFormaPago();
+            obtenerAutotanque();
         }
     }
 
@@ -137,17 +203,29 @@ public class FormaPagoBean extends ReusableBean implements Serializable {
 
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             JSONObject obj = new JSONObject();
-            obj.put("codigo", formaP.getCodigo());
-            obj.put("nombre", formaP.getNombre());
-            obj.put("codigosri", formaP.getCodigosri());
-            obj.put("activo", estadoFormaP);
+            JSONObject objCond = new JSONObject();
+            obj.put("placa", autotanque.getPlaca());
+            obj.put("volumentotal", volTotal);
+            obj.put("compartimento1", autotanque.getCompartimento1());
+            obj.put("compartimento2", autotanque.getCompartimento2());
+            obj.put("compartimento3", autotanque.getCompartimento3());
+            obj.put("compartimento4", autotanque.getCompartimento4());
+            obj.put("compartimento5", autotanque.getCompartimento5());
+            obj.put("compartimento6", autotanque.getCompartimento6());
+            obj.put("compartimento7", autotanque.getCompartimento7());
+            obj.put("compartimento8", autotanque.getCompartimento8());
+            obj.put("compartimento9", autotanque.getCompartimento9());
+            obj.put("compartimento10", autotanque.getCompartimento10());
+            obj.put("activo", estadoAutotanque);
             obj.put("usuarioactual", dataUser.getUser().getNombrever());
+            objCond.put("cedularuc", conductor.getCedularuc());
+            obj.put("cedularuc", objCond);
             respuesta = obj.toString();
             writer.write(respuesta);
             writer.close();
             PrimeFaces.current().executeScript("PF('nuevo').hide()");
             if (connection.getResponseCode() == 200) {
-                this.dialogo(FacesMessage.SEVERITY_INFO, "FORMA PAGO REGISTRADA EXITOSAMENTE");
+                this.dialogo(FacesMessage.SEVERITY_INFO, "AUTOTANQUE REGISTRADO EXITOSAMENTE");
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
             }
@@ -170,17 +248,29 @@ public class FormaPagoBean extends ReusableBean implements Serializable {
 
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             JSONObject obj = new JSONObject();
-            obj.put("codigo", formaP.getCodigo());
-            obj.put("nombre", formaP.getNombre());
-            obj.put("codigosri", formaP.getCodigosri());
-            obj.put("activo", estadoFormaP);
+            JSONObject objCond = new JSONObject();
+            obj.put("placa", autotanque.getPlaca());
+            obj.put("volumentotal", volTotal);
+            obj.put("compartimento1", autotanque.getCompartimento1());
+            obj.put("compartimento2", autotanque.getCompartimento2());
+            obj.put("compartimento3", autotanque.getCompartimento3());
+            obj.put("compartimento4", autotanque.getCompartimento4());
+            obj.put("compartimento5", autotanque.getCompartimento5());
+            obj.put("compartimento6", autotanque.getCompartimento6());
+            obj.put("compartimento7", autotanque.getCompartimento7());
+            obj.put("compartimento8", autotanque.getCompartimento8());
+            obj.put("compartimento9", autotanque.getCompartimento9());
+            obj.put("compartimento10", autotanque.getCompartimento10());
+            obj.put("activo", estadoAutotanque);
             obj.put("usuarioactual", dataUser.getUser().getNombrever());
+            objCond.put("cedularuc", conductor.getCedularuc());
+            obj.put("cedularuc", objCond);
             respuesta = obj.toString();
             writer.write(respuesta);
             writer.close();
             PrimeFaces.current().executeScript("PF('nuevo').hide()");
             if (connection.getResponseCode() == 200) {
-                this.dialogo(FacesMessage.SEVERITY_INFO, "FORMA PAGO ACUTALIZADA EXITOSAMENTE");
+                this.dialogo(FacesMessage.SEVERITY_INFO, "AUTOTANQUE ACUTALIZADO EXITOSAMENTE");
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ACTUALIZAR");
             }
@@ -195,7 +285,7 @@ public class FormaPagoBean extends ReusableBean implements Serializable {
     public void deleteItems() {
         try {
             String respuesta;
-            url = new URL(direccion + "/porId?codigo=" + formaP.getCodigo());
+            url = new URL(direccion + "/porId?codigo=" + autotanque.getPlaca());
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
             connection.setRequestMethod("DELETE");
@@ -203,8 +293,8 @@ public class FormaPagoBean extends ReusableBean implements Serializable {
             connection.connect();
             PrimeFaces.current().executeScript("PF('nuevo').hide()");
             if (connection.getResponseCode() == 200) {
-                this.dialogo(FacesMessage.SEVERITY_INFO, "FORMA PAGO ELIMINADA EXITOSAMENTE");
-                obtenerFormaPago();
+                this.dialogo(FacesMessage.SEVERITY_INFO, "AUTOTANQUE ELIMINADO EXITOSAMENTE");
+                obtenerAutotanque();
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ELIMINAR");
             }
@@ -216,53 +306,139 @@ public class FormaPagoBean extends ReusableBean implements Serializable {
         }
     }
 
-    public void nuevaFormaP() {
-        estadoFormaP = true;
-        editarFormaP = false;
+    public void nuevoAutotanque() {
+        estadoAutotanque = true;
+        editarAutotanque = false;
         soloLectura = false;
-        formaP = new Formapago();
+        autotanque = new Autotanque();
+        autotanque.setCompartimento1(new BigDecimal("-1.0"));
+        autotanque.setCompartimento1(new BigDecimal("-1.0"));
+        autotanque.setCompartimento2(new BigDecimal("-1.0"));
+        autotanque.setCompartimento3(new BigDecimal("-1.0"));
+        autotanque.setCompartimento4(new BigDecimal("-1.0"));
+        autotanque.setCompartimento5(new BigDecimal("-1.0"));
+        autotanque.setCompartimento6(new BigDecimal("-1.0"));
+        autotanque.setCompartimento7(new BigDecimal("-1.0"));
+        autotanque.setCompartimento8(new BigDecimal("-1.0"));
+        autotanque.setCompartimento9(new BigDecimal("-1.0"));
+        autotanque.setCompartimento10(new BigDecimal("-1.0"));
+        volTotal = new BigDecimal("0.00");
         PrimeFaces.current().executeScript("PF('nuevo').show()");
     }
 
-    public Formapago editaFormaP(Formapago obj) {
-        editarFormaP = true;
-        formaP = obj;
-        soloLectura = true;        
-        estadoFormaP = formaP.getActivo();
+    public Autotanque editaAutotanque(Autotanque obj) {
+        volTotal = new BigDecimal("0.00");
+        editarAutotanque = true;
+        autotanque = obj;
+        soloLectura = true;
+        conductor = obj.getCedularuc();
+        estadoAutotanque = autotanque.isActivo();
+        calcularVol();
         PrimeFaces.current().executeScript("PF('nuevo').show()");
-        return formaP;
+        return autotanque;
     }
 
-    public List<Formapago> getListaFormaP() {
-        return listaFormaP;
+    public void calcularVol() {
+        volTotal = new BigDecimal("0.00");
+        if (autotanque.getCompartimento1() != null) {
+            if (!autotanque.getCompartimento1().equals(new BigDecimal("-1.0")) && !autotanque.getCompartimento1().equals(new BigDecimal("-1")) && !autotanque.getCompartimento1().equals(new BigDecimal("-1.00"))) {
+                volTotal = volTotal.add(autotanque.getCompartimento1());
+                comp++;
+            }
+            if (!autotanque.getCompartimento2().equals(new BigDecimal("-1.0")) && !autotanque.getCompartimento2().equals(new BigDecimal("-1")) && !autotanque.getCompartimento2().equals(new BigDecimal("-1.00"))) {
+                volTotal = volTotal.add(autotanque.getCompartimento2());
+                comp++;
+            }
+            if (!autotanque.getCompartimento3().equals(new BigDecimal("-1.0")) && !autotanque.getCompartimento3().equals(new BigDecimal("-1")) && !autotanque.getCompartimento3().equals(new BigDecimal("-1.00"))) {
+                volTotal = volTotal.add(autotanque.getCompartimento3());
+                comp++;
+            }
+            if (!autotanque.getCompartimento4().equals(new BigDecimal("-1.0")) && !autotanque.getCompartimento4().equals(new BigDecimal("-1")) && !autotanque.getCompartimento4().equals(new BigDecimal("-1.00"))) {
+                volTotal = volTotal.add(autotanque.getCompartimento4());
+                comp++;
+            }
+            if (!autotanque.getCompartimento5().equals(new BigDecimal("-1.0")) && !autotanque.getCompartimento5().equals(new BigDecimal("-1")) && !autotanque.getCompartimento5().equals(new BigDecimal("-1.00"))) {
+                volTotal = volTotal.add(autotanque.getCompartimento5());
+                comp++;
+            }
+            if (!autotanque.getCompartimento6().equals(new BigDecimal("-1.0")) && !autotanque.getCompartimento6().equals(new BigDecimal("-1")) && !autotanque.getCompartimento6().equals(new BigDecimal("-1.00"))) {
+                volTotal = volTotal.add(autotanque.getCompartimento6());
+                comp++;
+            }
+            if (!autotanque.getCompartimento7().equals(new BigDecimal("-1.0")) && !autotanque.getCompartimento7().equals(new BigDecimal("-1")) && !autotanque.getCompartimento7().equals(new BigDecimal("-1.00"))) {
+                volTotal = volTotal.add(autotanque.getCompartimento7());
+                comp++;
+            }
+            if (!autotanque.getCompartimento8().equals(new BigDecimal("-1.0")) && !autotanque.getCompartimento8().equals(new BigDecimal("-1")) && !autotanque.getCompartimento8().equals(new BigDecimal("-1.00"))) {
+                volTotal = volTotal.add(autotanque.getCompartimento8());
+                comp++;
+            }
+            if (!autotanque.getCompartimento9().equals(new BigDecimal("-1.0")) && !autotanque.getCompartimento9().equals(new BigDecimal("-1")) && !autotanque.getCompartimento9().equals(new BigDecimal("-1.00"))) {
+                volTotal = volTotal.add(autotanque.getCompartimento9());
+                comp++;
+            }
+            if (!autotanque.getCompartimento10().equals(new BigDecimal("-1.0")) && !autotanque.getCompartimento10().equals(new BigDecimal("-1")) && !autotanque.getCompartimento10().equals(new BigDecimal("-1.00"))) {
+                volTotal = volTotal.add(autotanque.getCompartimento10());
+                comp++;
+            }
+            volTotal.setScale(2, RoundingMode.HALF_UP);
+        }
     }
 
-    public void setListaFormaP(List<Formapago> listaFormaP) {
-        this.listaFormaP = listaFormaP;
+    public List<Autotanque> getListaAutotanque() {
+        return listaAutotanque;
     }
 
-    public boolean isEditarFormaP() {
-        return editarFormaP;
+    public void setListaAutotanque(List<Autotanque> listaAutotanque) {
+        this.listaAutotanque = listaAutotanque;
     }
 
-    public void setEditarFormaP(boolean editarFormaP) {
-        this.editarFormaP = editarFormaP;
+    public boolean isEditarAutotanque() {
+        return editarAutotanque;
     }
 
-    public boolean isEstadoFormaP() {
-        return estadoFormaP;
+    public void setEditarAutotanque(boolean editarAutotanque) {
+        this.editarAutotanque = editarAutotanque;
     }
 
-    public void setEstadoFormaP(boolean estadoFormaP) {
-        this.estadoFormaP = estadoFormaP;
+    public boolean isEstadoAutotanque() {
+        return estadoAutotanque;
     }
 
-    public Formapago getFormaP() {
-        return formaP;
+    public void setEstadoAutotanque(boolean estadoAutotanque) {
+        this.estadoAutotanque = estadoAutotanque;
     }
 
-    public void setFormaP(Formapago formaP) {
-        this.formaP = formaP;
-    } 
+    public Autotanque getAutotanque() {
+        return autotanque;
+    }
+
+    public void setAutotanque(Autotanque autotanque) {
+        this.autotanque = autotanque;
+    }
+
+    public Conductor getConductor() {
+        return conductor;
+    }
+
+    public void setConductor(Conductor conductor) {
+        this.conductor = conductor;
+    }
+
+    public List<Conductor> getListaConductores() {
+        return listaConductores;
+    }
+
+    public void setListaConductores(List<Conductor> listaConductores) {
+        this.listaConductores = listaConductores;
+    }
+
+    public BigDecimal getVolTotal() {
+        return volTotal;
+    }
+
+    public void setVolTotal(BigDecimal volTotal) {
+        this.volTotal = volTotal;
+    }
 
 }

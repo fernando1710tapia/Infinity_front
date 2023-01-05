@@ -3,11 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ec.com.infinityone.bean;
+package ec.com.infinityone.actorcomercial.bean;
 
 import ec.com.infinityone.configuration.Fichero;
-import ec.com.infinityone.modeloWeb.Formapago;
-import ec.com.infinityone.modeloWeb.Formapago;
+import ec.com.infinityone.modeloWeb.Conductor;
 import ec.com.infinityone.reusable.ReusableBean;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,32 +27,32 @@ import org.primefaces.shaded.json.JSONObject;
 
 /**
  *
- * @author David
+ * @author SonyVaio
  */
 @Named
 @ViewScoped
-public class FormaPagoBean extends ReusableBean implements Serializable {
+public class ConductorBean extends ReusableBean implements Serializable {
 
     /*
     Variable que almacena varias formas de pago
      */
-    private List<Formapago> listaFormaP;
+    private List<Conductor> listaConductor;
     /*
     Variable que almacena varias formas de pago
      */
-    private Formapago formaP;
+    private Conductor conductor;
     /*
     Variable para validar si es guardar o editar
      */
-    private boolean editarFormaP;
+    private boolean editarConductor;
     /*
     Variable que establece true or false para el estado de la Medida
      */
-    private boolean estadoFormaP;
+    private boolean estadoConductor;
     /**
      * Constructor por defecto
      */
-    public FormaPagoBean() {
+    public ConductorBean() {
     }
 
     @PostConstruct
@@ -61,33 +60,24 @@ public class FormaPagoBean extends ReusableBean implements Serializable {
      * Funcion para inicializar variables
      */
     public void init() {
-        //direccion = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.formapago";
-        direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.formapago";
-        editarFormaP = false;
-        formaP = new Formapago();
-        obtenerFormaPago();
+        //direccion = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.conductor";
+        direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.conductor";
+        editarConductor = false;
+        conductor = new Conductor();
+        obtenerConductor();
         //getURL();
     }
 
-    public void obtenerFormaPago() {
-        try {
-            String token = "Infinity eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwYXVsIiwiaXNzIjoiZWMuY29tLmluZmluaXR5b25lIiwiaWF0IjoxNjI1ODUyOTIyLCJleHAiOjE2MjU4NTY1MjJ9.zlpXPvsZeHrmnPdQ_cINdd6SBPoNqF0Sq6Wuin3P6HdriDHoPRkhCYcJNYlfnAb8yUTrCPc9OHFIVjF35wTcaw";
-            //byte[] bytes = token.getBytes();
-            //String basicAuth = "Basic : " + new String(Base64.getEncoder().encode(bytes));  
+    public void obtenerConductor() {
+        try {                        
             url = new URL(direccion);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
-            connection.setRequestProperty("Accept", "application/json");
-            //connection.setRequestProperty("Authorization", token);
-            //connection.setRequestProperty("Access-Control-Allow-Headers", "Authorization");
-            //connection.setRequestProperty("Accept-Charset", "utf-8");
-            //connection.setRequestProperty("Accept-Encoding", "gzip");
-            //connection.setRequestProperty("Accept-Language", "en-US");
-            //connection.setRequestProperty("Access-Control-Allow-Origin", "*");
+            connection.setRequestProperty("Accept", "application/json");           
 
-            listaFormaP = new ArrayList<>();
-            formaP = new Formapago();
+            listaConductor = new ArrayList<>();
+            conductor = new Conductor();
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
             BufferedReader br = new BufferedReader(reader);
@@ -96,17 +86,16 @@ public class FormaPagoBean extends ReusableBean implements Serializable {
             while ((tmp = br.readLine()) != null) {
                 respuesta += tmp;
             }
-            JSONObject formaPJson = new JSONObject(respuesta);
-            JSONArray retorno = formaPJson.getJSONArray("retorno");
+            JSONObject conductorJson = new JSONObject(respuesta);
+            JSONArray retorno = conductorJson.getJSONArray("retorno");
             for (int indice = 0; indice < retorno.length(); indice++) {
-                JSONObject areaM = retorno.getJSONObject(indice);
-                formaP.setCodigo(areaM.getString("codigo"));
-                formaP.setNombre(areaM.getString("nombre"));
-                formaP.setCodigosri(areaM.getString("codigosri"));
-                formaP.setActivo(areaM.getBoolean("activo"));               
-                formaP.setUsuarioactual(areaM.getString("usuarioactual"));
-                listaFormaP.add(formaP);
-                formaP = new Formapago();
+                JSONObject autoT = retorno.getJSONObject(indice);
+                conductor.setCedularuc(autoT.getString("cedularuc"));
+                conductor.setNombre(autoT.getString("nombre"));                
+                conductor.setActivo(autoT.getBoolean("activo"));               
+                conductor.setUsuarioactual(autoT.getString("usuarioactual"));
+                listaConductor.add(conductor);
+                conductor = new Conductor();
             }
 
             System.out.println(connection.getResponseCode());
@@ -117,12 +106,12 @@ public class FormaPagoBean extends ReusableBean implements Serializable {
     }
 
     public void save() {
-        if (editarFormaP) {
+        if (editarConductor) {
             editItems();
-            obtenerFormaPago();
+            obtenerConductor();
         } else {
             addItems();
-            obtenerFormaPago();
+            obtenerConductor();
         }
     }
 
@@ -137,17 +126,16 @@ public class FormaPagoBean extends ReusableBean implements Serializable {
 
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             JSONObject obj = new JSONObject();
-            obj.put("codigo", formaP.getCodigo());
-            obj.put("nombre", formaP.getNombre());
-            obj.put("codigosri", formaP.getCodigosri());
-            obj.put("activo", estadoFormaP);
+            obj.put("cedularuc", conductor.getCedularuc());
+            obj.put("nombre", conductor.getNombre());            
+            obj.put("activo", estadoConductor);
             obj.put("usuarioactual", dataUser.getUser().getNombrever());
             respuesta = obj.toString();
             writer.write(respuesta);
             writer.close();
             PrimeFaces.current().executeScript("PF('nuevo').hide()");
             if (connection.getResponseCode() == 200) {
-                this.dialogo(FacesMessage.SEVERITY_INFO, "FORMA PAGO REGISTRADA EXITOSAMENTE");
+                this.dialogo(FacesMessage.SEVERITY_INFO, "CONDUCTOR REGISTRADO EXITOSAMENTE");
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
             }
@@ -170,17 +158,16 @@ public class FormaPagoBean extends ReusableBean implements Serializable {
 
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             JSONObject obj = new JSONObject();
-            obj.put("codigo", formaP.getCodigo());
-            obj.put("nombre", formaP.getNombre());
-            obj.put("codigosri", formaP.getCodigosri());
-            obj.put("activo", estadoFormaP);
+            obj.put("cedularuc", conductor.getCedularuc());
+            obj.put("nombre", conductor.getNombre());            
+            obj.put("activo", estadoConductor);
             obj.put("usuarioactual", dataUser.getUser().getNombrever());
             respuesta = obj.toString();
             writer.write(respuesta);
             writer.close();
             PrimeFaces.current().executeScript("PF('nuevo').hide()");
             if (connection.getResponseCode() == 200) {
-                this.dialogo(FacesMessage.SEVERITY_INFO, "FORMA PAGO ACUTALIZADA EXITOSAMENTE");
+                this.dialogo(FacesMessage.SEVERITY_INFO, "CONDUCTOR ACUTALIZADO EXITOSAMENTE");
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ACTUALIZAR");
             }
@@ -195,7 +182,7 @@ public class FormaPagoBean extends ReusableBean implements Serializable {
     public void deleteItems() {
         try {
             String respuesta;
-            url = new URL(direccion + "/porId?codigo=" + formaP.getCodigo());
+            url = new URL(direccion + "/porId?cedularuc=" + conductor.getCedularuc());
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
             connection.setRequestMethod("DELETE");
@@ -203,8 +190,8 @@ public class FormaPagoBean extends ReusableBean implements Serializable {
             connection.connect();
             PrimeFaces.current().executeScript("PF('nuevo').hide()");
             if (connection.getResponseCode() == 200) {
-                this.dialogo(FacesMessage.SEVERITY_INFO, "FORMA PAGO ELIMINADA EXITOSAMENTE");
-                obtenerFormaPago();
+                this.dialogo(FacesMessage.SEVERITY_INFO, "CONDUCTOR ELIMINADO EXITOSAMENTE");
+                obtenerConductor();
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ELIMINAR");
             }
@@ -216,53 +203,53 @@ public class FormaPagoBean extends ReusableBean implements Serializable {
         }
     }
 
-    public void nuevaFormaP() {
-        estadoFormaP = true;
-        editarFormaP = false;
+    public void nuevoConductor() {
+        estadoConductor = true;
+        editarConductor = false;
         soloLectura = false;
-        formaP = new Formapago();
+        conductor = new Conductor();
         PrimeFaces.current().executeScript("PF('nuevo').show()");
     }
 
-    public Formapago editaFormaP(Formapago obj) {
-        editarFormaP = true;
-        formaP = obj;
+    public Conductor editaConductor(Conductor obj) {
+        editarConductor = true;
+        conductor = obj;
         soloLectura = true;        
-        estadoFormaP = formaP.getActivo();
+        estadoConductor = conductor.getActivo();
         PrimeFaces.current().executeScript("PF('nuevo').show()");
-        return formaP;
+        return conductor;
     }
 
-    public List<Formapago> getListaFormaP() {
-        return listaFormaP;
+    public List<Conductor> getListaConductor() {
+        return listaConductor;
     }
 
-    public void setListaFormaP(List<Formapago> listaFormaP) {
-        this.listaFormaP = listaFormaP;
+    public void setListaConductor(List<Conductor> listaConductor) {
+        this.listaConductor = listaConductor;
     }
 
-    public boolean isEditarFormaP() {
-        return editarFormaP;
+    public boolean isEditarConductor() {
+        return editarConductor;
     }
 
-    public void setEditarFormaP(boolean editarFormaP) {
-        this.editarFormaP = editarFormaP;
+    public void setEditarConductor(boolean editarConductor) {
+        this.editarConductor = editarConductor;
     }
 
-    public boolean isEstadoFormaP() {
-        return estadoFormaP;
+    public boolean isEstadoConductor() {
+        return estadoConductor;
     }
 
-    public void setEstadoFormaP(boolean estadoFormaP) {
-        this.estadoFormaP = estadoFormaP;
+    public void setEstadoConductor(boolean estadoConductor) {
+        this.estadoConductor = estadoConductor;
     }
 
-    public Formapago getFormaP() {
-        return formaP;
+    public Conductor getConductor() {
+        return conductor;
     }
 
-    public void setFormaP(Formapago formaP) {
-        this.formaP = formaP;
+    public void setConductor(Conductor conductor) {
+        this.conductor = conductor;
     } 
 
 }

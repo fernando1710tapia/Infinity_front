@@ -12,42 +12,27 @@ import java.util.List;
  *
  * @author HP
  */
-public class Formapago implements Serializable{
+public class Conductor implements Serializable{
     
-    private String codigo;
+    private String cedularuc;
 
     private String nombre;
 
     private boolean activo;
 
-    private String usuarioactual;
+    private String usuarioactual;   
     
-    private String codigosri;
+    public Conductor() {
+    }
 
-    private List<Cliente> clienteList;
+    public String getCedularuc() {
+        return cedularuc;
+    }
+
+    public void setCedularuc(String cedularuc) {
+        this.cedularuc = cedularuc;
+    }
     
-    public Formapago() {
-    }
-
-    public Formapago(String codigo) {
-        this.codigo = codigo;
-    }
-
-    public Formapago(String codigo, String nombre, boolean activo, String usuarioactual) {
-        this.codigo = codigo;
-        this.nombre = nombre;
-        this.activo = activo;
-        this.usuarioactual = usuarioactual;
-    }
-
-    public String getCodigo() {
-        return codigo;
-    }
-
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
-    }
-
     public String getNombre() {
         return nombre;
     }
@@ -62,7 +47,7 @@ public class Formapago implements Serializable{
 
     public void setActivo(boolean activo) {
         this.activo = activo;
-    }
+    }   
 
     public String getUsuarioactual() {
         return usuarioactual;
@@ -71,30 +56,22 @@ public class Formapago implements Serializable{
     public void setUsuarioactual(String usuarioactual) {
         this.usuarioactual = usuarioactual;
     }
-
-    public String getCodigosri() {
-        return codigosri;
-    }
-
-    public void setCodigosri(String codigosri) {
-        this.codigosri = codigosri;
-    }
     
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (codigo != null ? codigo.hashCode() : 0);
+        hash += (cedularuc != null ? cedularuc.hashCode() : 0);
         return hash;
     }
 
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Formapago)) {
+        if (!(object instanceof Conductor)) {
             return false;
         }
-        Formapago other = (Formapago) object;
-        if ((this.codigo == null && other.codigo != null) || (this.codigo != null && !this.codigo.equals(other.codigo))) {
+        Conductor other = (Conductor) object;
+        if ((this.cedularuc == null && other.cedularuc != null) || (this.cedularuc != null && !this.cedularuc.equals(other.cedularuc))) {
             return false;
         }
         return true;
