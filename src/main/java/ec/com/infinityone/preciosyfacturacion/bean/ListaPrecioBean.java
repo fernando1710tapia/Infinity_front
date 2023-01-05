@@ -203,15 +203,16 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
 
     private int contOk;
     private int contError;
-    
+
     private String ubicacion;
-    
+
     private List<Listaprecioterminalproducto> listaprecioterminalproductoArchivoSubida;
-    
+
     private List<ComercializadoraBean> listaComercializadoraAux;
 
     private Listaprecioterminalproducto unaListaPrecioTerminalProducto;
     private ListaprecioterminalproductoPK unaListaPrecioTerminalProductoPk;
+
     /**
      * Constructor por defecto
      */
@@ -275,7 +276,7 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
         mostrarMsj = true;
         guardarTerminal = false;
         listaGuardada = false;
-        comercializadora = new ComercializadoraBean();
+        //comercializadora = new ComercializadoraBean();
         listaprecio1 = new Listaprecio();
         listaprecioPK = new ListaprecioPK();
         productosComer = new Comercializadoraproducto();
@@ -287,7 +288,7 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
         medida = new Medida();
         listapreciobean = new ListaPrecioBean();
         valorMargen = new BigDecimal(0);
-        listaprecios = new ArrayList<>();
+        //listaprecios = new ArrayList<>();
         listaProductosComer = new ArrayList<>();
         tipoBusquedaDocumento = "N";
         margenValor = new BigDecimal("0");
@@ -785,7 +786,7 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
             codigoComer = comercializadora.getCodigo();
         }
     }
-    
+
     public void seleccionarTerm() {
         if (terminal.getCodigo() != null) {
             codigoTerm = terminal.getCodigo();
@@ -820,7 +821,12 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
     public void saveLista() {
         if (guardarTerminal) {
             if (terminal.getCodigo() != null) {
-                addItemsTerminalProd();
+                if (edit == 0) {
+                    addItemsTerminalProdPlus();
+                } else {
+                    addItemsTerminalProd();
+                }
+
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "Seleccione un terminal");
                 editarPrecio = false;
@@ -1113,49 +1119,50 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
 
     }
 
-//    public void addItemsTerminalProd() {
-//        listaprecios = new ArrayList<>();
-//        List<ObjetoNivel1> listaTerminalAux = new ArrayList<>();
-//        obtenerPrecio(comercializadoraT);
-//        contOk = 0;
-//        contError = 0;
-//        StringBuilder cadenaInfo = new StringBuilder();
-//        StringBuilder cadenaErro = new StringBuilder();
-//        if (listaGuardada) {
-//            Collections.sort(listaprecios, new Comparator<Listaprecio>() {
-//                @Override
-//                public int compare(Listaprecio lp1, Listaprecio lp2) {
-//                    return new Long(lp1.getListaprecioPK().getCodigo()).compareTo(lp2.getListaprecioPK().getCodigo());
-//                }
-//            });
-////            int tam = obtenerListasPrecio().size();
-////            List<Listaprecio> lpAux = obtenerListasPrecio();
-////            codigoListaPrecioT = lpAux.get(tam).getListaprecioPK().getCodigo();
-//
-//            codigoListaPrecioT = listaprecios.get(listaprecios.size() - 1).getListaprecioPK().getCodigo();
-//        }
-//        listaTerminalAux.add(terminal);
-//        for (int i = 0; i < listaTerminalAux.size(); i++) {
-//            for (int indice = 0; indice < listaProductosComer.size(); indice++) {                
-//                if (listaListapreciobean.get(indice).getMargenValor() != null) {
-//                    if (addItemsTerminal(i, indice, terminal)) {
-//                        contOk++;
-//                    } else {
-//                        contError++;
-//                    }
-//                }
-//            }
-//        }
-//        cadenaInfo.append("\nListas de precios insertadas correctamente: ").append(contOk).toString();
-//        cadenaErro.append("\nListas de precios no insertadas: ").append(contError).append(". Contacte con el Administrador del sistema").toString();
-//        this.dialogo(FacesMessage.SEVERITY_INFO, cadenaInfo.toString());
-//        if (contError != 0) {
-//            this.dialogo(FacesMessage.SEVERITY_ERROR, cadenaErro.toString());
-//        }
-//        mostrarPantallaIncial = true;
-//        configurarTerminal = false;
-//        mostarListaPrecio = false;
-//    }
+    public void addItemsTerminalProdPlus() {
+        listaprecios = new ArrayList<>();
+        List<ObjetoNivel1> listaTerminalAux = new ArrayList<>();
+        obtenerPrecio(comercializadoraT);
+        contOk = 0;
+        contError = 0;
+        StringBuilder cadenaInfo = new StringBuilder();
+        StringBuilder cadenaErro = new StringBuilder();
+        if (listaGuardada) {
+            Collections.sort(listaprecios, new Comparator<Listaprecio>() {
+                @Override
+                public int compare(Listaprecio lp1, Listaprecio lp2) {
+                    return new Long(lp1.getListaprecioPK().getCodigo()).compareTo(lp2.getListaprecioPK().getCodigo());
+                }
+            });
+//            int tam = obtenerListasPrecio().size();
+//            List<Listaprecio> lpAux = obtenerListasPrecio();
+//            codigoListaPrecioT = lpAux.get(tam).getListaprecioPK().getCodigo();
+
+            codigoListaPrecioT = listaprecios.get(listaprecios.size() - 1).getListaprecioPK().getCodigo();
+        }
+        listaTerminalAux.add(terminal);
+        for (int i = 0; i < listaTerminalAux.size(); i++) {
+            for (int indice = 0; indice < listaProductosComer.size(); indice++) {                
+                if (listaListapreciobean.get(indice).getMargenValor() != null) {
+                    if (addItemsTerminal(indice, terminal)) {
+                        contOk++;
+                    } else {
+                        contError++;
+                    }
+                }
+            }
+        }
+        cadenaInfo.append("\nListas de precios insertadas correctamente: ").append(contOk).toString();
+        cadenaErro.append("\nListas de precios no insertadas: ").append(contError).append(". Contacte con el Administrador del sistema").toString();
+        this.dialogo(FacesMessage.SEVERITY_INFO, cadenaInfo.toString());
+        if (contError != 0) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, cadenaErro.toString());
+        }
+        mostrarPantallaIncial = true;
+        configurarTerminal = false;
+        mostarListaPrecio = false;
+    }
+
     public Boolean addItemsTerminal(int indice, ObjetoNivel1 terminal) {
         try {
             String respuesta;
@@ -1347,6 +1354,7 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
         listaprecio1 = new Listaprecio();
         listaprecioPK = new ListaprecioPK();
         terminal = new ObjetoNivel1();
+        edit = 1;
         PrimeFaces.current().executeScript("PF('nuevo').show()");
     }
 
@@ -1755,9 +1763,9 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
     public void setTerminal(ObjetoNivel1 terminal) {
         this.terminal = terminal;
     }
-    
+
     public void actualizarLoteLista() {
- 
+
         if (habilitarComer) {
             comercializadora = new ComercializadoraBean();
             ubicacion = "";
@@ -1773,6 +1781,7 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
     public void setListaprecioterminalproductoArchivoSubida(List<Listaprecioterminalproducto> listaprecioterminalproductoArchivoSubida) {
         this.listaprecioterminalproductoArchivoSubida = listaprecioterminalproductoArchivoSubida;
     }
+
     public String getUbicacion() {
         return ubicacion;
     }
@@ -1789,7 +1798,7 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
         String ruta_temporal = Fichero.getCARPETAREPORTES();
         StringBuilder cadenaInfo = new StringBuilder();
         StringBuilder cadenaErro = new StringBuilder();
-         
+
         //String ruta_temporal = "C:\\archivos\\";
         UploadedFile uploadedFile = event.getFile();
         ubicacion = "";
@@ -1807,68 +1816,68 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
 
             Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
             codigoComer = comercializadora.getCodigo();
-            if (codigoComer != null ) {
-                
+            if (codigoComer != null) {
+
                 listaComercializadoraAux = new ArrayList<>();
                 listaComercializadoraAux = comercializadoraServicio.obtenerComercializadoraId(codigoComer);
                 comercializadora = listaComercializadoraAux.get(0);
-                
-                        while (scanner.hasNextLine()) {
-                            // el objeto scanner lee linea a linea desde el archivo
-                            String linea = scanner.nextLine();
-                            System.out.println("FT:: linea a actualizar: "+linea);
-                            //Scanner delimitar = new Scanner(linea);
-                            //se usa una expresión regular
-                            //que valida que antes o despues de una coma (,) exista cualquier cosa
-                            //parte la cadena recibida cada vez que encuentre una coma				
-                            //delimitar.useDelimiter("\\s*,\\s*");                  
-                            //pagofacturaPK.setNumero(delimitar.next());                                      
 
-                            //Comercializadora
-                            unaListaPrecioTerminalProductoPk.setCodigocomercializadora(comercializadora.getCodigo());
-                            
-                            //codigo lista de precio
-                            unaListaPrecioTerminalProductoPk.setCodigolistaprecio(new Long(linea.substring(0, 2)));
-                            //codigo terminal
-                            unaListaPrecioTerminalProductoPk.setCodigoterminal(linea.substring(2, 4));
-                            //codigo producto
-                            unaListaPrecioTerminalProductoPk.setCodigoproducto(linea.substring(4, 8));
-                            //codigo medida
-                            unaListaPrecioTerminalProductoPk.setCodigomedida(linea.substring(8, 10));
+                while (scanner.hasNextLine()) {
+                    // el objeto scanner lee linea a linea desde el archivo
+                    String linea = scanner.nextLine();
+                    System.out.println("FT:: linea a actualizar: " + linea);
+                    //Scanner delimitar = new Scanner(linea);
+                    //se usa una expresión regular
+                    //que valida que antes o despues de una coma (,) exista cualquier cosa
+                    //parte la cadena recibida cada vez que encuentre una coma				
+                    //delimitar.useDelimiter("\\s*,\\s*");                  
+                    //pagofacturaPK.setNumero(delimitar.next());                                      
 
-                            //% MPO
-                            BigDecimal valmpo = new BigDecimal(linea.substring(10, 19));
-                            valmpo = valmpo.movePointLeft(6);
-                            
-                            if (valmpo.compareTo(new BigDecimal("999")) == 0) {
-                                valmpo = new BigDecimal("-99");
-                            }
-                            unaListaPrecioTerminalProducto.setMargenporcentaje(valmpo);
-                            
-                            //% MCO
-                            BigDecimal valmco = new BigDecimal(linea.substring(19, 28));
-                            valmco = valmco.movePointLeft(6);
-                            
-                            if (valmco.compareTo(new BigDecimal("999")) == 0) {
-                                valmco = new BigDecimal("-99");
-                            }
-                            unaListaPrecioTerminalProducto.setMargenvalorcomercializadora(valmco);
-                            
-                            unaListaPrecioTerminalProducto.setListaprecioterminalproductoPK(unaListaPrecioTerminalProductoPk);
+                    //Comercializadora
+                    unaListaPrecioTerminalProductoPk.setCodigocomercializadora(comercializadora.getCodigo());
 
-                            listaprecioterminalproductoArchivoSubida.add(unaListaPrecioTerminalProducto);
-                       
-                            unaListaPrecioTerminalProducto = new Listaprecioterminalproducto();
-                            unaListaPrecioTerminalProductoPk = new ListaprecioterminalproductoPK();
-                            
-                        }
-                     
+                    //codigo lista de precio
+                    unaListaPrecioTerminalProductoPk.setCodigolistaprecio(new Long(linea.substring(0, 2)));
+                    //codigo terminal
+                    unaListaPrecioTerminalProductoPk.setCodigoterminal(linea.substring(2, 4));
+                    //codigo producto
+                    unaListaPrecioTerminalProductoPk.setCodigoproducto(linea.substring(4, 8));
+                    //codigo medida
+                    unaListaPrecioTerminalProductoPk.setCodigomedida(linea.substring(8, 10));
+
+                    //% MPO
+                    BigDecimal valmpo = new BigDecimal(linea.substring(10, 19));
+                    valmpo = valmpo.movePointLeft(6);
+
+                    if (valmpo.compareTo(new BigDecimal("999")) == 0) {
+                        valmpo = new BigDecimal("-99");
+                    }
+                    unaListaPrecioTerminalProducto.setMargenporcentaje(valmpo);
+
+                    //% MCO
+                    BigDecimal valmco = new BigDecimal(linea.substring(19, 28));
+                    valmco = valmco.movePointLeft(6);
+
+                    if (valmco.compareTo(new BigDecimal("999")) == 0) {
+                        valmco = new BigDecimal("-99");
+                    }
+                    unaListaPrecioTerminalProducto.setMargenvalorcomercializadora(valmco);
+
+                    unaListaPrecioTerminalProducto.setListaprecioterminalproductoPK(unaListaPrecioTerminalProductoPk);
+
+                    listaprecioterminalproductoArchivoSubida.add(unaListaPrecioTerminalProducto);
+
+                    unaListaPrecioTerminalProducto = new Listaprecioterminalproducto();
+                    unaListaPrecioTerminalProductoPk = new ListaprecioterminalproductoPK();
+
+                }
+
                 //se cierra el ojeto scanner
                 scanner.close();
                 FacesContext context = FacesContext.getCurrentInstance();
-                    
-                    this.dialogo(FacesMessage.SEVERITY_INFO, "Se va a actualizar los Margenes de : "+ String.valueOf(listaprecioterminalproductoArchivoSubida.size())+ " Listas de Precios ");
-                
+
+                this.dialogo(FacesMessage.SEVERITY_INFO, "Se va a actualizar los Margenes de : " + String.valueOf(listaprecioterminalproductoArchivoSubida.size()) + " Listas de Precios ");
+
                 return ubicacion;
             } else {
                 this.dialogo(FacesMessage.SEVERITY_WARN, "Seleccione una comercializadora para poder subir el archivo");
