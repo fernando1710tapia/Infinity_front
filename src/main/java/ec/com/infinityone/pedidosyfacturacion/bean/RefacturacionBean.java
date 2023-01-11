@@ -178,6 +178,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
                                 + "&fechaI=" + fechaS
                                 + "&fechaF=" + fechaF
                                 + "&refacturada=1"
+                                + "&activa=2"
                                 + "&productosinfe=" + Fichero.getPRODUCTOSINFE());
                         msg = "NO SE ENCONTRARON FACTURAS REFACTURADAS";
                     }
@@ -193,6 +194,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
                         + "&fechaI=" + fechaS
                         + "&fechaF=" + fechaS
                         + "&refacturada=0"
+                        + "&activa=1"
                         + "&productosinfe=" + Fichero.getPRODUCTOSINFE());
                 msg = "NO SE ENCONTRARON FACTURAS PENDIENTES DE SER REFACTURADAS";
             }
@@ -916,7 +918,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
             if (!listaEnvRefac.isEmpty()) {
                 if (porRefacturar) {
                     for (int i = 0; i < listaEnvRefac.size(); i++) {
-                        if (listaEnvRefac.get(i).getFactura().isSeleccionar() == true) {
+//                        if (listaEnvRefac.get(i).getFactura().isSeleccionar() == true) {
                             if (listaEnvRefac.get(i).getFactura().getEstado().trim().equals("PENDIENTE")) {
                                 if (listaEnvRefac.get(i).getFactura().getRefacturada() == false) {
                                     if (listaEnvRefac.get(i).getFactura().getActiva() == true) {
@@ -930,7 +932,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
                                     } 
                                 } 
                             } 
-                        }
+//                        }
                     }                    
                     listaEnvRefac = listaEnvRefacAuxiliar;
                 } else {
