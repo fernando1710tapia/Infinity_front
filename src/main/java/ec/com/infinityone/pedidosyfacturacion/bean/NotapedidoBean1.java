@@ -487,7 +487,6 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
                 autotanque = new Autotanque();
                 conductor = new Conductor();
             }
-
             System.out.println(connection.getResponseCode());
             System.out.println(connection.getResponseMessage());
         } catch (IOException e) {
