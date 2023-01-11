@@ -3051,6 +3051,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     factAux.setTelefonocliente(fac.getString("telefonocliente"));
                     factAux.setTipocomprador(fac.getString("tipocomprador"));
                     factAux.setReliquidada(fac.getBoolean("reliquidada"));
+                    factAux.setRefacturada(fac.getBoolean("refacturada"));
                     
                     factAux.setTipoplazocredito(fac.getString("tipoplazocredito"));
                     factAux.setUsuarioactual(fac.getString("usuarioactual"));
