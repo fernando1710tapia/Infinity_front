@@ -6,6 +6,7 @@
 package ec.com.infinityone.login.bean;
 
 import ec.com.infinityone.configuration.Fichero;
+import ec.com.infinityone.modeloWeb.FirmaE;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -58,6 +59,8 @@ public class MenuBean extends LoginBean implements Serializable {
     private List<MenuBean> listaMenuHijoAux;
 
     private MenuBean menu;
+
+    private FirmaE firmae;  
     /*
     Variable almacena url Accion
      */
@@ -284,6 +287,44 @@ public class MenuBean extends LoginBean implements Serializable {
                 System.out.println(connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+public void obtenerFirmae() {
+        try {
+            //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.menu/menus?nivel=AAA");
+            url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.firmae");
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+
+            listaMenuPadreBean = new ArrayList<>();
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+
+            BufferedReader br = new BufferedReader(reader);
+            String tmp = null;
+            String respuesta = "";
+            while ((tmp = br.readLine()) != null) {
+                respuesta += tmp;
+            }
+            JSONObject objetoJson = new JSONObject(respuesta);
+            JSONArray retorno = objetoJson.getJSONArray("retorno");
+            for (int indice = 0; indice < retorno.length(); indice++) {
+                JSONObject fir = retorno.getJSONObject(indice);
+                firmae.setFir_fechacaduca(fir.getString("firFechacaduca"));                
+                listaMenuPadreBean.add(menu);
+                firmae = new FirmaE();
+            }
+
+            if (connection.getResponseCode() != 200) {
+                System.out.println(connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }

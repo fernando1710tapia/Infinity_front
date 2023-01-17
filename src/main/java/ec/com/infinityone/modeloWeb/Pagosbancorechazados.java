@@ -16,42 +16,50 @@ import java.util.Date;
 public class Pagosbancorechazados implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
-    protected PagosbancorechazadosPK pagosbancorechazadosPK;    
-    
+
+    protected PagosbancorechazadosPK pagosbancorechazadosPK;
+
     private BigDecimal bcoValorconrubro;
-    
+
     private String bcoRuccliente;
-    
+
     private String bcoNombrecliente;
-    
+
     private String bcoNombrebanco;
-    
+
     private Date pysFechaacreditacionprorrogada;
-    
+
     private String bcoFechaproceso;
-   
+
     private String pysCodigobanco;
-   
+
     private String pysCodigocliente;
-   
+
     private String pysNumerofactura;
-   
+
     private BigDecimal pysValorconrubro;
-   
+
     private String pysRuccliente;
-   
+
     private String pysNombrecliente;
-   
+
     private String pysNombrebanco;
-   
+
     private Boolean registrook;
 
     private String pysNumeronotapedido;
-    
+
     private String bcoCondicionProceso;
-    
+
     private String bcoMensajeProceso;
+
+    private String fechaventa;
+    private String fechaacreditacionprorrogada;
+    private BigDecimal valorconrubros;
+    private String tasainteres;
+    private long diasretraso;
+    private BigDecimal valormora;
+    private String claveacceso;
 
     public Pagosbancorechazados() {
     }
@@ -213,7 +221,65 @@ public class Pagosbancorechazados implements Serializable {
 
     public void setBcoMensajeProceso(String bcoMensajeProceso) {
         this.bcoMensajeProceso = bcoMensajeProceso;
-    }   
+    }
+
+    public String getFechaventa() {
+        return fechaventa;
+    }
+
+    public void setFechaventa(String fechaventa) {
+        this.fechaventa = fechaventa;
+    }
+
+    public String getFechaacreditacionprorrogada() {
+        return fechaacreditacionprorrogada;
+    }
+
+    public void setFechaacreditacionprorrogada(String fechaacreditacionprorrogada) {
+        this.fechaacreditacionprorrogada = fechaacreditacionprorrogada;
+    }
+
+    public BigDecimal getValorconrubros() {
+        return valorconrubros;
+    }
+
+    public void setValorconrubros(BigDecimal valorconrubros) {
+        this.valorconrubros = valorconrubros;
+    }
+
+    public String getTasainteres() {
+        return tasainteres;
+    }
+
+    public void setTasainteres(String tasainteres) {
+        this.tasainteres = tasainteres;
+    }
+
+    public long getDiasretraso() {
+        return diasretraso;
+    }
+
+    public void setDiasretraso(long diasretraso) {
+        this.diasretraso = diasretraso;
+    }
+
+    public BigDecimal getValormora() {
+        return valormora;
+    }
+
+    public void setValormora(BigDecimal valormora) {
+        this.valormora = valormora;
+    }
+
+    public String getClaveacceso() {
+        return claveacceso;
+    }
+
+    public void setClaveacceso(String claveacceso) {
+        this.claveacceso = claveacceso;
+    }
+
+
 
     @Override
     public int hashCode() {

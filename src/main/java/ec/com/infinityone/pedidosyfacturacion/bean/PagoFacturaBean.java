@@ -60,8 +60,10 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import javax.annotation.PostConstruct;
@@ -284,6 +286,8 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
 
     private HashMap<String, String> codigos;
 
+    private String tasaInt;
+
     /**
      * Constructor por defecto
      */
@@ -295,6 +299,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
      * Funcion para inicializar variables
      */
     public void init() {
+        tasaInt = Fichero.getTASAINTERES();
         eliminarTemporalesCorbo();
         //direccion = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.pagofactura";
         direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.pagofactura";
@@ -1115,7 +1120,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 //                21	Número Factura	Numérico	200
                 linea = linea + String.format("%200s", factura.getFacturaPK().getNumero()) + separador;
 
-/*                // ESCRIBIR LINEA DE DESGLOSE DE RUBROS
+                /*                // ESCRIBIR LINEA DE DESGLOSE DE RUBROS
 //                1	TipoProceso	Carácter 	2
                 lineaIva = lineaIva + "DE" + separador;
 
@@ -1951,6 +1956,20 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                                 pagosbancorechazados.setPysRuccliente(fact.get(0).getRuccliente());
                                 pagosbancorechazados.setPysValorconrubro(fact.get(0).getValorconrubro());
                                 pagosbancorechazados.setPysNumeronotapedido(numNoPed);
+                                pagosbancorechazados.setFechaventa(fact.get(0).getFechaventa());
+                                pagosbancorechazados.setFechaacreditacionprorrogada(fact.get(0).getFechaacreditacionprorrogada());
+                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd", Locale.ENGLISH);
+                                SimpleDateFormat sdfProc = new SimpleDateFormat("ddMMyyyy", Locale.ENGLISH);
+                                Date firstDate = sdf.parse(fact.get(0).getFechaacreditacionprorrogada());
+                                Date secondDate = sdfProc.parse(detallepago.getFechaProc());
+                                long diff = secondDate.getTime() - firstDate.getTime();
+                                TimeUnit time = TimeUnit.DAYS;
+                                long diasR = time.convert(diff, TimeUnit.MILLISECONDS);
+                                pagosbancorechazados.setDiasretraso(diasR);
+                                pagosbancorechazados.setTasainteres(tasaInt);
+                                pagosbancorechazados.setValormora(new BigDecimal(0));
+                                pagosbancorechazados.setValorconrubros(fact.get(0).getValorconrubro());
+                                pagosbancorechazados.setClaveacceso(fact.get(0).getClaveacceso());
                                 if (pagosbancorechazados.getBcoCondicionProceso() != null) {
                                     if (pagosbancorechazados.getBcoCondicionProceso().equals("00")) {
                                         if (pagosbancorechazados.getBcoValorconrubro().compareTo(pagosbancorechazados.getPysValorconrubro()) == 0) {
@@ -1958,6 +1977,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                                         }
                                     }
                                 }
+
                             }
 
                             listaPagosbancorechazados.add(pagosbancorechazados);
@@ -2193,7 +2213,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 
     }
 
-    public List<JSONObject> addItemsArregloJSON(List<Pagosbancorechazados> listaPagosBancoRechazado) {
+    public List<JSONObject> addItemsArregloJSON(List<Pagosbancorechazados> listaPagosBancoRechazado) throws ParseException {
         String respuesta;
         DateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
         JSONObject obj = new JSONObject();
@@ -2232,7 +2252,12 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 
     }
 
-    public JSONObject addItemsDetailPAux(Pagosbancorechazados pagosbancorechazados) {
+    public JSONObject addItemsDetailPAux(Pagosbancorechazados pagosbancorechazados) throws ParseException {
+        DateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd", Locale.ENGLISH);
+        Date fechaAcrePro = sdf.parse(pagosbancorechazados.getFechaacreditacionprorrogada());
+        Date fechaVent = sdf.parse(pagosbancorechazados.getFechaventa());
 
         JSONObject detalle = new JSONObject();
         JSONObject detallePK = new JSONObject();
@@ -2246,6 +2271,13 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         detalle.put("valor", pagosbancorechazados.getPysValorconrubro());
         detalle.put("activo", true);
         detalle.put("usuarioactual", listaPagofacturaArchivoSubida.get(0).getUsuarioactual());
+        detalle.put("fechaacreditacionprorrogada", date.format(fechaAcrePro));
+        detalle.put("fechaventa", date.format(fechaVent));
+        detalle.put("valorconrubro", pagosbancorechazados.getValorconrubros());
+        detalle.put("tasainteres", pagosbancorechazados.getTasainteres());
+        detalle.put("diasretraso", pagosbancorechazados.getDiasretraso());
+        detalle.put("valormora", pagosbancorechazados.getValormora());
+        detalle.put("claveacceso", pagosbancorechazados.getClaveacceso());
 
         return detalle;
     }

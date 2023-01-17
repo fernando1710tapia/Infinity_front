@@ -22,9 +22,10 @@ import javax.inject.Named;
 @Named(value = "ficheroConfig")
 @ApplicationScoped
 public class Fichero {
+
     private static Properties propiedades;
     private static final Logger LOG = Logger.getLogger(Fichero.class.getName());
-    
+
     private static String RUTAREPORTE;
     private static String RUTAXML;
     private static String RUTAAYUDA;
@@ -38,7 +39,8 @@ public class Fichero {
     private static String RUTACONEXIONBD;
     private static String PREGUNTAS;
     private static String COLORESPRODUCTOS;
-   
+    private static String TASAINTERES;
+    private static String FECHACERTIFICADOSSL;
 
     public static void propiedades() {
         InputStream in = null;
@@ -50,11 +52,11 @@ public class Fichero {
             File confDir = new File(System.getProperty("jboss.server.config.dir"));
             System.out.println("Direccion: " + confDir.getAbsolutePath());
             File fileProp = new File(confDir, "ConfiguracionInfinity.properties");
-            File rep= new File(confDir, "reportes");
+            File rep = new File(confDir, "reportes");
             RUTAREPORTE = rep.toString();
-            File ayu= new File(confDir, "ayuda");
+            File ayu = new File(confDir, "ayuda");
             CARPETAAYUDA = ayu.toString();
-            File xml= new File(confDir, "xml");
+            File xml = new File(confDir, "xml");
             CARPETAXML = xml.toString();
             in = new FileInputStream(fileProp);
             propiedades = new Properties();
@@ -71,10 +73,11 @@ public class Fichero {
             RUTACONEXIONBD = (String) propiedades.get("CONEXIONBD");
             PREGUNTAS = (String) propiedades.get("PREGUNTAS");
             COLORESPRODUCTOS = (String) propiedades.get("COLORESPRODUCTOS");
+            TASAINTERES = (String) propiedades.get("TASAINTERES");
+            FECHACERTIFICADOSSL = (String) propiedades.get("FECHACERTIFICADOSSL");
 
             //LOG.log(Level.INFO, "Ruta Reporte", RUTAREPORTE);
             //LOG.log(Level.INFO, "Ruta Servicios", RUTASERVICIOSPERSISTENCIA);
-
         } catch (IOException e) {
             LOG.log(Level.SEVERE, "Error al inicializar la aplicaci\u00f3n, {0}", e);
         } catch (Exception e) {
@@ -144,7 +147,7 @@ public class Fichero {
 
     public static void setPREGUNTAS(String PREGUNTAS) {
         Fichero.PREGUNTAS = PREGUNTAS;
-    }        
+    }
 
     public static String getRUTAACTUALIZAR() {
         return RUTAACTUALIZAR;
@@ -194,5 +197,20 @@ public class Fichero {
         Fichero.COLORESPRODUCTOS = COLORESPRODUCTOS;
     }
 
-}
+    public static String getTASAINTERES() {
+        return TASAINTERES;
+    }
 
+    public static void setTASAINTERES(String TASAINTERES) {
+        Fichero.TASAINTERES = TASAINTERES;
+    }
+
+    public static String getFECHACERTIFICADOSSL() {
+        return FECHACERTIFICADOSSL;
+    }
+
+    public static void setFECHACERTIFICADOSSL(String FECHACERTIFICADOSSL) {
+        Fichero.FECHACERTIFICADOSSL = FECHACERTIFICADOSSL;
+    }
+
+}

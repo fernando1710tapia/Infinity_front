@@ -7,6 +7,7 @@ package ec.com.infinityone.modeloWeb;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  *
@@ -75,7 +76,15 @@ public class Detallepago implements Serializable {
     private String valRetRentBienes;
     private String valRetRentServicios;
     private String valRetIvaBienes;
-    private String valRetIvaServicios;
+    private String valRetIvaServicios;   
+
+    private Date fechaventa;
+    private Date fechaacreditacionprorrogada;
+    private BigDecimal valorconrubros;
+    private BigDecimal tasainteres;
+    private int diasretraso;
+    private BigDecimal valormora;
+    private String claveacceso;
 
     public Detallepago() {
     }
@@ -349,7 +358,7 @@ public class Detallepago implements Serializable {
 
     public void setFechaCrea(String fechaCrea) {
         this.fechaCrea = fechaCrea;
-    }   
+    }
 
     public String getCantItemsCarga() {
         return cantItemsCarga;
@@ -437,7 +446,7 @@ public class Detallepago implements Serializable {
 
     public void setConstanteDet_3(String constanteDet_3) {
         this.constanteDet_3 = constanteDet_3;
-    }   
+    }
 
     public String getValRetRentBienes() {
         return valRetRentBienes;
@@ -469,6 +478,62 @@ public class Detallepago implements Serializable {
 
     public void setValRetIvaServicios(String valRetIvaServicios) {
         this.valRetIvaServicios = valRetIvaServicios;
+    }
+
+    public String getClaveacceso() {
+        return claveacceso;
+    }
+
+    public void setClaveacceso(String claveacceso) {
+        this.claveacceso = claveacceso;
+    }
+
+    public Date getFechaventa() {
+        return fechaventa;
+    }
+
+    public void setFechaventa(Date fechaventa) {
+        this.fechaventa = fechaventa;
+    }
+
+    public Date getFechaacreditacionprorrogada() {
+        return fechaacreditacionprorrogada;
+    }
+
+    public void setFechaacreditacionprorrogada(Date fechaacreditacionprorrogada) {
+        this.fechaacreditacionprorrogada = fechaacreditacionprorrogada;
+    }
+
+    public BigDecimal getValorconrubros() {
+        return valorconrubros;
+    }
+
+    public void setValorconrubros(BigDecimal valorconrubros) {
+        this.valorconrubros = valorconrubros;
+    }
+
+    public BigDecimal getTasainteres() {
+        return tasainteres;
+    }
+
+    public void setTasainteres(BigDecimal tasainteres) {
+        this.tasainteres = tasainteres;
+    }
+
+    public int getDiasretraso() {
+        return diasretraso;
+    }
+
+    public void setDiasretraso(int diasretraso) {
+        this.diasretraso = diasretraso;
+    }
+
+    public BigDecimal getValormora() {
+        return valormora;
+    }
+
+    public void setValormora(BigDecimal valormora) {
+        this.valormora = valormora;
     }
 
 }
