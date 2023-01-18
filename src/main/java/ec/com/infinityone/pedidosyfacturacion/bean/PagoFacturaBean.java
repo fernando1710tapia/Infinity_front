@@ -1949,7 +1949,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                             if (!fact.isEmpty()) {
                                 pagosbancorechazados.setPysCodigobanco(fact.get(0).getCodigobanco());
                                 pagosbancorechazados.setPysCodigocliente(fact.get(0).getCodigocliente());
-                                pagosbancorechazados.setPysFechaacreditacionprorrogada(date.parse(fact.get(0).getFechaacreditacion()));
+                                pagosbancorechazados.setPysFechaacreditacionprorrogada(date.parse(fact.get(0).getFechaacreditacionprorrogada()));
                                 pagosbancorechazados.setPysNombrebanco(fact.get(0).getCodigobanco());
                                 pagosbancorechazados.setPysNombrecliente(fact.get(0).getNombrecliente());
                                 pagosbancorechazados.setPysNumerofactura(fact.get(0).getFacturaPK().getNumero().trim());

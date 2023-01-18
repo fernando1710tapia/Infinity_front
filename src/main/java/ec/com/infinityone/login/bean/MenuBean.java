@@ -13,7 +13,10 @@ import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.faces.view.ViewScoped;
@@ -33,7 +36,7 @@ import org.primefaces.shaded.json.JSONObject;
 @ViewScoped
 public class MenuBean extends LoginBean implements Serializable {
 
-    protected MenuModel model = new DefaultMenuModel();   
+    protected MenuModel model = new DefaultMenuModel();
 
     private LoginBean loginBean;
 
@@ -60,7 +63,7 @@ public class MenuBean extends LoginBean implements Serializable {
 
     private MenuBean menu;
 
-    private FirmaE firmae;  
+    private FirmaE firmae;
     /*
     Variable almacena url Accion
      */
@@ -88,6 +91,8 @@ public class MenuBean extends LoginBean implements Serializable {
 
     private List<MenuBean> listaAgregar;
 
+    private String fechaC;
+
     @PostConstruct
     public void init() {
         menu = new MenuBean();
@@ -96,9 +101,11 @@ public class MenuBean extends LoginBean implements Serializable {
         listaMenuPAux = new ArrayList<>();
         listaMenuPadreAgregar = new ArrayList<>();
         listaAgregar = new ArrayList<>();
+        fechaC = Fichero.getFECHACERTIFICADOSSL();
         obtenerMenuPadre();
         obtenerMenuHijo();
-        cargarMenu();        
+        cargarMenu();
+        obtenerFirmae();
     }
 
     public void obtenerMenuPadre() {
@@ -292,7 +299,8 @@ public class MenuBean extends LoginBean implements Serializable {
         }
     }
 
-public void obtenerFirmae() {
+    public void obtenerFirmae() {
+        DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
         try {
             //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.menu/menus?nivel=AAA");
             url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.firmae");
@@ -303,6 +311,7 @@ public void obtenerFirmae() {
             connection.setRequestProperty("Accept", "application/json");
 
             listaMenuPadreBean = new ArrayList<>();
+            firmae = new FirmaE();
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
             BufferedReader br = new BufferedReader(reader);
@@ -315,9 +324,11 @@ public void obtenerFirmae() {
             JSONArray retorno = objetoJson.getJSONArray("retorno");
             for (int indice = 0; indice < retorno.length(); indice++) {
                 JSONObject fir = retorno.getJSONObject(indice);
-                firmae.setFir_fechacaduca(fir.getString("firFechacaduca"));                
-                listaMenuPadreBean.add(menu);
-                firmae = new FirmaE();
+                if (!fir.isNull("firFechacaduca")) {
+                    Long lDatePro = fir.getLong("firFechacaduca");
+                    Date datePro = new Date(lDatePro);
+                    firmae.setFir_fechacaduca(date.format(datePro));
+                }                              
             }
 
             if (connection.getResponseCode() != 200) {
@@ -459,7 +470,7 @@ public void obtenerFirmae() {
             default:
                 break;
         }
-    }   
+    }
 
     public List<MenuBean> getListaMenuPadreBean() {
         return listaMenuPadreBean;
@@ -532,5 +543,21 @@ public void obtenerFirmae() {
     public void setDescripcionAyuda(String descripcionAyuda) {
         this.descripcionAyuda = descripcionAyuda;
     }
-  
+
+    public FirmaE getFirmae() {
+        return firmae;
+    }
+
+    public void setFirmae(FirmaE firmae) {
+        this.firmae = firmae;
+    }
+
+    public String getFechaC() {
+        return fechaC;
+    }
+
+    public void setFechaC(String fechaC) {
+        this.fechaC = fechaC;
+    }
+
 }

@@ -11,7 +11,7 @@
             <div class="layout-menu-title">MENU</div>
             <h:form id="menuform">               
                 <fr:menu model="#{menuBean.model}"/>
-                
+
                 <!--<pa:menu widgetVar="ApolloMenuWidget">
                     <p:menuitem id="om_dashboard" value="Dashboard" icon="pi pi-fw pi-home" outcome="/dashboard" />
                     <p:submenu id="om_components" label="Catálogo" icon="pi pi-fw pi-star">
@@ -84,12 +84,18 @@
                 <div class="layout-menu-footer">
                     <div class="layout-menu-footer-title"></div>
                     <div class="layout-menu-footer-content">
-<!--                        <h:outputLink  value="200.93.248.119:8080/eConsultas-web">Facturacion E</h:outputLink>-->
+                        <!--                        <h:outputLink  value="200.93.248.119:8080/eConsultas-web">Facturacion E</h:outputLink>-->
                         <a href="https://infinity.petroleosyservicios.com:8443/eConsultas-web" target="_blank">Portal Facturación Electrónica</a>
-<!--                        <p:progressBar value="50" labelTemplate="" displayOnly="true"/>
-                        Today
-                        <p:progressBar value="80" labelTemplate=""  displayOnly="true"/>
-                        Overall-->
+                        <!--                        <p:progressBar value="50" labelTemplate="" displayOnly="true"/>
+                                                Today
+                                                <p:progressBar value="80" labelTemplate=""  displayOnly="true"/>
+                                                Overall-->
+                    </div>
+                    <div class="layout-menu-footer-content">
+                        <p:outputLabel value="Vigencia firma e.: #{menuBean.firmae.fir_fechacaduca}"  style="font-size: 12px; color: #7cc64b;"></p:outputLabel>                                                                                             
+                    </div>
+                    <div class="layout-menu-footer-content">    
+                        <p:outputLabel value="Vigencia certificados srv: #{menuBean.fechaC}" style="font-size: 12px; color: #7cc64b;"></p:outputLabel>                                                                          
                     </div>
                 </div>
             </h:form>
