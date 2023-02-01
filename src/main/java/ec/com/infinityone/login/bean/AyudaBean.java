@@ -15,11 +15,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.el.ValueExpression;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.component.UIComponent;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Named;
 import org.primefaces.PrimeFaces;
@@ -28,6 +30,7 @@ import org.primefaces.model.TreeNode;
 import org.primefaces.model.menu.DefaultMenuItem;
 import org.primefaces.model.menu.DefaultMenuModel;
 import org.primefaces.model.menu.DefaultSubMenu;
+import org.primefaces.model.menu.MenuElement;
 import org.primefaces.model.menu.MenuModel;
 import org.primefaces.shaded.json.JSONArray;
 import org.primefaces.shaded.json.JSONObject;
@@ -83,22 +86,30 @@ public class AyudaBean extends LoginBean implements Serializable {
 
     private TreeNode root;
 
+    private MenuModel model;
+
     @PostConstruct
     public void init() {
 
         actualizarD = true;
         /*direcMedia = Fichero.getCARPETAAYUDA() + "\\CLIENTE_2\\index.html";
         descripcion = "xxxxxxxxxxxxxxxxxxxxxxxx";
-        nombreMenu = "Cliente";
-        menu = new MenuBean();*/
+        nombreMenu = "Cliente";*/
+        menu = new MenuBean();
 
- direcMedia = "https://drive.google.com/file/d/1D99SVsN9ox1hUjI2GwjaEsG2XkNU-sly/view?usp=share_link";
-            descripcion = "Ayuda menu cliente";
-            nombreMenu = "Cliente";
+        //cargarMenu();
         //crearAtbol();
-        //obtenerMenuPadre();
-        //obtenerMenuHijo();
-        //cargarMenuAyuda();
+        valoresDef();
+        obtenerMenuPadre();
+        obtenerMenuHijo();
+        cargarMenuAyuda();
+    }
+
+    public void valoresDef() {
+        direcMedia = "";
+        descripcion = "";
+        nombreMenu = "Seleccione un item";
+
     }
 
     public void obtenerMenuPadre() {
@@ -262,16 +273,64 @@ public class AyudaBean extends LoginBean implements Serializable {
         direcMedia = Fichero.getCARPETAAYUDA() + "\\CLIENTE_2\\index.html";
     }
 
-    public void update(MenuBean menuH) {
-        if (menuH != null) {
-            actualizarD = true;
+    public void update() {
+        //if (menuH != null) {
+        Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+        String name = params.get("formAyuda:j_idt76_menuid");
+        int numa = name.indexOf('_');
+        int numP = Integer.parseInt(name.substring(0, numa));
+        int numH = Integer.parseInt(name.substring(numa + 1));
+        DefaultSubMenu padre = (DefaultSubMenu) modelAyuda.getElements().get(numP);
+        DefaultMenuItem hijo = (DefaultMenuItem) padre.getElements().get(numH);
+        for (int i = 0; i < listaMenuHijoBean.size(); i++) {
+            if (listaMenuHijoBean.get(i).getNombre().equals(hijo.getValue().toString())) {
+                direcMedia = listaMenuHijoBean.get(i).getUrlAyuda();
+                descripcion = listaMenuHijoBean.get(i).getDescripcionAyuda();
+                nombreMenu = listaMenuHijoBean.get(i).getNombre();
+                actualizarD = true;
+                break;
+            }
+        }
+
 //            direcMedia = Fichero.getCARPETAAYUDA() + menuH.getUrlAyuda();
 //            descripcion = menuH.getDescripcionAyuda();
 //            nombreMenu = menuH.getNombre();
-            direcMedia = "https://drive.google.com/file/d/1D99SVsN9ox1hUjI2GwjaEsG2XkNU-sly/view?usp=share_link";
-            descripcion = "Ayuda menu cliente";
-            nombreMenu = "Cliente";
+//        direcMedia = "https://drive.google.com/file/d/1D99SVsN9ox1hUjI2GwjaEsG2XkNU-sly/view?usp=share_link";
+//        descripcion = "Ayuda menu cliente Prueba boton update";
+//        nombreMenu = "Cliente";
+        //}
+    }
+
+    public void abrir() {
+        String file = new String("C:\\Users\\HOME\\Desktop\\Infinity\\MANUAL-USUARIO\\V2\\CLIENTE-GARANTIA_2/index.html");
+
+        try {
+            //definiendo la ruta en la propiedad file
+            Runtime.getRuntime().exec("cmd /c start " + file);
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+    }
+
+    public void cargarMenu() {
+        model = new DefaultMenuModel();
+
+        //First submenu
+        DefaultSubMenu firstSubmenu = DefaultSubMenu.builder()
+                .label("Actor Comercial")
+                .build();
+
+        DefaultMenuItem item = DefaultMenuItem.builder()
+                .value("Cliente")
+                .icon("pi pi-user")
+                .command("#{ayudaBean.update}")
+                .update(":formAyuda desc")
+                .build();
+        firstSubmenu.getElements().add(item);
+
+        model.getElements().add(firstSubmenu);
+
     }
 
     public void cargarMenuAyuda() {
@@ -294,12 +353,10 @@ public class AyudaBean extends LoginBean implements Serializable {
                     for (MenuBean menuH : listaMenuHijoAux) {
                         item2 = DefaultMenuItem.builder()
                                 .value(menuH.getNombre())
-                                //.(createExpression("#{ayudaBean.update()}").getExpressionString())
-                                //.onclick(menuH.getUrlAyuda())
-                                //.onclick(actulizarInfo(menuH))
                                 //.outcome(menuH.getUrlAccion())
+                                .command("#{ayudaBean.update}")
+                                .update(":formAyuda desc")
                                 .build();
-                        //item2.setCommand("#{ayudaBean.update(" + menuH + ")}");
                         primerNivel.getElements().add(item2);
                     }
                     modelAyuda.getElements().add(primerNivel);
@@ -331,7 +388,9 @@ public class AyudaBean extends LoginBean implements Serializable {
                     for (MenuBean menuH : listaMenuHijoAux) {
                         item2 = DefaultMenuItem.builder()
                                 .value(menuH.getNombre())
-                                .outcome(menuH.getUrlAccion())
+                                //.outcome(menuH.getUrlAccion())
+                                .command("#{ayudaBean.update}")
+                                .update(":formAyuda desc")
                                 .build();
                         primerNivel.getElements().add(item2);
                     }
@@ -364,7 +423,9 @@ public class AyudaBean extends LoginBean implements Serializable {
                     for (MenuBean menuH : listaMenuHijoAux) {
                         item2 = DefaultMenuItem.builder()
                                 .value(menuH.getNombre())
-                                .outcome(menuH.getUrlAccion())
+                                //.outcome(menuH.getUrlAccion())
+                                .command("#{ayudaBean.update}")
+                                .update(":formAyuda desc")
                                 .build();
                         primerNivel.getElements().add(item2);
                     }
@@ -397,7 +458,9 @@ public class AyudaBean extends LoginBean implements Serializable {
                     for (MenuBean menuH : listaMenuHijoAux) {
                         item2 = DefaultMenuItem.builder()
                                 .value(menuH.getNombre())
-                                .outcome(menuH.getUrlAccion())
+                                //.outcome(menuH.getUrlAccion())
+                                .command("#{ayudaBean.update}")
+                                .update(":formAyuda desc")
                                 .build();
                         primerNivel.getElements().add(item2);
                     }
@@ -457,7 +520,7 @@ public class AyudaBean extends LoginBean implements Serializable {
     }
 
     public void mostarPantalla() throws IOException {
-        //FacesContext.getCurrentInstance().getExternalContext().redirect("/infinity-web-1/ayuda.xhtml");        
+        valoresDef();
         PrimeFaces.current().executeScript("PF('ayuda').show()");
     }
 
@@ -519,6 +582,14 @@ public class AyudaBean extends LoginBean implements Serializable {
 
     public void setNombreMenu(String nombreMenu) {
         this.nombreMenu = nombreMenu;
+    }
+
+    public MenuModel getModel() {
+        return model;
+    }
+
+    public void setModel(MenuModel model) {
+        this.model = model;
     }
 
 }

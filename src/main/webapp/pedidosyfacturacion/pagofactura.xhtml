@@ -118,10 +118,13 @@
                                     <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash" process="@this" oncomplete="PF('deleteProductDialog').show()" >
                                         <f:setPropertyActionListener value="#{precio}" target="#{pagoFacturaBean.pagofactura}" />
                                     </p:commandButton>
-                                </p:column>
-                                <p:column style="width: 3.5rem">
-                                    <p:commandButton icon="pi pi-search" />
                                 </p:column>-->
+                                <p:column style="width: 3.5rem">                                    
+                                    <p:commandButton icon="pi pi-image" update="form :formImg" 
+                                                     styleClass="edit-button rounded-button ui-button-success" process="@this">
+                                        <f:setPropertyActionListener value="#{precio}" target="#{pagoFacturaBean.pagofactura}" />
+                                    </p:commandButton>
+                                </p:column>
 
                                 <p:rowExpansion>
                                     <div class="detallePrecio" >
@@ -418,7 +421,7 @@
                                 <div class="p-field p-col-12 p-md-2">
                                     <p:outputLabel value="&#160;"/>                                    
                                     <p:commandButton value="Buscar" icon="pi pi-search-plus" actionListener="#{pagoFacturaBean.obtenerFacturas()}" update="dt-cobros"/>
-                                </div>    
+                                </div>                                 
 
                                 <p:dataTable id="dt-cobros" widgetVar="dtProducts" var="cobro" value="#{pagoFacturaBean.listaFactura}" reflow="true" styleClass="products-table"
                                              selection="#{pagoFacturaBean.listaFacturaSeleccionada}" rowKey="#{cobro.facturaPK.codigoabastecedora}-#{cobro.facturaPK.codigocomercializadora}-#{cobro.facturaPK.numero}-#{cobro.facturaPK.numeronotapedido}" paginator="true" rows="5" rowSelectMode="add" paginatorPosition="bottom">                                        
@@ -650,12 +653,12 @@
                             </div>
                             <div class="p-field p-col-12 p-md-12">
                                 <p:outputLabel for="archivo" value="Subir Archivo"/>
-                                <p:fileUpload id="archivo" listener="#{pagoFacturaBean.handleFileUpload}"                                              
+                                <p:fileUpload id="archivo" listener="#{pagoFacturaBean.handleFileUploadDoc}"                                              
                                               mode="advanced" multiple="false"
                                               update="ubi dt-cobros" auto="true"                                              
                                               sizeLimit="102400" allowTypes="/(\.|\/)(txt|TXT)$/"
                                               invalidSizeMessage="Maximum file size allowed is 100 KB"
-                                              invalidFileMessage="only txt is allowed"/>    
+                                              invalidFileMessage="only txt is allowed"/>  
                                 <p:outputLabel id="ubi" value="#{pagoFacturaBean.ubicacion}"/>
                             </div>                            
                             <p:dataTable id="dt-cobros" widgetVar="dtProducts" var="cobro" value="#{pagoFacturaBean.listaPagosbancorechazados}" reflow="true" styleClass="products-table"
@@ -749,7 +752,7 @@
             </h:form>
         </p:dialog>
 
-        <p:dialog header="Ingreso Datos del Pago" width="40%" showEffect="fade" modal="true" widgetVar="ingresoDatos" responsive="true">
+        <p:dialog header="Ingreso Datos del Pago" width="60%" showEffect="fade" modal="true" widgetVar="ingresoDatos" responsive="true">
             <h:form id="ingresoDatos">
                 <p:outputPanel rendered="true">
                     <div class="p-grid crud-demo">                        
@@ -757,7 +760,7 @@
                             <div class="p-field p-col-12 p-md-12">
                                 <h4>El total a pagar incluido rubro a terceros: $#{pagoFacturaBean.suma}</h4>                                
                             </div>                             
-                            <div class="p-field p-col-12 p-md-6">
+                            <div class="p-field p-col-12 p-md-4">
                                 <p:outputLabel for="banco" value="Banco Depósito"/>
                                 <div class="ui-inputgroup">
                                     <span class="ui-inputgroup-addon">
@@ -776,22 +779,97 @@
                                     </p:selectOneMenu>
                                 </div>                 
                             </div>                            
-                            <div class="p-field p-col-12 p-md-6">
+                            <div class="p-field p-col-12 p-md-4">
                                 <p:outputLabel for="fechaDep" value="Fecha Depósito"/>
                                 <p:datePicker id="fechaDep" value="#{pagoFacturaBean.fechaDep}" showIcon="true" pattern="dd/MM/yyyy">
                                     <p:ajax event="dateSelect" />
                                 </p:datePicker>                                
                             </div>                           
-                            <div class="p-field p-col-12 p-md-12">
+                            <div class="p-field p-col-12 p-md-4">
                                 <p:outputLabel for="obs" value="Observación"/>
-                                <p:inputTextarea id="obs" value="#{pagoFacturaBean.observ}" required="true" />
-                            </div>
+                                <p:inputText id="obs" value="#{pagoFacturaBean.observ}" required="true" />
+                            </div>    
                         </div> 
+
+                        <div class="p-col-12">
+                            <div class="card">    
+                                <p:panel rendered="true" >
+                                    <div class="ui-fluid p-formgrid p-grid">      
+                                        <div class="p-field p-col-12 p-md-12">
+                                            <h5>Informacion de cheque</h5>                                
+                                        </div>    
+                                        <div class="p-field p-col-12 p-md-3">
+                                            <p:outputLabel for="bancoChe" value="Banco Cheque"/>
+                                            <div class="ui-inputgroup">
+                                                <span class="ui-inputgroup-addon">
+                                                    <i class="fa fa-money"></i>
+                                                </span>
+                                                <p:selectOneMenu id="bancoChe" value="#{pagoFacturaBean.bancoCheque}" title="Banco"
+                                                                 panelStyle="width:175px" style="min-width: 80%;" 
+                                                                 autoWidth="false" converter="converterg"
+                                                                 required="true" requiredMessage="Seleccione Banco">
+                                                    <f:selectItem noSelectionOption="true" itemLabel="Banco" itemValue="#{null}"/>
+                                                    <f:selectItems value="#{pagoFacturaBean.listaBancos}"
+                                                                   var="banco"
+                                                                   itemLabel="#{banco.codigo}-#{banco.nombre}"
+                                                                   itemValue="#{banco}" />
+                                                    <p:ajax event="change" listener="#{pagoFacturaBean.seleccionarBanco}"/>
+                                                </p:selectOneMenu>
+                                            </div>                 
+                                        </div>     
+                                        <div class="p-field p-col-12 p-md-3">
+                                            <p:outputLabel for="cta" value="Cta"/>                                            
+                                            <p:inputText id="cta" value="#{pagoFacturaBean.cuentaCheque}" maxlength="15"/>
+                                        </div> 
+                                        <div class="p-field p-col-12 p-md-3">
+                                            <p:outputLabel for="nChe" value="N. Cheque"/>
+                                            <p:inputText id="nChe" value="#{pagoFacturaBean.numCheque}" maxlength="15"/>
+                                        </div> 
+                                        <div class="p-field p-col-12 p-md-3">                                            
+                                            <p:fileUpload id="imagen" label="Imagen Cheque" listener="#{pagoFacturaBean.handleFileUploadImage}"                                              
+                                                          mode="advanced" multiple="false"
+                                                          update="ubiC" auto="true"                                              
+                                                          sizeLimit="102400000" allowTypes="/(\.|\/)(gif|jpe?g|png)$/"
+                                                          invalidSizeMessage="Maximum file size allowed is 1000 KB"
+                                                          invalidFileMessage="only gif,jpeg,png, is allowed"/>    
+                                            <p:outputLabel id="ubiC" value="#{pagoFacturaBean.ubicacion}"/>
+                                        </div>  
+                                        <!--<div class="p-field p-col-12 p-md-4">   
+                                            <p:commandButton value="Guardar Aux" icon="pi pi-save" actionListener="{pagoFacturaBean.guardarAux}" process="@this"  
+                                                             update="@this :form formPagoDirecto" styleClass="p-mr-2" /> 
+                                        </div>  -->
+                                    </div>  
+                                </p:panel>
+                            </div>
+                        </div>
                     </div>
                 </p:outputPanel>
                 <div class="p-grid p-col-12 p-justify-end">                     
-                    <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{pagoFacturaBean.guardarPagoDirecto}" process="@this"  
+                    <p:commandButton value="Guardar" icon="pi pi-save" actionListener="#{pagoFacturaBean.guardarPagoDirecto}" process="@this"  
                                      update="@this :form formPagoDirecto" styleClass="p-mr-2" />                    
+                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('ingresoDatos').hide()" class="ui-button-secondary" />
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <p:dialog header="Imagen Cheque" width="60%" showEffect="fade" modal="true" widgetVar="imgCheque" responsive="true">
+            <h:form id="formImg">
+                <p:outputPanel rendered="true">
+                    <div class="p-grid crud-demo">                        
+                        <div class="ui-fluid p-col-12 p-formgrid p-grid">
+                            <div class="card">
+                                <p:galleria value="#{pagoFacturaBean.images}" var="image" panelWidth="500" panelHeight="313" showCaption="true">
+                                    <p:graphicImage name="#{image}" alt="#{image}" title="#{image}"/>
+                                    <f:facet name="thumbnail">
+                                        <p:graphicImage name="#{image}" alt="#{image}" />
+                                    </f:facet>
+                                    <p:graphicImage name="images/Supertech.png" library="apollo-layout" style="width:60%" />
+                                </p:galleria>
+                            </div>                            
+                        </div> 
+                    </div>
+                </p:outputPanel>
+                <div class="p-grid p-col-12 p-justify-end">                                                  
                     <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('ingresoDatos').hide()" class="ui-button-secondary" />
                 </div>
             </h:form>

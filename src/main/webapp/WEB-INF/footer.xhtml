@@ -14,17 +14,18 @@
             <span class="footer-text-left">                
                 <p:graphicImage name="#{guestPreferences.darkMode != 'light'? 'images/infinity_logo2.png' : 'images/infinity_logo2.png'}" width="10%" library="apollo-layout" />
             </span>
-            <span class="footer-text-right">Todos los Derechos Reservados. 
+            <span >Todos los Derechos Reservados. 
                 <span style="color:#87ea2a">V1.0.3</span> 
+                &#160; | &#160;
                 <p:commandButton icon="pi pi-question" actionListener="#{ayudaBean.mostarPantalla()}"
-                                 styleClass="edit-button rounded-button ui-button-success" process="@this">                                    
+                                 styleClass="ui-button-success" process="@this" update=":formAyuda">                                    
                 </p:commandButton>
             </span>
 
         </div>
     </div>
 
-    <p:dialog header="Ayuda" width="70%" showEffect="fade" modal="true" widgetVar="ayuda" responsive="true">    
+    <p:dialog header="Ayuda" width="70%" height="400px" showEffect="fade" modal="true" widgetVar="ayuda" responsive="true">    
         <h:form id="formAyuda">
             <p:outputPanel rendered = "true">
                 <div class="p-grid panel-demo">
@@ -32,23 +33,28 @@
                         <div class="p-grid">
                             <div class="p-col-4 p-d-flex p-ai-center p-jc-center">
                                 <div class="ui-fluid">
-                                    <p:slideMenu style="width:200px">                                        
+                                    <p:menu model="#{ayudaBean.modelAyuda}"  toggleable="true" />
+                                    
+                                    <!--<p:slideMenu style="width:200px">                                        
                                         <p:submenu label="Actor Comercial" icon="pi pi-shopping-cart">
-                                            <p:menuitem value="Cliente" url="#" icon="pi pi-user" />                                           
+                                            <p:menuitem value="Cliente" icon="pi pi-user" action="{ayudaBean.update}" update=":formAyuda desc"/>                                           
                                         </p:submenu>
-                                    </p:slideMenu>
+                                    </p:slideMenu>-->
                                 </div>
                             </div>                            
                             <div class="p-col-7 p-ai-center p-jc-center" id="media">
                                 
-                                <h:outputText value="Cliente"  styleClass="default-header"/>              
+                                <h:outputText value="#{ayudaBean.nombreMenu}"  styleClass="default-header"/>              
                                 
                                 <p:separator ></p:separator>
                                 <p> 
                                     <h:outputText id="desc" value="#{ayudaBean.descripcion}" rendered="#{ayudaBean.actualizarD}" styleClass="default-header"/>                                     
                                 </p>                                                                                 
                                 
-                                <a href="#{ayudaBean.direcMedia}" target="_blank">Video</a> 
+                                <a href="#{ayudaBean.direcMedia}"  target="_blank">Video Ayuda</a> 
+                                <p:separator ></p:separator>
+                                
+                                <p:commandButton value="Video Ayuda" icon="pi pi-desktop" actionListener="#{ayudaBean.abrir}" styleClass="ui-button-success" style="margin-right: .5rem" />
 
                                     <!--<p:video value="/resources/demo/media/sample-webm.webm"
                                              controls="true"

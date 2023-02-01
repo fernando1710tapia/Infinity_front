@@ -24,6 +24,8 @@ import ec.com.infinityone.actorcomercial.serivicios.ClienteServicio;
 import ec.com.infinityone.catalogo.servicios.TerminalServicio;
 import ec.com.infinityone.configuration.Fichero;
 import ec.com.infinityone.modeloWeb.Cliente;
+import ec.com.infinityone.modeloWeb.Pagocheque;
+import ec.com.infinityone.modeloWeb.PagochequePK;
 import ec.com.infinityone.modeloWeb.Pagosbancorechazados;
 import ec.com.infinityone.modeloWeb.PagosbancorechazadosPK;
 import ec.com.infinityone.modeloWeb.Temporalparacobrar;
@@ -32,8 +34,10 @@ import ec.com.infinityone.modeloWeb.Terminal;
 import ec.com.infinityone.modeloWeb.TotalParaCobrar;
 import ec.com.infinityone.pedidosyfacturacion.servicios.TemporalCobrarServicios;
 import ec.com.infinityone.pedidosyfacturacion.servicios.TotalCobrarServicios;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,6 +47,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -50,6 +55,7 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -70,8 +76,11 @@ import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
+import javax.imageio.ImageIO;
 import javax.inject.Inject;
 import javax.inject.Named;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
 import org.primefaces.PrimeFaces;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.event.ToggleEvent;
@@ -199,6 +208,8 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
     Variable Banco
      */
     private Banco banco;
+
+    private Banco bancoCheque;
     /*
     Lista Bancos
      */
@@ -288,6 +299,16 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
 
     private String tasaInt;
 
+    private Pagocheque pagocheque;
+
+    private PagochequePK pagochequePK;
+
+    private List<String> images;
+
+    private String numCheque;
+
+    private String cuentaCheque;
+
     /**
      * Constructor por defecto
      */
@@ -340,6 +361,10 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
         numero = "";
         codCliente = "-1";
         codTerminal = "-1";
+        numCheque = "";
+        cuentaCheque = "";
+        pagocheque = new Pagocheque();
+        pagochequePK = new PagochequePK();
         //habilitarBusqueda();
         //obtenerPagoFactura(listaComercializadora.get(0).getCodigo(), new Date());        
     }
@@ -817,6 +842,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
         if (!listaFacturaSeleccionada.isEmpty()) {
             if (habilitarComer) {
                 banco = new Banco();
+                bancoCheque = new Banco();
             }
             for (int i = 0; i < listaFacturaSeleccionada.size(); i++) {
                 suma = suma.add(listaFacturaSeleccionada.get(i).getValorconrubro());
@@ -1663,7 +1689,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         }
     }
 
-    public String handleFileUpload(FileUploadEvent event) {
+    public String handleFileUploadDoc(FileUploadEvent event) {
         DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
         DateFormat date1 = new SimpleDateFormat("ddMMyyyy");
         DateFormat date2 = new SimpleDateFormat("yyyyMMdd");
@@ -2180,7 +2206,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         int detError = 0;
         List<JSONObject> arregloJSON = new ArrayList<>();
         Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
-        observacion = params.get("recibopago:observacion");
+        observacion = params.get("recibopago:observacion");        
         if (!observacion.isEmpty()) {
             if (!listaPagosBancoRechazadoAux.isEmpty()) {
                 arregloJSON.addAll(addItemsArregloJSON(listaPagosBancoRechazadoAux));
@@ -2252,6 +2278,99 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 
     }
 
+    public List<JSONObject> addItemsArregloJSONPagoDir(List<Factura> listaFactura) throws ParseException {
+        DateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
+        DateFormat dateNum = new SimpleDateFormat("yyyyMMddhhmmss");
+        String fechaS = date.format(fechaDep);
+        String fechaNum = dateNum.format(new Date());
+        String fechaR = date.format(new Date());
+        numero = banco.getCodigo() + fechaNum;
+
+        JSONObject obj = new JSONObject();
+        JSONObject objPK = new JSONObject();
+        JSONObject objEnvRest = new JSONObject();
+        List<JSONObject> arrObj = new ArrayList<>();
+        List<JSONObject> listObjEnvRest = new ArrayList<>();
+
+        objPK.put("codigoabastecedora", listaFacturaSeleccionada.get(0).getFacturaPK().getCodigoabastecedora());
+        objPK.put("codigocomercializadora", listaFacturaSeleccionada.get(0).getFacturaPK().getCodigocomercializadora());
+        //String fechaAct = date.format(listaFacturaSeleccionada.get(0).getFechaventa());
+        objPK.put("numero", numero);
+        objPK.put("codigobanco", banco.getCodigo());
+        obj.put("pagofacturaPK", objPK);
+        obj.put("fecha", fechaS);
+        obj.put("activo", true);
+        obj.put("valor", suma);
+        obj.put("observacion", observ);
+        obj.put("fecharegistro", fechaR);
+        obj.put("usuarioactual", dataUser.getUser().getNombrever());
+        if (bancoCheque.getCodigo() != null && !cuentaCheque.equals("") && !numCheque.equals("")) {
+            obj.put("codigobancocheque", bancoCheque.getCodigo());
+            obj.put("numerocheque", numCheque);
+            obj.put("cuentacheque", cuentaCheque);
+        } else {
+            obj.put("codigobancocheque", "");
+            obj.put("numerocheque", numCheque);
+            obj.put("cuentacheque", cuentaCheque);
+        }
+
+        for (int indice = 0; indice < listaFacturaSeleccionada.size(); indice++) {
+            arrObj.add(addItemsDetailPAuxPagoDir(indice));
+        }
+
+        objEnvRest.put("pago", obj);
+        objEnvRest.put("detallepago", arrObj);
+        listObjEnvRest.add(objEnvRest);
+        obj = new JSONObject();
+        objPK = new JSONObject();
+        arrObj = new ArrayList<>();
+        objEnvRest = new JSONObject();
+
+        return listObjEnvRest;
+
+    }
+
+    public JSONObject addItemsDetailPAuxPagoDir(int indice) throws ParseException {
+
+        DateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
+        DateFormat dateNum = new SimpleDateFormat("yyyyMMddhhmmss");
+        String fechaNum = dateNum.format(new Date());
+        String fechaR = date.format(new Date());
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd", Locale.ENGLISH);
+        Date fechaAcrePro = sdf.parse(listaFacturaSeleccionada.get(indice).getFechaacreditacionprorrogada());
+        Date fechaVent = sdf.parse(listaFacturaSeleccionada.get(indice).getFechaventa());
+
+        Date firstDate = sdf.parse(listaFacturaSeleccionada.get(indice).getFechaacreditacionprorrogada());
+        Date secondDate = fechaDep;
+        long diff = secondDate.getTime() - firstDate.getTime();
+        TimeUnit time = TimeUnit.DAYS;
+        long diasR = time.convert(diff, TimeUnit.MILLISECONDS);
+
+        JSONObject obj = new JSONObject();
+        JSONObject objPk = new JSONObject();
+        objPk.put("codigoabastecedora", listaFacturaSeleccionada.get(indice).getFacturaPK().getCodigoabastecedora());
+        objPk.put("codigocomercializadora", listaFacturaSeleccionada.get(indice).getFacturaPK().getCodigocomercializadora());
+        objPk.put("numeronotapedido", listaFacturaSeleccionada.get(indice).getFacturaPK().getNumeronotapedido());
+        //String fechaAct = date.format(listaFacturaSeleccionada.get(0).getFechaventa());
+        objPk.put("numero", numero);
+        objPk.put("codigobanco", banco.getCodigo());
+        objPk.put("numerofactura", listaFacturaSeleccionada.get(indice).getFacturaPK().getNumero());
+        obj.put("detallepagoPK", objPk);
+        obj.put("valor", listaFacturaSeleccionada.get(indice).getValorconrubro());
+        obj.put("activo", true);
+        obj.put("usuarioactual", dataUser.getUser().getNombrever());
+        obj.put("fechaacreditacionprorrogada", date.format(fechaAcrePro));
+        obj.put("fechaventa", date.format(fechaVent));
+        obj.put("valorconrubro", listaFacturaSeleccionada.get(indice).getValorconrubro());
+        obj.put("tasainteres", tasaInt);
+        obj.put("diasretraso", diasR);
+        obj.put("valormora", new BigDecimal(0));
+        obj.put("claveacceso", listaFacturaSeleccionada.get(indice).getClaveacceso());
+
+        return obj;
+    }
+
     public JSONObject addItemsDetailPAux(Pagosbancorechazados pagosbancorechazados) throws ParseException {
         DateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
 
@@ -2283,7 +2402,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
     }
 //proceso: 1=pagos; 2=pagos rechazados
 
-    public void addItemsPriceAux(List<JSONObject> arregloJSON, int proceso) {
+    public boolean addItemsPriceAux(List<JSONObject> arregloJSON, int proceso) {
         try {
 
             String respuesta;
@@ -2319,14 +2438,17 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             if (connection.getResponseCode() == 200) {
                 this.dialogo(FacesMessage.SEVERITY_INFO, "SE HA REGISTRADO CON EXITO");
                 System.out.println("Se ha registrado con exito");
+                return true;
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
                 System.out.println("Error al añadir:" + connection.getResponseCode());
                 System.out.println("Error:" + connection.getErrorStream());
                 System.out.println(connection.getResponseMessage());
+                return false;
             }
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
     }
 
@@ -2745,6 +2867,80 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         return pagofactura;
     }
 
+    public void verImagen(Pagofactura obj) {
+        try {
+            File archivo = new File("C:\\wildfly-13.0.0.Final\\standalone\\configuration\\reportes\\UTBG2700.jpg");
+            byte[] imgFoto = new byte[(int) archivo.length()];
+            InputStream inte = new FileInputStream(archivo);
+            inte.read(imgFoto);
+
+            BufferedImage image = null;
+            InputStream in = new ByteArrayInputStream(imgFoto);
+            image = ImageIO.read(in);
+
+//servicio para traer pago cheque por id 
+//https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.pagocheque?codigoabastecedora=0001&codigocomercializadora=0002&codigobanco=37&numero=0001725102022111456
+            Pagocheque pagocheque = obtenerPagoCheuqeId(obj);
+            images = new ArrayList<String>();            
+            images.add(pagocheque.getUrlimagencheque());
+            //Image icono = new Image(image);
+            PrimeFaces.current().executeScript("PF('imgCheque').show()");
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+
+    }
+
+    public Pagocheque obtenerPagoCheuqeId(Pagofactura pagofactura) throws ParseException {
+        try {
+            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.pagocheque";
+
+            url = new URL(direcc + "/porId?codigoabastecedora=" + pagofactura.getPagofacturaPK().getCodigoabastecedora() + "&codigocomercializadora=" + pagofactura.getPagofacturaPK().getCodigocomercializadora() + "&codigobanco=" + pagofactura.getPagofacturaPK().getCodigobanco() + "&numero=" + pagofactura.getPagofacturaPK().getNumero());
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+
+            Pagocheque pagocheque = new Pagocheque();
+            PagochequePK pagochequePK = new PagochequePK();
+
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+
+            BufferedReader br = new BufferedReader(reader);
+            String tmp = null;
+            String respuesta = "";
+            while ((tmp = br.readLine()) != null) {
+                respuesta += tmp;
+            }
+            JSONObject objetoJson = new JSONObject(respuesta);
+            JSONArray retorno = objetoJson.getJSONArray("retorno");
+            for (int indice = 0; indice < retorno.length(); indice++) {
+                JSONObject pc = retorno.getJSONObject(indice);
+                JSONObject pcPK = pc.getJSONObject("pagochequePK");
+
+                pagochequePK.setCodigoabastecedora(pcPK.getString("codigoabastecedora"));
+                pagochequePK.setCodigocomercializadora(pcPK.getString("codigocomercializadora"));
+                pagochequePK.setCodigobanco(pcPK.getString("codigobanco"));
+                pagochequePK.setNumero(pcPK.getString("numero"));
+                pagocheque.setPagochequePK(pagochequePK);
+                if (!pc.isNull("urlimagencheque")) {
+                    pagocheque.setUrlimagenchequeS(pc.getString("urlimagencheque"));
+                }
+            }
+            if (connection.getResponseCode() != 200) {
+                System.out.println(connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
+                return null;
+            } else {
+                return pagocheque;
+            }
+
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
     public void actualizarLista() {
         if (comercializadora != null) {
             if (comercializadora.getCodigo() != null) {
@@ -2985,18 +3181,22 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         fecha = new Date();
     }
 
-    public void guardarPagoDirecto() throws ParseException {
+    public void guardarPagoDirecto() throws ParseException, SQLException {
         Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
         observ = params.get("ingresoDatos:obs");
+        numCheque = params.get("ingresoDatos:nChe");
+        cuentaCheque = params.get("ingresoDatos:cta");
         DateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
         SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
         listaFacturaAux = new ArrayList<>();
+        List<JSONObject> arregloJSON = new ArrayList<>();
         suma = new BigDecimal(0);
         if (!listaFacturaSeleccionada.isEmpty()) {
             for (int i = 0; i < listaFacturaSeleccionada.size(); i++) {
                 suma = suma.add(listaFacturaSeleccionada.get(i).getValorconrubro());
             }
-            if (addPagoFacturaGestionDirecta()) {
+            arregloJSON.addAll(addItemsArregloJSONPagoDir(listaFacturaSeleccionada));
+            /*if (addPagoFacturaGestionDirecta()) {
                 for (int indice = 0; indice < listaFacturaSeleccionada.size(); indice++) {
                     if (addDetPagoGestionDirecta(indice)) {
                         if (listaFacturaSeleccionada.get(indice).getFechaacreditacion() != null) {
@@ -3022,11 +3222,19 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                         listaFacturaSeleccionada.get(indice).setPagada(true);
                         cambiarEstadoFactura(listaFacturaSeleccionada.get(indice));
                     }
-                }
+                }                
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "No se ha registrado el detalle pago");
+            }*/
+            if (addItemsPriceAux(arregloJSON, 1)) {
+                if (bancoCheque.getCodigo() != null && !cuentaCheque.equals("") && !numCheque.equals("")) {
+                    addPagoCheque();
+                }
+                PrimeFaces.current().executeScript("PF('ingresoDatos').hide()");
+                obtenerFacturas();
+                numCheque = "";
+                cuentaCheque = "";
             }
-            obtenerFacturas();
         } else {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "No existen facturas");
         }
@@ -3070,6 +3278,47 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 
     }
 
+    public void guardarAux() throws ParseException, SQLException {
+        addPagoCheque();
+    }
+
+    public Boolean addPagoCheque() throws SQLException {
+        try {
+            String respuesta;
+            url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.pagocheque");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-type", "application/json");
+
+            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+            JSONObject obj = new JSONObject();
+            JSONObject objPK = new JSONObject();
+            objPK.put("codigoabastecedora", listaFacturaSeleccionada.get(0).getFacturaPK().getCodigoabastecedora());
+            objPK.put("codigocomercializadora", listaFacturaSeleccionada.get(0).getFacturaPK().getCodigocomercializadora());
+            objPK.put("numero", numero);
+            objPK.put("codigobanco", banco.getCodigo());
+            obj.put("pagochequePK", objPK);
+            //obj.put("imagencheque", pagocheque.getImagencheque());
+            obj.put("urlimagencheque", pagocheque.getUrlimagencheque());
+            respuesta = obj.toString();
+            writer.write(respuesta);
+            writer.close();
+            if (connection.getResponseCode() == 200) {
+                this.dialogo(FacesMessage.SEVERITY_INFO, "PAGO CHEQUE REGISTRADO EXITOSAMENTE");
+                return true;
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR PAGO CHEQUE");
+                System.out.println(connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
+                return false;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public String formatoFecha(String cadena) {
         String fechaFormat = "";
         fechaFormat = cadena.substring(0, 2) + "/" + cadena.substring(2, 4) + "/" + cadena.substring(4);
@@ -3095,6 +3344,28 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
         listaTotalCobros = new ArrayList<>();
         tipoBusquedaDocumento = "1";
         fecha = new Date();
+    }
+
+    public String handleFileUploadImage(FileUploadEvent event) {
+        FileInputStream fis = null;
+        String ruta_temporal = Fichero.getCARPETAREPORTES();
+        UploadedFile uploadedFile = event.getFile();
+        String fileName = uploadedFile.getFileName();
+        byte[] contents = uploadedFile.getContent();
+        //pagocheque.setImagencheque(contents);
+        try {
+            FileOutputStream fos = new FileOutputStream(ruta_temporal + "/" + fileName.replace(" ", ""));
+            fos.write(contents);
+            ubicacion = ruta_temporal + "/" + fileName.replace(" ", "");
+            fos.close();
+            File file = new File(ubicacion);
+            fis = new FileInputStream(file);
+            pagocheque.setUrlimagenchequeS(ubicacion);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public List<Detallepago> getListaDetallePagofacturaArchivoSubida() {
@@ -3423,6 +3694,54 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 
     public void setListaPagosbancorechazados(List<Pagosbancorechazados> listaPagosbancorechazados) {
         this.listaPagosbancorechazados = listaPagosbancorechazados;
+    }
+
+    public Banco getBancoCheque() {
+        return bancoCheque;
+    }
+
+    public void setBancoCheque(Banco bancoCheque) {
+        this.bancoCheque = bancoCheque;
+    }
+
+    public Pagocheque getPagocheque() {
+        return pagocheque;
+    }
+
+    public void setPagocheque(Pagocheque pagocheque) {
+        this.pagocheque = pagocheque;
+    }
+
+    public PagochequePK getPagochequePK() {
+        return pagochequePK;
+    }
+
+    public void setPagochequePK(PagochequePK pagochequePK) {
+        this.pagochequePK = pagochequePK;
+    }
+
+    public List<String> getImages() {
+        return images;
+    }
+
+    public void setImages(List<String> images) {
+        this.images = images;
+    }
+
+    public String getNumCheque() {
+        return numCheque;
+    }
+
+    public void setNumCheque(String numCheque) {
+        this.numCheque = numCheque;
+    }
+
+    public String getCuentaCheque() {
+        return cuentaCheque;
+    }
+
+    public void setCuentaCheque(String cuentaCheque) {
+        this.cuentaCheque = cuentaCheque;
     }
 
 }
