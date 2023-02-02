@@ -345,7 +345,7 @@
                         </span>
                     </div>
                     <div class="p-field p-col-12 p-md-2">
-                        <p:commandButton value="Cambiar Conductor" icon="pi pi-check" actionListener="#{notapedidoBean1.cambiarConductor()}" update="form :formElegirConductor" styleClass="p-mr-2" process="@this"/>
+                        <p:commandButton value="Cambiar Conductor" icon="pi pi-check" actionListener="#{notapedidoBean1.cambiarConductor()}" update="cond :formElegirConductor" styleClass="p-mr-2" process="@this"/>
                     </div>                                                                                                                           
                     <div class="p-field p-col-12 p-md-12"></div>
                     <!--<div class="p-field p-col-12 p-md-12">
@@ -497,7 +497,7 @@
                 </p:outputPanel>
                 <div class="p-grid p-justify-end">
                     <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{notapedidoBean1.actualizarAutotanque()}"
-                                     update=":form formNuevo" styleClass="p-mr-2"/>
+                                     update=":form @([id$=cond])" styleClass="p-mr-2"/>
                     <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('elegirconductor').hide()" class="ui-button-secondary" />
                 </div>
             </h:form>
