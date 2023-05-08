@@ -384,7 +384,7 @@
                             </p:selectOneMenu> 
                         </div>
                     </div>
-                    <!--<div class="p-field p-col-12 p-md-12">
+                    <!--<div class="p-field p-col-12 p-m d-12">
                         <p:outputLabel for="archivo" value="Subir Archivo"/>
                         <p:fileUpload id="archivo" value="{guiasRemisionBean.file}" listener="{guiasRemisionBean.handleFilesUploads}"                                              
                                       mode="advanced" multiple="true" immediate="true"
@@ -393,18 +393,22 @@
                                       invalidSizeMessage="Maximum file size allowed is 100 KB"
                                       invalidFileMessage="only xml is allowed"/>                            
                     </div>-->
-                    <div class="p-field p-col-12 p-md-12">
-                        <p:outputLabel for="archivo" value="Subir Archivo"/>
-                        <p:fileUpload id="archivo" listener="#{guiasRemisionBean.handleFileUpload}" 
+                    <!-- <div class="ui-fluid p-formgrid p-grid">-->
+                    <div class="p-field p-col-6 p-md-6">
+                        <!-- <p:outputLabel for="archivo" value="Leer - validar Archivos"/>-->
+                        <p:fileUpload label="Leer - validar Archivos" id="archivo" listener="#{guiasRemisionBean.handleFileUpload}" 
                                       mode="advanced" dragDropSupport="false" 
-                                      multiple="true" update="messages dt-products1 @form" sizeLimit="102400"
-                                      allowTypes="/(\.|\/)(xml)$/" auto="true"
+                                      multiple="true" update="messages, :formNuevoGuia:plistaDatos, @form" sizeLimit="102400"
+                                      allowTypes="/(\.|\/)(xml)$/" auto="true" process="@all"
                                       invalidSizeMessage="Maximum file size allowed is 100 KB"
                                       invalidFileMessage="only xml is allowed"/>                        
                     </div>                    
-                    <div class="p-field p-col-12 p-md-2">                          
+                    <div class="p-field p-col-6 p-md-3">                          
                         <p:commandButton id="bus" value="Cargar Archivos" icon="pi pi-plus" actionListener="#{guiasRemisionBean.lecturaXml1()}" immediate="true" update="dt-products1 @form"/>
                     </div>
+                    <!-- </div>comment -->
+                    
+                                     
                     <!--<div class="p-field p-col-12 p-md-12">
                         <p:outputLabel for="archivo" value="Subir Archivo"/>
                         <p:fileUpload id="archivo" listener="{guiasRemisionBean.handleFileUpload}"                                              
@@ -420,6 +424,7 @@
                 <div class="p-grid crud-demo">
                     <div class="p-field p-col-12 p-md-12">
                         <div class="card">
+                            <p:panel id="plistaDatos">
                             <p:dataTable id="dt-products1" widgetVar="dtProducts1" var="guia1" value="#{guiasRemisionBean.listaConsultaGuiaArchivoSubida}" reflow="true" styleClass="products-table"
                                          paginator="true" rows="15" rowSelectMode="add" paginatorPosition="bottom" >
                                 <f:facet name="header">
@@ -511,7 +516,8 @@
                                         <p:ajax event="change" /> 
                                     </p:inputText>
                                 </p:column>                    
-                            </p:dataTable>                                                                                         
+                            </p:dataTable>
+                                </p:panel>
                         </div>
                     </div>
                 </div>                  

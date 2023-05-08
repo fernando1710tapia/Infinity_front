@@ -201,13 +201,13 @@
                     <div class="card">
                         <div class="p-grid">
                             <div class="p-field p-col-12 p-md-6">
-                                <p:outputLabel for="fechaF" value="Fecha de Venta y Despacho "/>
+                                <p:outputLabel for="fechaF" value="Fecha de Despacho "/>
                                 <p:datePicker id="fechaF" value="#{dashboardBean.date}" showIcon="true" pattern="dd/MM/yyyy" maxdate="#{dashboardBean.today}">
                                     <p:ajax event="dateSelect" listener="#{dashboardBean.actualizarGrafico()}" update="barras"/>
                                 </p:datePicker>
                             </div>
                             <div class="p-col-12">
-                                <p:panel id="barras" header="Ventas / Despachos Totales " styleClass="chart">
+                                <p:panel id="barras" header="Despachos Totales " styleClass="chart">
                                     <p:barChart model="#{dashboardBean.barModel}" style="height:300px" widgetVar="chart" />
                                 </p:panel>
                             </div>

@@ -42,6 +42,7 @@ import java.math.RoundingMode;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -420,18 +421,41 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
         step1 = false;
         step2 = true;
         step3 = false;
+        ArrayList<Comercializadoraproducto> listaComerProductosAux = new ArrayList<>();
+        try{
         if (comercializadora.getActivo().equals("N")) {
             listaTerminalProd = new ArrayList<>();
             listaPrecio = new ArrayList<>();
             listPrice = new ArrayList<>();
             for (int i = 0; i < listaComerProductos.size(); i++) {
                 if (listaComerProductos.get(i).isProcesar()) {
-                    actualizarDatosComerProd(listaComerProductos.get(i));
-                    consultarPorIdPrecios(listaComerProductos.get(i));
-                }
+//                    actualizarDatosComerProd(listaComerProductos.get(i));
+                  listaComerProductosAux.add(listaComerProductos.get(i));
+//                    consultarPorIdPrecios(listaComerProductos.get(i));
+                } 
             }
+            if (!listaComerProductosAux.isEmpty()) {
+               actualizarDatosComerProdLote(listaComerProductosAux);
+            } else {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "Error!. No se ha seleccionado ningún producto!");
+            }
+            if (!listaComerProductosAux.isEmpty()) {
+                for (int i = 0; i < listaComerProductosAux.size(); i++) {
+              obtenerPrecioscomprobacion(listaComerProductosAux.get(i));
+                consultarPorIdPrecios(listaComerProductosAux.get(i));
+                }
+            } else {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "Error!. No se ha seleccionado ningún producto!");
+            }
+             
         } else {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "LA COMERCIALIZADORA DEBE ESTAR INCATIVA PARA PODER REALIZAR LA ACTUALIZACIÓN DE PRECIOS");
+        }
+        }catch(Throwable t){
+             this.dialogo(FacesMessage.SEVERITY_ERROR, t.getMessage());
+             System.out.println("FT:: Error capturado paso1 " +t.getMessage());
+             t.printStackTrace(System.out);
+             System.out.println("FT:: Error capturado TERMINA t.printStackTrace paso1 ----------------------"); 
         }
     }
 
@@ -471,6 +495,87 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void actualizarDatosComerProdLote(ArrayList<Comercializadoraproducto> listaComerProductosAux) throws Throwable {
+//        listaFacturaAux = new ArrayList<>();
+        List<JSONObject> arregloJSON = new ArrayList<>();
+        JSONObject comercializadoraProducto = new JSONObject();
+        JSONObject comercializadoraProductoPK = new JSONObject();
+        
+        try{
+            int longitud = listaComerProductosAux.size();
+            for (int i = 0; i < longitud; i++) {
+
+                comercializadoraProductoPK.put("codigocomercializadora", ((Comercializadoraproducto) listaComerProductosAux.get(i)).getComercializadoraproductoPK().getCodigocomercializadora());
+                comercializadoraProductoPK.put("codigoproducto", ((Comercializadoraproducto) listaComerProductosAux.get(i)).getComercializadoraproductoPK().getCodigoproducto());
+                comercializadoraProductoPK.put("codigomedida", ((Comercializadoraproducto) listaComerProductosAux.get(i)).getComercializadoraproductoPK().getCodigomedida());
+                comercializadoraProducto.put("comercializadoraproductoPK", comercializadoraProductoPK);
+
+                comercializadoraProducto.put("activo", ((Comercializadoraproducto) listaComerProductosAux.get(i)).getActivo());
+                comercializadoraProducto.put("margencomercializacion", ((Comercializadoraproducto) listaComerProductosAux.get(i)).getMargencomercializacion());
+                comercializadoraProducto.put("precioepp", ((Comercializadoraproducto) listaComerProductosAux.get(i)).getPrecioepp());
+                comercializadoraProducto.put("pvpsugerido", ((Comercializadoraproducto) listaComerProductosAux.get(i)).getPvpsugerido());
+                comercializadoraProducto.put("soloaplicaiva", ((Comercializadoraproducto) listaComerProductosAux.get(i)).getSoloaplicaiva());
+                comercializadoraProducto.put("usuarioactual", ((Comercializadoraproducto) listaComerProductosAux.get(i)).getUsuarioactual());
+
+//            arregloJSON.addAll(addPagoFacturaRechazadosArregloJSON(listaComerProductosAux));
+                arregloJSON.add(comercializadoraProducto);
+                comercializadoraProducto = new JSONObject();
+                comercializadoraProductoPK = new JSONObject();
+            }
+            //------ACTUALIZAR COMERPROD EN LA BDD------------------
+            
+            
+            String respuesta;
+            String direcc = "";
+            
+//            direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.comercializadoraproducto/actualizarLote";
+            direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.comercializadoraproducto/updateLote";
+            
+            url = new URL(direcc);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("PUT");
+            connection.setRequestProperty("Content-type", "application/json");
+
+            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+            //JSONObject arrObj = new JSONObject();               
+
+            //arrObj.put("", arregloJSON); 
+            respuesta = arregloJSON.toString();
+            writer.write(respuesta);
+            writer.close();
+
+            if (connection.getResponseCode() == 200) {
+                InputStreamReader reader = new InputStreamReader(connection.getInputStream());                
+                BufferedReader br = new BufferedReader(reader);
+                String tmp = null;
+                String resp = "";
+                while ((tmp = br.readLine()) != null) {
+                    resp += tmp;
+                }
+                JSONObject objetoJson = new JSONObject(resp);
+                String cod = objetoJson.getString("developerMessage");
+//                this.dialogo(FacesMessage.SEVERITY_INFO, cod);
+                System.out.println(cod);
+//                return true;
+            } else {
+//                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
+                System.out.println("Error al añadir:" + connection.getResponseCode());
+                System.out.println("Error:" + connection.getErrorStream());
+                System.out.println(connection.getResponseMessage());
+                throw new Throwable("Error capturado en actualizarDatosComerProdLote. "+connection.getResponseCode());
+                 
+            }
+            
+            //------------------------------------------------------
+             
+        }catch (Throwable t){
+            System.out.println("FT:: error capturado en actualizarDatosComerProdLote ." + t.getMessage());
+            throw new Throwable("FT:: error capturado en actualizarDatosComerProdLote ." + t.getMessage());
+        }  
+
     }
 
     public boolean obtenerPrecioscomprobacion(Comercializadoraproducto comerP) {
@@ -586,7 +691,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                 }
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "SELECCIONE UNA COMERCIALIZADORA");
-            }            
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -659,6 +764,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
 
     public void consultarPorIdPrecios(Comercializadoraproducto comerP) {
         for (int i = 0; i < listaTerminalProd.size(); i++) {
+            
             obtenerPreciosModificados(i, listaTerminalProd, comerP);
         }
     }
@@ -1329,7 +1435,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
         String fechaI = date.format(fechaVencimiento) + "T12:00:00";
 
         JSONObject detalle = new JSONObject();
-        JSONObject detallePK = new JSONObject();        
+        JSONObject detallePK = new JSONObject();
 
         detallePK.put("codigocomercializadora", detalleP.get(j).getDetalleprecioPK().getCodigocomercializadora());
         detallePK.put("codigoterminal", detalleP.get(j).getDetalleprecioPK().getCodigoterminal());

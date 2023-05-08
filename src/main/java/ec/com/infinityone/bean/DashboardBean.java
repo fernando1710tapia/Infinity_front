@@ -98,6 +98,10 @@ public class DashboardBean extends ReusableBean implements Serializable {
 
     @PostConstruct
     public void init() {
+        
+        System.out.println("FT::pasa por init()");
+        
+        
         //direccion = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura/mejorCliente?activo=true";        
         direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim();
         direccionVentaVsDespacho_Venta = "ec.com.infinity.modelo.factura/ventaTotal";
@@ -442,7 +446,8 @@ public class DashboardBean extends ReusableBean implements Serializable {
                 for (Map.Entry<String, List<VentaTotalDto>> entry : mapaVentas.entrySet()) {
                     bandera = false;
                     for (int k = 0; k < listaVentaTotalDto.size(); k++) {
-                        if (listaVentaTotalDto.get(k).getNombreProducto().equals(nomProd.get(i)) && listaVentaTotalDto.get(k).getNombreTerminal().equals(entry.getKey())) {
+                        if (listaVentaTotalDto.get(k).getNombreProducto().equals(nomProd.get(i)) 
+                         && listaVentaTotalDto.get(k).getNombreTerminal().equals(entry.getKey())) {
                                 
 //                            System.out.println("FT::valores y etiquetas: "+listaVentaTotalDto.get(k).getNombreProducto()+" - "+listaVentaTotalDto.get(k).getVolumenTotal());
                             values2.add(listaVentaTotalDto.get(k).getVolumenTotal());
@@ -465,6 +470,7 @@ public class DashboardBean extends ReusableBean implements Serializable {
                 barDataSetList.add(barDataSet2);
 
                 //despachos
+/*  desde aqui 
                 barDataSet = new BarChartDataSet();
                 barDataSet.setLabel("DES-" + ventaTotalDtoAux.getNombreProducto().substring(5)); //+" -Docs: "+ventaTotalDtoAux.getGuias()+" -Vol: "
                 barDataSet.setBackgroundColor(coloresProducto(ventaTotalDtoAux.getNombreProducto(), 1)[0]);
@@ -475,7 +481,8 @@ public class DashboardBean extends ReusableBean implements Serializable {
                 for (Map.Entry<String, List<VentaTotalDto>> entry : mapaVentas.entrySet()) {
                     bandera = false;
                     for (int k = 0; k < listaVentaTotalDto.size(); k++) {
-                        if (listaVentaTotalDto.get(k).getNombreProducto().equals(nomProd.get(i)) && listaVentaTotalDto.get(k).getNombreTerminal().equals(entry.getKey())) {
+                        if (listaVentaTotalDto.get(k).getNombreProducto().equals(nomProd.get(i)) 
+                        && listaVentaTotalDto.get(k).getNombreTerminal().equals(entry.getKey())) {
                             values.add(listaVentaTotalDto.get(k).getVolumenTotalD());
                             System.out.println("FT::valores y etiquetas: "+listaVentaTotalDto.get(k).getNombreProducto()+" - "+listaVentaTotalDto.get(k).getVolumenTotal());
 //                            if(listaVentaTotalDto.get(k).getVolumenTotalD().compareTo(BigDecimal.ZERO)==0){
@@ -492,8 +499,10 @@ public class DashboardBean extends ReusableBean implements Serializable {
 //                        barDataSet.setLabel(" --- ");
                     }
                 }
+
                 barDataSet.setData(values);
                 barDataSetList.add(barDataSet);
+    hasta aqui */ 
             }
 
             for (Map.Entry<String, List<VentaTotalDto>> entry : mapaVentas.entrySet()) {
