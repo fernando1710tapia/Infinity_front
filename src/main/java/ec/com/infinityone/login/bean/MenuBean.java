@@ -93,6 +93,8 @@ public class MenuBean extends LoginBean implements Serializable {
 
     private String fechaC;
 
+    private String labelLechaC;
+
     @PostConstruct
     public void init() {
         menu = new MenuBean();
@@ -309,8 +311,7 @@ public class MenuBean extends LoginBean implements Serializable {
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
-
-            listaMenuPadreBean = new ArrayList<>();
+            
             firmae = new FirmaE();
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
@@ -328,7 +329,12 @@ public class MenuBean extends LoginBean implements Serializable {
                     Long lDatePro = fir.getLong("firFechacaduca");
                     Date datePro = new Date(lDatePro);
                     firmae.setFir_fechacaduca(date.format(datePro));
-                }                              
+                }
+                if (!fir.isNull("firFechacrea")) {
+                    Long lDatePro = fir.getLong("firFechacrea");
+                    Date datePro = new Date(lDatePro);
+                    firmae.setFir_fechacrea(date.format(datePro));
+                }
             }
 
             if (connection.getResponseCode() != 200) {
