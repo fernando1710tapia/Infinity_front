@@ -124,8 +124,8 @@
                             <p:column exportable="false" width="5%">
                                 <p:rowToggler />
                             </p:column>
-                            <p:column headerText="Cliente" filterBy="#{envF.factura.codigocliente}" width="6%">
-                                <h:outputText value="#{envF.factura.codigocliente}" />
+                            <p:column headerText="Cliente" filterBy="#{envF.factura.nombrecliente}" width="6%">
+                                <h:outputText value="#{envF.factura.codigocliente} - #{envF.factura.nombrecliente}" />
                             </p:column>
                             <p:column headerText="Número" sortBy="#{envF.factura.facturaPK.numero}" filterBy="#{envF.factura.facturaPK.numero}" width="12%">
                                 <h:outputText value="#{envF.factura.facturaPK.numero}" />
@@ -329,7 +329,7 @@
                                 </f:facet>
 
                                 <p:column headerText="Cliente"  width="10%">
-                                    <h:outputText value="#{fact.factura.codigocliente}" />
+                                    <h:outputText value="#{fact.factura.codigocliente} #{fact.factura.nombrecliente}" />
                                 </p:column>                         
                                 <p:column headerText="Factura"  width="15%" sortBy="#{fact.factura.facturaPK.numero}">
                                     <h:outputText value="#{fact.factura.facturaPK.numero}" />

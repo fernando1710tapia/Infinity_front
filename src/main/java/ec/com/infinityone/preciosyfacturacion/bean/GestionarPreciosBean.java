@@ -38,6 +38,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -1051,12 +1052,25 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                                 detallePrecioPK = new DetalleprecioPK();
                                 objDetalle.setIvaPresuntivo(dpcg5);
                             } else {
+                                
                                 //dpcg5 = ((listaPrecio.get(i).getPvpsugerido().divide(new BigDecimal(1.12), 6, RoundingMode.HALF_UP)).subtract(dpcg9)).multiply(listaGravamen.get(j).getValordefecto()).setScale(6, RoundingMode.HALF_UP);
                                 //dpcg5F = dpcg5.multiply((listaPrecio.get(i).getPrecio().getComercializadoraproducto().getProducto().getPorcentajeivapresuntivo().divide(new BigDecimal(100)))).setScale(6, RoundingMode.HALF_UP);
                                 //iva * listaPrecio.get(i).getPrecio().getComercializadoraproducto().getProducto().getPorcentajeivapresuntivo().divide(new BigDecimal(100)
+                                
                                 dpcg5F = dpcg2.multiply(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getProducto().getPorcentajeivapresuntivo()).divide(new BigDecimal(100)).setScale(6, RoundingMode.HALF_UP);
-                                detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
-                                detallePrecioPK.setCodigoterminal(listaTerminalProdAux.get(k).getListaprecioterminalproductoPK().getCodigoterminal());
+                                 
+                                detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora()); 
+                                System.out.println("FT::Calculando PROCENTAJE DE IVA PRESUNTIVO- "+detallePrecioPK.getCodigocomercializadora()+ " - "+dpcg5F.toString());
+                                
+                //(componente PARA FENAPET cambiado 2023-05-31 pedido ing. Cruz, sr. Rambay)Retencion Iva Presuntivo MANTENER EL CALCULO DE IVA PRESUNTIVO
+                
+                                if (detallePrecioPK.getCodigocomercializadora().equalsIgnoreCase("0095")){                                
+                                    System.out.println("FT::Calculando PROCENTAJE DE IVA PRESUNTIVO- DENTRO DE IF "+detallePrecioPK.getCodigocomercializadora()+ " - "+dpcg5F.toString());
+                                    dpcg5F = ((listaPrecio.get(i).getPvpsugerido().multiply(new BigDecimal(0.12))).setScale(6, RoundingMode.HALF_UP)).subtract(dpcg2).setScale(6, RoundingMode.HALF_UP);
+                                    //System.out.println("FT::Calculando PROCENTAJE DE IVA PRESUNTIVO- DENTRO DE IF - FORMULA FENAPET "+detallePrecioPK.getCodigocomercializadora()+ " - PVP: "+listaPrecio.get(i).getPvpsugerido().toString()+"- IVA DEL PVP:-"+ ((listaPrecio.get(i).getPvpsugerido().multiply(new BigDecimal(0.12))).setScale(6, RoundingMode.HALF_UP))+ " - VALOR ORIGINAL IVA:- "+dpcg2.toString() +" - RESULTADO:- "+dpcg5F.toString());
+                                }
+                                
+                                detallePrecioPK.setCodigoterminal(listaTerminalProdAux.get(k).getListaprecioterminalproductoPK().getCodigoterminal()); 
                                 detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
                                 detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
                                 detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
@@ -1070,6 +1084,9 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                                 detallePrecio = new Detalleprecio();
                                 detallePrecioPK = new DetalleprecioPK();
                                 objDetalle.setIvaPresuntivo(dpcg5F);
+                                System.out.println("FT::Calculando PROCENTAJE DE IVA PRESUNTIVO- VALOR DEFINITIVO - "+dpcg5F.toString());
+
+                                
                             }
                             break;
                         //Tres X Mil
