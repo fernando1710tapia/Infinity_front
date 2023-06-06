@@ -59,7 +59,7 @@
                                         <p:selectOneMenu id="cliente" value="#{clienteGarantiaBean.codCliente}" title="Cliente"
                                                          panelStyle="width:175px" style="min-width: 80%;" 
                                                          autoWidth="false" 
-                                                         filter="true" filterMatchMode="startsWith"
+                                                         filter="true" filterMatchMode="contains"
                                                          >
                                             <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
                                             <f:selectItems value="#{clienteGarantiaBean.listaClientes}"
@@ -165,7 +165,7 @@
                                 <p:selectOneMenu id="cliente1" value="#{clienteGarantiaBean.cliente}" title="Cliente"
                                                  panelStyle="width:175px" style="min-width: 80%;" 
                                                  autoWidth="false" converter="converterg"
-                                                 filter="true" filterMatchMode="startsWith"
+                                                 filter="true" filterMatchMode="contains"
                                                  disabled="#{clienteGarantiaBean.editarCliente}">
                                     <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
                                     <f:selectItems value="#{clienteGarantiaBean.listaClientes}"

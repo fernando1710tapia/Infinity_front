@@ -132,6 +132,9 @@
                             </p:column>
                             <p:column headerText="Número NP" sortBy="#{envF.factura.facturaPK.numeronotapedido}" filterBy="#{envF.factura.facturaPK.numeronotapedido}" width="8%">
                                 <h:outputText style="color:#87ea2a" value="#{envF.factura.facturaPK.numeronotapedido}" />
+                            </p:column>                            
+                            <p:column headerText="Volumen" filterBy="#{envF.detalleFactura.volumennaturalautorizado}" width="5%">
+                                <h:outputText value="#{envF.detalleFactura.volumennaturalautorizado}" />
                             </p:column>
                             <p:column headerText="Valor total" filterBy="#{envF.factura.valortotal}" width="5%">
                                 <h:outputText value="#{envF.factura.valortotal}" />
@@ -329,7 +332,7 @@
                                 </f:facet>
 
                                 <p:column headerText="Cliente"  width="10%">
-                                    <h:outputText value="#{fact.factura.codigocliente} #{fact.factura.nombrecliente}" />
+                                    <h:outputText value="#{fact.factura.codigocliente} - #{fact.factura.nombrecliente}" />
                                 </p:column>                         
                                 <p:column headerText="Factura"  width="15%" sortBy="#{fact.factura.facturaPK.numero}">
                                     <h:outputText value="#{fact.factura.facturaPK.numero}" />

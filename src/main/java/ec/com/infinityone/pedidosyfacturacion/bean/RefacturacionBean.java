@@ -152,6 +152,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
             long diff = new Long(0);
             long diffrence = new Long(0);
             Date secondDate = new Date();
+            boolean fecha7 = true;
             /*fechas para comparar entre las dos y establecer un rango de 7 dias*/
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
             String dateI = sdf.format(fechaI);
@@ -167,6 +168,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
                     diffrence = time.convert(diff, TimeUnit.MILLISECONDS);
                     if (diffrence > 7) {
                         this.dialogo(FacesMessage.SEVERITY_ERROR, "LA FECHA DE FIN NO PUEDE SER MAYOR A 7 DÍAS A LA FECHA DE INICIO");
+                        fecha7 = false;
                     } else {
                         //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura";
                         String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura";
@@ -198,136 +200,136 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
                         + "&productosinfe=" + Fichero.getPRODUCTOSINFE());
                 msg = "NO SE ENCONTRARON FACTURAS PENDIENTES DE SER REFACTURADAS";
             }
+            if (fecha7) {
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setDoInput(true);
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("Accept", "application/json");
 
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoInput(true);
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("Accept", "application/json");
+                listaEnvRefac = new ArrayList<>();
+                listDet = new ArrayList<>();
+                envrefact = new EnvioRefactura();
+                InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
-            listaEnvRefac = new ArrayList<>();
-            listDet = new ArrayList<>();
-            envrefact = new EnvioRefactura();
-            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+                BufferedReader br = new BufferedReader(reader);
+                String tmp = null;
+                String respuesta = "";
+                while ((tmp = br.readLine()) != null) {
+                    respuesta += tmp;
+                }
+                JSONObject objetoJson = new JSONObject(respuesta);
+                JSONArray retorno = objetoJson.getJSONArray("retorno");
+                if (retorno.isEmpty()) {
+                    this.dialogo(FacesMessage.SEVERITY_ERROR, msg);
+                } else {
+                    for (int indice = 0; indice < retorno.length(); indice++) {
+                        if (!retorno.isNull(indice)) {
+                            JSONObject fa = retorno.getJSONObject(indice);
+                            JSONObject faPK = fa.getJSONObject("facturaPK");
 
-            BufferedReader br = new BufferedReader(reader);
-            String tmp = null;
-            String respuesta = "";
-            while ((tmp = br.readLine()) != null) {
-                respuesta += tmp;
-            }
-            JSONObject objetoJson = new JSONObject(respuesta);
-            JSONArray retorno = objetoJson.getJSONArray("retorno");
-            if (retorno.isEmpty()) {
-                this.dialogo(FacesMessage.SEVERITY_ERROR, msg);
-            } else {
-                for (int indice = 0; indice < retorno.length(); indice++) {
-                    if (!retorno.isNull(indice)) {
-                        JSONObject fa = retorno.getJSONObject(indice);
-                        JSONObject faPK = fa.getJSONObject("facturaPK");
+                            factPk.setNumero(faPK.getString("numero"));
+                            factPk.setNumeronotapedido(faPK.getString("numeronotapedido"));
+                            factPk.setCodigoabastecedora(faPK.getString("codigoabastecedora"));
+                            factPk.setCodigocomercializadora(faPK.getString("codigocomercializadora"));
+                            fact.setCodigocliente(fa.getString("codigocliente"));
+                            fact.setNombrecliente(fa.getString("nombrecliente"));
+                            fact.setValortotal(fa.getBigDecimal("valortotal"));
+                            fact.setValorconrubro(fa.getBigDecimal("valorconrubro"));
+                            fact.setOeenpetro(fa.getBoolean("oeenpetro"));
+                            fact.setCodigobanco(fa.getString("codigobanco"));
+                            fact.setActiva(fa.getBoolean("activa"));
+                            fact.setOeanuladaenpetro(fa.getBoolean("oeanuladaenpetro"));
+                            fact.setRefacturada(fa.getBoolean("refacturada"));
+                            fact.setEstado(fa.getString("estado"));
+                            fact.setPagada(fa.getBoolean("pagada"));
+                            fact.setReliquidada(fa.getBoolean("reliquidada"));
 
-                        factPk.setNumero(faPK.getString("numero"));
-                        factPk.setNumeronotapedido(faPK.getString("numeronotapedido"));
-                        factPk.setCodigoabastecedora(faPK.getString("codigoabastecedora"));
-                        factPk.setCodigocomercializadora(faPK.getString("codigocomercializadora"));
-                        fact.setCodigocliente(fa.getString("codigocliente"));
-                        fact.setNombrecliente(fa.getString("nombrecliente"));
-                        fact.setValortotal(fa.getBigDecimal("valortotal"));
-                        fact.setValorconrubro(fa.getBigDecimal("valorconrubro"));
-                        fact.setOeenpetro(fa.getBoolean("oeenpetro"));
-                        fact.setCodigobanco(fa.getString("codigobanco"));
-                        fact.setActiva(fa.getBoolean("activa"));
-                        fact.setOeanuladaenpetro(fa.getBoolean("oeanuladaenpetro"));
-                        fact.setRefacturada(fa.getBoolean("refacturada"));
-                        fact.setEstado(fa.getString("estado"));
-                        fact.setPagada(fa.getBoolean("pagada"));
-                        fact.setReliquidada(fa.getBoolean("reliquidada"));
+                            Long dateStrFV = fa.getLong("fechaventa");
+                            Long dateStrFD = fa.getLong("fechadespacho");
+                            Date dateFV = new Date(dateStrFV);
+                            Date dateFD = new Date(dateStrFD);
+                            String fechaDescpacho = date.format(dateFD);
+                            String fechaVenta = date.format(dateFV);
 
-                        Long dateStrFV = fa.getLong("fechaventa");
-                        Long dateStrFD = fa.getLong("fechadespacho");
-                        Date dateFV = new Date(dateStrFV);
-                        Date dateFD = new Date(dateStrFD);
-                        String fechaDescpacho = date.format(dateFD);
-                        String fechaVenta = date.format(dateFV);
+                            fact.setFechaventa(fechaVenta);
+                            fact.setFechadespacho(fechaDescpacho);
 
-                        fact.setFechaventa(fechaVenta);
-                        fact.setFechadespacho(fechaDescpacho);
-
-                        if (fa.getBoolean("activa") == true) {
-                            estadoAnulacion = false;
-                            //fact.setActiva(estadoAnulacion);
-                        } else {
-                            estadoAnulacion = true;
-                            //fact.setActiva(estadoAnulacion);
-                        }
-                        if (fa.getBoolean("oeenpetro") == true) {
-                            oeenpetro = "S";
-                            fact.setOeenpetro(true);
-                        } else {
-                            oeenpetro = "N";
-                            fact.setOeenpetro(false);
-                        }
-                        if (fa.getString("estado").equalsIgnoreCase("PENDIENTE")) {
-                            ensri = "P";
-                            envrefact.setEnsri(ensri);
-                        } else {
-                            if (fa.isNull("numeroautorizacion")) {
-                                ensri = "N";
+                            if (fa.getBoolean("activa") == true) {
+                                estadoAnulacion = false;
+                                //fact.setActiva(estadoAnulacion);
+                            } else {
+                                estadoAnulacion = true;
+                                //fact.setActiva(estadoAnulacion);
+                            }
+                            if (fa.getBoolean("oeenpetro") == true) {
+                                oeenpetro = "S";
+                                fact.setOeenpetro(true);
+                            } else {
+                                oeenpetro = "N";
+                                fact.setOeenpetro(false);
+                            }
+                            if (fa.getString("estado").equalsIgnoreCase("PENDIENTE")) {
+                                ensri = "P";
                                 envrefact.setEnsri(ensri);
                             } else {
-                                fact.setNumeroautorizacion(fa.getString("numeroautorizacion"));
-                                if (fa.getString("numeroautorizacion").length() == 49) {
-                                    ensri = "S";
-                                    envrefact.setEnsri(ensri);
-                                } else {
+                                if (fa.isNull("numeroautorizacion")) {
                                     ensri = "N";
                                     envrefact.setEnsri(ensri);
+                                } else {
+                                    fact.setNumeroautorizacion(fa.getString("numeroautorizacion"));
+                                    if (fa.getString("numeroautorizacion").length() == 49) {
+                                        ensri = "S";
+                                        envrefact.setEnsri(ensri);
+                                    } else {
+                                        ensri = "N";
+                                        envrefact.setEnsri(ensri);
+                                    }
                                 }
                             }
-                        }
-                        fact.setFacturaPK(factPk);
-                        envrefact.setFactura(fact);
-                        JSONArray detalleList = fa.getJSONArray("detallefacturaList");
-                        for (int i = 0; i < detalleList.length(); i++) {
-                            JSONObject det = detalleList.getJSONObject(i);
-                            JSONObject detFpk = det.getJSONObject("detallefacturaPK");
-                            JSONObject product = det.getJSONObject("producto");
-                            JSONObject med = det.getJSONObject("codigomedida");
+                            fact.setFacturaPK(factPk);
+                            envrefact.setFactura(fact);
+                            JSONArray detalleList = fa.getJSONArray("detallefacturaList");
+                            for (int i = 0; i < detalleList.length(); i++) {
+                                JSONObject det = detalleList.getJSONObject(i);
+                                JSONObject detFpk = det.getJSONObject("detallefacturaPK");
+                                JSONObject product = det.getJSONObject("producto");
+                                JSONObject med = det.getJSONObject("codigomedida");
 
-                            if (!product.getString("codigo").substring(0, 2).equals("00")) {
-                                producto.setCodigo(product.getString("codigo"));
-                                producto.setNombre(product.getString("nombre"));
-                                detFacPK.setCodigoproducto(product.getString("codigo"));
-                                detFac.setVolumennaturalrequerido(det.getBigDecimal("volumennaturalrequerido"));
-                                detFac.setVolumennaturalautorizado(det.getBigDecimal("volumennaturalautorizado"));
-                                detFac.setPrecioproducto(det.getBigDecimal("precioproducto"));
-                                detFac.setSubtotal(det.getBigDecimal("subtotal"));
-                                detFac.setCodigomedida(med.getString("codigo"));
-                                if (!det.isNull("ruccomercializadora")) {
-                                    detFac.setRuccomercializadora(det.getString("ruccomercializadora"));
+                                if (!product.getString("codigo").substring(0, 2).equals("00")) {
+                                    producto.setCodigo(product.getString("codigo"));
+                                    producto.setNombre(product.getString("nombre"));
+                                    detFacPK.setCodigoproducto(product.getString("codigo"));
+                                    detFac.setVolumennaturalrequerido(det.getBigDecimal("volumennaturalrequerido"));
+                                    detFac.setVolumennaturalautorizado(det.getBigDecimal("volumennaturalautorizado"));
+                                    detFac.setPrecioproducto(det.getBigDecimal("precioproducto"));
+                                    detFac.setSubtotal(det.getBigDecimal("subtotal"));
+                                    detFac.setCodigomedida(med.getString("codigo"));
+                                    if (!det.isNull("ruccomercializadora")) {
+                                        detFac.setRuccomercializadora(det.getString("ruccomercializadora"));
+                                    }
+                                    detFac.setDetallefacturaPK(detFacPK);
+                                    if (!det.isNull("nombreproducto")) {
+                                        detFac.setNombreproducto(det.getString("nombreproducto"));
+                                    }
+                                    envrefact.setDetalleFactura(detFac);
+                                    producto = new Producto();
+                                    detFac = new Detallefactura();
+                                    detFacPK = new DetallefacturaPK();
                                 }
-                                detFac.setDetallefacturaPK(detFacPK);
-                                if (!det.isNull("nombreproducto")) {
-                                    detFac.setNombreproducto(det.getString("nombreproducto"));
-                                }
-                                envrefact.setDetalleFactura(detFac);
-                                producto = new Producto();
-                                detFac = new Detallefactura();
-                                detFacPK = new DetallefacturaPK();
                             }
+                            listaEnvRefac.add(envrefact);
+                            envrefact = new EnvioRefactura();
+                            fact = new Factura();
+                            factPk = new FacturaPK();
+                            listDet = new ArrayList<>();
                         }
-                        listaEnvRefac.add(envrefact);
-                        envrefact = new EnvioRefactura();
-                        fact = new Factura();
-                        factPk = new FacturaPK();
-                        listDet = new ArrayList<>();
                     }
                 }
+                if (connection.getResponseCode() != 200) {
+                    System.out.println(connection.getResponseCode());
+                    System.out.println(connection.getResponseMessage());
+                }
             }
-            if (connection.getResponseCode() != 200) {
-                System.out.println(connection.getResponseCode());
-                System.out.println(connection.getResponseMessage());
-            }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -344,6 +346,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
                                     if (listaEnvRefac.get(i).getFactura().getOeenpetro() == true) {
                                         if (listaEnvRefac.get(i).getFactura().getReliquidada() == false) {
                                             process = true;
+                                            //listaEnvRefac.get(i).getFactura().setSeleccionar(process);
                                         } else {
                                             this.dialogo(FacesMessage.SEVERITY_ERROR, "Esta factura ha sido reliquidada (NC), NO debe ser Refacturada");
                                             listaEnvRefac.get(i).getFactura().setSeleccionar(false);
@@ -392,6 +395,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
                     // }
                 }
             }
+            obtenerFacturasRefacturar();
             //obtenerFacturasRefacturar();
         } else {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "LA COMERCIALIZADORA SE ENCUENTRA INACTIVA");
@@ -668,7 +672,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
                     //this.dialogo(FacesMessage.SEVERITY_INFO, "FACTURA REGISTRADA EXITOSAMENTE");
                     this.dialogo(FacesMessage.SEVERITY_INFO, "La nota de pedido N. " + envF.getFactura().getFacturaPK().getNumeronotapedido() + " con factura N. " + envF.getFactura().getFacturaPK().getNumero()
                             + " ACABA DE SER REFACTURADA. NUEVA FACTURA N. " + numeroFactura);
-                    obtenerFacturasRefacturar();
+                    //obtenerFacturasRefacturar();
                 } else if (connection.getResponseCode() == 299) {
                     for (int indice = 0; indice < retorno.length(); indice++) {
                         if (!retorno.isNull(indice)) {
@@ -920,21 +924,21 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
                 if (porRefacturar) {
                     for (int i = 0; i < listaEnvRefac.size(); i++) {
 //                        if (listaEnvRefac.get(i).getFactura().isSeleccionar() == true) {
-                            if (listaEnvRefac.get(i).getFactura().getEstado().trim().equals("PENDIENTE")) {
-                                if (listaEnvRefac.get(i).getFactura().getRefacturada() == false) {
-                                    if (listaEnvRefac.get(i).getFactura().getActiva() == true) {
-                                        if (listaEnvRefac.get(i).getFactura().getPagada() == false) {
-                                            if (listaEnvRefac.get(i).getFactura().getOeenpetro() == true) {
-                                                if (listaEnvRefac.get(i).getFactura().getReliquidada() == false) {
-                                                    listaEnvRefacAuxiliar.add(listaEnvRefac.get(i));
-                                                } 
-                                            } 
-                                        } 
-                                    } 
-                                } 
-                            } 
+                        if (listaEnvRefac.get(i).getFactura().getEstado().trim().equals("PENDIENTE")) {
+                            if (listaEnvRefac.get(i).getFactura().getRefacturada() == false) {
+                                if (listaEnvRefac.get(i).getFactura().getActiva() == true) {
+                                    if (listaEnvRefac.get(i).getFactura().getPagada() == false) {
+                                        if (listaEnvRefac.get(i).getFactura().getOeenpetro() == true) {
+                                            if (listaEnvRefac.get(i).getFactura().getReliquidada() == false) {
+                                                listaEnvRefacAuxiliar.add(listaEnvRefac.get(i));
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
 //                        }
-                    }                    
+                    }
                     listaEnvRefac = listaEnvRefacAuxiliar;
                 } else {
                     obtenerFacturasRefacturar();
