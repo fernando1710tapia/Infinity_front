@@ -2804,6 +2804,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         //FL	X(18)
         //360002021234560000AAAA000000000000000000
         String fl = "000000000000000000";
+        Factura esAnulacionRefactura = new Factura();
         
         String cadena = facturaauxiliar.getCodigobanco().trim() + facturaauxiliar.getFacturaPK().getCodigocomercializadora().trim()
                 + facturaauxiliar.getFacturaPK().getNumeronotapedido().trim() + comercializadora.getClaveWsepp().trim() + fl;
@@ -2845,11 +2846,21 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                 if (!retorno.isNull(indice)) {
                     String codanul = retorno.getString(indice);
                     codigoanulacion = codanul;
+                    
+                    // FT:SOLO PRUEBA DE 2023-06-12
+//                    codigoanulacion = "08"; 
+                    // FT:SOLO PRUEBA DE 2023-06-12
+                    
                 }
             }
             
             if (connection.getResponseCode() == 200) {
-                if (codigoanulacion.substring(0, 2).equals("00") || codigoanulacion.substring(0, 2).equals("01") || codigoanulacion.substring(0, 2).equals("03")) {
+                System.out.println("FT:: codigoanulacion.substring(0, 2)" + codigoanulacion.substring(0, 2) + "SE DEBE VALIDAR SI ES 08 PARA ANULAR UNA REFACTURACION" );
+                if(codigoanulacion.substring(0, 2).equals("08") ){
+                System.out.println("FT:: codigoanulacion.substring(0, 2)" + codigoanulacion.substring(0, 2) + "está dentro del IF para REFACTURACIÓN");
+                esAnulacionRefactura = verificarESAnulacionRefactura(facturaauxiliar);
+                }
+                if (codigoanulacion.substring(0, 2).equals("00") || codigoanulacion.substring(0, 2).equals("01") || codigoanulacion.substring(0, 2).equals("03") || !(esAnulacionRefactura.getFacturaPK().getNumero()== null)) {
                     this.dialogo(FacesMessage.SEVERITY_INFO, codigoanulacion.substring(0, 2) + " LA ANULACIÓN SE PROCESO CORRECTAMENTE");
                     //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura/porId");
                     url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura/porId");
@@ -2894,7 +2905,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     this.dialogo(FacesMessage.SEVERITY_ERROR, codigoanulacion.substring(0, 2) + " ANULACIÓN OE NO PERMITIDA EN EPP");
                 }
             } else {
-                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR EN LA ANULACIÓN");
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR EN LA ANULACIÓN. código recibido desde PETRO: "+codigoanulacion.substring(0, 2));
                 System.out.println("Error al añadir:" + connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
             }
@@ -2906,6 +2917,172 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         }
     }
     
+    public Factura verificarESAnulacionRefactura(Factura unafac){
+        boolean respuestaMetodo = false;
+        Factura factAuxPendiente = new Factura();
+        FacturaPK factAuxPKPendiente = new FacturaPK();
+        try {
+             
+            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura/pornpestadosri?";
+            url = new URL(direcc
+                    + "&codigoabastecedora=" + unafac.getFacturaPK().getCodigoabastecedora()
+                    + "&codigocomercializadora=" + unafac.getFacturaPK().getCodigocomercializadora()
+                    + "&numeronotapedido=" + unafac.getFacturaPK().getNumeronotapedido()
+                    + "&estado=" + "PENDIENTE");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+            
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+            
+            BufferedReader br = new BufferedReader(reader);
+            String tmp = null;
+            String respuesta = "";
+            while ((tmp = br.readLine()) != null) {
+                respuesta += tmp;
+            }
+            JSONObject objetoJson = new JSONObject(respuesta);
+            JSONArray retorno = objetoJson.getJSONArray("retorno"); 
+            for (int indice = 0; indice < retorno.length(); indice++) {
+                if (!retorno.isNull(indice)) {
+                    JSONObject fac = retorno.getJSONObject(indice);
+                    JSONObject facPK = fac.getJSONObject("facturaPK");
+
+
+                    /*-----------------FACTURA PK-------------------------------------------*/
+                    factAuxPKPendiente.setCodigoabastecedora(facPK.getString("codigoabastecedora"));
+                    factAuxPKPendiente.setCodigocomercializadora(facPK.getString("codigocomercializadora"));
+                    factAuxPKPendiente.setNumero(facPK.getString("numero"));
+                    factAuxPKPendiente.setNumeronotapedido(facPK.getString("numeronotapedido"));
+                    factAuxPendiente.setFacturaPK(factAuxPKPendiente);
+                    /*-----------------------------------------------------------------------*/
+                    factAuxPendiente.setActiva(true);
+                    
+                    if (!fac.isNull("adelantar")) {
+                        factAuxPendiente.setAdelantar(fac.getBoolean("adelantar"));
+                    }
+                    if (!fac.isNull("ambientesri")) {
+                        factAuxPendiente.setAmbientesri(fac.getString("ambientesri").charAt(0));
+                    }
+                    if (!fac.isNull("campoadicionalCampo1")) {
+                        factAuxPendiente.setCampoadicionalCampo1(fac.getString("campoadicionalCampo1"));
+                    }
+                    if (!fac.isNull("campoadicionalCampo2")) {
+                        factAuxPendiente.setCampoadicionalCampo2(fac.getString("campoadicionalCampo2"));
+                    }
+                    if (!fac.isNull("campoadicionalCampo3")) {
+                        factAuxPendiente.setCampoadicionalCampo3(fac.getString("campoadicionalCampo3"));
+                    }
+                    if (!fac.isNull("campoadicionalCampo4")) {
+                        factAuxPendiente.setCampoadicionalCampo4(fac.getString("campoadicionalCampo4"));
+                    }
+                    if (!fac.isNull("campoadicionalCampo5")) {
+                        factAuxPendiente.setCampoadicionalCampo5(fac.getString("campoadicionalCampo5"));
+                    }
+                    if (!fac.isNull("campoadicionalCampo6")) {
+                        factAuxPendiente.setCampoadicionalCampo6(fac.getString("campoadicionalCampo6"));
+                    }
+                    if (!fac.isNull("claveacceso")) {
+                        factAuxPendiente.setClaveacceso(fac.getString("claveacceso"));
+                    }
+                    if (!fac.isNull("clienteformapago")) {
+                        factAuxPendiente.setClienteformapago(fac.getString("clienteformapago"));
+                    }
+                    if (!fac.isNull("clienteformapagonosri")) {
+                        factAuxPendiente.setClienteformapagonosri(fac.getString("clienteformapagonosri"));
+                    }
+                    if (!fac.isNull("codigobanco")) {
+                        factAuxPendiente.setCodigobanco(fac.getString("codigobanco"));
+                    }
+                    if (!fac.isNull("codigocliente")) {
+                        factAuxPendiente.setCodigocliente(fac.getString("codigocliente"));
+                    }
+                    if (!fac.isNull("codigodocumento")) {
+                        factAuxPendiente.setCodigodocumento(fac.getString("codigodocumento"));
+                    }
+                    if (!fac.isNull("codigoterminal")) {
+                        factAuxPendiente.setCodigoterminal(fac.getString("codigoterminal"));
+                    }
+                    factAuxPendiente.setCorreocliente(fac.getString("correocliente"));
+                    factAuxPendiente.setDireccioncliente(fac.getString("direccioncliente"));
+                    factAuxPendiente.setDireccionmatrizcomercializadora(fac.getString("direccionmatrizcomercializadora"));
+                    
+                    Number errorDoc = fac.getNumber("errordocumento");
+                    factAuxPendiente.setErrordocumento(errorDoc.shortValue());
+                    factAuxPendiente.setEsagenteretencion(fac.getBoolean("esagenteretencion"));
+                    factAuxPendiente.setEscontribuyenteespacial(fac.getString("escontribuyenteespacial"));
+                    factAuxPendiente.setEstado(fac.getString("estado"));
+                    /*----------------Fecha Acreditacion------------------------*/
+                    Long fechaAcred = fac.getLong("fechaacreditacion");
+                    Date dateAcerd = new Date(fechaAcred);
+                    SimpleDateFormat dateAc = new SimpleDateFormat("yyyy-MM-dd");
+                    String fechaAcreditacion = dateAc.format(dateAcerd);
+                    factAuxPendiente.setFechaacreditacion(fechaAcreditacion + "T12:00:00");
+                    /*------------------Fecha Venta-----------------------------------*/
+                    Long fechaVen = fac.getLong("fechaventa");
+                    Date dateVen = new Date(fechaVen);
+                    String fechaVenta = dateAc.format(dateVen);
+                    factAuxPendiente.setFechaventa(fechaVenta + "T12:00:00");
+                    /*------------------Fecha Vencimiento------------------------------*/
+                    Long fechaVenci = fac.getLong("fechavencimiento");
+                    Date dateVenci = new Date(fechaVenci);
+                    String fechaVencimiento = dateAc.format(dateVenci);
+                    factAuxPendiente.setFechavencimiento(fechaVencimiento + "T12:00:00");
+                    /*-----------------Fecha Despacho-----------------------------------*/
+                    Long fechaDes = fac.getLong("fechadespacho");
+                    Date dateDes = new Date(fechaDes);
+                    String fechaDespacho = dateAc.format(dateDes);
+                    factAuxPendiente.setFechadespacho(fechaDespacho + "T12:00:00");
+                    /*-----------------Fecha Acreditacion Prorrogada--------------------*/
+                    Long fechaAcredPr = fac.getLong("fechaacreditacionprorrogada");
+                    Date dateAcredPr = new Date(fechaAcredPr);
+                    String fechaProrro = dateAc.format(dateAcredPr);
+                    factAuxPendiente.setFechaacreditacionprorrogada(fechaProrro);
+                    factAuxPendiente.setFechaautorizacion(fac.getString("fechaautorizacion"));
+                    
+                    Number hospedado = fac.getNumber("hospedado");
+                    factAuxPendiente.setHospedado(hospedado.shortValue());
+                    
+                    factAuxPendiente.setIvatotal(fac.getBigDecimal("ivatotal"));
+                    factAuxPendiente.setMoneda(fac.getString("moneda"));
+                    factAuxPendiente.setNombrecliente(fac.getString("nombrecliente"));
+                    factAuxPendiente.setNombrecomercializadora(fac.getString("nombrecomercializadora"));
+                    factAuxPendiente.setNumeroautorizacion(fac.getString("numeroautorizacion"));
+                    factAuxPendiente.setObligadocontabilidad(fac.getString("obligadocontabilidad"));
+                    factAuxPendiente.setObservacion(fac.getString("observacion"));
+                    factAuxPendiente.setOeenpetro(fac.getBoolean("oeenpetro"));
+                    factAuxPendiente.setPagada(fac.getBoolean("pagada"));
+                    factAuxPendiente.setPlazocliente(fac.getInt("plazocliente"));
+                    factAuxPendiente.setRuccliente(fac.getString("ruccliente"));
+                    factAuxPendiente.setRuccomercializadora(fac.getString("ruccomercializadora"));
+                    factAuxPendiente.setSeriesri(fac.getString("seriesri"));
+                    factAuxPendiente.setTelefonocliente(fac.getString("telefonocliente"));
+                    factAuxPendiente.setTipocomprador(fac.getString("tipocomprador"));
+                    factAuxPendiente.setReliquidada(fac.getBoolean("reliquidada"));
+                    factAuxPendiente.setRefacturada(fac.getBoolean("refacturada"));
+                    
+                    factAuxPendiente.setTipoplazocredito(fac.getString("tipoplazocredito"));
+                    factAuxPendiente.setUsuarioactual(fac.getString("usuarioactual"));
+                    factAuxPendiente.setValorconrubro(fac.getBigDecimal("valorconrubro"));
+                    factAuxPendiente.setValorsinimpuestos(fac.getBigDecimal("valorsinimpuestos"));
+                    factAuxPendiente.setValortotal(fac.getBigDecimal("valortotal"));
+                }
+            }
+            if (connection.getResponseCode() == 200) {
+                if (factAuxPendiente.getFacturaPK() != null) {
+                    System.out.println("FT:: Factura anterior encontrada:."+ factAuxPendiente.getFacturaPK().getCodigocomercializadora()+" -FAC- "+factAuxPendiente.getFacturaPK().getNumero()+" -NP-. "+factAuxPendiente.getFacturaPK().getNumeronotapedido()+ " - Respuesta: - " +connection.getResponseCode());
+//                    actualizarFactura(factAux);
+                }
+            } else {
+                System.out.println("FT:: FACTURA ANTERIOR NO ENCONTRADA. " + unafac.getFacturaPK().getCodigocomercializadora()+" -FAC- "+unafac.getFacturaPK().getNumero()+" -NP-. "+unafac.getFacturaPK().getNumeronotapedido()+ " - Respuesta: - " +connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return factAuxPendiente;
+    }
     public void verificarAnulacionRefactura(Factura fact) {
         try {
             String respuestaAnulacion = "";
@@ -3062,7 +3239,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             }
             if (connection.getResponseCode() == 200) {
                 if (factAux.getFacturaPK() != null) {
-                    System.out.println("Factura anterior encontrada");
+                    System.out.println("Factura anterior encontrada: "+ factAux.getFacturaPK().getCodigocomercializadora()+" -FAC- "+factAux.getFacturaPK().getNumero()+" -NP-. "+factAux.getFacturaPK().getNumeronotapedido()+ " - Respuesta: - " +connection.getResponseCode());
                     actualizarFactura(factAux);
                 }
             } else {

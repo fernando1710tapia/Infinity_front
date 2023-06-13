@@ -124,7 +124,7 @@
                             <p:column exportable="false" width="5%">
                                 <p:rowToggler />
                             </p:column>
-                            <p:column headerText="Cliente" filterBy="#{envF.factura.nombrecliente}" width="6%">
+                            <p:column headerText="Cliente" filterBy="#{envF.factura.nombrecliente}" width="12%">
                                 <h:outputText value="#{envF.factura.codigocliente} - #{envF.factura.nombrecliente}" />
                             </p:column>
                             <p:column headerText="Número" sortBy="#{envF.factura.facturaPK.numero}" filterBy="#{envF.factura.facturaPK.numero}" width="12%">
@@ -136,9 +136,10 @@
                             <p:column headerText="Volumen" filterBy="#{envF.detalleFactura.volumennaturalautorizado}" width="5%">
                                 <h:outputText value="#{envF.detalleFactura.volumennaturalautorizado}" />
                             </p:column>
-                            <p:column headerText="Valor total" filterBy="#{envF.factura.valortotal}" width="5%">
+                            <!-- FT:: ELIMINAR ESTA COLUMNA <p:column headerText="Valor total" filterBy="#{envF.factura.valortotal}" width="5%">
                                 <h:outputText value="#{envF.factura.valortotal}" />
                             </p:column>
+                            -->
                             <p:column headerText="Valor con rubros" filterBy="#{envF.factura.valorconrubro}" width="5%">
                                 <h:outputText value="#{envF.factura.valorconrubro}" />
                             </p:column>
@@ -179,8 +180,8 @@
                                 <div class="orders-subtable">
                                     <h5>Factura Generada de orden N.: #{envF.factura.facturaPK.numeronotapedido}</h5>
                                     <p:dataTable var="termP" value="#{refacturacionBean.listaEnvRefacNueva}" reflow="true">
-                                        <p:column headerText="Cliente" filterBy="#{termP.factura.codigocliente}" width="7%">
-                                            <h:outputText value="#{termP.factura.codigocliente}" />
+                                        <p:column headerText="Cliente" filterBy="#{termP.factura.codigocliente}" width="12%">
+                                            <h:outputText value="#{termP.factura.codigocliente} - #{termP.factura.nombrecliente}" />
                                         </p:column>
                                         <p:column headerText="Número" sortBy="#{termP.factura.facturaPK.numero}" filterBy="#{termP.factura.facturaPK.numero}" width="10%">
                                             <h:outputText value="#{termP.factura.facturaPK.numero}" />
@@ -188,9 +189,13 @@
                                         <p:column headerText="Número NP" sortBy="#{termP.factura.facturaPK.numeronotapedido}" filterBy="#{termP.factura.facturaPK.numeronotapedido}" width="10%">
                                             <h:outputText style="color:#87ea2a" value="#{termP.factura.facturaPK.numeronotapedido}" />
                                         </p:column>
-                                        <p:column headerText="Valor total" filterBy="#{termP.factura.valortotal}" width="5%">
+                                        <p:column headerText="Volumen" filterBy="#{termP.detalleFactura.volumennaturalautorizado}" width="5%">
+                                            <h:outputText value="#{termP.detalleFactura.volumennaturalautorizado}" />
+                                        </p:column>
+                                        <!-- FT:: ELIMINAR ESTA COLUMNA DE LA PANTALLA <p:column headerText="Valor total" filterBy="#{termP.factura.valortotal}" width="5%">
                                             <h:outputText value="#{termP.factura.valortotal}" />
                                         </p:column>
+                                        -->
                                         <p:column headerText="Valor con rubros" filterBy="#{termP.factura.valorconrubro}" width="5%">
                                             <h:outputText value="#{termP.factura.valorconrubro}" />
                                         </p:column>
@@ -381,7 +386,7 @@
                         <p:commandButton value="Cancelar" icon="pi pi-times" class="ui-button-secondary" actionListener="#{refacturacionBean.init()}" update=":form :formNuevo" immediate="true"/>
                     </div>
                 </div>
-            </p:outputPanel>
+            </p:outputPanel>        
         </h:form>
 
         <p:dialog header="Precios Vigentes" width="40%" height="500px" showEffect="fade" modal="true" widgetVar="nuevo" responsive="true">
