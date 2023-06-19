@@ -405,13 +405,29 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
     }
 
     public int porcentajeValores(BigDecimal valor) {
+//        System.out.println("FT:: porcentajeValores- "+valor.toString());
 
         if (!this.listaTotalgarantizado.isEmpty()) {
-            BigDecimal valorT = this.listaTotalgarantizado.get(0).getTotalgarantizado();
-            BigDecimal porcentaje = new BigDecimal(90);
-            BigDecimal valorN = (valor.multiply(porcentaje).divide(valorT, 2, RoundingMode.HALF_DOWN));
+            System.out.println("FT:: ENTRA EN EL PRIMER IF porcentajeValores- " + valor.toString());
+            if (valor.intValue() == 0) {
+                System.out.println("FT:: ENTRA EN EL IF valor.intValue()== 0 porcentajeValores- " + valor.toString());
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "Este Cliente NO tiene un valor de garantía asignado!");
+                return 0;
+            } else {
+                System.out.println("FT:: ENTRA A MOSTRAR porcentajeValores- " + valor.toString());
+                BigDecimal valorT = this.listaTotalgarantizado.get(0).getTotalgarantizado();
 
-            return valorN.intValue();
+                if (valorT.intValue() == 0) {
+                    System.out.println("FT:: ENTRA EN EL IF valorT.intValue()== 0 porcentajeValores- " + valor.toString() + " . valorT:. " + valorT.intValue());
+                    this.dialogo(FacesMessage.SEVERITY_ERROR, "Este Cliente NO tiene un valor de garantía asignado!");
+                    return 0;
+                } else {
+                    BigDecimal porcentaje = new BigDecimal(90);
+                    BigDecimal valorN = (valor.multiply(porcentaje).divide(valorT, 2, RoundingMode.HALF_DOWN));
+                    System.out.println("FT:: ENTRA A MOSTRAR porcentajeValores- " + valor.toString() + " RESULTADO: ." + valorN.intValue());
+                    return valorN.intValue();
+                }
+            }
         } else {
             return 0;
         }
@@ -422,7 +438,7 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
         try {
             //URL url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.totalgarantizado/porId?"              
             URL url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.totalgarantizado/porId?"
-                    + "codigocomercializadora=" + codCom + "&codigocliente=" + codCli);            
+                    + "codigocomercializadora=" + codCom + "&codigocliente=" + codCli);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
