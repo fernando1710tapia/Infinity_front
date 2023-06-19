@@ -215,8 +215,8 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
     }
 
     public void addItems() {
-        try {
-            DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
+        try {            
+            DateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
             String fechaIni = date.format(fechaInicioVigencia);
             String fechaFin = date.format(clientegarantia.getFechafinvigencia());
             String respuesta;
@@ -263,7 +263,7 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
 
     public void editItems() {
         try {
-            DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
+            DateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");            
             String fechaIni = date.format(clientegarantia.getFechainiciovigencia());
             String fechaFin = date.format(clientegarantia.getFechafinvigencia());
             String respuesta;

@@ -51,6 +51,7 @@
                                         <p:selectOneMenu id="cliente" value="#{totalGarantizadoBean.cliente}" title="Cliente"
                                                          panelStyle="width:175px" style="min-width: 80%;" 
                                                          autoWidth="false" converter="converterg"
+                                                         filter="true" filterMatchMode="contains"
                                                          disabled="#{!totalGarantizadoBean.habilitarCli}">
                                             <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
                                             <f:selectItems value="#{totalGarantizadoBean.listaClientes}"
@@ -146,6 +147,7 @@
                                 <p:selectOneMenu id="cli" value="#{totalGarantizadoBean.cliente}" title="Cliente"
                                                  panelStyle="width:175px" style="min-width: 80%;" 
                                                  autoWidth="false" converter="converterg"
+                                                 filter="true" filterMatchMode="contains"
                                                  disabled="#{totalGarantizadoBean.soloLectura}">
                                     <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
                                     <f:selectItems value="#{totalGarantizadoBean.listaClientes}"
