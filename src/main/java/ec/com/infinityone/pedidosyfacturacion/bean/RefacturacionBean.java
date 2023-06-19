@@ -748,6 +748,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
                         factPk.setCodigoabastecedora(faPK.getString("codigoabastecedora"));
                         factPk.setCodigocomercializadora(faPK.getString("codigocomercializadora"));
                         fact.setCodigocliente(fa.getString("codigocliente"));
+                        fact.setNombrecliente(fa.getString("nombrecliente"));
                         fact.setValortotal(fa.getBigDecimal("valortotal"));
                         fact.setValorconrubro(fa.getBigDecimal("valorconrubro"));
                         fact.setOeenpetro(fa.getBoolean("oeenpetro"));
