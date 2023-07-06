@@ -383,9 +383,9 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
         }
     }
 
-    public void seleccionarCliRefactura(String numCedula) {
+    public void seleccionarCliRefactura(String numFactura) {
         for (int i = 0; i < listaEnvRefac.size(); i++) {
-            if (listaEnvRefac.get(i).getFactura().getFacturaPK().getNumero().trim().equals("numCedula")) {
+            if (listaEnvRefac.get(i).getFactura().getFacturaPK().getNumero().equals("numFactura")) {
                 listaEnvRefac.get(i).setClienteRefactura(cliente);
                 break;
             }
