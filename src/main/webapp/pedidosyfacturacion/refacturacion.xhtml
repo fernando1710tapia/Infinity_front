@@ -336,38 +336,53 @@
                                     </div>
                                 </f:facet>
 
-                                <p:column headerText="Cliente"  width="10%">
+                                <p:column headerText="Cliente"  width="15%">
                                     <h:outputText value="#{fact.factura.codigocliente} - #{fact.factura.nombrecliente}" />
-                                </p:column>                         
-                                <p:column headerText="Factura"  width="15%" sortBy="#{fact.factura.facturaPK.numero}">
+                                </p:column>     
+                                <p:column headerText="Cli. a Facrurar"  width="15%">
+                                    <div class="ui-inputgroup">                                        
+                                        <p:selectOneMenu id="cli" value="#{refacturacionBean.cliente}" title="Cliente"
+                                                         style="min-width: 100%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         filter="true" filterMatchMode="contains">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
+                                            <f:selectItems value="#{refacturacionBean.listaClientes}"
+                                                           var="cliente"
+                                                           itemLabel="#{cliente.codigo} - #{cliente.nombrecomercial}"
+                                                           itemValue="#{cliente}" />
+                                            <p:ajax event="change" listener="#{refacturacionBean.seleccionarCliRefactura(fact.factura.facturaPK.numero)}"/>
+                                        </p:selectOneMenu> 
+                                    </div>                                    
+                                </p:column>     
+                                <p:column headerText="Factura"  width="13%" sortBy="#{fact.factura.facturaPK.numero}">
                                     <h:outputText value="#{fact.factura.facturaPK.numero}" />
                                 </p:column>
                                 <!--     <p:column headerText="N. Factura"  width="15%">
                                          <h:outputText value="{fact.numeroFacNueva}" />
                                      </p:column>-->
-                                <p:column headerText="Número NP"  width="12%">
+                                <p:column headerText="Número NP"  width="8%">
                                     <h:outputText value="#{fact.factura.facturaPK.numeronotapedido}" />
                                 </p:column>
-                                <p:column headerText="Producto" width="12%">
+                                <p:column headerText="Producto" width="7%">
                                     <h:outputText value="#{fact.detalleFactura.detallefacturaPK.codigoproducto}" />
                                 </p:column>
-                                <p:column headerText="Vol. Facturado"  width="12%">
+                                <p:column headerText="Vol. Facturado"  width="8%">
                                     <h:outputText value="#{fact.detalleFactura.volumennaturalautorizado}" />
                                 </p:column>
-                                <p:column headerText="Vol. a Facturar"  width="12%">                                 
-                                    <p:inputText id="volAutori" value="#{fact.detalleFactura.volumennaturalautorizado}" />
+                                <p:column headerText="Vol. a Facturar"  width="8%">                                 
+                                    <p:inputText id="volAutori" style="min-width: 100%;" value="#{fact.detalleFactura.volumennaturalautorizado}" />
                                 </p:column>
-                                <p:column headerText="Fecha Venta"  width="15%">
+                                <p:column headerText="Fecha Venta"  width="8%">
                                     <h:outputText value="#{fact.factura.fechaventa}" >
                                         <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                     </h:outputText>
                                 </p:column>  
-                                <p:column headerText="Fecha Despacho"  width="12%">
+                                <p:column headerText="Fecha Despacho"  width="8%">
                                     <h:outputText value="#{fact.factura.fechadespacho}" >
                                         <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                     </h:outputText>
                                 </p:column>  
-                                <p:column headerText="Refacturar"  width="10%">
+                                <p:column headerText="Refacturar"  width="7%">
                                     <p:selectBooleanCheckbox id="procesar" value="#{fact.factura.seleccionar}" >
                                         <p:ajax event="change" listener="#{refacturacionBean.seleccionarRefactura()}" update="@([id$=btnPro]) @([id$=procesar]) @([id$=messages])" ></p:ajax>
                                     </p:selectBooleanCheckbox>    

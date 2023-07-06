@@ -20,10 +20,12 @@ import ec.com.infinityone.modeloWeb.FacturaPK;
 import ec.com.infinityone.modeloWeb.Listaprecio;
 import ec.com.infinityone.modeloWeb.ListaprecioPK;
 import ec.com.infinityone.modeloWeb.Medida;
+import ec.com.infinityone.modeloWeb.Notapedido;
 import ec.com.infinityone.modeloWeb.Precio;
 import ec.com.infinityone.modeloWeb.PrecioPK;
 import ec.com.infinityone.modeloWeb.Producto;
 import ec.com.infinityone.modeloWeb.Terminal;
+import ec.com.infinityone.pedidosyfacturacion.servicios.NotaPedidoServicio;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -54,6 +56,7 @@ import java.util.logging.Logger;
 import javax.faces.application.FacesMessage;
 import javax.faces.view.ViewScoped;
 import javax.imageio.ImageIO;
+import javax.inject.Inject;
 import javax.inject.Named;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperExportManager;
@@ -78,7 +81,8 @@ import org.primefaces.shaded.json.JSONObject;
 @Named
 @ViewScoped
 public class RefacturacionBean extends FacturacionBean implements Serializable {
-
+    @Inject
+    private NotaPedidoServicio npServicio;
     /*
     Clase que guarda dos objetos para la refacturación
      */
@@ -379,6 +383,15 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
         }
     }
 
+    public void seleccionarCliRefactura(String numCedula) {
+        for (int i = 0; i < listaEnvRefac.size(); i++) {
+            if (listaEnvRefac.get(i).getFactura().getFacturaPK().getNumero().trim().equals("numCedula")) {
+                listaEnvRefac.get(i).setClienteRefactura(cliente);
+                break;
+            }
+        }
+    }
+
     public void guardar() throws ParseException {
         if (comercializadora.getActivo().equals("S")) {
             for (int i = 0; i < listaEnvRefac.size(); i++) {
@@ -586,6 +599,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
                 }
                 if (connection.getResponseCode() >= 200 || connection.getResponseCode() <= 200) {
                     actualizarVolumenRefacturar(detNP, envF);
+                    actualizarNotaPedido(detNP, envF);
                 } else {
                     System.out.println(connection.getResponseCode());
                     System.out.println(connection.getResponseMessage());
@@ -593,6 +607,44 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public boolean actualizarNotaPedido(Detallenotapedido detNP, EnvioRefactura envF) throws ParseException {
+        Notapedido np = new Notapedido();
+        np = npServicio.obtenerNotaPedidos(detNP.getDetallenotapedidoPK().getCodigoabastecedora(), detNP.getDetallenotapedidoPK().getCodigocomercializadora(), detNP.getDetallenotapedidoPK().getNumero());
+        np.setCodigocliente(envF.getClienteRefactura());
+        try {
+            String respuesta = "";
+            //String trama = "";
+            //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.notapedido/porId";
+            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.notapedido/porId";
+            url = new URL(direcc);
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("PUT");
+            connection.setRequestProperty("Content-type", "application/json");
+
+            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonStr = mapper.writeValueAsString(np);
+            DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+            out.write(jsonStr.getBytes());
+            out.flush();
+            out.close();
+
+            if (connection.getResponseCode() >= 200 || connection.getResponseCode() <= 200) {   
+                return true;
+            } else {
+                System.out.println(connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
+                return false;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 
