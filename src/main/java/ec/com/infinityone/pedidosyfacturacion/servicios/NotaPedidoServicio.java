@@ -57,7 +57,7 @@ public class NotaPedidoServicio {
 
     public Notapedido obtenerNotaPedidos(String codAbas, String codComer, String numero) throws ParseException {
         try {
-            DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
+            SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
             String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.notapedido/porId?";
 
             URL url = new URL(direcc + "codigoabastecedora=" + codAbas + "&codigocomercializadora=" + codComer + "&numero=" + numero);
@@ -70,10 +70,10 @@ public class NotaPedidoServicio {
             npPK = new NotapedidoPK();
             abas = new Abastecedora();
             comerc = new Comercializadora();
-            formap = new Formapago();            
+            formap = new Formapago();
             terminalT = new Terminal();
             banco = new Banco();
-            Cliente clienteNP = new Cliente();
+            Cliente cliente = new Cliente();
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
             BufferedReader br = new BufferedReader(reader);
@@ -96,13 +96,6 @@ public class NotaPedidoServicio {
                         JSONObject com = nt.getJSONObject("comercializadora");
                         JSONObject abastecedora = nt.getJSONObject("abastecedora");
 
-                        /*----Varaibles para transformar formate json en fechas-----*/
-                        Long dateStrFV = nt.getLong("fechaventa");
-                        Long dateStrFD = nt.getLong("fechadespacho");
-                        Date dateFV = new Date(dateStrFV);
-                        Date dateFD = new Date(dateStrFD);
-                        String fechaDescpacho = date.format(dateFD);
-                        String fechaVencimiento = date.format(dateFV);
                         /*----Objeto Abastecedora----*/
                         abas.setCodigo(abastecedora.getString("codigo"));
 
@@ -124,19 +117,17 @@ public class NotaPedidoServicio {
                         formap.setCodigo(formPago.getString("codigo"));
 
                         /*----Objeto Cliente----*/
-                        clienteNP.setCodigo(cli.getString("codigo"));
-                        clienteNP.setNombrecomercial(cli.getString("nombrecomercial"));
-                        clienteNP.setNombre(cli.getString("nombre"));
-                        clienteNP.setRuc(cli.getString("ruc"));
-                        clienteNP.setCorreo1(cli.getString("correo1"));
-                        clienteNP.setTelefono1(cli.getString("telefono1"));
-                        clienteNP.setDireccion(cli.getString("direccion"));
+                        cliente.setCodigo(cli.getString("codigo"));
+                        cliente.setNombre(cli.getString("nombre"));
+                        cliente.setRuc(cli.getString("ruc"));
+                        cliente.setCorreo1(cli.getString("correo1"));
+                        cliente.setTelefono1(cli.getString("telefono1"));
+                        cliente.setDireccion(cli.getString("direccion"));
                         if (!cli.isNull("tipoplazocredito")) {
-                            clienteNP.setTipoplazocredito(cli.getString("tipoplazocredito"));
+                            cliente.setTipoplazocredito(cli.getString("tipoplazocredito"));
                         }
-                        clienteNP.setCodigolistaprecio(cli.getLong("codigolistaprecio"));
-                        clienteNP.setCodigoformapago(formap);
-                        clienteNP.setControldespacho(cli.getInt("controldespacho"));
+                        cliente.setCodigolistaprecio(cli.getLong("codigolistaprecio"));
+                        cliente.setCodigoformapago(formap);
 
                         /*----Objeto Terminal----*/
                         terminalT.setCodigo(term.getString("codigo"));
@@ -144,43 +135,93 @@ public class NotaPedidoServicio {
                         /*----Objeto Banco----*/
                         banco.setCodigo(ban.getString("codigo"));
 
-                        /*------Variable trasnformar de int a short-----*/
-                        int dp = cli.getInt("diasplazocredito");
-                        short diasplazo = (short) dp;
-                        clienteNP.setDiasplazocredito(diasplazo);
-
                         /*----Guardando el cliente, termina y banco en Nota pedido---*/
-                        np.setCodigocliente(clienteNP);
+                        np.setCodigocliente(cliente);
                         np.setCodigoterminal(terminalT);
                         np.setCodigobanco(banco);
                         np.setComercializadora(comerc);
                         np.setAbastecedora(abas);
-
+                        /*----Varaibles para transformar formate json en fechas-----*/
+                        Long dateStrFV = nt.getLong("fechaventa");
+                        Long dateStrFD = nt.getLong("fechadespacho");
+                        Date dateFV = new Date(dateStrFV);
+                        Date dateFD = new Date(dateStrFD);
+                        String fechaDescpacho = date.format(dateFD);
+                        String fechaVencimiento = date.format(dateFV);
+                        np.setFechaventa(fechaVencimiento);
+                        np.setFechadespacho(fechaDescpacho);
+                        np.setActiva(nt.getBoolean("activa"));
+                        if (!nt.isNull("codigoautotanque")) {
+                            np.setCodigoautotanque(nt.getString("codigoautotanque"));
+                        } else {
+                            np.setCodigoautotanque("");
+                        }
+                        if (!nt.isNull("cedulaconductor")) {
+                            np.setCedulaconductor(nt.getString("cedulaconductor"));
+                        } else {
+                            np.setCedulaconductor("");
+                        }
+                        if (!nt.isNull("respuestageneracionoeepp")) {
+                            np.setRespuestageneracionoeepp(nt.getString("respuestageneracionoeepp"));
+                        } else {
+                            np.setRespuestageneracionoeepp("");
+                        }
+                        if (!nt.isNull("observacion")) {
+                            np.setObservacion(nt.getString("observacion"));
+                        } else {
+                            np.setObservacion("");
+                        }
+                        if (!nt.isNull("adelantar")) {
+                            np.setAdelantar(nt.getBoolean("adelantar"));
+                        } else {
+                            np.setAdelantar(true);
+                        }
+                        if (!nt.isNull("respuestaanulacionoeepp")) {
+                            np.setRespuestaanulacionoeepp(nt.getString("respuestaanulacionoeepp"));
+                        } else {
+                            np.setRespuestaanulacionoeepp("");
+                        }
+                        if (!nt.isNull("tramaenviadagoe")) {
+                            np.setTramaenviadagoe(nt.getString("tramaenviadagoe"));
+                        } else {
+                            np.setTramaenviadagoe("");
+                        }
+                        if (!nt.isNull("tramarecibidagoe")) {
+                            np.setTramarecibidagoe(nt.getString("tramarecibidagoe"));
+                        } else {
+                            np.setTramarecibidagoe("");
+                        }
+                        if (!nt.isNull("tramarecibidaaoe")) {
+                            np.setTramarecibidaaoe(nt.getString("tramarecibidaaoe"));
+                        } else {
+                            np.setTramarecibidaaoe("");
+                        }
+                        if (!nt.isNull("tramarecibidaaoe")) {
+                            np.setTramarenviadaaoe(nt.getString("tramarenviadaaoe"));
+                        } else {
+                            np.setTramarenviadaaoe("");
+                        }
+                        np.setUsuarioactual(nt.getString("usuarioactual"));
+                        if (!nt.isNull("prefijo")) {
+                            np.setPrefijo(nt.getString("prefijo"));
+                        } else {
+                            np.setPrefijo("");
+                        }
+                        np.setProcesar(nt.getBoolean("procesar"));
                         np.setNumerofacturasri(nt.getString("numerofacturasri"));
                         npPK.setNumero(ntPK.getString("numero"));
                         npPK.setCodigoabastecedora(ntPK.getString("codigoabastecedora"));
                         npPK.setCodigocomercializadora(ntPK.getString("codigocomercializadora"));
-                        np.setFechaventa(fechaVencimiento);
-                        np.setFechadespacho(fechaDescpacho);
-                        np.setAdelantar(true);
-                        np.setActiva(nt.getBoolean("activa"));
-                        try {
-                            np.setPrefijo(nt.getString("prefijo"));
-                            //System.out.println("NOTA DE PEDIDO OK: " + npPK.getNumero());
-                        } catch (Throwable e) {
-                            System.out.println("ERROR PREFIJO" + e.getMessage() + npPK.getNumero().getClass());
-                        }
-
                         np.setNotapedidoPK(npPK);
+                        npPK = new NotapedidoPK();
                     }
                 }
             }
 
-            if (connection.getResponseCode() != 200) {                
+            if (connection.getResponseCode() != 200) {
                 System.out.println(connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
-                System.out.println("ERROR CON LA NOTA DE PEDIDO: " + np.getNotapedidoPK().getNumero());
-                return np;
+                return null;
             }
 
         } catch (IOException e) {
@@ -188,7 +229,7 @@ public class NotaPedidoServicio {
             e.printStackTrace();
             return null;
         }
-        return null;
+        return np;
     }
 
 }

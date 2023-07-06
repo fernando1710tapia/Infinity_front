@@ -610,10 +610,11 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
         }
     }
 
-    public boolean actualizarNotaPedido(Detallenotapedido detNP, EnvioRefactura envF) throws ParseException {
+    public boolean actualizarNotaPedido(Detallenotapedido detNP, EnvioRefactura envF) throws ParseException {        
         Notapedido np = new Notapedido();
         np = npServicio.obtenerNotaPedidos(detNP.getDetallenotapedidoPK().getCodigoabastecedora(), detNP.getDetallenotapedidoPK().getCodigocomercializadora(), detNP.getDetallenotapedidoPK().getNumero());
         np.setCodigocliente(envF.getClienteRefactura());
+        np.setUsuarioactual(dataUser.getUser().getNombrever());
         try {
             String respuesta = "";
             //String trama = "";
