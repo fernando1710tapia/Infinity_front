@@ -14,6 +14,7 @@ public class EnvioRefactura {
     private Factura factura;
     private Detallefactura detalleFactura;   
     private String ensri; 
+    private Cliente clienteRefactuara;
 
     public EnvioRefactura() {
     }
@@ -40,6 +41,14 @@ public class EnvioRefactura {
 
     public void setEnsri(String ensri) {
         this.ensri = ensri;
+    }
+
+    public Cliente getClienteRefactuara() {
+        return clienteRefactuara;
+    }
+
+    public void setClienteRefactuara(Cliente clienteRefactuara) {
+        this.clienteRefactuara = clienteRefactuara;
     }
     
 }
