@@ -47,7 +47,7 @@ public class EnvioRefactura {
         return clienteRefactura;
     }
 
-    public void setClienteRefactuara(Cliente clienteRefactura) {
+    public void setClienteRefactura(Cliente clienteRefactura) {
         this.clienteRefactura = clienteRefactura;
     }
     
