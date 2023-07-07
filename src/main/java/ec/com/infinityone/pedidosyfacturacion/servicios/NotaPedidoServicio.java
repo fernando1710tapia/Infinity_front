@@ -57,7 +57,7 @@ public class NotaPedidoServicio {
 
     public Notapedido obtenerNotaPedidos(String codAbas, String codComer, String numero) throws ParseException {
         try {
-            SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
             String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.notapedido/porId?";
 
             URL url = new URL(direcc + "codigoabastecedora=" + codAbas + "&codigocomercializadora=" + codComer + "&numero=" + numero);
