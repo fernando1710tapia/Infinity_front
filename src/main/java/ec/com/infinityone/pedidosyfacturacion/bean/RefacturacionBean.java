@@ -81,6 +81,7 @@ import org.primefaces.shaded.json.JSONObject;
 @Named
 @ViewScoped
 public class RefacturacionBean extends FacturacionBean implements Serializable {
+
     @Inject
     private NotaPedidoServicio npServicio;
     /*
@@ -597,8 +598,10 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
                         detNP.setVolumennaturalrequerido(det.getBigDecimal("volumennaturalrequerido"));
                     }
                 }
-                if (connection.getResponseCode() >= 200 || connection.getResponseCode() <= 200) {                    
-                    actualizarNotaPedido(detNP, envF);
+                if (connection.getResponseCode() >= 200 || connection.getResponseCode() <= 200) {
+                    if (envF.getClienteRefactura() != null) {
+                        actualizarNotaPedido(detNP, envF);
+                    }
                     actualizarVolumenRefacturar(detNP, envF);
                 } else {
                     System.out.println(connection.getResponseCode());
@@ -610,7 +613,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
         }
     }
 
-    public boolean actualizarNotaPedido(Detallenotapedido detNP, EnvioRefactura envF) throws ParseException {        
+    public boolean actualizarNotaPedido(Detallenotapedido detNP, EnvioRefactura envF) throws ParseException {
         Notapedido np = new Notapedido();
         np = npServicio.obtenerNotaPedidos(detNP.getDetallenotapedidoPK().getCodigoabastecedora(), detNP.getDetallenotapedidoPK().getCodigocomercializadora(), detNP.getDetallenotapedidoPK().getNumero());
         np.setCodigocliente(envF.getClienteRefactura());
@@ -635,7 +638,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
             out.flush();
             out.close();
 
-            if (connection.getResponseCode() >= 200 || connection.getResponseCode() <= 200) {   
+            if (connection.getResponseCode() >= 200 || connection.getResponseCode() <= 200) {
                 return true;
             } else {
                 System.out.println(connection.getResponseCode());
