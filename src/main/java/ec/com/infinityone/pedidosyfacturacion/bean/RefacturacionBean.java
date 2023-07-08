@@ -598,8 +598,9 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
                     }
                 }
                 if (connection.getResponseCode() >= 200 || connection.getResponseCode() <= 200) {
-                    actualizarVolumenRefacturar(detNP, envF);
                     actualizarNotaPedido(detNP, envF);
+                    actualizarVolumenRefacturar(detNP, envF);
+                    
                 } else {
                     System.out.println(connection.getResponseCode());
                     System.out.println(connection.getResponseMessage());
