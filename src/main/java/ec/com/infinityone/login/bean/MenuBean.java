@@ -331,7 +331,7 @@ public class MenuBean extends LoginBean implements Serializable {
         }
     }
 
-//    public void caragarRutaEConsulta() {
+    public void caragarRutaEConsulta() {
 //        if (dataUser.getUser().getCodigocomercializadora() != null) {
 //            switch (dataUser.getUser().getCodigocomercializadora()) {
 //                case "0002":
@@ -348,7 +348,7 @@ public class MenuBean extends LoginBean implements Serializable {
 //        } else {
 //            rutaEConsulta = Fichero.getRUTAECONSULTASPYS();
 //        }
-//    }
+    }
 
     public void cargarMenu() {
         DefaultSubMenu primerNivel;
