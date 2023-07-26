@@ -37,14 +37,10 @@ import org.primefaces.shaded.json.JSONObject;
 public class MenuBean extends LoginBean implements Serializable {
 
     protected MenuModel model = new DefaultMenuModel();
-
-    private LoginBean loginBean;
-
     /*
     Variable que almacena varios Productos
      */
     private List<MenuBean> listaMenuPadreBean;
-
     /*
     Variable que almacena varios Productos
      */
@@ -76,37 +72,25 @@ public class MenuBean extends LoginBean implements Serializable {
     private String nivel;
     private String urlAyuda;
     private String descripcionAyuda;
-    /*
-    Lista que almacena los menus padres por id
-     */
-    private List<MenuBean> listaMenuP;
+
     /*
     Lista auxiliar para validar la existencia del menu padre
      */
     private List<MenuBean> listaMenuPAux;
-    /*
-    Lista donde se almacenan los padres no repetidos
-     */
-    private List<MenuBean> listaMenuPadreAgregar;
-
-    private List<MenuBean> listaAgregar;
 
     private String fechaC;
 
-    private String labelLechaC;
+    private String rutaEConsulta;
 
     @PostConstruct
     public void init() {
         menu = new MenuBean();
-        loginBean = new LoginBean();
-        listaMenuP = new ArrayList<>();
         listaMenuPAux = new ArrayList<>();
-        listaMenuPadreAgregar = new ArrayList<>();
-        listaAgregar = new ArrayList<>();
         fechaC = Fichero.getFECHACERTIFICADOSSL();
+        rutaEConsulta = Fichero.getRUTAECONSULTAS();
         obtenerMenuPadre();
         obtenerMenuHijo();
-        cargarMenu();
+        cargarMenu();        
         obtenerFirmae();
     }
 
@@ -311,7 +295,7 @@ public class MenuBean extends LoginBean implements Serializable {
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
-            
+
             firmae = new FirmaE();
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
@@ -346,6 +330,25 @@ public class MenuBean extends LoginBean implements Serializable {
             e.printStackTrace();
         }
     }
+
+//    public void caragarRutaEConsulta() {
+//        if (dataUser.getUser().getCodigocomercializadora() != null) {
+//            switch (dataUser.getUser().getCodigocomercializadora()) {
+//                case "0002":
+//                    rutaEConsulta = Fichero.getRUTAECONSULTASPYS();
+//                    break;
+//                case "0095":
+//                    rutaEConsulta = Fichero.getRUTAECONSULTASFENAPET();
+//                    break;
+//
+//                default:
+//                    rutaEConsulta = Fichero.getRUTAECONSULTASPYS();
+//                    break;
+//            }
+//        } else {
+//            rutaEConsulta = Fichero.getRUTAECONSULTASPYS();
+//        }
+//    }
 
     public void cargarMenu() {
         DefaultSubMenu primerNivel;
@@ -564,6 +567,14 @@ public class MenuBean extends LoginBean implements Serializable {
 
     public void setFechaC(String fechaC) {
         this.fechaC = fechaC;
+    }
+
+    public String getRutaEConsulta() {
+        return rutaEConsulta;
+    }
+
+    public void setRutaEConsulta(String rutaEConsulta) {
+        this.rutaEConsulta = rutaEConsulta;
     }
 
 }

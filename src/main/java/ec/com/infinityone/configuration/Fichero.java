@@ -41,6 +41,7 @@ public class Fichero {
     private static String COLORESPRODUCTOS;
     private static String TASAINTERES;
     private static String FECHACERTIFICADOSSL;
+    private static String RUTAECONSULTAS;
 
     public static void propiedades() {
         InputStream in = null;
@@ -75,6 +76,7 @@ public class Fichero {
             COLORESPRODUCTOS = (String) propiedades.get("COLORESPRODUCTOS");
             TASAINTERES = (String) propiedades.get("TASAINTERES");
             FECHACERTIFICADOSSL = (String) propiedades.get("FECHACERTIFICADOSSL");
+            RUTAECONSULTAS = (String) propiedades.get("RUTAECONSULTAS");            
 
             //LOG.log(Level.INFO, "Ruta Reporte", RUTAREPORTE);
             //LOG.log(Level.INFO, "Ruta Servicios", RUTASERVICIOSPERSISTENCIA);
@@ -211,6 +213,14 @@ public class Fichero {
 
     public static void setFECHACERTIFICADOSSL(String FECHACERTIFICADOSSL) {
         Fichero.FECHACERTIFICADOSSL = FECHACERTIFICADOSSL;
+    }
+
+    public static String getRUTAECONSULTAS() {
+        return RUTAECONSULTAS;
+    }
+
+    public static void setRUTAECONSULTAS(String RUTAECONSULTAS) {
+        Fichero.RUTAECONSULTAS = RUTAECONSULTAS;
     }
 
 }
