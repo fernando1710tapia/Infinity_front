@@ -296,7 +296,8 @@
                                     <p:outputLabel id="msj" rendered="#{listaPrecioBean.mostrarMsj}">Opción no disponible</p:outputLabel>                                            
                                 </div>
                                 <p:dataTable id="dt-margen" rendered="#{listaPrecioBean.mostrarTabla}" widgetVar="dtMargen" var="margen" value="#{listaPrecioBean.listaListapreciobean}" reflow="true" styleClass="margen-table"
-                                             selection="#{crudDemoView.selectedProducts}" rowKey="#{margen.listaProductosComer.comercializadoraproductoPK}" rows="10" rowSelectMode="add" paginatorPosition="bottom">                                                                                                
+                                             selection="#{crudDemoView.selectedProducts}" rowKey="#{margen.listaProductosComer.comercializadoraproductoPK}" paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">                                                                                                
+                                                                 
                                     <p:column headerText="Código" sortBy="#{margen.productosComer.comercializadoraproductoPK.codigoproducto}" filterBy="#{margen.productosComer.comercializadoraproductoPK.codigoproducto}" width="15%">
                                         <h:outputText value="#{margen.productosComer.comercializadoraproductoPK.codigoproducto}" />
                                     </p:column>

@@ -75,6 +75,10 @@ public class ReportepreciosBean extends ReusableBean implements Serializable {
      */
     private String codComer;
     /*
+    Variable que almacena el nombre de la comercializadora
+     */
+    private String nomComer;
+    /*
     Vairbale para almacenar el pdf generado
      */
     private StreamedContent pdfStream;
@@ -122,6 +126,7 @@ public class ReportepreciosBean extends ReusableBean implements Serializable {
     public void seleccionarComerc() {
         if (comercializadora != null) {
             codComer = comercializadora.getCodigo();
+            nomComer = comercializadora.getNombre();
         }
     }
 
@@ -141,7 +146,7 @@ public class ReportepreciosBean extends ReusableBean implements Serializable {
 
             parametro.put("codComer", codComer);
             parametro.put("logo", image);
-            parametro.put("Titulo", "Precios Petróleos y Servicios");
+            parametro.put("Titulo", " Precios - "+nomComer.trim());
             parametro.put("Subtitulo", "Precios Activos");
             parametro.put("usuario", dataUser.getUser().getNombrever());
 
