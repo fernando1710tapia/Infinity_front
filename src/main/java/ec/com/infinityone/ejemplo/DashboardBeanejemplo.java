@@ -3,7 +3,7 @@ package ec.com.infinityone.ejemplo;
 
 
 import ec.com.infinityone.configuration.Fichero;
-import ec.com.infinityone.modeloWeb.VentaDespachoTotal;
+import ec.com.infinityone.modelo.VentaDespachoTotal;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;

@@ -6,8 +6,8 @@
 package ec.com.infinityone.bean;
 
 import ec.com.infinityone.configuration.Fichero;
-import ec.com.infinityone.modeloWeb.FirmaE;
-import ec.com.infinityone.modeloWeb.ObjetoNivel1;
+import ec.com.infinityone.modelo.FirmaE;
+import ec.com.infinityone.modelo.ObjetoNivel1;
 import ec.com.infinityone.reusable.ReusableBean;
 import java.io.BufferedReader;
 import java.io.IOException;

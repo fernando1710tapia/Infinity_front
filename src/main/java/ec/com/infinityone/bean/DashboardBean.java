@@ -5,13 +5,13 @@
  */
 package ec.com.infinityone.bean;
 
-import ec.com.infinityone.catalogo.servicios.TerminalServicio;
+import ec.com.infinityone.servicio.catalogo.TerminalServicio;
 import ec.com.infinityone.configuration.Fichero;
-import ec.com.infinityone.modeloWeb.DespachoTotalDto;
-import ec.com.infinityone.modeloWeb.Mejorcliente;
-import ec.com.infinityone.modeloWeb.Terminal;
-import ec.com.infinityone.modeloWeb.Usuario;
-import ec.com.infinityone.modeloWeb.VentaTotalDto;
+import ec.com.infinityone.modelo.DespachoTotalDto;
+import ec.com.infinityone.modelo.Mejorcliente;
+import ec.com.infinityone.modelo.Terminal;
+import ec.com.infinityone.modelo.Usuario;
+import ec.com.infinityone.modelo.VentaTotalDto;
 import ec.com.infinityone.reusable.ReusableBean;
 import java.io.BufferedReader;
 import java.io.IOException;

@@ -6,8 +6,8 @@
 package ec.com.infinityone.bean;
 
 import ec.com.infinityone.configuration.Fichero;
-import ec.com.infinityone.modeloWeb.Formapago;
-import ec.com.infinityone.modeloWeb.Formapago;
+import ec.com.infinityone.modelo.Formapago;
+import ec.com.infinityone.modelo.Formapago;
 import ec.com.infinityone.reusable.ReusableBean;
 import java.io.BufferedReader;
 import java.io.IOException;

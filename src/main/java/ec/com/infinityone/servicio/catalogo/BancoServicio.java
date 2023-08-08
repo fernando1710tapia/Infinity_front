@@ -1,0 +1,88 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package ec.com.infinityone.servicio.catalogo;
+
+import ec.com.infinityone.configuration.Fichero;
+import ec.com.infinityone.modelo.Banco;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import javax.ejb.LocalBean;
+import javax.ejb.Stateless;
+import org.primefaces.shaded.json.JSONArray;
+import org.primefaces.shaded.json.JSONObject;
+
+/**
+ *
+ * @author HP
+ */
+@LocalBean
+@Stateless
+public class BancoServicio {
+    /*
+    Variable que almacena varios Bancos
+     */
+    private List<Banco> listaBancos;
+    /*
+    Objeto banco
+     */
+    private Banco banco;
+    
+    public List<Banco> obtenerBanco() {
+        try {
+            //URL url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.banco");
+            URL url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.banco/estado?activo=true");
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+
+            listaBancos = new ArrayList<>();
+            banco = new Banco();
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+
+            BufferedReader br = new BufferedReader(reader);
+            String tmp = null;
+            String respuesta = "";
+            while ((tmp = br.readLine()) != null) {
+                respuesta += tmp;
+            }
+            JSONObject objetoJson = new JSONObject(respuesta);
+            JSONArray retorno = objetoJson.getJSONArray("retorno");
+            for (int indice = 0; indice < retorno.length(); indice++) {
+                JSONObject areaM = retorno.getJSONObject(indice);
+                banco.setCodigo(areaM.getString("codigo"));
+                banco.setNombre(areaM.getString("nombre"));
+                listaBancos.add(banco);
+                banco = new Banco();
+            }
+            if(connection.getResponseCode() != 200){
+                System.out.println(connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
+            }
+            
+            return listaBancos;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return listaBancos;
+    }
+
+    public Banco getBanco() {
+        return banco;
+    }
+
+    public void setBanco(Banco banco) {
+        this.banco = banco;
+    }
+    
+    
+}

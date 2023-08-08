@@ -5,17 +5,17 @@
  */
 package ec.com.infinityone.bean;
 
-import ec.com.infinityone.actorcomercial.bean.ComercializadoraBean;
-import ec.com.infinityone.actorcomercial.serivicios.ComercializadoraServicio;
-import ec.com.infinityone.catalogo.servicios.TerminalServicio;
+import ec.com.infinityone.bean.actorcomercial.ComercializadoraBean;
+import ec.com.infinityone.serivicio.actorcomercial.ComercializadoraServicio;
+import ec.com.infinityone.servicio.catalogo.TerminalServicio;
 import ec.com.infinityone.configuration.Fichero;
-import ec.com.infinityone.modeloWeb.Consultagarantia;
-import ec.com.infinityone.modeloWeb.ConsultagarantiaPK;
-import ec.com.infinityone.modeloWeb.Consultaguiaremision;
-import ec.com.infinityone.modeloWeb.ConsultaguiaremisionPK;
-import ec.com.infinityone.modeloWeb.Mejorcliente;
-import ec.com.infinityone.modeloWeb.Terminal;
-import ec.com.infinityone.modeloWeb.Usuario;
+import ec.com.infinityone.modelo.Consultagarantia;
+import ec.com.infinityone.modelo.ConsultagarantiaPK;
+import ec.com.infinityone.modelo.Consultaguiaremision;
+import ec.com.infinityone.modelo.ConsultaguiaremisionPK;
+import ec.com.infinityone.modelo.Mejorcliente;
+import ec.com.infinityone.modelo.Terminal;
+import ec.com.infinityone.modelo.Usuario;
 import ec.com.infinityone.reusable.ReusableBean;
 import java.io.BufferedReader;
 import java.io.IOException;

@@ -5,13 +5,13 @@
  */
 package ec.com.infinityone.reusable;
 
-import ec.com.infinityone.actorcomercial.bean.ComercializadoraBean;
-import ec.com.infinityone.actorcomercial.serivicios.ClienteServicio;
+import ec.com.infinityone.bean.actorcomercial.ComercializadoraBean;
+import ec.com.infinityone.serivicio.actorcomercial.ClienteServicio;
 import ec.com.infinityone.configuration.Fichero;
-import ec.com.infinityone.login.bean.DatosUsuario;
-import ec.com.infinityone.modeloWeb.Cliente;
-import ec.com.infinityone.modeloWeb.ObjetoNivel1;
-import ec.com.infinityone.modeloWeb.Usuario;
+import ec.com.infinityone.bean.login.DatosUsuario;
+import ec.com.infinityone.modelo.Cliente;
+import ec.com.infinityone.modelo.ObjetoNivel1;
+import ec.com.infinityone.modelo.Usuario;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
