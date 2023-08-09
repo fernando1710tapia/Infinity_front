@@ -587,7 +587,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                 codComer = comercializadora.getCodigo();
                 codAbas = comercializadora.getAbastecedora();
                 listaClientes = new ArrayList<>();
-                listaClientes = clienteServicio.obtenerClientesPorComercializadoraActiva(codComer);
+                listaClientes = clienteServicio.obtenerClientesActivosPorComercializadora(codComer);
                 //factura.setCodComer(comercializadora.getCodigo());
                 //factura.setCodAbas(comercializadora.getAbastecedora());
             } else {
@@ -603,7 +603,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             List<Cliente> listaClientesAux = new ArrayList<>();
             listaClientes = new ArrayList<>();
             if (busqueda == 1) {
-                listaClientesAux = clienteServicio.obtenerClientesPorComercializadora(codComer);
+                listaClientesAux = clienteServicio.obtenerClientesActivosPorComercializadora(codComer);
             } else {
                 listaClientesAux = clienteServicio.obtenerClientesPorComercializadoraActiva(codComer);
             }
@@ -617,7 +617,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             codTerminal = "-1";
             listaClientes = new ArrayList<>();
             if (busqueda == 1) {
-                listaClientes = clienteServicio.obtenerClientesPorComercializadora(codComer);
+                listaClientes = clienteServicio.obtenerClientesActivosPorComercializadora(codComer);
             } else {
                 listaClientes = clienteServicio.obtenerClientesPorComercializadoraActiva(codComer);
             }
