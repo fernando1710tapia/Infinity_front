@@ -30,27 +30,27 @@
                                     </p:commandButton>
                                 </p:toolbarGroup>
                             </p:toolbar> 
-                            <div class="ui-fluid p-formgrid p-grid">  
-                                <div class="p-field p-col-12 p-md-4">
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-4">                                    
                                     <div class="ui-inputgroup">
                                         <span class="ui-inputgroup-addon">
-                                            <i class="fa fa-money"></i>
+                                            <i class="pi pi-desktop"></i>
                                         </span>
-                                        <p:selectOneMenu id="comercializadora" value="#{clienteGarantiaBean.codComer}" title="Comercializadora"
+                                        <p:selectOneMenu id="comercializadora" value="#{clienteGarantiaBean.comercializadora}" title="Comercializadora"
                                                          panelStyle="width:175px" style="min-width: 80%;" 
-                                                         autoWidth="false" 
-                                                         filter="true" filterMatchMode="startsWith"
-                                                         >            
+                                                         autoWidth="false" converter="converterg" 
+                                                         disabled="#{!clienteGarantiaBean.habilitarComer}"
+                                                         filter="true" filterMatchMode="startsWith">      
                                             <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
                                             <f:selectItems value="#{clienteGarantiaBean.listaComercializadora}"
                                                            var="comer"
                                                            itemLabel="#{comer.objRelacionado}"
-                                                           itemValue="#{comer.codigo}" />  
-                                            <p:ajax event="change" listener="#{clienteGarantiaBean.seleccionarComercializadora(1)}"
+                                                           itemValue="#{comer}" />
+                                            <p:ajax event="change" listener="#{clienteGarantiaBean.seleccionarComer}"
                                                     update="cliente" />
                                         </p:selectOneMenu>
                                     </div>                            
-                                </div>
+                                </div>                                               
                                 <div class="p-field p-col-12 p-md-4">
                                     <div class="ui-inputgroup">
                                         <span class="ui-inputgroup-addon">
@@ -133,29 +133,28 @@
         <p:dialog header="Cliente Garantía" width="50%" showEffect="fade" modal="true" widgetVar="nuevo" responsive="true">
             <h:form id="formNuevo">
                 <p:outputPanel rendered="true">                                
-                    <div class="ui-fluid p-formgrid p-grid"> 
+                    <div class="ui-fluid p-formgrid p-grid">                        
                         <div class="p-field p-col-12 p-md-6">
-                            <p:outputLabel for="comercilaizadora1" value="Comercializadora"/>
+                            <p:outputLabel for="comercializadora1" value="Comercializadora"/>
                             <div class="ui-inputgroup">
                                 <span class="ui-inputgroup-addon">
-                                    <i class="fa fa-money"></i>
+                                    <i class="pi pi-desktop"></i>
                                 </span>
-                                <p:selectOneMenu id="comercilaizadora1" value="#{clienteGarantiaBean.codComer}" title="Comercializadora"
+                                <p:selectOneMenu id="comercializadora1" value="#{clienteGarantiaBean.comercializadora}" title="Comercializadora"
                                                  panelStyle="width:175px" style="min-width: 80%;" 
-                                                 autoWidth="false" disabled="#{clienteGarantiaBean.editarCliente}"
-                                                 filter="true" filterMatchMode="startsWith"
-                                                 >             
+                                                 autoWidth="false" converter="converterg" 
+                                                 disabled="#{!clienteGarantiaBean.habilitarComer}"
+                                                 filter="true" filterMatchMode="startsWith">      
                                     <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
                                     <f:selectItems value="#{clienteGarantiaBean.listaComercializadora}"
                                                    var="comer"
                                                    itemLabel="#{comer.objRelacionado}"
-                                                   itemValue="#{comer.codigo}" />  
-                                    <p:ajax event="change" listener="#{clienteGarantiaBean.seleccionarComercializadora(2)}"
+                                                   itemValue="#{comer}" />
+                                    <p:ajax event="change" listener="#{clienteGarantiaBean.seleccionarComer}"
                                             update="cliente1" />
                                 </p:selectOneMenu>
                             </div>                            
-                        </div>
-                        <div class="p-field p-col-12 p-md-6"></div>
+                        </div>                        
                         <div class="p-field p-col-12 p-md-6">
                             <p:outputLabel for="cliente1" value="Cliente"/>
                             <div class="ui-inputgroup">
@@ -173,11 +172,17 @@
                                                    itemLabel="#{cli.codigo} - #{cli.nombrecomercial}"
                                                    itemValue="#{cli}" />   
                                     <p:ajax event="change" listener="#{clienteGarantiaBean.seleccionarCliente()}"
-                                            update="guardar" />
+                                            update="formNuevo guardar" />
                                 </p:selectOneMenu>
                             </div>                                                
-                        </div>    
-                        
+                        </div> 
+                        <div class="p-field p-col-12 p-md-12">
+                            <p:panel>                      
+                                <div class="p-m">
+                                    <p:outputLabel value="Cliente: #{clienteGarantiaBean.cliente.ruc}  -   Deuda Total: $#{clienteGarantiaBean.totalDeudaS}" style="font-weight: bold; font-size: medium; text-align: center !important"/>                                   
+                                </div>                                                                                                                                  
+                            </p:panel>
+                        </div>                                     
                         <div class="p-field p-col-12 p-md-6">
                             <p:outputLabel for="banco" value="Banco"/>
                             <div class="ui-inputgroup">
@@ -197,6 +202,7 @@
                                 </p:selectOneMenu>
                             </div>                                                
                         </div>
+                        <div class="p-field p-col-12 p-md-6"></div>
                         <div class="p-field p-col-12 p-md-12"></div>  
                         <div class="p-field p-col-12 p-md-6">  
                             <span class="ui-float-label">
@@ -209,8 +215,8 @@
                         <div class="p-field p-col-12 p-md-6">  
                             <span class="ui-float-label">
                                 <p:datePicker id="finVigencia" value="#{clienteGarantiaBean.clientegarantia.fechafinvigencia}" showIcon="true" pattern="dd/MM/yyyy" mindate="#{clienteGarantiaBean.fechaFinVigencia}" disabled="#{clienteGarantiaBean.editarCliente}"/>
-<!--                                    <p:ajax event="dateSelect" update=":form" listener="{clienteGarantiaBean.actualizarFecha(dateSelect, 2)}" />
-                                </p:datePicker>-->
+                                <!--                                    <p:ajax event="dateSelect" update=":form" listener="{clienteGarantiaBean.actualizarFecha(dateSelect, 2)}" />
+                                                                </p:datePicker>-->
                                 <p:outputLabel for="finVigencia" value="Fin de Vigencia"/>
                             </span>
                         </div>
@@ -226,7 +232,7 @@
                         </div>     
                         <div class="p-field p-col-12 p-md-4">
                             <span class="ui-float-label">                                            
-                                <p:inputText id="numero" value="#{clienteGarantiaBean.clientegarantiaPK.numero}" required="true" disabled="#{clienteGarantiaBean.editarCliente}"/>
+                                <p:inputText id="numero" value="#{clienteGarantiaBean.clientegarantia.clientegarantiaPK.numero}" required="true" disabled="#{clienteGarantiaBean.editarCliente}"/>
                                 <p:outputLabel for="numero">Número</p:outputLabel>
                             </span>
                         </div>  

@@ -38,12 +38,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -423,40 +421,40 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
         step2 = true;
         step3 = false;
         ArrayList<Comercializadoraproducto> listaComerProductosAux = new ArrayList<>();
-        try{
-        if (comercializadora.getActivo().equals("N")) {
-            listaTerminalProd = new ArrayList<>();
-            listaPrecio = new ArrayList<>();
-            listPrice = new ArrayList<>();
-            for (int i = 0; i < listaComerProductos.size(); i++) {
-                if (listaComerProductos.get(i).isProcesar()) {
+        try {
+            if (comercializadora.getActivo().equals("N")) {
+                listaTerminalProd = new ArrayList<>();
+                listaPrecio = new ArrayList<>();
+                listPrice = new ArrayList<>();
+                for (int i = 0; i < listaComerProductos.size(); i++) {
+                    if (listaComerProductos.get(i).isProcesar()) {
 //                    actualizarDatosComerProd(listaComerProductos.get(i));
-                  listaComerProductosAux.add(listaComerProductos.get(i));
+                        listaComerProductosAux.add(listaComerProductos.get(i));
 //                    consultarPorIdPrecios(listaComerProductos.get(i));
-                } 
-            }
-            if (!listaComerProductosAux.isEmpty()) {
-               actualizarDatosComerProdLote(listaComerProductosAux);
-            } else {
-            this.dialogo(FacesMessage.SEVERITY_ERROR, "Error!. No se ha seleccionado ningún producto!");
-            }
-            if (!listaComerProductosAux.isEmpty()) {
-                for (int i = 0; i < listaComerProductosAux.size(); i++) {
-              obtenerPrecioscomprobacion(listaComerProductosAux.get(i));
-                consultarPorIdPrecios(listaComerProductosAux.get(i));
+                    }
                 }
+                if (!listaComerProductosAux.isEmpty()) {
+                    actualizarDatosComerProdLote(listaComerProductosAux);
+                } else {
+                    this.dialogo(FacesMessage.SEVERITY_ERROR, "Error!. No se ha seleccionado ningún producto!");
+                }
+                if (!listaComerProductosAux.isEmpty()) {
+                    for (int i = 0; i < listaComerProductosAux.size(); i++) {
+                        obtenerPrecioscomprobacion(listaComerProductosAux.get(i));
+                        consultarPorIdPrecios(listaComerProductosAux.get(i));
+                    }
+                } else {
+                    this.dialogo(FacesMessage.SEVERITY_ERROR, "Error!. No se ha seleccionado ningún producto!");
+                }
+
             } else {
-            this.dialogo(FacesMessage.SEVERITY_ERROR, "Error!. No se ha seleccionado ningún producto!");
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "LA COMERCIALIZADORA DEBE ESTAR INCATIVA PARA PODER REALIZAR LA ACTUALIZACIÓN DE PRECIOS");
             }
-             
-        } else {
-            this.dialogo(FacesMessage.SEVERITY_ERROR, "LA COMERCIALIZADORA DEBE ESTAR INCATIVA PARA PODER REALIZAR LA ACTUALIZACIÓN DE PRECIOS");
-        }
-        }catch(Throwable t){
-             this.dialogo(FacesMessage.SEVERITY_ERROR, t.getMessage());
-             System.out.println("FT:: Error capturado paso1 " +t.getMessage());
-             t.printStackTrace(System.out);
-             System.out.println("FT:: Error capturado TERMINA t.printStackTrace paso1 ----------------------"); 
+        } catch (Throwable t) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, t.getMessage());
+            System.out.println("FT:: Error capturado paso1 " + t.getMessage());
+            t.printStackTrace(System.out);
+            System.out.println("FT:: Error capturado TERMINA t.printStackTrace paso1 ----------------------");
         }
     }
 
@@ -503,8 +501,8 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
         List<JSONObject> arregloJSON = new ArrayList<>();
         JSONObject comercializadoraProducto = new JSONObject();
         JSONObject comercializadoraProductoPK = new JSONObject();
-        
-        try{
+
+        try {
             int longitud = listaComerProductosAux.size();
             for (int i = 0; i < longitud; i++) {
 
@@ -526,14 +524,13 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                 comercializadoraProductoPK = new JSONObject();
             }
             //------ACTUALIZAR COMERPROD EN LA BDD------------------
-            
-            
+
             String respuesta;
             String direcc = "";
-            
+
 //            direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.comercializadoraproducto/actualizarLote";
             direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.comercializadoraproducto/updateLote";
-            
+
             url = new URL(direcc);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
@@ -549,7 +546,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
             writer.close();
 
             if (connection.getResponseCode() == 200) {
-                InputStreamReader reader = new InputStreamReader(connection.getInputStream());                
+                InputStreamReader reader = new InputStreamReader(connection.getInputStream());
                 BufferedReader br = new BufferedReader(reader);
                 String tmp = null;
                 String resp = "";
@@ -566,16 +563,15 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                 System.out.println("Error al añadir:" + connection.getResponseCode());
                 System.out.println("Error:" + connection.getErrorStream());
                 System.out.println(connection.getResponseMessage());
-                throw new Throwable("Error capturado en actualizarDatosComerProdLote. "+connection.getResponseCode());
-                 
+                throw new Throwable("Error capturado en actualizarDatosComerProdLote. " + connection.getResponseCode());
+
             }
-            
+
             //------------------------------------------------------
-             
-        }catch (Throwable t){
+        } catch (Throwable t) {
             System.out.println("FT:: error capturado en actualizarDatosComerProdLote ." + t.getMessage());
             throw new Throwable("FT:: error capturado en actualizarDatosComerProdLote ." + t.getMessage());
-        }  
+        }
 
     }
 
@@ -765,7 +761,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
 
     public void consultarPorIdPrecios(Comercializadoraproducto comerP) {
         for (int i = 0; i < listaTerminalProd.size(); i++) {
-            
+
             obtenerPreciosModificados(i, listaTerminalProd, comerP);
         }
     }
@@ -910,6 +906,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
 
     public void calcularPreciosProd() {
         BigDecimal dpcg1 = new BigDecimal(0);
+        BigDecimal dpcg1Iva = new BigDecimal(0);
         BigDecimal dpcg2 = new BigDecimal(0);
         BigDecimal dpcg3 = new BigDecimal(0);
         BigDecimal dpcg4 = new BigDecimal(0);
@@ -938,6 +935,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                         //Precio Terminal EPP
                         case "0001":
                             dpcg1 = listaPrecio.get(i).getPrecioepp().divide(listaGravamen.get(j).getValordefecto(), 6, RoundingMode.HALF_UP);
+                            dpcg1Iva = listaPrecio.get(i).getPrecioepp();
                             detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
                             detallePrecioPK.setCodigoterminal(listaTerminalProdAux.get(k).getListaprecioterminalproductoPK().getCodigoterminal());
                             detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
@@ -976,7 +974,11 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                                 detallePrecioPK = new DetalleprecioPK();
                                 objDetalle.setMargenxcliente(dpcg4);
                             } else {
-                                dpcg4 = (dpcg1.multiply((listaPrecio.get(i).getMargenporcentaje().divide(new BigDecimal(100))))).setScale(6, RoundingMode.HALF_UP);
+                                if (listaPrecio.get(i).getPrecio().getListaprecio().getTipo().equals("MPO")) {
+                                    dpcg4 = (dpcg1.multiply((listaPrecio.get(i).getMargenporcentaje().divide(new BigDecimal(100))))).setScale(6, RoundingMode.HALF_UP);
+                                } else {
+                                    dpcg4 = (dpcg1Iva.multiply((listaPrecio.get(i).getMargenporcentaje().divide(new BigDecimal(100))))).setScale(6, RoundingMode.HALF_UP);
+                                }                                
                                 detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
                                 detallePrecioPK.setCodigoterminal(listaTerminalProdAux.get(k).getListaprecioterminalproductoPK().getCodigoterminal());
                                 detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
@@ -1052,25 +1054,23 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                                 detallePrecioPK = new DetalleprecioPK();
                                 objDetalle.setIvaPresuntivo(dpcg5);
                             } else {
-                                
+
                                 //dpcg5 = ((listaPrecio.get(i).getPvpsugerido().divide(new BigDecimal(1.12), 6, RoundingMode.HALF_UP)).subtract(dpcg9)).multiply(listaGravamen.get(j).getValordefecto()).setScale(6, RoundingMode.HALF_UP);
                                 //dpcg5F = dpcg5.multiply((listaPrecio.get(i).getPrecio().getComercializadoraproducto().getProducto().getPorcentajeivapresuntivo().divide(new BigDecimal(100)))).setScale(6, RoundingMode.HALF_UP);
                                 //iva * listaPrecio.get(i).getPrecio().getComercializadoraproducto().getProducto().getPorcentajeivapresuntivo().divide(new BigDecimal(100)
-                                
                                 dpcg5F = dpcg2.multiply(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getProducto().getPorcentajeivapresuntivo()).divide(new BigDecimal(100)).setScale(6, RoundingMode.HALF_UP);
-                                 
-                                detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora()); 
-                                System.out.println("FT::Calculando PROCENTAJE DE IVA PRESUNTIVO- "+detallePrecioPK.getCodigocomercializadora()+ " - "+dpcg5F.toString());
-                                
-                //(componente PARA FENAPET cambiado 2023-05-31 pedido ing. Cruz, sr. Rambay)Retencion Iva Presuntivo MANTENER EL CALCULO DE IVA PRESUNTIVO
-                
-                                if (detallePrecioPK.getCodigocomercializadora().equalsIgnoreCase("0095")){                                
-                                    System.out.println("FT::Calculando PROCENTAJE DE IVA PRESUNTIVO- DENTRO DE IF "+detallePrecioPK.getCodigocomercializadora()+ " - "+dpcg5F.toString());
+
+                                detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
+                                System.out.println("FT::Calculando PROCENTAJE DE IVA PRESUNTIVO- " + detallePrecioPK.getCodigocomercializadora() + " - " + dpcg5F.toString());
+
+                                //(componente PARA FENAPET cambiado 2023-05-31 pedido ing. Cruz, sr. Rambay)Retencion Iva Presuntivo MANTENER EL CALCULO DE IVA PRESUNTIVO
+                                if (detallePrecioPK.getCodigocomercializadora().equalsIgnoreCase("0095")) {
+                                    System.out.println("FT::Calculando PROCENTAJE DE IVA PRESUNTIVO- DENTRO DE IF " + detallePrecioPK.getCodigocomercializadora() + " - " + dpcg5F.toString());
                                     dpcg5F = ((listaPrecio.get(i).getPvpsugerido().multiply(new BigDecimal(0.12))).setScale(6, RoundingMode.HALF_UP)).subtract(dpcg2).setScale(6, RoundingMode.HALF_UP);
                                     //System.out.println("FT::Calculando PROCENTAJE DE IVA PRESUNTIVO- DENTRO DE IF - FORMULA FENAPET "+detallePrecioPK.getCodigocomercializadora()+ " - PVP: "+listaPrecio.get(i).getPvpsugerido().toString()+"- IVA DEL PVP:-"+ ((listaPrecio.get(i).getPvpsugerido().multiply(new BigDecimal(0.12))).setScale(6, RoundingMode.HALF_UP))+ " - VALOR ORIGINAL IVA:- "+dpcg2.toString() +" - RESULTADO:- "+dpcg5F.toString());
                                 }
-                                
-                                detallePrecioPK.setCodigoterminal(listaTerminalProdAux.get(k).getListaprecioterminalproductoPK().getCodigoterminal()); 
+
+                                detallePrecioPK.setCodigoterminal(listaTerminalProdAux.get(k).getListaprecioterminalproductoPK().getCodigoterminal());
                                 detallePrecioPK.setCodigoproducto(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
                                 detallePrecioPK.setCodigomedida(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
                                 detallePrecioPK.setCodigolistaprecio(listaPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
@@ -1084,9 +1084,8 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                                 detallePrecio = new Detalleprecio();
                                 detallePrecioPK = new DetalleprecioPK();
                                 objDetalle.setIvaPresuntivo(dpcg5F);
-                                System.out.println("FT::Calculando PROCENTAJE DE IVA PRESUNTIVO- VALOR DEFINITIVO - "+dpcg5F.toString());
+                                System.out.println("FT::Calculando PROCENTAJE DE IVA PRESUNTIVO- VALOR DEFINITIVO - " + dpcg5F.toString());
 
-                                
                             }
                             break;
                         //Tres X Mil

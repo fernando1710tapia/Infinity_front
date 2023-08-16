@@ -304,16 +304,16 @@
                             <span class="ui-inputgroup-addon">
                                 <i class="fa fa-money"></i>
                             </span>
-                            <p:selectOneMenu id="comercializadora" value="#{clienteGarantiaBean.codComer}" title="Comercializadora"
+                            <p:selectOneMenu id="comercializadora" value="{clienteGarantiaBean.codComer}" title="Comercializadora"
                                              panelStyle="width:175px" style="min-width: 80%;" 
                                              autoWidth="false" 
                                              filter="true" filterMatchMode="startsWith"
                                              >                                            
-                                <f:selectItems value="#{clienteGarantiaBean.listaComercializadora}"
+                                <f:selectItems value="{clienteGarantiaBean.listaComercializadora}"
                                                var="comer"
-                                               itemLabel="#{comer.objRelacionado}"
-                                               itemValue="#{comer.codigo}" />  
-                                <p:ajax event="change" listener="#{clienteGarantiaBean.seleccionarComercializadora(1)}"
+                                               itemLabel="{comer.objRelacionado}"
+                                               itemValue="{comer.codigo}" />  
+                                <p:ajax event="change" listener="{clienteGarantiaBean.seleccionarComer}"
                                         update="cliente" />
                             </p:selectOneMenu>
                         </div>                            
@@ -323,16 +323,16 @@
                             <span class="ui-inputgroup-addon">
                                 <i class="fa fa-money"></i>
                             </span>
-                            <p:selectOneMenu id="cliente" value="#{clienteGarantiaBean.codCliente}" title="Cliente"
+                            <p:selectOneMenu id="cliente" value="{clienteGarantiaBean.codCliente}" title="Cliente"
                                              panelStyle="width:175px" style="min-width: 80%;" 
                                              autoWidth="false" 
                                              filter="true" filterMatchMode="startsWith"
                                              >
-                                <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
-                                <f:selectItems value="#{clienteGarantiaBean.listaClientes}"
+                                <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="{null}"/>
+                                <f:selectItems value="{clienteGarantiaBean.listaClientes}"
                                                var="cli"
-                                               itemLabel="#{cli.codigo} - #{cli.nombre}"
-                                               itemValue="#{cli.codigo}" />                                            
+                                               itemLabel="{cli.codigo} - {cli.nombre}"
+                                               itemValue="{cli.codigo}" />                                            
                             </p:selectOneMenu>
                         </div>                                                
                     </div>-->

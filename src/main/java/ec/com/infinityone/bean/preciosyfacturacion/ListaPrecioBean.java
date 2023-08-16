@@ -9,6 +9,7 @@ import ec.com.infinityone.bean.actorcomercial.ComercializadoraBean;
 import ec.com.infinityone.serivicio.actorcomercial.ClienteServicio;
 import ec.com.infinityone.serivicio.actorcomercial.ComercializadoraServicio;
 import ec.com.infinityone.bean.TerminalBean;
+import ec.com.infinityone.bean.enums.ListaPreciosEnum;
 import ec.com.infinityone.servicio.catalogo.MedidaServicio;
 import ec.com.infinityone.servicio.catalogo.ProductoServicio;
 import ec.com.infinityone.configuration.Fichero;
@@ -1037,7 +1038,7 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
         detallePK.put("codigoproducto", listaProductosComer.get(indice).getComercializadoraproductoPK().getCodigoproducto());
         detallePK.put("codigomedida", listaProductosComer.get(indice).getComercializadoraproductoPK().getCodigomedida());
         detalle.put("listaprecioterminalproductoPK", detallePK);
-        if (tipoT.equals("MPO - Margen sobre el precio en terminal")) {
+        if (tipoT.equals(ListaPreciosEnum.MPO.getCodigo()) || tipoT.equals((ListaPreciosEnum.MTI.getCodigo()))) {        
             if (listaListapreciobean.get(indice).getMargenValor() != null) {
                 detalle.put("margenporcentaje", listaListapreciobean.get(indice).getMargenValor());
                 detalle.put("margenvalorcomercializadora", -99);
@@ -1190,8 +1191,8 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
             objPk.put("codigoterminal", terminal.getCodigo());
             objPk.put("codigoproducto", listaProductosComer.get(indice).getComercializadoraproductoPK().getCodigoproducto());
             objPk.put("codigomedida", listaProductosComer.get(indice).getComercializadoraproductoPK().getCodigomedida());
-            obj.put("listaprecioterminalproductoPK", objPk);
-            if (tipoT.equals("MPO - Margen sobre el precio en terminal")) {
+            obj.put("listaprecioterminalproductoPK", objPk);            
+            if (tipoT.equals(ListaPreciosEnum.MPO.getCodigo()) || tipoT.equals((ListaPreciosEnum.MTI.getCodigo()))) {
                 if (listaListapreciobean.get(indice).getMargenValor() != null) {
                     obj.put("margenporcentaje", listaListapreciobean.get(indice).getMargenValor());
                     obj.put("margenvalorcomercializadora", -99);
@@ -1259,8 +1260,7 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
             int value = 0;
             String margenporcentaje = "";
             String margenvalorcomercializadora = "";
-
-            if (tipoT.equals("MPO - Margen sobre el precio en terminal")) {
+            if (tipoT.equals(ListaPreciosEnum.MPO.getCodigo()) || tipoT.equals((ListaPreciosEnum.MTI.getCodigo()))) {            
                 if (listaListapreciobean.get(indice).getMargenValor() != null) {
                     margenporcentaje = listaListapreciobean.get(indice).getMargenValor().toString();
                     margenvalorcomercializadora = "-99";
@@ -1435,9 +1435,13 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
             codigoListaPrecioT = listaprecio1.getListaprecioPK().getCodigo();
             listaPrecioT = listaprecio1.getNombre();
             if (listaprecio1.getTipo().equals("MPO")) {
-                tipoT = "MPO - Margen sobre el precio en terminal";
-            } else {
-                tipoT = "MCO - Margen sobre el margen de comercializacion";
+                tipoT = ListaPreciosEnum.MPO.getCodigo();
+            } 
+            if (listaprecio1.getTipo().equals("MTI")) {
+                tipoT = ListaPreciosEnum.MTI.getCodigo();
+            }
+            if (listaprecio1.getTipo().equals("MCO")) {
+                tipoT = ListaPreciosEnum.MCO.getCodigo();
             }
         }
         return listaprecio1;

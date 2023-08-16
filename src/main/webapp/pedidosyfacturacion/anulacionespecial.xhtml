@@ -13,7 +13,8 @@
 
     <ui:define name="content">
         <h:form id="form">
-            <p:outputPanel id="manage-product-content1">                
+            <p:outputPanel id="manage-product-content1">    
+                <p:growl id="messages" showDetail="true" />
             </p:outputPanel>
         </h:form>       
 
@@ -22,66 +23,85 @@
                 <p:outputPanel rendered = "true">                               
                     <div class="ui-fluid p-formgrid p-grid">
                         <div class="p-field p-col-12 p-md-12"></div>
-                        <div class="p-field p-col-12 p-md-9">
+                        <div class="p-field p-col-12 p-md-3">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon">
+                                    <i class="pi pi-desktop"></i>
+                                </span>
+                                <p:selectOneMenu id="comercializadora" value="#{anulacionEspecialBean.comercializadora}" title="Comercializadora"
+                                                 panelStyle="width:175px" style="min-width: 80%;" 
+                                                 autoWidth="false" converter="converterg" 
+                                                 disabled="#{!anulacionEspecialBean.habilitarComer}">
+                                    <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+                                    <f:selectItems value="#{anulacionEspecialBean.listaComercializadora}"
+                                                   var="comer"
+                                                   itemLabel="#{comer.objRelacionado}"
+                                                   itemValue="#{comer}" />
+                                    <p:ajax event="change" listener="#{anulacionEspecialBean.seleccionarComer(1)}"/>
+                                </p:selectOneMenu> 
+                            </div>
+                        </div>
+                        <div class="p-field p-col-12 p-md-6">
                             <span class="ui-float-label">
-                                <p:inputText id="num" value="#{bancoBean.objeto.codigo}" >
-                                    <p:keyFilter mask="num" />
+                                <p:inputText id="num" value="#{anulacionEspecialBean.numFactura}" >                                    
                                 </p:inputText> 
                                 <p:outputLabel for="num">Número Factura:</p:outputLabel>
                             </span>
                         </div>
                         <div class="p-field p-col-12 p-md-3">
-                            <p:commandButton id="save" value="Buscar" icon="pi pi-search-plus" actionListener="#{anulacionEspecialBean.obtenerFacturas()}" update="form"/>
+                            <p:commandButton id="save" value="Buscar" icon="pi pi-search-plus" actionListener="#{anulacionEspecialBean.obtenerFacturas()}" update=":form formEditarDesp"/>
                         </div>
                         <div class="p-field p-col-12 p-md-6">                            
-                            <p:outputLabel id="numNoPedDes">N. Nota de Pedido: #{anulacionEspecialBean.envF.factura.facturaPK.numeronotapedido}</p:outputLabel>                                                            
+                            <p:outputLabel id="numNoPedDes">N. Nota de Pedido: #{anulacionEspecialBean.fact.facturaPK.numeronotapedido}</p:outputLabel>                                                            
                         </div>
                         <div class="p-field p-col-12 p-md-6">                                                         
-                            <p:outputLabel id="numFacDes">N. Factura: #{anulacionEspecialBean.envF.factura.facturaPK.numero}</p:outputLabel>                            
+                            <p:outputLabel id="numFacDes">N. Factura: #{anulacionEspecialBean.fact.facturaPK.numero}</p:outputLabel>                            
                         </div>                        
                         <div class="p-field p-col-12 p-md-6">                                                           
-                            <p:outputLabel id="codigoClienDes">Código Cliente: #{anulacionEspecialBean.envF.factura.codigocliente}</p:outputLabel>                            
+                            <p:outputLabel id="codigoClienDes">Código Cliente: #{anulacionEspecialBean.fact.codigocliente}</p:outputLabel>                            
                         </div>
                         <div class="p-field p-col-12 p-md-6">                                                        
-                            <p:outputLabel id="nomClienDes">Nombre Cliente: #{anulacionEspecialBean.envF.factura.nombrecliente}</p:outputLabel>                            
+                            <p:outputLabel id="nomClienDes">Nombre Cliente: #{anulacionEspecialBean.fact.nombrecliente}</p:outputLabel>                            
                         </div>                        
                         <div class="p-field p-col-12 p-md-6">
                             <p:outputLabel id="bancoDes">Banco: #{anulacionEspecialBean.banco.codigo} - #{anulacionEspecialBean.banco.nombre}</p:outputLabel>                                                        
                         </div>                         
                         <div class="p-field p-col-12 p-md-6">                                                         
-                            <p:outputLabel id="terDespDes">Terminal Despacho: #{anulacionEspecialBean.envF.factura.codigoterminal}</p:outputLabel>                           
+                            <p:outputLabel id="terDespDes">Terminal Despacho: #{anulacionEspecialBean.fact.codigoterminal}</p:outputLabel>                           
                         </div>                        
                         <div class="p-field p-col-12 p-md-6">  
-                            <p:outputLabel id="fechaVentDes">Fecha Venta: #{anulacionEspecialBean.envF.factura.fechaventa}</p:outputLabel>
+                            <p:outputLabel id="fechaVentDes">Fecha Venta: #{anulacionEspecialBean.fact.fechaventa}</p:outputLabel>
                         </div>
                         <div class="p-field p-col-12 p-md-6">  
-                            <p:outputLabel id="fechaVenDes">Fecha Vencimiento: #{anulacionEspecialBean.envF.factura.fechavencimiento}</p:outputLabel>                            
+                            <p:outputLabel id="fechaVenDes">Fecha Vencimiento: #{anulacionEspecialBean.fact.fechavencimiento}</p:outputLabel>                            
                         </div>                        
                         <div class="p-field p-col-12 p-md-4">                                                    
-                            <p:outputLabel id="valSimpDes">Valor sin Impuestos: #{anulacionEspecialBean.envF.factura.valorsinimpuestos}</p:outputLabel>                            
+                            <p:outputLabel id="valSimpDes">Valor sin Impuestos: #{anulacionEspecialBean.fact.valorsinimpuestos}</p:outputLabel>                            
                         </div>
                         <div class="p-field p-col-12 p-md-4">                                                  
-                            <p:outputLabel id="valTotDes">Valor Total: #{anulacionEspecialBean.envF.factura.valortotal}</p:outputLabel>                            
+                            <p:outputLabel id="valTotDes">Valor Total: #{anulacionEspecialBean.fact.valortotal}</p:outputLabel>                            
                         </div>
                         <div class="p-field p-col-12 p-md-4">                                                        
-                            <p:outputLabel id="valRubDes">Valor con Rubro: #{anulacionEspecialBean.envF.factura.valorconrubro}</p:outputLabel>                            
+                            <p:outputLabel id="valRubDes">Valor con Rubro: #{anulacionEspecialBean.fact.valorconrubro}</p:outputLabel>                            
                         </div>   
                         <div class="p-field p-col-12 p-md-6">  
-                            <p:outputLabel id="fechaAut">Fecha Autorización SRI: #{anulacionEspecialBean.envF.factura.fechavencimiento}</p:outputLabel>                            
+                            <p:outputLabel id="fechaAut">Fecha Autorización SRI: #{anulacionEspecialBean.fact.fechaautorizacion}</p:outputLabel>                            
                         </div>   
                         <div class="p-field p-col-12 p-md-6"></div>  
                         <div class="p-field p-col-12 p-md-6">    
                             <p:outputLabel for="anulacion">Permite anulación SRI</p:outputLabel>
                             <div class="ui-inputgroup">
-                                <p:toggleSwitch id="anulacion" value="#{anulacionEspecialBean.envF.factura.despachada}"> </p:toggleSwitch>
+                                <p:toggleSwitch id="anulacion" onchange="" value="#{anulacionEspecialBean.permiteAnulacion}">
+                                    <p:ajax update=":form formEditarDesp" />
+                                </p:toggleSwitch>
                             </div>                            
                         </div>                                                                    
                     </div>                                                                                           
                 </p:outputPanel>
                 <div class="p-grid p-justify-end">
-                    <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{anulacionEspecialBean.editarPagoFactura}" 
+                    <p:commandButton value="Guardar" icon="pi pi-check" disabled="#{!anulacionEspecialBean.permiteAnulacion}" actionListener="#{anulacionEspecialBean.editarSriFactura}" 
                                      update=":form formEditarDesp" styleClass="p-mr-2"/>
-                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('editarDes').hide()" class="ui-button-secondary" actionListener="#{anulacionEspecialBean.obtenerFacturas}" />
+                    <p:commandButton value="Cancelar" icon="pi pi-times" class="ui-button-secondary" actionListener="#{anulacionEspecialBean.returDash}" />
                 </div>
             </h:form>
         </p:dialog>

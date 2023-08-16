@@ -14,10 +14,11 @@ import ec.com.infinityone.modelo.Banco;
 import ec.com.infinityone.modelo.Cliente;
 import ec.com.infinityone.modelo.Clientegarantia;
 import ec.com.infinityone.modelo.ClientegarantiaPK;
+import ec.com.infinityone.modelo.EnvioFactura;
 import ec.com.infinityone.modelo.Totalgarantizado;
 import ec.com.infinityone.modelo.TotalgarantizadoPK;
-import ec.com.infinityone.modelo.Usuario;
 import ec.com.infinityone.reusable.ReusableBean;
+import ec.com.infinityone.servicio.pedidosyfacturacion.FacturaServicio;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -29,6 +30,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -63,6 +65,8 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
     private ClienteServicio clienteServicio;
     @Inject
     private BancoServicio bancoServicio;
+    @Inject
+    private FacturaServicio facturaServicio;
 
     private List<Clientegarantia> listaClientegarantia;
 
@@ -91,6 +95,8 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
     private String codCliente;
 
     private String codComer;
+
+    private String codAbas;
 
     private BigDecimal totalGaran;
 
@@ -124,6 +130,8 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
      */
     private boolean controlaGarantia;
 
+    private NumberFormat formatoNumero;
+
     /**
      * Constructor por defecto
      */
@@ -135,7 +143,6 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
      * Funcion para inicializar variables
      */
     public void init() {
-        //direccion = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.clientegarantia";
         direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.clientegarantia";
         listaClientegarantia = new ArrayList<>();
         listaTotalgarantizado = new ArrayList<>();
@@ -149,9 +156,10 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
         obtenerBanco();
         fechaInicioVigencia = new Date();
         fechaFinVigencia = new Date();
-        //listaClientes = clienteServicio.obtenerClientesPorComercializadora(listaComercializadora.get(0).getCodigo());
         controlaGarantia = true;
-        x = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
+        formatoNumero = NumberFormat.getNumberInstance();
+        totalDeuda = new BigDecimal(0);
+        totalDeudaS = formatoNumero.format(totalDeuda);
     }
 
     public void obtenerClientes() {
@@ -161,7 +169,34 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
 
     public void obtenerComercializadora() {
         listaComercializadora = new ArrayList<>();
-        listaComercializadora = this.comercializadoraServicio.obtenerComercializadorasActivas();
+        listaComercializadora = comercializadoraServicio.obtenerComercializadoras();
+        if (!listaComercializadora.isEmpty()) {
+            habilitarBusqueda();
+        }
+    }
+
+    public void habilitarBusqueda() {
+        if (dataUser.getUser() != null) {
+            if (dataUser.getUser().getNiveloperacion().equals("cero")) {
+                habilitarComer = true;
+            }
+            if (dataUser.getUser().getNiveloperacion().equals("adco")) {
+                habilitarComer = false;
+                for (int i = 0; i < listaComercializadora.size(); i++) {
+                    if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
+                        this.comercializadora = listaComercializadora.get(i);
+                    }
+                }
+            }
+            if (dataUser.getUser().getNiveloperacion().equals("usac")) {
+                habilitarComer = false;
+                for (int i = 0; i < listaComercializadora.size(); i++) {
+                    if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
+                        this.comercializadora = listaComercializadora.get(i);
+                    }
+                }
+            }
+        }
     }
 
     public void obtenerBanco() {
@@ -178,26 +213,42 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
         }
     }
 
-    public void seleccionarComercializadora(int tipo) {
-        Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
-        if (tipo == 1) {
-            codComer = params.get("form:comercializadora_input");
-        } else {
-            codComer = params.get("formNuevo:comercilaizadora1_input");
+    public void seleccionarComer() {
+        if (comercializadora != null) {
+            codComer = comercializadora.getCodigo();
+            codAbas = comercializadora.getAbastecedora();
+            listaClientes = new ArrayList<>();
+            listaClientes = new ArrayList<>();
+            listaClientes = clienteServicio.obtenerClientesActivosPorComercializadora(codComer);
         }
-        listaClientes = new ArrayList<>();
-        listaClientes = clienteServicio.obtenerClientesActivosPorComercializadora(codComer);
     }
 
-    public void seleccionarCliente() {
+    public void seleccionarCliente() throws ParseException {
         if (cliente != null) {
             if (cliente.getControlagarantia() == false) {
                 controlaGarantia = false;
+                totalDeuda = new BigDecimal(0);
+                totalDeudaS = formatoNumero.format(totalDeuda);
                 this.dialogo(FacesMessage.SEVERITY_WARN, "El cliente seleccionado no tiene activada la opción para el CONTROL DE GARANTÍA");
             } else {
                 controlaGarantia = true;
+                totalDeudaS = deudaTotal();
             }
         }
+    }
+
+    public String deudaTotal() throws ParseException {
+        DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
+        String fechaBus = date.format(new Date());
+        totalDeuda = new BigDecimal(0);
+        List<EnvioFactura> fact = facturaServicio.obtenerFacturasObjEnv(codAbas, codComer, true, false, cliente.getRuc(), fechaBus);
+        if (!fact.isEmpty()) {
+            for (int i = 0; i < fact.size(); i++) {
+                totalDeuda = fact.get(i).getFactura().getValorconrubro().add(totalDeuda);
+            }
+        }
+        totalDeudaS = formatoNumero.format(totalDeuda);
+        return totalDeudaS;
     }
 
     public void save() throws Exception {
@@ -215,7 +266,7 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
     }
 
     public void addItems() {
-        try {            
+        try {
             DateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
             String fechaIni = date.format(fechaInicioVigencia);
             String fechaFin = date.format(clientegarantia.getFechafinvigencia());
@@ -242,7 +293,7 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
             obj.put("fechafinvigencia", fechaFin);
             obj.put("valor", clientegarantia.getValor());
             obj.put("observacion", clientegarantia.getObservacion());
-            obj.put("usuarioactual", x.getNombrever());
+            obj.put("usuarioactual", dataUser.getUser().getNombrever());
             respuesta = obj.toString();
             writer.write(respuesta);
             writer.close();
@@ -263,7 +314,7 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
 
     public void editItems() {
         try {
-            DateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");            
+            DateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
             String fechaIni = date.format(clientegarantia.getFechainiciovigencia());
             String fechaFin = date.format(clientegarantia.getFechafinvigencia());
             String respuesta;
@@ -287,7 +338,7 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
             obj.put("fechafinvigencia", fechaFin);
             obj.put("valor", clientegarantia.getValor());
             obj.put("observacion", clientegarantia.getObservacion());
-            obj.put("usuarioactual", x.getNombrever());
+            obj.put("usuarioactual", dataUser.getUser().getNombrever());
             respuesta = obj.toString();
             writer.write(respuesta);
             writer.close();
@@ -328,21 +379,19 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
             objPK.put("secuencial", clientegarantiaPK.getSecuencial());
             obj.put("clientegaratiaPK", objPK);
             obj.put("activo", estadoClienteGarantia);
-            obj.put("usuarioactual", x.getNombrever());
+            obj.put("usuarioactual", dataUser.getUser().getNombrever());
             respuesta = obj.toString();
             writer.write(respuesta);
             writer.close();
-
             if (connection.getResponseCode() == 200) {
                 PrimeFaces.current().executeScript("PF('nuevo').hide()");
                 this.dialogo(FacesMessage.SEVERITY_INFO, "CLIENTE ELIMINADO EXITOSAMENTE");
                 actualizarLista();
             } else {
+                System.out.println(connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ELIMINAR");
             }
-
-            System.out.println(connection.getResponseCode());
-            System.out.println(connection.getResponseMessage());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -356,7 +405,7 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
         PrimeFaces.current().executeScript("PF('nuevo').show()");
     }
 
-    public Clientegarantia editarClientegarantia(Clientegarantia obj) {
+    public Clientegarantia editarClientegarantia(Clientegarantia obj) throws ParseException {
         editarCliente = true;
         clientegarantia = obj;
         estadoClienteGarantia = clientegarantia.getActivo();
@@ -375,6 +424,7 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
                 this.banco = listaBancos.get(i);
             }
         }
+        totalDeudaS = deudaTotal();
         PrimeFaces.current().executeScript("PF('nuevo').show()");
         return clientegarantia;
     }
@@ -385,7 +435,6 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
         codComer = params.get("form:comercializadora_input");
         if (!codComer.isEmpty() && !codCliente.isEmpty()) {
             obtenerGarantias(codComer, codCliente);
-            NumberFormat formatoNumero = NumberFormat.getNumberInstance();
             DateTimeFormatter formatoFecha = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
             totalGaran = this.listaTotalgarantizado.get(0).getTotalgarantizado().setScale(2, RoundingMode.HALF_DOWN);
@@ -405,8 +454,6 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
     }
 
     public int porcentajeValores(BigDecimal valor) {
-//        System.out.println("FT:: porcentajeValores- "+valor.toString());
-
         if (!this.listaTotalgarantizado.isEmpty()) {
             System.out.println("FT:: ENTRA EN EL PRIMER IF porcentajeValores- " + valor.toString());
             if (valor.intValue() == 0) {
@@ -692,6 +739,14 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
 
     public void setControlaGarantia(boolean controlaGarantia) {
         this.controlaGarantia = controlaGarantia;
+    }
+
+    public ComercializadoraBean getComercializadora() {
+        return comercializadora;
+    }
+
+    public void setComercializadora(ComercializadoraBean comercializadora) {
+        this.comercializadora = comercializadora;
     }
 
 }
