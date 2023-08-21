@@ -95,7 +95,7 @@ import org.primefaces.shaded.json.JSONObject;
 @Named
 @ViewScoped
 public class FacturacionBean extends ReusableBean implements Serializable {
-    
+
     protected static final Logger LOG = Logger.getLogger(FacturacionBean.class.getName());
 
     /*
@@ -409,7 +409,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
     Lista Bancos
      */
     private List<Banco> listaBancos;
-    
+
     protected Date fechaActual;
 
     /**
@@ -417,7 +417,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
      */
     public FacturacionBean() {
     }
-    
+
     @PostConstruct
     /**
      * Funcion para inicializar variables
@@ -434,7 +434,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         fechaProrroga();
         //obtenerClientes();
     }
-    
+
     public void nuevaFactura() {
         reestablecer();
         if (habilitarComer) {
@@ -451,11 +451,11 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             cliente = new Cliente();
         }
         habilitarBusqueda(2);
-        
+
         mostarFactura = true;
         mostarPantallaInicial = false;
     }
-    
+
     public void buscarFacturaCliente() {
         reestablecer();
         if (habilitarComer) {
@@ -468,13 +468,13 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         mostarPantallaInicial = false;
         buscarFacturaXCliente = true;
     }
-    
+
     public void regresar() {
         mostarFactura = false;
         mostarPantallaInicial = true;
         buscarFacturaXCliente = false;
     }
-    
+
     public void reestablecer() {
         numFactura = "";
         codComer = "";
@@ -528,19 +528,19 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo";
         process = false;
     }
-    
+
     private void fechaProrroga() {
         Calendar c = Calendar.getInstance();
         c.setTime(new Date());
         c.add(Calendar.DATE, 1);
         fechaActual = c.getTime();
     }
-    
+
     private void obtenerBancos() {
         listaBancos = new ArrayList<>();
         listaBancos = bancoServicio.obtenerBanco();
     }
-    
+
     public void obtenerComercializadora() {
         listaComercializadora = new ArrayList<>();
         listaComercializadora = comerServicio.obtenerComercializadorasActivas();
@@ -548,22 +548,22 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             habilitarBusqueda(1);
         }
     }
-    
+
     public void obtenerTerminales() {
         listaTermianles = new ArrayList<>();
         listaTermianles = termServicio.obtenerTerminal();
     }
-    
+
     public void obtenerClientes() {
         listaClientes = new ArrayList<>();
         listaClientes = clienteServicio.obtenerClientes();
     }
-    
+
     public void obtenerFormapago() {
         listaFormapagos = new ArrayList<>();
         listaFormapagos = this.formapagoServicio.obtenerFormapago();
     }
-    
+
     public void seleccionarComer(int busqueda) {
         if (comercializadora != null) {
             codComer = comercializadora.getCodigo();
@@ -574,10 +574,10 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             } else {
                 listaClientes = clienteServicio.obtenerClientesPorComercializadoraActiva(codComer);
             }
-            
+
         }
     }
-    
+
     public void seleccionarComercializadora() {
         if (comercializadora != null) {
             if (comercializadora.getActivo().equals("S")) {
@@ -595,7 +595,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             }
         }
     }
-    
+
     public void seleccionarTerminal(int busqueda) {
         if (terminal != null) {
             fact.setCodigoterminal(terminal.getCodigo());
@@ -623,7 +623,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             }
         }
     }
-    
+
     public void seleccionarCliente(int busqueda) {
         if (cliente != null) {
             codCliente = cliente.getCodigo();
@@ -704,7 +704,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     }
                     seleccionarTerminal(busqueda);
                     break;
-                
+
                 case "agco":
                     habilitarComer = false;
                     habilitarCli = true;
@@ -729,7 +729,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             }
         }
     }
-    
+
     public void obtenerFacturas() throws ParseException {
         try {
             DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
@@ -740,10 +740,10 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
             String dateI = sdf.format(fechaI);
             String dateF = sdf.format(fechaf);
-            
+
             Date firstDate = sdf.parse(dateI);
             Date secondDate = sdf.parse(dateF);
-            
+
             long diff = secondDate.getTime() - firstDate.getTime();
             TimeUnit time = TimeUnit.DAYS;
             long diffrence = time.convert(diff, TimeUnit.MILLISECONDS);
@@ -764,13 +764,13 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                 connection.setDoInput(true);
                 connection.setRequestMethod("GET");
                 connection.setRequestProperty("Accept", "application/json");
-                
+
                 listenvF = new ArrayList<>();
                 listFact = new ArrayList();
                 listDet = new ArrayList<>();
                 EnvioFactura envFac = new EnvioFactura();
                 InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-                
+
                 BufferedReader br = new BufferedReader(reader);
                 String tmp = null;
                 String respuesta = "";
@@ -786,13 +786,13 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         if (!retorno.isNull(indice)) {
                             JSONObject fa = retorno.getJSONObject(indice);
                             JSONObject faPK = fa.getJSONObject("facturaPK");
-                            
+
                             factPk.setCodigoabastecedora(faPK.getString("codigoabastecedora"));
                             factPk.setCodigocomercializadora(faPK.getString("codigocomercializadora"));
                             factPk.setNumeronotapedido(faPK.getString("numeronotapedido"));
                             factPk.setNumero(faPK.getString("numero"));
                             fact.setFacturaPK(factPk);
-                            
+
                             if (!fa.isNull("fechaacreditacionprorrogada")) {
                                 Long lDatePro = fa.getLong("fechaacreditacionprorrogada");
                                 Date datePro = new Date(lDatePro);
@@ -961,7 +961,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             e.printStackTrace();
         }
     }
-    
+
     public void obtenerFacturasProrrogas() throws ParseException {
         try {
             DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
@@ -970,20 +970,20 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura";
             //https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura/paraCobrarxformapago?codigocomercializadora=0002&tipofecha=2&oeenpetro=true&activa=true&pagada=false&clienteformapago=03&fecha=2022/05/21&codigoterminal=02&codigocliente=02010995
             String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura";
-            
+
             url = new URL(direcc + "/paraCobrarxformapago?codigocomercializadora=" + this.codComer + "&tipofecha=" + tipoFecha + "&oeenpetro=true&activa=true&pagada=false&clienteformapago=03&fecha=" + fechaS + "&codigoterminal=" + this.codTerminal + "&codigocliente=" + this.codCliente);
-            
+
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
-            
+
             listenvF = new ArrayList<>();
             listFact = new ArrayList();
             listDet = new ArrayList<>();
             EnvioFactura envFac = new EnvioFactura();
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-            
+
             BufferedReader br = new BufferedReader(reader);
             String tmp = null;
             String respuesta = "";
@@ -997,13 +997,13 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     if (!retorno.isNull(indice)) {
                         JSONObject fa = retorno.getJSONObject(indice);
                         JSONObject faPK = fa.getJSONObject("facturaPK");
-                        
+
                         factPk.setCodigoabastecedora(faPK.getString("codigoabastecedora"));
                         factPk.setCodigocomercializadora(faPK.getString("codigocomercializadora"));
                         factPk.setNumeronotapedido(faPK.getString("numeronotapedido"));
                         factPk.setNumero(faPK.getString("numero"));
                         fact.setFacturaPK(factPk);
-                        
+
                         if (!fa.isNull("fechaacreditacionprorrogada")) {
                             Long lDatePro = fa.getLong("fechaacreditacionprorrogada");
                             Date datePro = new Date(lDatePro);
@@ -1168,12 +1168,12 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                 System.out.println(connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
             }
-            
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    
+
     public void obtenerFacturasProrrogas2() throws ParseException {
         try {
             DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
@@ -1182,17 +1182,17 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura";
             //https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura/paraCobrarxformapago?codigocomercializadora=0002&tipofecha=2&oeenpetro=true&activa=true&pagada=false&clienteformapago=03&fecha=2022/05/21&codigoterminal=02&codigocliente=02010995
             String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura";
-            
+
             url = new URL(direcc + "/paraCobrarxformapago?codigocomercializadora=" + this.codComer + "&tipofecha=" + tipoFecha + "&oeenpetro=true&activa=true&pagada=false&clienteformapago=01&fecha=" + fechaS + "&codigoterminal=" + this.codTerminal + "&codigocliente=" + this.codCliente);
-            
+
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
-            
+
             EnvioFactura envFac = new EnvioFactura();
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-            
+
             BufferedReader br = new BufferedReader(reader);
             String tmp = null;
             String respuesta = "";
@@ -1206,13 +1206,13 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     if (!retorno.isNull(indice)) {
                         JSONObject fa = retorno.getJSONObject(indice);
                         JSONObject faPK = fa.getJSONObject("facturaPK");
-                        
+
                         factPk.setCodigoabastecedora(faPK.getString("codigoabastecedora"));
                         factPk.setCodigocomercializadora(faPK.getString("codigocomercializadora"));
                         factPk.setNumeronotapedido(faPK.getString("numeronotapedido"));
                         factPk.setNumero(faPK.getString("numero"));
                         fact.setFacturaPK(factPk);
-                        
+
                         if (!fa.isNull("fechaacreditacionprorrogada")) {
                             Long lDatePro = fa.getLong("fechaacreditacionprorrogada");
                             Date datePro = new Date(lDatePro);
@@ -1380,7 +1380,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             e.printStackTrace();
         }
     }
-    
+
     public void obtenerNotaPedidos() throws ParseException {
         try {
             System.out.println("FT:: ENTRA A obtenerNotaPedidos::");
@@ -1403,13 +1403,13 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
-            
+
             listenvNP = new ArrayList<>();
             listDetNP = new ArrayList<>();
             Cliente clienteNP = new Cliente();
             EnvioPedido envioPedido = new EnvioPedido();
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-            
+
             BufferedReader br = new BufferedReader(reader);
             String tmp = null;
             String respuesta = "";
@@ -1491,7 +1491,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         np.setCodigobanco(banco);
                         np.setComercializadora(comerc);
                         np.setAbastecedora(abas);
-                        
+
                         np.setNumerofacturasri(nt.getString("numerofacturasri"));
                         npPK.setNumero(ntPK.getString("numero"));
                         npPK.setCodigoabastecedora(ntPK.getString("codigoabastecedora"));
@@ -1500,13 +1500,14 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         np.setFechadespacho(fechaDescpacho);
                         np.setAdelantar(true);
                         np.setActiva(nt.getBoolean("activa"));
+                        np.setObservacion(nt.getString("observacion"));
                         try {
                             np.setPrefijo(nt.getString("prefijo"));
                             //System.out.println("NOTA DE PEDIDO OK: " + npPK.getNumero());
                         } catch (Throwable e) {
                             System.out.println("ERROR PREFIJO" + e.getMessage() + npPK.getNumero().getClass());
                         }
-                        
+
                         np.setNotapedidoPK(npPK);
                         envioPedido.setNotapedido(np);
                         JSONArray detalleNP = nt.getJSONArray("detallesNP");
@@ -1517,19 +1518,19 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                             JSONObject prod = det.getJSONObject("producto");
                             detNP.setVolumennaturalautorizado(det.getBigDecimal("volumennaturalautorizado"));
                             detNP.setVolumennaturalrequerido(det.getBigDecimal("volumennaturalrequerido"));
-                            
+
                             medida.setCodigo(med.getString("codigo"));
                             medida.setNombre(med.getString("nombre"));
                             detNP.setMedida(medida);
-                            
+
                             producto.setCodigo(prod.getString("codigo"));
                             producto.setNombre(prod.getString("nombre"));
                             detNP.setProducto(producto);
-                            
+
                             detNPK.setCodigoproducto(detnPK.getString("codigoproducto"));
                             detNPK.setCodigomedida(detnPK.getString("codigomedida"));
                             detNP.setDetallenotapedidoPK(detNPK);
-                            
+
                             listDetNP.add(detNP);
                             envioPedido.setDetalle(detNP);
                             detNP = new Detallenotapedido();
@@ -1552,7 +1553,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     }
                 }
             }
-            
+
             if (connection.getResponseCode() != 200) {
                 System.out.println(connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
@@ -1560,13 +1561,13 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             } else {
                 soloporProcesar = false;
             }
-            
+
         } catch (IOException e) {
             System.out.println("FT:: ERROR EN obtenerNotaPedidos " + e.getMessage());
             e.printStackTrace();
         }
     }
-    
+
     public void save() throws ParseException {
         //DAVID AYALA VERIFICAR LISTA DE PRODUCTOS Y MANEJAR VECTOR
 
@@ -1593,7 +1594,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
 //        }
 
         if (comercializadora.getActivo().equals("S")) {
-            
+
             Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
             for (int i = 0; i < listenvNP.size(); i++) {
                 boolean bandera = false;
@@ -1617,9 +1618,9 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         } else {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "LA COMERCIALIZADORA SE ENCUENTRA INACTIVA");
         }
-        
+
     }
-    
+
     public void obtenerDetalleNotaPedidoF(EnvioPedido envP, String num) throws ParseException {
         try {
             DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
@@ -1635,14 +1636,14 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
-            
+
             detNP = new Detallenotapedido();
             detNPK = new DetallenotapedidoPK();
             medida = new Medida();
             producto = new Producto();
-            
+
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-            
+
             BufferedReader br = new BufferedReader(reader);
             String tmp = null;
             String respuesta = "";
@@ -1660,22 +1661,22 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         JSONObject detPk = det.getJSONObject("detallenotapedidoPK");
                         JSONObject med = det.getJSONObject("medida");
                         JSONObject prod = det.getJSONObject("producto");
-                        
+
                         medida.setAbreviacion(med.getString("abreviacion"));
                         medida.setActivo(med.getBoolean("activo"));
                         medida.setCodigo(med.getString("codigo"));
                         medida.setNombre(med.getString("nombre"));
                         medida.setUsuarioactual(dataUser.getUser().getNombrever());
-                        
+
                         producto.setCodigo(prod.getString("codigo"));
                         producto.setNombre(prod.getString("nombre"));
-                        
+
                         detNPK.setCodigoabastecedora(detPk.getString("codigoabastecedora"));
                         detNPK.setCodigocomercializadora(detPk.getString("codigocomercializadora"));
                         detNPK.setCodigomedida(detPk.getString("codigomedida"));
                         detNPK.setCodigoproducto(detPk.getString("codigoproducto"));
                         detNPK.setNumero(detPk.getString("numero"));
-                        
+
                         detNP.setDetallenotapedidoPK(detNPK);
                         detNP.setMedida(medida);
                         detNP.setProducto(producto);
@@ -1695,7 +1696,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             e.printStackTrace();
         }
     }
-    
+
     public void actualizarVolumenFactura(Detallenotapedido detNP, EnvioPedido envP, String num) throws ParseException {
         try {
             String respuesta = "";
@@ -1703,12 +1704,12 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.notapedido/porId";
             String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.detallenotapedido/porId";
             url = new URL(direcc);
-            
+
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
             connection.setRequestMethod("PUT");
             connection.setRequestProperty("Content-type", "application/json");
-            
+
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             ObjectMapper mapper = new ObjectMapper();
             String jsonStr = mapper.writeValueAsString(detNP);
@@ -1716,19 +1717,19 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             out.write(jsonStr.getBytes());
             out.flush();
             out.close();
-            
+
             if (connection.getResponseCode() >= 200 || connection.getResponseCode() <= 200) {
                 generarFacturaParametros(envP, num);
             } else {
                 System.out.println(connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
             }
-            
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    
+
     public void soloPorProcesar() {
         try {
             listenvNPAuxilia = new ArrayList<>();
@@ -1751,7 +1752,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             Logger.getLogger(FacturacionBean.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public void enviarOrdenPetro(EnvioPedido envNP, String numFact) {
         if (envNP.getNotapedido().getFechadespacho().equals(envNP.getNotapedido().getFechaventa())) {
             obtenerTramaOrdenEntrega(envNP, numFact);
@@ -1759,7 +1760,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             obtenerTramaOrdenEntrega(envNP, numFact);
         }
     }
-    
+
     public void generarFacturaParametros(EnvioPedido envNP, String num) throws ParseException {
         try {
             System.out.println("FT::-generarFacturaP: " + envNP.toString());
@@ -1773,7 +1774,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     + "&numeronotapedido=" + envNP.getNotapedido().getNotapedidoPK().getNumero()
                     + "&numero=" + num
                     + "&codigousuario=" + usuario);
-            
+
             System.out.println("FT:: generarFacturaP - url:: " + url.toString());
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
@@ -1782,7 +1783,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             connection.connect();
             try {
                 InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-                
+
                 BufferedReader br = new BufferedReader(reader);
                 String tmp = null;
                 String resp = "";
@@ -1814,7 +1815,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     System.out.println("ResponseMesagge: " + connection.getResponseMessage());
                     System.out.println("getErrorStream: " + connection.getErrorStream());
                 }
-                
+
             } catch (Throwable t) {
                 System.out.println("AS:: ERROR Inicio!!! " + t.getMessage());
                 t.printStackTrace(System.out);
@@ -1836,9 +1837,9 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             e.printStackTrace(System.out);
         }
     }
-    
+
     public void generarFactura(EnvioPedido envNP) {
-        
+
         SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Factura fac = new Factura();
         Cliente cli = new Cliente();
@@ -1906,15 +1907,15 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         envF.setFactura(fac);
         envF.setDetalle(listDetF);
         obtenerPrecio(envNP, envF, fac);
-        
+
     }
-    
+
     public void obtenerPrecio(EnvioPedido envNP, EnvioFactura envF, Factura fac) {
         try {
             Detallefactura detalleFactura = new Detallefactura();
             DetallefacturaPK detalleFacturaPK = new DetallefacturaPK();
             BigDecimal subtotal = new BigDecimal(0);
-            
+
             DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
             //String fechaS = date.format(envNP.getNotapedido().getFechadespacho());
             //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.precio/paraFactura?";
@@ -1928,9 +1929,9 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
-            
+
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-            
+
             BufferedReader br = new BufferedReader(reader);
             String tmp = null;
             String respuesta = "";
@@ -1943,7 +1944,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                 if (!retorno.isNull(indice)) {
                     JSONObject price = retorno.getJSONObject(indice);
                     JSONObject pricePK = price.getJSONObject("precioPK");
-                    
+
                     precioPK.setCodigoPrecio(pricePK.getLong("codigoPrecio"));
                     precio.setPrecioPK(precioPK);
                     precio.setPrecioproducto(price.getBigDecimal("precioproducto"));
@@ -1951,13 +1952,13 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             }
             System.out.println(connection.getResponseCode());
             System.out.println(connection.getResponseMessage());
-            
+
             detalleFacturaPK.setCodigoabastecedora(envNP.getNotapedido().getNotapedidoPK().getCodigoabastecedora());
             detalleFacturaPK.setCodigocomercializadora(envNP.getNotapedido().getNotapedidoPK().getCodigocomercializadora());
             detalleFacturaPK.setNumeronotapedido(envNP.getNotapedido().getNotapedidoPK().getNumero());
             detalleFacturaPK.setNumero("0");
             detalleFacturaPK.setCodigoproducto(envNP.getDetalle().getDetallenotapedidoPK().getCodigoproducto());
-            
+
             detalleFactura.setDetallefacturaPK(detalleFacturaPK);
             detalleFactura.setCodigomedida(envNP.getDetalle().getDetallenotapedidoPK().getCodigomedida());
             detalleFactura.setVolumennaturalautorizado(envNP.getDetalle().getVolumennaturalautorizado());
@@ -1972,10 +1973,10 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             detalleFactura.setNombreimpuesto("");
             detalleFactura.setSeimprime(false);
             detalleFactura.setValordefecto(new BigDecimal(0));
-            
+
             fac.setValorsinimpuestos(detalleFactura.getSubtotal());
             envF.setFactura(fac);
-            
+
             if (envNP.getNotapedido().getFechadespacho().equals(envNP.getNotapedido().getFechaventa())) {
                 actionFactura(fac, envNP, detalleFactura, detalleFactura.getCodigoprecio(), envF);
                 //obtenerTramaOrdenEntrega(envNP);
@@ -1985,14 +1986,14 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             } else if (!envNP.getNotapedido().getFechadespacho().equals(envNP.getNotapedido().getFechaventa()) && !envNP.getNotapedido().isAdelantar()) {
                 actionFactura(fac, envNP, detalleFactura, detalleFactura.getCodigoprecio(), envF);
             }
-            
+
             precio = new Precio();
             precioPK = new PrecioPK();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    
+
     public void actionFactura(Factura fac, EnvioPedido envNP, Detallefactura detalleFactura, String codigoPecio, EnvioFactura envF) {
         List<Detallefactura> detFact = new ArrayList<>();
         Detallefactura detalleFact = new Detallefactura();
@@ -2009,9 +2010,9 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
-            
+
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-            
+
             BufferedReader br = new BufferedReader(reader);
             String tmp = null;
             String respuesta = "";
@@ -2062,7 +2063,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             }
             fac.setValortotal(totalimpuestos.add(fac.getValorsinimpuestos()).setScale(2, RoundingMode.HALF_UP));
             detFact.add(detalleFactura);
-            
+
             envF.setDetalle(detFact);
             detFact = new ArrayList<>();
             this.addItems(envF);
@@ -2074,7 +2075,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             e.printStackTrace();
         }
     }
-    
+
     public void addItems(EnvioFactura envF) {
         try {
             String respuesta;
@@ -2088,7 +2089,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-type", "application/json");
             connection.setFixedLengthStreamingMode(1000000000);
-            
+
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             ObjectMapper mapper = new ObjectMapper();
             String jsonStr = mapper.writeValueAsString(envF);
@@ -2118,10 +2119,10 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             e.printStackTrace();
         }
     }
-    
+
     public void hospedarDocumento(EnvioFactura envF) {
         StringBuilder respuesta = new StringBuilder();
-        
+
         try {
             //URL url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura");
             URL url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura");
@@ -2131,20 +2132,20 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             conn.setDoOutput(true);
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
-            
+
             try (OutputStream os = conn.getOutputStream()) {
                 ObjectMapper mapper = new ObjectMapper();
                 String jsonStr = mapper.writeValueAsString(envF);
                 os.write(jsonStr.getBytes());
                 os.flush();
-                
+
                 if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
                     throw new RuntimeException("Failed : HTTP error code : "
                             + conn.getResponseCode());
                 }
-                
+
                 BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-                
+
                 String output;
 
                 //Recibe respuesta del servidor
@@ -2153,7 +2154,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                 }
             }
             conn.disconnect();
-            
+
         } catch (MalformedURLException ex) {
             System.err.println("Error hospedarDocumento MalformedURLException. {}" + ex);
             respuesta.append("error");
@@ -2161,11 +2162,11 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             System.err.println("Error hospedarDocumento IOException. {}" + ex);
             respuesta.append("error");
         }
-        
+
         System.err.println("Respuesta servidor hospedaje " + respuesta.toString());
         //return respuesta.toString();
     }
-    
+
     public String calcularFechaV(Notapedido ntp) {
         Date fechaFestiva = new Date();
         String fechav = "";
@@ -2179,9 +2180,9 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
-            
+
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-            
+
             BufferedReader br = new BufferedReader(reader);
             String tmp = null;
             String respuesta = "";
@@ -2205,7 +2206,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         }
         return fechav;
     }
-    
+
     public void obtenerTramaOrdenEntrega(EnvioPedido envNP, String numFact) {
         SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd 12:00:00");
         Notapedido notaPedido = new Notapedido();
@@ -2242,25 +2243,25 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         notaPedido.setCodigocliente(envNP.getNotapedido().getCodigocliente());
         notaPedido.setComercializadora(envNP.getNotapedido().getComercializadora());
         notaPedido.setCodigoterminal(envNP.getNotapedido().getCodigoterminal());
-        
+
         detalleNotaPK.setCodigoabastecedora(envNP.getNotapedido().getAbastecedora().getCodigo());
         detalleNotaPK.setCodigocomercializadora(envNP.getNotapedido().getComercializadora().getCodigo());
         detalleNotaPK.setNumero(envNP.getNotapedido().getNotapedidoPK().getNumero());
         detalleNotaPK.setCodigoproducto(envNP.getDetalle().getDetallenotapedidoPK().getCodigoproducto());
         detalleNotaPK.setCodigomedida(envNP.getDetalle().getDetallenotapedidoPK().getCodigomedida());
         detalleNotaP.setDetallenotapedidoPK(detalleNotaPK);
-        
+
         detalleNotaP.setVolumennaturalrequerido(envNP.getDetalle().getVolumennaturalrequerido());
         detalleNotaP.setVolumennaturalautorizado(envNP.getDetalle().getVolumennaturalautorizado());
         detalleNotaP.setMedida(envNP.getDetalle().getMedida());
         detalleNotaP.setProducto(envNP.getDetalle().getProducto());
         detalleNotaP.setUsuarioactual(dataUser.getUser().getNombrever());
-        
+
         envioPedido.setNotapedido(notaPedido);
         envioPedido.setDetalle(detalleNotaP);
         getTrama(envioPedido, numFact);
     }
-    
+
     public void getTrama3(EnvioFactura enviofactura) {
         try {
             String respuesta = "";
@@ -2270,7 +2271,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             connection.setDoOutput(true);
             connection.setRequestMethod("PUT");
             connection.setRequestProperty("Content-type", "application/json");
-            
+
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             Gson gson = new Gson();
             String JSON = gson.toJson(enviofactura);
@@ -2291,7 +2292,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             e.printStackTrace();
         }
     }
-    
+
     public void getTrama(EnvioPedido envioPedido, String numFact) {
         try {
             String respuesta = "";
@@ -2304,7 +2305,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-type", "application/json");
-            
+
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             Gson gson = new Gson();
             String JSON = gson.toJson(envioPedido);
@@ -2312,9 +2313,9 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             out.write(JSON.getBytes());
             out.flush();
             out.close();
-            
+
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-            
+
             BufferedReader br = new BufferedReader(reader);
             String tmp = null;
             String resp = "";
@@ -2329,7 +2330,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     trama = trm;
                 }
             }
-            
+
             if (connection.getResponseCode() == 200) {
                 //this.dialogo(FacesMessage.SEVERITY_INFO, "FACTURA REGISTRADA EXITOSAMENTE");
                 envioPedido.getNotapedido().setTramaenviadagoe(trama);
@@ -2342,18 +2343,18 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                 System.out.println(connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
             }
-            
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    
+
     public void enviarOrdenEntreEpp(EnvioPedido envioPedido, String trama) {
         String codigoabastecedora = "";
         String codigocomercializadora = "";
         String numero = "";
         String cadena = "";
-        
+
         codigoabastecedora = envioPedido.getNotapedido().getAbastecedora().getCodigo();
         codigocomercializadora = envioPedido.getNotapedido().getComercializadora().getCodigo();
         numero = envioPedido.getNotapedido().getNotapedidoPK().getNumero();
@@ -2391,10 +2392,10 @@ public class FacturacionBean extends ReusableBean implements Serializable {
 //            connection.setReadTimeout(5000);
 //            System.out.println("Itentando conexión petro" + connection.getReadTimeout());
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-            
+
             System.err.println("Conexion exitosa");
             connection.setReadTimeout(5000);
-            
+
             BufferedReader br = new BufferedReader(reader);
             String tmp = null;
             String resp = "";
@@ -2409,7 +2410,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     codigoPetroGenerado = codigoGenerado;
                 }
             }
-            
+
             if (connection.getResponseCode() == 200) {
                 if (codigoPetroGenerado.substring(0, 2).equals("00")) {
                     respuestaPetro = "ORDEN ENVIADA A PETRO. RESPUESTA: 00 RECIBIDA CORRECTAMENTE!";
@@ -2424,14 +2425,14 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                 System.out.println("Error al añadir:" + connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
             }
-            
+
         } catch (Throwable e) {
             System.out.println("Error envio a petro: " + e.getMessage());
             this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR: NO SE HA PODIDO ENVIAR LA ORDEN A PETROECUADOR");
             e.printStackTrace(System.out);
         }
     }
-    
+
     public void verificarOeenpetro(EnvioFactura envioFactura) {
         try {
             String respuestaPetro = "";
@@ -2443,9 +2444,9 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("Accept", "application/json");
-            
+
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-            
+
             BufferedReader br = new BufferedReader(reader);
             String tmp = null;
             String respuesta = "";
@@ -2462,7 +2463,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     }
                 }
             }
-            
+
             if (connection.getResponseCode() == 200) {
                 if (respuestaPetro.equals("")) {
                     errorPetro = "LA FACTURA NO HA SIDO ENVIADA A PETROECUADOR";
@@ -2478,7 +2479,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             e.printStackTrace();
         }
     }
-    
+
     public void obetnerRespuestaOeenpetro(String codigoPetro) {
         try {
             String descripcion = "";
@@ -2488,7 +2489,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
-            
+
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
             BufferedReader br = new BufferedReader(reader);
             String tmp = null;
@@ -2506,7 +2507,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     }
                 }
             }
-            
+
             if (connection.getResponseCode() == 200) {
                 if (codigoPetro.equals("00") || codigoPetro.equals("20")) {
                     errorPetro = "CÓDIGO: " + codigoPetro + " " + descripcion;
@@ -2523,7 +2524,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             e.printStackTrace();
         }
     }
-    
+
     public void dialogoReenvioOrdenPetro(EnvioFactura envioFactura) {
         try {
             DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
@@ -2537,10 +2538,10 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
-            
+
             envioPedidoAuxiliar = new EnvioPedido();
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-            
+
             BufferedReader br = new BufferedReader(reader);
             String tmp = null;
             String respuesta = "";
@@ -2552,7 +2553,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             if (retorno.isEmpty()) {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "NO SE ENCONTRARON NOTAS DE PEDIDO");
             } else {
-                
+
                 for (int indice = 0; indice < retorno.length(); indice++) {
                     if (!retorno.isNull(indice)) {
                         JSONObject nt = retorno.getJSONObject(indice);
@@ -2592,12 +2593,12 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                 System.out.println(connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
             }
-            
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    
+
     public void reenvioOrdenPetro() {
         if (envioPedidoAuxiliar != null) {
             try {
@@ -2610,7 +2611,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "HUBO UN ERROR EN LA OBTENCIÓN DE LOS DATOS PARA REALIZAR EL REENVIO");
         }
     }
-    
+
     public void diaglogoAnulacion(EnvioFactura enviofactura) {
         envFauxiliar = enviofactura;
         try {
@@ -2624,11 +2625,11 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
-            
+
             facturaauxiliar = new Factura();
             facturaauxiliarPK = new FacturaPK();
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-            
+
             BufferedReader br = new BufferedReader(reader);
             String tmp = null;
             String respuesta = "";
@@ -2700,7 +2701,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     facturaauxiliar.setCorreocliente(fac.getString("correocliente"));
                     facturaauxiliar.setDireccioncliente(fac.getString("direccioncliente"));
                     facturaauxiliar.setDireccionmatrizcomercializadora(fac.getString("direccionmatrizcomercializadora"));
-                    
+
                     Number errorDoc = fac.getNumber("errordocumento");
                     facturaauxiliar.setErrordocumento(errorDoc.shortValue());
                     facturaauxiliar.setEsagenteretencion(fac.getBoolean("esagenteretencion"));
@@ -2733,10 +2734,10 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     String fechaProrro = dateAc.format(dateAcredPr);
                     facturaauxiliar.setFechaacreditacionprorrogada(fechaProrro);
                     facturaauxiliar.setFechaautorizacion(fac.getString("fechaautorizacion"));
-                    
+
                     Number hospedado = fac.getNumber("hospedado");
                     facturaauxiliar.setHospedado(hospedado.shortValue());
-                    
+
                     facturaauxiliar.setIvatotal(fac.getBigDecimal("ivatotal"));
                     facturaauxiliar.setMoneda(fac.getString("moneda"));
                     facturaauxiliar.setNombrecliente(fac.getString("nombrecliente"));
@@ -2752,14 +2753,16 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     facturaauxiliar.setSeriesri(fac.getString("seriesri"));
                     facturaauxiliar.setTelefonocliente(fac.getString("telefonocliente"));
                     facturaauxiliar.setTipocomprador(fac.getString("tipocomprador"));
-                    
+                    if (!fac.isNull("tipoemision")) {
+                        facturaauxiliar.setTipoemision(fac.getString("tipoemision").charAt(0));
+                    }
                     facturaauxiliar.setTipoplazocredito(fac.getString("tipoplazocredito"));
                     facturaauxiliar.setUsuarioactual(fac.getString("usuarioactual"));
                     facturaauxiliar.setValorconrubro(fac.getBigDecimal("valorconrubro"));
                     facturaauxiliar.setValorsinimpuestos(fac.getBigDecimal("valorsinimpuestos"));
                     facturaauxiliar.setValortotal(fac.getBigDecimal("valortotal"));
                 }
-                
+
             }
             if (connection.getResponseCode() == 200) {
                 PrimeFaces.current().executeScript("PF('deleteProductDialog').show()");
@@ -2770,9 +2773,9 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
     }
-    
+
     public void verficarAnulacion() {
         if (facturaauxiliar != null) {
             if (facturaauxiliar.getPagada() == false) {
@@ -2793,7 +2796,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "HUBO UN ERROR EN LA ANULACIÓN");
         }
     }
-    
+
     public void anularFactura(Factura fac) {
         //B350002141234560000AAA000000000000000000
         //B3600025400010112345678000000000000000000
@@ -2805,7 +2808,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         //360002021234560000AAAA000000000000000000
         String fl = "000000000000000000";
         Factura esAnulacionRefactura = new Factura();
-        
+
         String cadena = facturaauxiliar.getCodigobanco().trim() + facturaauxiliar.getFacturaPK().getCodigocomercializadora().trim()
                 + facturaauxiliar.getFacturaPK().getNumeronotapedido().trim() + comercializadora.getClaveWsepp().trim() + fl;
         try {
@@ -2818,12 +2821,12 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-type", "application/json");
-            
+
             anulacion.setCodigoabastecedora(facturaauxiliar.getFacturaPK().getCodigoabastecedora().trim());
             anulacion.setCodigocomercializadora(facturaauxiliar.getFacturaPK().getCodigocomercializadora().trim());
             anulacion.setNumero(facturaauxiliar.getFacturaPK().getNumeronotapedido().trim());
             anulacion.setCadena(cadena);
-            
+
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             Gson gson = new Gson();
             String JSON = gson.toJson(anulacion);
@@ -2831,9 +2834,9 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             out.write(JSON.getBytes());
             out.flush();
             out.close();
-            
+
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-            
+
             BufferedReader br = new BufferedReader(reader);
             String tmp = null;
             String resp = "";
@@ -2846,21 +2849,20 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                 if (!retorno.isNull(indice)) {
                     String codanul = retorno.getString(indice);
                     codigoanulacion = codanul;
-                    
+
                     // FT:SOLO PRUEBA DE 2023-06-12
 //                    codigoanulacion = "08"; 
                     // FT:SOLO PRUEBA DE 2023-06-12
-                    
                 }
             }
-            
+
             if (connection.getResponseCode() == 200) {
-                System.out.println("FT:: codigoanulacion.substring(0, 2)" + codigoanulacion.substring(0, 2) + "SE DEBE VALIDAR SI ES 08 PARA ANULAR UNA REFACTURACION" );
-                if(codigoanulacion.substring(0, 2).equals("08") ){
-                System.out.println("FT:: codigoanulacion.substring(0, 2)" + codigoanulacion.substring(0, 2) + "está dentro del IF para REFACTURACIÓN");
-                esAnulacionRefactura = verificarESAnulacionRefactura(facturaauxiliar);
+                System.out.println("FT:: codigoanulacion.substring(0, 2)" + codigoanulacion.substring(0, 2) + "SE DEBE VALIDAR SI ES 08 PARA ANULAR UNA REFACTURACION");
+                if (codigoanulacion.substring(0, 2).equals("08")) {
+                    System.out.println("FT:: codigoanulacion.substring(0, 2)" + codigoanulacion.substring(0, 2) + "está dentro del IF para REFACTURACIÓN");
+                    esAnulacionRefactura = verificarESAnulacionRefactura(facturaauxiliar);
                 }
-                if (codigoanulacion.substring(0, 2).equals("00") || codigoanulacion.substring(0, 2).equals("01") || codigoanulacion.substring(0, 2).equals("03") || !(esAnulacionRefactura.getFacturaPK().getNumero()== null)) {
+                if (codigoanulacion.substring(0, 2).equals("00") || codigoanulacion.substring(0, 2).equals("01") || codigoanulacion.substring(0, 2).equals("03") || !(esAnulacionRefactura.getFacturaPK().getNumero() == null)) {
                     this.dialogo(FacesMessage.SEVERITY_INFO, codigoanulacion.substring(0, 2) + " LA ANULACIÓN SE PROCESO CORRECTAMENTE");
                     //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura/porId");
                     url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura/porId");
@@ -2887,7 +2889,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     out.write(JSON.getBytes());
                     out.flush();
                     out.close();
-                    
+
                     if (connection.getResponseCode() == 200) {
                         for (int i = 0; i < listenvF.size(); i++) {
                             if (listenvF.get(i).getFactura().getFacturaPK().getNumero().equals(facturaauxiliar.getFacturaPK().getNumero())) {
@@ -2905,24 +2907,24 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     this.dialogo(FacesMessage.SEVERITY_ERROR, codigoanulacion.substring(0, 2) + " ANULACIÓN OE NO PERMITIDA EN EPP");
                 }
             } else {
-                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR EN LA ANULACIÓN. código recibido desde PETRO: "+codigoanulacion.substring(0, 2));
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR EN LA ANULACIÓN. código recibido desde PETRO: " + codigoanulacion.substring(0, 2));
                 System.out.println("Error al añadir:" + connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
             }
-            
+
         } catch (Throwable e) {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR EN LA ANULACIÓN");
             System.out.println("Error" + e.getMessage());
             e.printStackTrace(System.out);
         }
     }
-    
-    public Factura verificarESAnulacionRefactura(Factura unafac){
+
+    public Factura verificarESAnulacionRefactura(Factura unafac) {
         boolean respuestaMetodo = false;
         Factura factAuxPendiente = new Factura();
         FacturaPK factAuxPKPendiente = new FacturaPK();
         try {
-             
+
             String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura/pornpestadosri?";
             url = new URL(direcc
                     + "&codigoabastecedora=" + unafac.getFacturaPK().getCodigoabastecedora()
@@ -2933,9 +2935,9 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
-            
+
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-            
+
             BufferedReader br = new BufferedReader(reader);
             String tmp = null;
             String respuesta = "";
@@ -2943,7 +2945,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                 respuesta += tmp;
             }
             JSONObject objetoJson = new JSONObject(respuesta);
-            JSONArray retorno = objetoJson.getJSONArray("retorno"); 
+            JSONArray retorno = objetoJson.getJSONArray("retorno");
             for (int indice = 0; indice < retorno.length(); indice++) {
                 if (!retorno.isNull(indice)) {
                     JSONObject fac = retorno.getJSONObject(indice);
@@ -2958,7 +2960,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     factAuxPendiente.setFacturaPK(factAuxPKPendiente);
                     /*-----------------------------------------------------------------------*/
                     factAuxPendiente.setActiva(true);
-                    
+
                     if (!fac.isNull("adelantar")) {
                         factAuxPendiente.setAdelantar(fac.getBoolean("adelantar"));
                     }
@@ -3007,7 +3009,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     factAuxPendiente.setCorreocliente(fac.getString("correocliente"));
                     factAuxPendiente.setDireccioncliente(fac.getString("direccioncliente"));
                     factAuxPendiente.setDireccionmatrizcomercializadora(fac.getString("direccionmatrizcomercializadora"));
-                    
+
                     Number errorDoc = fac.getNumber("errordocumento");
                     factAuxPendiente.setErrordocumento(errorDoc.shortValue());
                     factAuxPendiente.setEsagenteretencion(fac.getBoolean("esagenteretencion"));
@@ -3040,10 +3042,10 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     String fechaProrro = dateAc.format(dateAcredPr);
                     factAuxPendiente.setFechaacreditacionprorrogada(fechaProrro);
                     factAuxPendiente.setFechaautorizacion(fac.getString("fechaautorizacion"));
-                    
+
                     Number hospedado = fac.getNumber("hospedado");
                     factAuxPendiente.setHospedado(hospedado.shortValue());
-                    
+
                     factAuxPendiente.setIvatotal(fac.getBigDecimal("ivatotal"));
                     factAuxPendiente.setMoneda(fac.getString("moneda"));
                     factAuxPendiente.setNombrecliente(fac.getString("nombrecliente"));
@@ -3061,7 +3063,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     factAuxPendiente.setTipocomprador(fac.getString("tipocomprador"));
                     factAuxPendiente.setReliquidada(fac.getBoolean("reliquidada"));
                     factAuxPendiente.setRefacturada(fac.getBoolean("refacturada"));
-                    
+
                     factAuxPendiente.setTipoplazocredito(fac.getString("tipoplazocredito"));
                     factAuxPendiente.setUsuarioactual(fac.getString("usuarioactual"));
                     factAuxPendiente.setValorconrubro(fac.getBigDecimal("valorconrubro"));
@@ -3071,11 +3073,11 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             }
             if (connection.getResponseCode() == 200) {
                 if (factAuxPendiente.getFacturaPK() != null) {
-                    System.out.println("FT:: Factura anterior encontrada:."+ factAuxPendiente.getFacturaPK().getCodigocomercializadora()+" -FAC- "+factAuxPendiente.getFacturaPK().getNumero()+" -NP-. "+factAuxPendiente.getFacturaPK().getNumeronotapedido()+ " - Respuesta: - " +connection.getResponseCode());
+                    System.out.println("FT:: Factura anterior encontrada:." + factAuxPendiente.getFacturaPK().getCodigocomercializadora() + " -FAC- " + factAuxPendiente.getFacturaPK().getNumero() + " -NP-. " + factAuxPendiente.getFacturaPK().getNumeronotapedido() + " - Respuesta: - " + connection.getResponseCode());
 //                    actualizarFactura(factAux);
                 }
             } else {
-                System.out.println("FT:: FACTURA ANTERIOR NO ENCONTRADA. " + unafac.getFacturaPK().getCodigocomercializadora()+" -FAC- "+unafac.getFacturaPK().getNumero()+" -NP-. "+unafac.getFacturaPK().getNumeronotapedido()+ " - Respuesta: - " +connection.getResponseCode());
+                System.out.println("FT:: FACTURA ANTERIOR NO ENCONTRADA. " + unafac.getFacturaPK().getCodigocomercializadora() + " -FAC- " + unafac.getFacturaPK().getNumero() + " -NP-. " + unafac.getFacturaPK().getNumeronotapedido() + " - Respuesta: - " + connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
             }
         } catch (IOException e) {
@@ -3083,6 +3085,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         }
         return factAuxPendiente;
     }
+
     public void verificarAnulacionRefactura(Factura fact) {
         try {
             String respuestaAnulacion = "";
@@ -3097,9 +3100,9 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
-            
+
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-            
+
             BufferedReader br = new BufferedReader(reader);
             String tmp = null;
             String respuesta = "";
@@ -3108,10 +3111,10 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             }
             JSONObject objetoJson = new JSONObject(respuesta);
             JSONArray retorno = objetoJson.getJSONArray("retorno");
-            
+
             Factura factAux = new Factura();
             FacturaPK factAuxPK = new FacturaPK();
-            
+
             for (int indice = 0; indice < retorno.length(); indice++) {
                 if (!retorno.isNull(indice)) {
                     JSONObject fac = retorno.getJSONObject(indice);
@@ -3126,7 +3129,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     factAux.setFacturaPK(factAuxPK);
                     /*-----------------------------------------------------------------------*/
                     factAux.setActiva(true);
-                    
+
                     if (!fac.isNull("adelantar")) {
                         factAux.setAdelantar(fac.getBoolean("adelantar"));
                     }
@@ -3175,7 +3178,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     factAux.setCorreocliente(fac.getString("correocliente"));
                     factAux.setDireccioncliente(fac.getString("direccioncliente"));
                     factAux.setDireccionmatrizcomercializadora(fac.getString("direccionmatrizcomercializadora"));
-                    
+
                     Number errorDoc = fac.getNumber("errordocumento");
                     factAux.setErrordocumento(errorDoc.shortValue());
                     factAux.setEsagenteretencion(fac.getBoolean("esagenteretencion"));
@@ -3208,10 +3211,10 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     String fechaProrro = dateAc.format(dateAcredPr);
                     factAux.setFechaacreditacionprorrogada(fechaProrro);
                     factAux.setFechaautorizacion(fac.getString("fechaautorizacion"));
-                    
+
                     Number hospedado = fac.getNumber("hospedado");
                     factAux.setHospedado(hospedado.shortValue());
-                    
+
                     factAux.setIvatotal(fac.getBigDecimal("ivatotal"));
                     factAux.setMoneda(fac.getString("moneda"));
                     factAux.setNombrecliente(fac.getString("nombrecliente"));
@@ -3229,7 +3232,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     factAux.setTipocomprador(fac.getString("tipocomprador"));
                     factAux.setReliquidada(fac.getBoolean("reliquidada"));
                     factAux.setRefacturada(false);
-                    
+
                     factAux.setTipoplazocredito(fac.getString("tipoplazocredito"));
                     factAux.setUsuarioactual(fac.getString("usuarioactual"));
                     factAux.setValorconrubro(fac.getBigDecimal("valorconrubro"));
@@ -3239,7 +3242,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             }
             if (connection.getResponseCode() == 200) {
                 if (factAux.getFacturaPK() != null) {
-                    System.out.println("Factura anterior encontrada: "+ factAux.getFacturaPK().getCodigocomercializadora()+" -FAC- "+factAux.getFacturaPK().getNumero()+" -NP-. "+factAux.getFacturaPK().getNumeronotapedido()+ " - Respuesta: - " +connection.getResponseCode());
+                    System.out.println("Factura anterior encontrada: " + factAux.getFacturaPK().getCodigocomercializadora() + " -FAC- " + factAux.getFacturaPK().getNumero() + " -NP-. " + factAux.getFacturaPK().getNumeronotapedido() + " - Respuesta: - " + connection.getResponseCode());
                     actualizarFactura(factAux);
                 }
             } else {
@@ -3249,9 +3252,9 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
     }
-    
+
     public void verificarAnulacion(EnvioFactura envioFactura) {
         try {
             String respuestaAnulacion = "";
@@ -3265,9 +3268,9 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
-            
+
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-            
+
             BufferedReader br = new BufferedReader(reader);
             String tmp = null;
             String respuesta = "";
@@ -3284,7 +3287,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     }
                 }
             }
-            
+
             if (connection.getResponseCode() == 200) {
                 if (respuestaAnulacion.equals("")) {
                     mensajeAnulacion = "EPP NO HA ANULADO ESTA ORDEN";
@@ -3300,7 +3303,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             e.printStackTrace();
         }
     }
-    
+
     public void obetnerRespuestaAnulacion(String codigoAnulacion) {
         try {
             String descripcionA = "";
@@ -3311,9 +3314,9 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
-            
+
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-            
+
             BufferedReader br = new BufferedReader(reader);
             String tmp = null;
             String respuesta = "";
@@ -3345,7 +3348,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
 //            e.printStackTrace();
         }
     }
-    
+
     public void verificarSri(EnvioFactura envioFactura) {
         if (envioFactura != null) {
             if (envioFactura.getFactura().getNumeroautorizacion() != null) {
@@ -3362,7 +3365,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             PrimeFaces.current().executeScript("PF('verificarSri').show()");
         }
     }
-    
+
     public void generarReporte(EnvioFactura env) {
 //        String path = "C:\\archivos\\Template\\NuevaFactura.jrxml";
 //        String subreport = "C:\\archivos\\Template\\SubreporteFacturaRubros.jrxml";
@@ -3375,11 +3378,11 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         InputStream file = null;
         try {
             file = new FileInputStream(new File(path));
-            
+
             JasperReport reporte = JasperCompileManager.compileReport(file);
             JasperReport subreporte = JasperCompileManager.compileReport(subreport);
             JasperReport subreporte1 = JasperCompileManager.compileReport(subreport1);
-            
+
             Map parametro = new HashMap();
             BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
             BufferedImage imageBar = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/barras.jpeg"));
@@ -3395,14 +3398,14 @@ public class FacturacionBean extends ReusableBean implements Serializable {
 
             //actual local
             Connection conexion = conexionJasperBD();
-            
+
             JasperPrint print = JasperFillManager.fillReport(reporte, parametro, conexion);
-            
+
             File directory = new File(Fichero.getCARPETAREPORTES());
 //            File directory = new File("C:\\archivos");
 
             String nombreDocumento = "reporteFactura";
-            
+
             File pdf = File.createTempFile(nombreDocumento + "_", ".pdf", directory);
             JasperExportManager.exportReportToPdfStream(print, new FileOutputStream(pdf));
             File initialFile = new File(pdf.getAbsolutePath());
@@ -3418,7 +3421,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             System.out.println("Excepcion: " + ex);
         }
     }
-    
+
     public void generarReporteNp(EnvioPedido envP) {
         //        String path = "C:\\archivos\\Template\\FormatoNotaPedido.jrxml";
 //        String subreport = "C:\\archivos\\Template\\notapedido.jrxml";
@@ -3429,13 +3432,13 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         InputStream file = null;
         try {
             file = new FileInputStream(new File(path));
-            
+
             JasperReport reporte = JasperCompileManager.compileReport(file);
             JasperReport subreporte = JasperCompileManager.compileReport(subreport);
             BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
 //            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
             Map parametro = new HashMap();
-            
+
             parametro.put("subReporte", subreporte);
             parametro.put("codComer", envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora());
             parametro.put("numeroNotaPedido", envP.getNotapedido().getNotapedidoPK().getNumero());
@@ -3450,7 +3453,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
 //            File directory = new File("C:\\Archivos");
             File directory = new File(rutaGuardar);
             String nombreDocumento = "reporteNotaPedido";
-            
+
             File pdf = File.createTempFile(nombreDocumento + "_", ".pdf", directory);
             JasperExportManager.exportReportToPdfStream(print, new FileOutputStream(pdf));
             File initialFile = new File(pdf.getAbsolutePath());
@@ -3465,7 +3468,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             System.out.println("Excepcion: " + ex);
         }
     }
-    
+
     public void editarNotaPedido(Notapedido notaPedidoAuxiliar) {
         try {
             String respuesta = "";
@@ -3473,12 +3476,12 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.notapedido/porId";
             String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.notapedido/porId";
             url = new URL(direcc);
-            
+
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
             connection.setRequestMethod("PUT");
             connection.setRequestProperty("Content-type", "application/json");
-            
+
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             ObjectMapper mapper = new ObjectMapper();
             String jsonStr = mapper.writeValueAsString(notaPedidoAuxiliar);
@@ -3486,7 +3489,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             out.write(jsonStr.getBytes());
             out.flush();
             out.close();
-            
+
             if (connection.getResponseCode() == 200) {
                 //this.dialogo(FacesMessage.SEVERITY_INFO, "TRAMA INGRESADA EXITOSAMENTE");
             } else {
@@ -3494,12 +3497,12 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                 System.out.println(connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
             }
-            
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    
+
     public EnvioFactura editarFactura(EnvioFactura obj, int n) {
         envF = obj;
         if (envF.getFactura().getActiva()) {
@@ -3536,7 +3539,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             return null;
         }
     }
-    
+
     public void editarPagoFactura() throws ParseException {
         if (envF != null) {
             DateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
@@ -3566,18 +3569,18 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             obtenerFacturas();
         }
     }
-    
+
     public void seleccionarBanco() {
         if (banco != null) {
         }
     }
-    
+
     public void actualizarFactura(Factura fact) {
         try {
             String respuesta;
             //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura/porId");
             url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura/porId");
-            
+
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setConnectTimeout(1000 * 60);
             connection.setReadTimeout(1000 * 60);
@@ -3608,21 +3611,21 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             e.printStackTrace();
         }
     }
-    
+
     public int controlDespacho(String codClienteNP) {
         try {
             String respuesta = "";
             int value = 0;
             //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura/porId");
             url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura/controlDespacho?pcodigocliente=" + codClienteNP);
-            
+
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
-            
+
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-            
+
             BufferedReader br = new BufferedReader(reader);
             String tmp = null;
             while ((tmp = br.readLine()) != null) {
@@ -3649,7 +3652,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             return -2;
         }
     }
-    
+
     public void buscarFacturaPorNp(EnvioPedido envP) {
         if (!envP.getNotapedido().getNumerofacturasri().equals("0               ")) {
             EnvioFactura env = new EnvioFactura();
@@ -3664,11 +3667,11 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "NO SE HA GENERADO LA FACTURA");
         }
     }
-    
+
     public void editarFechaFactura() {
         boolean bandera = true;
         Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
-        
+
         String codFacSelec = params.get("form:dt-products_selection");
         String[] parts = codFacSelec.split(",");
         String[] campos = new String[4];
@@ -3714,7 +3717,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "No se han seleccionado facturas");
         }
     }
-    
+
     public void editarFechaProFactura() throws ParseException {
         if (!listFactSelec.isEmpty()) {
             for (int i = 0; i < listFactSelec.size(); i++) {
@@ -3743,7 +3746,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             listFactSelec = new ArrayList<>();
         }
     }
-    
+
     public void validarNumFacturasCliente(EnvioPedido envP) {
         if (envP != null) {
             int control = envP.getNotapedido().getCodigocliente().getControldespacho();
@@ -3757,357 +3760,357 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             }
         }
     }
-    
+
     public boolean isMostarFactura() {
         return mostarFactura;
     }
-    
+
     public void setMostarFactura(boolean mostarFactura) {
         this.mostarFactura = mostarFactura;
     }
-    
+
     public boolean isMostarPantallaInicial() {
         return mostarPantallaInicial;
     }
-    
+
     public void setMostarPantallaInicial(boolean mostarPantallaInicial) {
         this.mostarPantallaInicial = mostarPantallaInicial;
     }
-    
+
     public List<ComercializadoraBean> getListaComercializadora() {
         return listaComercializadora;
     }
-    
+
     public void setListaComercializadora(List<ComercializadoraBean> listaComercializadora) {
         this.listaComercializadora = listaComercializadora;
     }
-    
+
     public String getCodComer() {
         return codComer;
     }
-    
+
     public void setCodComer(String codComer) {
         this.codComer = codComer;
     }
-    
+
     public List<Terminal> getListaTermianles() {
         return listaTermianles;
     }
-    
+
     public void setListaTermianles(List<Terminal> listaTermianles) {
         this.listaTermianles = listaTermianles;
     }
-    
+
     public String getCodTerminal() {
         return codTerminal;
     }
-    
+
     public void setCodTerminal(String codTerminal) {
         this.codTerminal = codTerminal;
     }
-    
+
     public List<Cliente> getListaClientes() {
         return listaClientes;
     }
-    
+
     public void setListaClientes(List<Cliente> listaClientes) {
         this.listaClientes = listaClientes;
     }
-    
+
     public String getCodCliente() {
         return codCliente;
     }
-    
+
     public void setCodCliente(String codCliente) {
         this.codCliente = codCliente;
     }
-    
+
     public ComercializadoraBean getComercializadora() {
         return comercializadora;
     }
-    
+
     public void setComercializadora(ComercializadoraBean comercializadora) {
         this.comercializadora = comercializadora;
     }
-    
+
     public String getCodAbas() {
         return codAbas;
     }
-    
+
     public void setCodAbas(String codAbas) {
         this.codAbas = codAbas;
     }
-    
+
     public String getTipoFecha() {
         return tipoFecha;
     }
-    
+
     public void setTipoFecha(String tipoFecha) {
         this.tipoFecha = tipoFecha;
     }
-    
+
     public Terminal getTerminal() {
         return terminal;
     }
-    
+
     public void setTerminal(Terminal terminal) {
         this.terminal = terminal;
     }
-    
+
     public List<EnvioFactura> getListenvF() {
         return listenvF;
     }
-    
+
     public void setListenvF(List<EnvioFactura> listenvF) {
         this.listenvF = listenvF;
     }
-    
+
     public String getOeenpetro() {
         return oeenpetro;
     }
-    
+
     public void setOeenpetro(String oeenpetro) {
         this.oeenpetro = oeenpetro;
     }
-    
+
     public List<EnvioPedido> getListenvNP() {
         return listenvNP;
     }
-    
+
     public void setListenvNP(List<EnvioPedido> listenvNP) {
         this.listenvNP = listenvNP;
     }
-    
+
     public Notapedido getNp() {
         return np;
     }
-    
+
     public void setNp(Notapedido np) {
         this.np = np;
     }
-    
+
     public NotapedidoPK getNpPK() {
         return npPK;
     }
-    
+
     public void setNpPK(NotapedidoPK npPK) {
         this.npPK = npPK;
     }
-    
+
     public EnvioPedido getEnvNP() {
         return envNP;
     }
-    
+
     public void setEnvNP(EnvioPedido envNP) {
         this.envNP = envNP;
     }
-    
+
     public int getRowId() {
         return rowId;
     }
-    
+
     public void setRowId(int rowId) {
         this.rowId = rowId;
     }
-    
+
     public boolean isAdelantar() {
         return adelantar;
     }
-    
+
     public void setAdelantar(boolean adelantar) {
         this.adelantar = adelantar;
     }
-    
+
     public boolean isProcesar() {
         return procesar;
     }
-    
+
     public void setProcesar(boolean procesar) {
         this.procesar = procesar;
     }
-    
+
     public String getEnsri() {
         return ensri;
     }
-    
+
     public void setEnsri(String ensri) {
         this.ensri = ensri;
     }
-    
+
     public Factura getFact() {
         return fact;
     }
-    
+
     public void setFact(Factura fact) {
         this.fact = fact;
     }
-    
+
     public EnvioFactura getEnvF() {
         return envF;
     }
-    
+
     public void setEnvF(EnvioFactura envF) {
         this.envF = envF;
     }
-    
+
     public String getErrorPetro() {
         return errorPetro;
     }
-    
+
     public void setErrorPetro(String errorPetro) {
         this.errorPetro = errorPetro;
     }
-    
+
     public boolean isSoloporProcesar() {
         return soloporProcesar;
     }
-    
+
     public void setSoloporProcesar(boolean soloporProcesar) {
         this.soloporProcesar = soloporProcesar;
     }
-    
+
     public boolean isPorRefacturar() {
         return porRefacturar;
     }
-    
+
     public void setPorRefacturar(boolean porRefacturar) {
         this.porRefacturar = porRefacturar;
     }
-    
+
     public String getMensajeAnulacion() {
         return mensajeAnulacion;
     }
-    
+
     public void setMensajeAnulacion(String mensajeAnulacion) {
         this.mensajeAnulacion = mensajeAnulacion;
     }
-    
+
     public boolean isEstadoAnulacion() {
         return estadoAnulacion;
     }
-    
+
     public void setEstadoAnulacion(boolean estadoAnulacion) {
         this.estadoAnulacion = estadoAnulacion;
     }
-    
+
     public StreamedContent getPdfStream() {
         return pdfStream;
     }
-    
+
     public void setPdfStream(StreamedContent pdfStream) {
         this.pdfStream = pdfStream;
     }
-    
+
     public boolean isBuscarFacturaXCliente() {
         return buscarFacturaXCliente;
     }
-    
+
     public void setBuscarFacturaXCliente(boolean buscarFacturaXCliente) {
         this.buscarFacturaXCliente = buscarFacturaXCliente;
     }
-    
+
     public Cliente getCliente() {
         return cliente;
     }
-    
+
     public void setCliente(Cliente cliente) {
         this.cliente = cliente;
     }
-    
+
     public Date getFechaI() {
         return fechaI;
     }
-    
+
     public void setFechaI(Date fechaI) {
         this.fechaI = fechaI;
     }
-    
+
     public Date getFechaf() {
         return fechaf;
     }
-    
+
     public void setFechaf(Date fechaf) {
         this.fechaf = fechaf;
     }
-    
+
     public String getSriMensaje() {
         return sriMensaje;
     }
-    
+
     public void setSriMensaje(String sriMensaje) {
         this.sriMensaje = sriMensaje;
     }
-    
+
     public boolean isProcess() {
         return process;
     }
-    
+
     public void setProcess(boolean process) {
         this.process = process;
     }
-    
+
     public Formapago getFormapago() {
         return formapago;
     }
-    
+
     public void setFormapago(Formapago formapago) {
         this.formapago = formapago;
     }
-    
+
     public List<Formapago> getListaFormapagos() {
         return listaFormapagos;
     }
-    
+
     public void setListaFormapagos(List<Formapago> listaFormapagos) {
         this.listaFormapagos = listaFormapagos;
     }
-    
+
     public Banco getBanco() {
         return banco;
     }
-    
+
     public void setBanco(Banco banco) {
         this.banco = banco;
     }
-    
+
     public List<Banco> getListaBancos() {
         return listaBancos;
     }
-    
+
     public void setListaBancos(List<Banco> listaBancos) {
         this.listaBancos = listaBancos;
     }
-    
+
     public List<Factura> getListFactSelec() {
         return listFactSelec;
     }
-    
+
     public void setListFactSelec(List<Factura> listFactSelec) {
         this.listFactSelec = listFactSelec;
     }
-    
+
     public List<Factura> getListFact() {
         return listFact;
     }
-    
+
     public void setListFact(List<Factura> listFact) {
         this.listFact = listFact;
     }
-    
+
     public Date getFechaPro() {
         return fechaPro;
     }
-    
+
     public void setFechaPro(Date fechaPro) {
         this.fechaPro = fechaPro;
     }
-    
+
     public Date getFechaActual() {
         return fechaActual;
     }
-    
+
     public void setFechaActual(Date fechaActual) {
         this.fechaActual = fechaActual;
     }
-    
+
 }

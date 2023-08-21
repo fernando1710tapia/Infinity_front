@@ -291,6 +291,12 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
 
     private boolean todosClientes;
 
+    private String nomBanco;
+
+    private String numCuenta;
+
+    private String numCheque;
+
     /**
      * Constructor por defecto
      */
@@ -348,6 +354,9 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
         codAbas = "";
         tipoFecha = "";
         prefijo = "";
+        nomBanco = "";
+        numCuenta = "";
+        numCheque = "";
         fecha = new Date();
         oeenpetro = "";
         np = new Notapedido();
@@ -824,10 +833,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                 np.setTramarecibidaaoe("");
                 np.setUsuarioactual(dataUser.getUser().getNombrever());
                 np.setPrefijo(prefijo);
-                if (np.getObservacion().isEmpty()) {
-                    np.setObservacion("");
-                }
-
+                np.setObservacion(nomBanco + "-" + numCuenta + "-" + numCheque);               
                 detNPK.setNumero("");
                 detNP.setDetallenotapedidoPK(detNPK);
                 detNP.setVolumennaturalautorizado(detNP.getVolumennaturalrequerido());
@@ -1581,6 +1587,30 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
 
     public void setTodosClientes(boolean todosClientes) {
         this.todosClientes = todosClientes;
+    }
+
+    public String getNomBanco() {
+        return nomBanco;
+    }
+
+    public void setNomBanco(String nomBanco) {
+        this.nomBanco = nomBanco;
+    }
+
+    public String getNumCuenta() {
+        return numCuenta;
+    }
+
+    public void setNumCuenta(String numCuenta) {
+        this.numCuenta = numCuenta;
+    }
+
+    public String getNumCheque() {
+        return numCheque;
+    }
+
+    public void setNumCheque(String numCheque) {
+        this.numCheque = numCheque;
     }
 
 }
