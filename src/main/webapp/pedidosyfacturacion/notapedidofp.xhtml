@@ -229,53 +229,7 @@
                             </p:toggleSwitch>
                         </div>
                     </div>
-
-
-                    <!--<div class="p-field p-col-12 p-md-6">
-
-                        <div class="ui-inputgroup">
-                            <span class="ui-inputgroup-addon">
-                                <i class="fa fa-shopping-cart"></i>
-                            </span>
-                            <p:selectOneMenu id="comercializadora" value="{notapedidoBean.comercializadora}" title="Comercializadora"
-                                             panelStyle="width:175px" style="min-width: 80%;" 
-                                             autoWidth="false" converter="converterg"
-                                             required="true"
-                                             disabled="{!notapedidoBean.habilitarComer}">
-                                <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="{null}"/>
-                                <f:selectItems value="{notapedidoBean.listaComercializadora}"
-                                               var="comer"
-                                               itemLabel="{comer.objRelacionado}"
-                                               itemValue="{comer}" />
-                                <p:ajax event="change" listener="{notapedidoBean.seleccionarComercializdora}"
-                                        update="formNuevo cliente" />
-                            </p:selectOneMenu> 
-                        </div>  
-                    </div>
-                    <div class="p-field p-col-12 p-md-6">
-                        <div class="ui-inputgroup">
-                            <span class="ui-inputgroup-addon">
-                                <i class="fa fa-money"></i>
-                            </span>
-                            <p:selectOneMenu id="cliente" value="{notapedidoBean.cliente}" title="Cliente"
-                                             panelStyle="width:175px" style="min-width: 80%;" 
-                                             autoWidth="false" converter="converterg"
-                                             disabled="{!notapedidoBean.habilitarCli}"
-                                             required="true" requiredMessage="Seleccione Cliente"
-                                             filter="true" filterMatchMode="startsWith">
-                                <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="{null}"/>
-                                <f:selectItems value="{notapedidoBean.listaClientes}"
-                                               var="cli"
-                                               itemLabel="{cli.codigo}-{cli.nombrecomercial}"
-                                               itemValue="{cli}" />
-                                <p:ajax event="change" listener="{notapedidoBean.seleccionarCliente()}"
-                                        update="terminal clienteProd banco"/>
-                            </p:selectOneMenu>
-                        </div>                                                
-                    </div>-->
-                    <div class="p-field p-col-12 p-md-12">
-
-                    </div>
+                    <div class="p-field p-col-12 p-md-12"></div>
                     <div class="p-field p-col-12 p-md-12">
                         <p:panel>                      
                             <div class="p-m">
@@ -329,10 +283,30 @@
                     </div>    
                     <div class="p-field p-col-12 p-md-12"></div>
                     <div class="p-field p-col-12 p-md-12">
-                        <span class="ui-float-label">
-                            <p:inputTextarea id="comentario" value="#{notapedidoBean.np.observacion}" maxlength="50"/>
-                            <p:outputLabel for="comentario">Comentario</p:outputLabel>
-                        </span>
+                        <p:outputLabel>Forma de pago</p:outputLabel>
+                        <p:panel>  
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-4">
+                                    <span class="ui-float-label">
+                                        <p:inputText id="nomBanco" value="#{notapedidoBean.nomBanco}" maxlength="40"/>                                                                
+                                        <p:outputLabel for="nomBanco">Nombre Banco</p:outputLabel>
+                                    </span>
+                                </div>  
+                                <div class="p-field p-col-12 p-md-4">
+                                    <span class="ui-float-label">
+                                        <p:inputText id="numCuenta" value="#{notapedidoBean.numCuenta}" maxlength="30"/>                                                                
+                                        <p:outputLabel for="numCuenta">Número Cuenta</p:outputLabel>
+                                    </span>
+                                </div>  
+                                <div class="p-field p-col-12 p-md-4">
+                                    <span class="ui-float-label">
+                                        <p:inputText id="numCheque" value="#{notapedidoBean.numCheque}" maxlength="30"/>                                                                
+                                        <p:outputLabel for="numCheque">Número Cheque</p:outputLabel>
+                                    </span>
+                                </div>   
+                            </div>
+                        </p:panel>
+
                     </div>
                     <div class="p-field p-col-12 p-md-12"></div>
                     <div class="p-field p-col-12 p-md-4">

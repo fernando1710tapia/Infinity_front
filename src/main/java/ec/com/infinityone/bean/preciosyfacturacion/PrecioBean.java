@@ -34,6 +34,7 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import org.primefaces.PrimeFaces;
+import org.primefaces.event.FileUploadEvent;
 import org.primefaces.event.ToggleEvent;
 import org.primefaces.model.Visibility;
 import org.primefaces.shaded.json.JSONArray;
@@ -45,7 +46,7 @@ import org.primefaces.shaded.json.JSONObject;
  */
 @Named
 @ViewScoped
-public class PrecioBean extends ReusableBean implements Serializable {
+public class PrecioBean extends GestionarPreciosBean implements Serializable {
 
     @Inject
     private ComercializadoraServicio comercializadoraServicio;
@@ -117,6 +118,8 @@ public class PrecioBean extends ReusableBean implements Serializable {
      */
     private boolean soloVigente;
 
+    private String ubicacion;
+
     /**
      * Constructor por defecto
      */
@@ -128,11 +131,9 @@ public class PrecioBean extends ReusableBean implements Serializable {
      * Funcion para inicializar variables
      */
     public void init() {
-        //x = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
         soloVigente = false;
-        //direccion = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.precio";
         direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.precio";
-
+        ubicacion = "";
         editarPrecio = false;
         precio = new Precio();
         detallePrecio = new Detalleprecio();
@@ -598,6 +599,16 @@ public class PrecioBean extends ReusableBean implements Serializable {
         }
     }
 
+    public void subirPrecios() {
+
+        if (habilitarComer) {
+            comercializadora = new ComercializadoraBean();
+            //ubicacion = "";
+            //listaprecioterminalproductoArchivoSubida = new ArrayList<>();
+        }
+        PrimeFaces.current().executeScript("PF('subirPrecios').show()");
+    }   
+
     public List<Detalleprecio> getListaDetallePrecios() {
         return listaDetallePrecios;
     }
@@ -685,21 +696,21 @@ public class PrecioBean extends ReusableBean implements Serializable {
     public void setComercializadora(ComercializadoraBean comercializadora) {
         this.comercializadora = comercializadora;
     }
-
-    public boolean isHabilitarComer() {
-        return habilitarComer;
-    }
-
-    public void setHabilitarComer(boolean habilitarComer) {
-        this.habilitarComer = habilitarComer;
-    }
-
+   
     public boolean isSoloVigente() {
         return soloVigente;
     }
 
     public void setSoloVigente(boolean soloVigente) {
         this.soloVigente = soloVigente;
+    }
+
+    public String getUbicacion() {
+        return ubicacion;
+    }
+
+    public void setUbicacion(String ubicacion) {
+        this.ubicacion = ubicacion;
     }
 
 }

@@ -844,23 +844,23 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                             }
                             fact.setPlazocliente(fa.getInt("plazocliente"));
                             fact.setClaveacceso(fa.getString("claveacceso"));
-                            if (!fa.isNull("campoadicional_campo1")) {
-                                fact.setCampoadicionalCampo1(fa.getString("campoadicional_campo1"));
+                            if (!fa.isNull("campoadicionalCampo1")) {
+                                fact.setCampoadicionalCampo1(fa.getString("campoadicionalCampo1"));
                             }
-                            if (!fa.isNull("campoadicional_campo2")) {
-                                fact.setCampoadicionalCampo2(fa.getString("campoadicional_campo2"));
+                            if (!fa.isNull("campoadicionalCampo2")) {
+                                fact.setCampoadicionalCampo2(fa.getString("campoadicionalCampo2"));
                             }
-                            if (!fa.isNull("campoadicional_campo3")) {
-                                fact.setCampoadicionalCampo3(fa.getString("campoadicional_campo3"));
+                            if (!fa.isNull("campoadicionalCampo3")) {
+                                fact.setCampoadicionalCampo3(fa.getString("campoadicionalCampo3"));
                             }
-                            if (!fa.isNull("campoadicional_campo4")) {
-                                fact.setCampoadicionalCampo4(fa.getString("campoadicional_campo4"));
+                            if (!fa.isNull("campoadicionalCampo4")) {
+                                fact.setCampoadicionalCampo4(fa.getString("campoadicionalCampo4"));
                             }
-                            if (!fa.isNull("campoadicional_campo5")) {
-                                fact.setCampoadicionalCampo5(fa.getString("campoadicional_campo5"));
+                            if (!fa.isNull("campoadicionalCampo5")) {
+                                fact.setCampoadicionalCampo5(fa.getString("campoadicionalCampo5"));
                             }
-                            if (!fa.isNull("campoadicional_campo6")) {
-                                fact.setCampoadicionalCampo6(fa.getString("campoadicional_campo6"));
+                            if (!fa.isNull("campoadicionalCampo6")) {
+                                fact.setCampoadicionalCampo6(fa.getString("campoadicionalCampo6"));
                             }
                             fact.setEstado(fa.getString("estado"));
                             Long error = fa.getLong("errordocumento");
@@ -1055,23 +1055,23 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         }
                         fact.setPlazocliente(fa.getInt("plazocliente"));
                         fact.setClaveacceso(fa.getString("claveacceso"));
-                        if (!fa.isNull("campoadicional_campo1")) {
-                            fact.setCampoadicionalCampo1(fa.getString("campoadicional_campo1"));
+                        if (!fa.isNull("campoadicionalCampo1")) {
+                            fact.setCampoadicionalCampo1(fa.getString("campoadicionalCampo1"));
                         }
-                        if (!fa.isNull("campoadicional_campo2")) {
-                            fact.setCampoadicionalCampo2(fa.getString("campoadicional_campo2"));
+                        if (!fa.isNull("campoadicionalCampo2")) {
+                            fact.setCampoadicionalCampo2(fa.getString("campoadicionalCampo2"));
                         }
-                        if (!fa.isNull("campoadicional_campo3")) {
-                            fact.setCampoadicionalCampo3(fa.getString("campoadicional_campo3"));
+                        if (!fa.isNull("campoadicionalCampo3")) {
+                            fact.setCampoadicionalCampo3(fa.getString("campoadicionalCampo3"));
                         }
-                        if (!fa.isNull("campoadicional_campo4")) {
-                            fact.setCampoadicionalCampo4(fa.getString("campoadicional_campo4"));
+                        if (!fa.isNull("campoadicionalCampo4")) {
+                            fact.setCampoadicionalCampo4(fa.getString("campoadicionalCampo4"));
                         }
-                        if (!fa.isNull("campoadicional_campo5")) {
-                            fact.setCampoadicionalCampo5(fa.getString("campoadicional_campo5"));
+                        if (!fa.isNull("campoadicionalCampo5")) {
+                            fact.setCampoadicionalCampo5(fa.getString("campoadicionalCampo5"));
                         }
-                        if (!fa.isNull("campoadicional_campo6")) {
-                            fact.setCampoadicionalCampo6(fa.getString("campoadicional_campo6"));
+                        if (!fa.isNull("campoadicionalCampo6")) {
+                            fact.setCampoadicionalCampo6(fa.getString("campoadicionalCampo6"));
                         }
                         fact.setEstado(fa.getString("estado"));
                         Long error = fa.getLong("errordocumento");
@@ -1264,23 +1264,23 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         }
                         fact.setPlazocliente(fa.getInt("plazocliente"));
                         fact.setClaveacceso(fa.getString("claveacceso"));
-                        if (!fa.isNull("campoadicional_campo1")) {
-                            fact.setCampoadicionalCampo1(fa.getString("campoadicional_campo1"));
+                        if (!fa.isNull("campoadicionalCampo1")) {
+                            fact.setCampoadicionalCampo1(fa.getString("campoadicionalCampo1"));
                         }
-                        if (!fa.isNull("campoadicional_campo2")) {
-                            fact.setCampoadicionalCampo2(fa.getString("campoadicional_campo2"));
+                        if (!fa.isNull("campoadicionalCampo2")) {
+                            fact.setCampoadicionalCampo2(fa.getString("campoadicionalCampo2"));
                         }
-                        if (!fa.isNull("campoadicional_campo3")) {
-                            fact.setCampoadicionalCampo3(fa.getString("campoadicional_campo3"));
+                        if (!fa.isNull("campoadicionalCampo3")) {
+                            fact.setCampoadicionalCampo3(fa.getString("campoadicionalCampo3"));
                         }
-                        if (!fa.isNull("campoadicional_campo4")) {
-                            fact.setCampoadicionalCampo4(fa.getString("campoadicional_campo4"));
+                        if (!fa.isNull("campoadicionalCampo4")) {
+                            fact.setCampoadicionalCampo4(fa.getString("campoadicionalCampo4"));
                         }
-                        if (!fa.isNull("campoadicional_campo5")) {
-                            fact.setCampoadicionalCampo5(fa.getString("campoadicional_campo5"));
+                        if (!fa.isNull("campoadicionalCampo5")) {
+                            fact.setCampoadicionalCampo5(fa.getString("campoadicionalCampo5"));
                         }
-                        if (!fa.isNull("campoadicional_campo6")) {
-                            fact.setCampoadicionalCampo6(fa.getString("campoadicional_campo6"));
+                        if (!fa.isNull("campoadicionalCampo6")) {
+                            fact.setCampoadicionalCampo6(fa.getString("campoadicionalCampo6"));
                         }
                         fact.setEstado(fa.getString("estado"));
                         Long error = fa.getLong("errordocumento");

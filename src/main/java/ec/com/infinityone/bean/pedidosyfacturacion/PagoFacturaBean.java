@@ -3083,23 +3083,23 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                 }
                 factura.setPlazocliente(fact.getInt("plazocliente"));
                 factura.setClaveacceso(fact.getString("claveacceso"));
-                if (!fact.isNull("campoadicional_campo1")) {
-                    factura.setCampoadicionalCampo1(fact.getString("campoadicional_campo1"));
+                if (!fact.isNull("campoadicionalCampo1")) {
+                    factura.setCampoadicionalCampo1(fact.getString("campoadicionalCampo1"));
                 }
-                if (!fact.isNull("campoadicional_campo2")) {
-                    factura.setCampoadicionalCampo2(fact.getString("campoadicional_campo2"));
+                if (!fact.isNull("campoadicionalCampo2")) {
+                    factura.setCampoadicionalCampo2(fact.getString("campoadicionalCampo2"));
                 }
-                if (!fact.isNull("campoadicional_campo3")) {
-                    factura.setCampoadicionalCampo3(fact.getString("campoadicional_campo3"));
+                if (!fact.isNull("campoadicionalCampo3")) {
+                    factura.setCampoadicionalCampo3(fact.getString("campoadicionalCampo3"));
                 }
-                if (!fact.isNull("campoadicional_campo4")) {
-                    factura.setCampoadicionalCampo4(fact.getString("campoadicional_campo4"));
+                if (!fact.isNull("campoadicionalCampo4")) {
+                    factura.setCampoadicionalCampo4(fact.getString("campoadicionalCampo4"));
                 }
-                if (!fact.isNull("campoadicional_campo5")) {
-                    factura.setCampoadicionalCampo5(fact.getString("campoadicional_campo5"));
+                if (!fact.isNull("campoadicionalCampo5")) {
+                    factura.setCampoadicionalCampo5(fact.getString("campoadicionalCampo5"));
                 }
-                if (!fact.isNull("campoadicional_campo6")) {
-                    factura.setCampoadicionalCampo6(fact.getString("campoadicional_campo6"));
+                if (!fact.isNull("campoadicionalCampo6")) {
+                    factura.setCampoadicionalCampo6(fact.getString("campoadicionalCampo6"));
                 }
                 factura.setEstado(fact.getString("estado"));
                 Long error = fact.getLong("errordocumento");

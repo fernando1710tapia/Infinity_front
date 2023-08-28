@@ -35,9 +35,11 @@
                                                      styleClass="ui-button-success" style="margin-right: .5rem" immediate="true"/>
                                 </p:toolbarGroup>
                                 <p:toolbarGroup>
-                                    <p:commandButton value="Export" icon="pi pi-upload" styleClass="ui-button-help" ajax="false">
+                                    <p:commandButton value="Cargar Precios" icon="pi pi-plus" actionListener="#{precioBean.subirPrecios()}" update="form :actualizarlistap" immediate="true"
+                                                     styleClass="ui-button-info" style="margin-right: .5rem" />
+                                    <!--<p:commandButton value="Export" icon="pi pi-upload" styleClass="ui-button-help" ajax="false">
                                         <p:dataExporter type="pdf" target="dt-products" fileName="products"/>
-                                    </p:commandButton>
+                                    </p:commandButton>-->
                                 </p:toolbarGroup>
                             </p:toolbar>       
                             <div class="ui-fluid p-formgrid p-grid">
@@ -67,7 +69,7 @@
                                     <div class="ui-inputgroup">
                                         <p:toggleSwitch id="vigentes" value="#{precioBean.soloVigente}" > 
                                             <p:ajax event="change" listener="#{precioBean.soloVigentes()}"
-                                            update="form dt-products"/>
+                                                    update="form dt-products"/>
                                         </p:toggleSwitch>
                                     </div>
                                 </div>
@@ -310,9 +312,116 @@
             </h:form>
         </p:dialog>
 
+        <p:dialog header="Carga de Precio" width="80%" height="500px" showEffect="fade" modal="true" widgetVar="subirPrecios" responsive="true">
+            <h:form id="actualizarlistap">
+                <p:outputPanel rendered="true">
+                    <div class="p-grid crud-demo">                        
+                        <div class="ui-fluid p-col-12 p-formgrid p-grid">      
+                            <div class="p-field p-col-12 p-md-6">
+                                <div class="ui-inputgroup">
+                                    <span class="ui-inputgroup-addon">
+                                        <i class="fa fa-shopping-cart"></i>
+                                    </span>
+                                    <p:selectOneMenu id="comercializadora" value="#{precioBean.comercializadora}" title="Comercializadora"
+                                                     panelStyle="width:175px" style="min-width: 80%;" 
+                                                     autoWidth="false" converter="converterg" disabled="#{!precioBean.habilitarComer}">
+                                        <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}" />
+                                        <f:selectItems value="#{precioBean.listaComercializadora}"
+                                                       var="comer"
+                                                       itemLabel="#{comer.objRelacionado}"
+                                                       itemValue="#{comer}" />
+                                        <p:ajax event="change" listener="#{precioBean.seleccionarComercializdora}"
+                                                update="form "/>
+                                    </p:selectOneMenu> 
+                                </div>  
+                            </div>
+                            <div class="p-field p-col-12 p-md-6">  
+                                <span class="ui-float-label">
+                                    <p:outputLabel for="fechaVenc" value="Fecha Inicio de Vigencia "/>
+                                    <p:datePicker id="fechaVenc" value="#{precioBean.fechaVencimiento}" showIcon="true" pattern="dd/MM/yyyy" mindate="#{gestionarPreciosBean.fechaVencimiento}">
+                                        <p:ajax event="dateSelect" listener="#{precioBean.verificarMismoPrecio()}"/>
+                                    </p:datePicker>
+                                </span>
+                            </div>
+                            <div class="p-field p-col-12 p-md-12"> </div>
+                            <div class="p-field p-col-12 p-md-12">  
+                                <span class="ui-float-label">
+                                    <p:inputTextarea id="observacion" value="#{precioBean.observacion}"/>
+                                    <p:outputLabel for="observacion" value="Observación"/>
+                                </span>
+                            </div>                            
+
+                            <div class="p-field p-col-12 p-md-12">
+                                <p:outputLabel for="archivo" value="Subir Archivo"/>
+                                <p:fileUpload id="archivo" listener="#{precioBean.handleFileUpload}"                                              
+                                              mode="advanced" multiple="false"
+                                              update="ubi dt-cobros" auto="true"
+                                              sizeLimit="102400" allowTypes="/(\.|\/)(xlsx)$/"
+                                              invalidSizeMessage="Tamaño máximo permitido: 100 KB"
+                                              invalidFileMessage="Solo archivo de tipo xlsx está permitido"/>    
+                                <p:outputLabel id="ubi" value="#{precioBean.ubicacion}"/>
+                            </div>                            
+                            <p:dataTable id="dt-cobros" widgetVar="dtProducts" var="det" value="#{precioBean.listaObjDetalle}" reflow="true" styleClass="products-table"
+                                         paginator="true" rows="15" rowSelectMode="add" paginatorPosition="bottom">                                        
+                                <f:facet name="header">
+                                    <div class="products-table-header">
+                                        <span style="font-weight: bold">Listas de Precio a actualizar</span>
+                                    </div>
+                                </f:facet>                                  
+
+                                <p:column headerText="Terminal" filterBy="#{det.codigoTerminal}" width="5%">
+                                    <h:outputText value="#{det.codigoTerminal}" />
+                                </p:column>
+                                <p:column headerText="Producto" filterBy="#{det.precio.comercializadoraproducto.producto.nombre}" width="5%">
+                                    <h:outputText value="#{det.precio.comercializadoraproducto.producto.nombre}" />
+                                </p:column>
+                                <p:column headerText="Medida" filterBy="#{det.precio.comercializadoraproducto.medida.abreviacion}" width="5%">
+                                    <h:outputText value="#{det.precio.comercializadoraproducto.medida.abreviacion}" />
+                                </p:column>                                
+                                <p:column headerText="Lista Precio" sortBy="#{det.precio.listaprecio.nombre}" filterBy="#{det.precio.listaprecio.nombre}">
+                                    <h:outputText value="#{det.precio.listaprecio.nombre}" />
+                                </p:column>                                               
+                                <p:column headerText="Precio Sugerido" filterBy="#{det.pvpsugerido}" >
+                                    <h:outputText value="#{det.pvpsugerido}" />
+                                </p:column>
+                                <p:column headerText="Precio Terminal EPP">
+                                    <h:outputText value="#{det.precioTerminalEpp}" />
+                                </p:column>
+                                <p:column headerText="IVA">
+                                    <h:outputText value="#{det.iva}" />
+                                </p:column>
+                                <p:column headerText="Margen X Cliente">
+                                    <h:outputText value="#{det.margenxcliente}" />
+                                </p:column>
+                                <p:column headerText="Ret. IVA Presuntivo">
+                                    <h:outputText value="#{det.ivaPresuntivo}" />
+                                </p:column>
+                                <p:column headerText="Tres Por Mil">
+                                    <h:outputText value="#{det.tresPorMil}" />
+                                </p:column>
+                                <p:column headerText="Precio Producto">
+                                    <h:outputText value="#{det.precioProducto}" />
+                                </p:column>                               
+
+                            </p:dataTable>
+                        </div> 
+                    </div>
+                </p:outputPanel>
+                <div class="p-grid p-col-12 p-justify-end"> 
+                    <p:commandButton value="Guardar" icon="pi pi-check" oncomplete="PF('confirmDialog').show()" process="@this" styleClass="p-mr-2"/>                                                          
+                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('zip').hide()" class="ui-button-secondary" />
+                </div>
+            </h:form>
+        </p:dialog>
+
         <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300" message="Eliminar Lista de Precios?" header="Confirm" severity="warn">
             <p:commandButton value="Si" icon="pi pi-check" actionListener="#{listaPrecioBean.deleteItems()}" process="@this" oncomplete="PF('deleteProductDialog').hide()"/>
             <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('deleteProductDialog').hide()" />
+        </p:confirmDialog>
+        
+        <p:confirmDialog widgetVar="confirmDialog" showEffect="fade" width="300" message="Se va a iniciar la creacion de precios. Esto tomara un momento. Continuar?" header="Confirm" severity="info">                       
+            <p:commandButton value="Si" icon="pi pi-check" actionListener="#{precioBean.guardarPriceLote()}" process="@this" update=":form" oncomplete="PF('confirmDialog').hide()"/>
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('confirmDialog').hide()" />            
         </p:confirmDialog>
 
         <p:confirmDialog widgetVar="configTermDialog" showEffect="fade" width="300" message="Requiere configurar Terminal?" header="Confirm" severity="warn">
