@@ -171,7 +171,7 @@
                                                              panelStyle="width:175px" style="min-width: 80%;" 
                                                              autoWidth="false" converter="converterg"
                                                              filter="true" filterMatchMode="startsWith"
-                                                             required="true" requiredMessage="Seleccione Ambiente">
+                                                             required="true" requiredMessage="Seleccione Comercializadora">
                                                 <f:selectItem noSelectionOption="true" itemLabel="selecciona" itemValue="000"/>
                                                 <f:selectItems value="#{listaPrecioBean.listaComercializadora}"
                                                                var="comer"
@@ -322,17 +322,19 @@
                                     <span class="ui-inputgroup-addon">
                                         <i class="fa fa-shopping-cart"></i>
                                     </span>
-                                    <p:selectOneMenu id="comercializadora" value="#{precioBean.comercializadora}" title="Comercializadora"
+                                    <p:selectOneMenu id="comercializadora2" value="#{precioBean.comercializadora}" title="Comercializadora"
                                                      panelStyle="width:175px" style="min-width: 80%;" 
-                                                     autoWidth="false" converter="converterg" disabled="#{!precioBean.habilitarComer}">
-                                        <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}" />
+                                                     autoWidth="false" converter="converterg"
+                                                     filter="true" filterMatchMode="startsWith"
+                                                     requiredMessage="Seleccione Comercializadora"
+                                                     disabled="#{!precioBean.habilitarComer}">
+                                        <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}" />   
                                         <f:selectItems value="#{precioBean.listaComercializadora}"
                                                        var="comer"
                                                        itemLabel="#{comer.objRelacionado}"
-                                                       itemValue="#{comer}" />
-                                        <p:ajax event="change" listener="#{precioBean.seleccionarComercializdora}"
-                                                update="form "/>
-                                    </p:selectOneMenu> 
+                                                       itemValue="#{comer}" />    
+                                        <p:ajax event="change" listener="#{precioBean.seleccionarComer()}"/>
+                                    </p:selectOneMenu>                                   
                                 </div>  
                             </div>
                             <div class="p-field p-col-12 p-md-6">  
@@ -361,7 +363,7 @@
                                               invalidFileMessage="Solo archivo de tipo xlsx está permitido"/>    
                                 <p:outputLabel id="ubi" value="#{precioBean.ubicacion}"/>
                             </div>                            
-                            <p:dataTable id="dt-cobros" widgetVar="dtProducts" var="det" value="#{precioBean.listaObjDetalle}" reflow="true" styleClass="products-table"
+                            <p:dataTable id="dt-cobros" widgetVar="dtProducts" var="det" value="#{precioBean.listObjDetalle}" reflow="true" styleClass="products-table"
                                          paginator="true" rows="15" rowSelectMode="add" paginatorPosition="bottom">                                        
                                 <f:facet name="header">
                                     <div class="products-table-header">
@@ -372,14 +374,14 @@
                                 <p:column headerText="Terminal" filterBy="#{det.codigoTerminal}" width="5%">
                                     <h:outputText value="#{det.codigoTerminal}" />
                                 </p:column>
-                                <p:column headerText="Producto" filterBy="#{det.precio.comercializadoraproducto.producto.nombre}" width="5%">
-                                    <h:outputText value="#{det.precio.comercializadoraproducto.producto.nombre}" />
+                                <p:column headerText="Producto" filterBy="#{det.codigoProd}" width="5%">
+                                    <h:outputText value="#{det.codigoProd}" />
                                 </p:column>
-                                <p:column headerText="Medida" filterBy="#{det.precio.comercializadoraproducto.medida.abreviacion}" width="5%">
-                                    <h:outputText value="#{det.precio.comercializadoraproducto.medida.abreviacion}" />
+                                <p:column headerText="Medida" filterBy="#{det.codigoMedida}" width="5%">
+                                    <h:outputText value="#{det.codigoMedida}" />
                                 </p:column>                                
-                                <p:column headerText="Lista Precio" sortBy="#{det.precio.listaprecio.nombre}" filterBy="#{det.precio.listaprecio.nombre}">
-                                    <h:outputText value="#{det.precio.listaprecio.nombre}" />
+                                <p:column headerText="Lista Precio" filterBy="#{det.codigoLisPrecio}">
+                                    <h:outputText value="#{det.codigoLisPrecio}" />
                                 </p:column>                                               
                                 <p:column headerText="Precio Sugerido" filterBy="#{det.pvpsugerido}" >
                                     <h:outputText value="#{det.pvpsugerido}" />
@@ -418,7 +420,7 @@
             <p:commandButton value="Si" icon="pi pi-check" actionListener="#{listaPrecioBean.deleteItems()}" process="@this" oncomplete="PF('deleteProductDialog').hide()"/>
             <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('deleteProductDialog').hide()" />
         </p:confirmDialog>
-        
+
         <p:confirmDialog widgetVar="confirmDialog" showEffect="fade" width="300" message="Se va a iniciar la creacion de precios. Esto tomara un momento. Continuar?" header="Confirm" severity="info">                       
             <p:commandButton value="Si" icon="pi pi-check" actionListener="#{precioBean.guardarPriceLote()}" process="@this" update=":form" oncomplete="PF('confirmDialog').hide()"/>
             <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('confirmDialog').hide()" />            

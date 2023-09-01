@@ -34,7 +34,6 @@ import ec.com.infinityone.configuration.Fichero;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
@@ -52,14 +51,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.primefaces.PrimeFaces;
-import org.primefaces.event.FileUploadEvent;
-import org.primefaces.model.file.UploadedFile;
 import org.primefaces.shaded.json.JSONArray;
 import org.primefaces.shaded.json.JSONObject;
 
@@ -1605,46 +1597,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public String handleFileUpload(FileUploadEvent event) {
-
-        UploadedFile uploadedFile = event.getFile();
-        listaObjDetalle = new ArrayList<>();
-        List<String> listLectura = new ArrayList<>();
-        try (InputStream inputStream = uploadedFile.getInputStream()) {
-            Workbook workbook = new XSSFWorkbook(inputStream);
-            Sheet sheet = workbook.getSheetAt(0); // Suponiendo que deseas leer la primera hoja
-
-            for (int rowIndex = 1; rowIndex < sheet.getPhysicalNumberOfRows(); rowIndex++) {
-                Row row = sheet.getRow(rowIndex);
-                objDetalle = new ObjetoDetallePrecio();
-                if (row != null) {
-                    for (int cellIndex = 0; cellIndex < row.getPhysicalNumberOfCells(); cellIndex++) {
-                        Cell cell = row.getCell(cellIndex);
-                        String cellValue = (cell != null) ? cell.toString() : "";
-                        System.out.println("cellValue: " + cellValue);
-                        switch (cellIndex) {
-                            case 0:
-                                objDetalle.setCodigoTerminal(cellValue);
-                                break;
-                            case 4:
-                                objDetalle.setPvpsugerido(new BigDecimal(cellValue));
-                                break;
-                            // Agrega más casos para otros atributos
-                        }
-
-                    }                                       
-                }  
-                listaObjDetalle.add(objDetalle);
-            }
-            workbook.close();
-        } catch (Exception e) {
-            // Maneja las excepciones adecuadamente
-            e.printStackTrace();
-        }
-        return "";
-    }
+    }   
 
     public ComercializadoraBean getComercializadora() {
         return comercializadora;

@@ -1,0 +1,541 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Guías de Remisión</ui:define>
+
+    <ui:define name="viewname">
+        <li>Guías de Remisión</li>        
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="form">
+            <p:outputPanel id="manage-product-content1" rendered="#{guiasRemisionBean.mostarPantallaInicial}">            
+                <div class="p-grid crud-demo">
+                    <div class="p-col-12">
+                        <div class="card">
+                            <p:growl id="messages" showDetail="true" />
+                            
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-6">
+                                    <p:outputLabel for="comercializadora" value="Comercializadora"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-money"></i>
+                                        </span>
+                                        <p:selectOneMenu id="comercializadora" value="#{guiasRemisionBean.comercializadora}" title="Comercializadora"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         filter="true" filterMatchMode="startsWith"                                                         
+                                                         disabled="#{!guiasRemisionBean.habilitarComer}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}" />   
+                                            <f:selectItems value="#{guiasRemisionBean.listaComercializadora}"
+                                                           var="comer"
+                                                           itemLabel="#{comer.objRelacionado}"
+                                                           itemValue="#{comer}" />    
+                                            <p:ajax event="change" listener="#{guiasRemisionBean.seleccionarComer()}" update="form cli"/>
+                                        </p:selectOneMenu>
+                                    </div>                            
+                                </div>
+                                <div class="p-field p-col-12 p-md-6">
+                                    <p:outputLabel for="cli" value="Cliente"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>
+                                        <p:selectOneMenu id="cli" value="#{guiasRemisionBean.cliente}" title="Cliente"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         disabled="#{!guiasRemisionBean.habilitarCli}"
+                                                         filter="true" filterMatchMode="contains">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
+                                            <f:selectItems value="#{guiasRemisionBean.listaClientes}"
+                                                           var="cliente"
+                                                           itemLabel="#{cliente.codigo} - #{cliente.nombrecomercial}"
+                                                           itemValue="#{cliente}" />    
+                                            <p:ajax event="change" listener="#{guiasRemisionBean.seleccionarCliente()}"/>
+                                        </p:selectOneMenu> 
+                                    </div>
+                                </div>                                       
+                                <div class="p-field p-col-12 p-md-5">                                  
+                                    <p:outputLabel for="fechaD" value="Fecha Despacho"/>
+                                    <p:datePicker id="fechaD" value="#{guiasRemisionBean.fechaf}" showIcon="true" pattern="dd/MM/yyyy" >
+                                        <p:ajax event="dateSelect"/>
+                                    </p:datePicker>
+                                </div>     
+                                <div class="p-field p-col-12 p-md-5">                                    
+                                    <p:outputLabel for="numGuia">Número de guía</p:outputLabel>    
+                                    <p:inputText id="numGuia" value="#{guiasRemisionBean.numGuia}" maxlength="100"/>                                                                           
+                                </div> 
+                                <div class="p-field p-col-12 p-md-2">  
+                                    <p:outputLabel for="bus" value="&#160;"/>
+                                    <p:commandButton id="bus" value="Buscar" icon="pi pi-search-plus" actionListener="#{guiasRemisionBean.obtenerGuiaCli()}" immediate="true" update="dt-products"/>
+                                </div>
+                            </div>
+                            <p:dataTable id="dt-products" widgetVar="dtProducts" var="guia" value="#{guiasRemisionBean.listaConsultaGuia}" reflow="true" styleClass="products-table"
+                                         paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
+                                <f:facet name="header">
+                                    <div class="products-table-header">
+                                        <span style="font-weight: bold">Guias de Remisión</span>
+
+                                        <span class="filter-container ui-input-icon-left">
+                                            <i class="pi pi-search"></i>
+                                            <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar" />
+                                        </span>
+                                    </div>
+                                </f:facet>
+
+                                <!--<p:ajax event="rowToggle" listener="{guiasRemisionBean.onRowToggle}" />                                
+                                <p:column exportable="false" width="5%">
+                                    <p:rowToggler  />
+                                </p:column>-->
+                                <p:column headerText="Fecha Despacho" sortBy="#{guia.consultaguiaremisionPK.fecha}" filterBy="#{guia.consultaguiaremisionPK.fecha}" width="11%">
+                                    <h:outputText value="#{guia.consultaguiaremisionPK.fecha}">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
+                                    </h:outputText>
+                                </p:column>
+                                <p:column headerText="Numero GR" sortBy="#{guia.consultaguiaremisionPK.numero}" filterBy="#{guia.consultaguiaremisionPK.numero}" width="8%">
+                                    <h:outputText value="#{guia.consultaguiaremisionPK.numero}" />
+                                </p:column>
+                                <p:column headerText="Numero OE" sortBy="#{guia.numerooe}" filterBy="#{guia.numerooe}" width="8%">
+                                    <h:outputText value="#{guia.numerooe}" />
+                                </p:column>
+                                <p:column headerText="Numero Fact." sortBy="#{guia.numerofactura}" filterBy="#{guia.numerofactura}" width="10%">
+                                    <h:outputText value="#{guia.numerofactura}" />
+                                </p:column>
+                                <p:column headerText="Producto" width="6%">
+                                    <h:outputText value="#{guia.codigoproducto}" />
+                                </p:column>
+                                <p:column headerText="Volumen Entregado" width="10%">
+                                    <h:outputText value="#{guia.volumenentregado}" />
+                                </p:column>
+                                <p:column headerText="Autotanque" width="7%">
+                                    <h:outputText value="#{guia.autotanque}" />
+                                </p:column>
+                                <p:column style="width: 3rem">                               
+                                    <p:commandButton icon="pi pi-print" actionListener="#{guiasRemisionBean.generarReporte(guia)}" ajax="false" 
+                                                     onstart="PF('blockUIWidget').block()" 
+                                                     oncomplete="PF('blockUIWidget').unblock()"
+                                                     onclick="PrimeFaces.monitorDownload(start, stop);" 
+                                                     update="@form" styleClass="edit-button rounded-button ui-button-success">
+                                        <p:fileDownload value="#{guiasRemisionBean.pdfStream}"/>
+                                    </p:commandButton>
+                                </p:column>    
+                                <!--<p:column exportable="false">
+                                    <p:commandButton icon="pi pi-pencil" update="form :formNuevo" actionListener="#{guiasRemisionBean.editarGuia(guia)}"
+                                                     styleClass="edit-button rounded-button ui-button-success" process="@this">
+                                        <f:setPropertyActionListener value="#{guia}" target="#{guiasRemisionBean.consulGuia}" />
+                                    </p:commandButton>
+                                    <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash" process="@this" oncomplete="PF('deleteProductDialog').show()" disabled="false">
+                                        <f:setPropertyActionListener value="{guia}" target="{guiasRemisionBean.consulGuia}" />
+                                    </p:commandButton>
+                                </p:column>   -->
+                                <p:column style="width: 3.5rem">
+                                    <p:commandButton icon="pi pi-search" update="form :formNuevo" actionListener="#{guiasRemisionBean.lecturaDatos(guia)}"
+                                                     styleClass="edit-button rounded-button ui-button-success" process="@this">
+                                        <f:setPropertyActionListener value="#{guia}" target="#{guiasRemisionBean.consulGuia}" />
+                                    </p:commandButton>
+                                </p:column>
+                            </p:dataTable>
+                        </div>
+                    </div>
+                </div>
+            </p:outputPanel>
+        </h:form>
+
+        <p:dialog width="55%" showEffect="fade" modal="true" widgetVar="nuevo" responsive="true">
+            <h:form id="formNuevo">
+                <p:outputPanel rendered = "true">                               
+                    <div class="ui-fluid p-formgrid p-grid">
+                        <div class="p-field p-col-12 p-md-8">                            
+                            <h5>Guía de Remisión: #{guiasRemisionBean.consulGuia.consultaguiaremisionPK.numero} - #{guiasRemisionBean.consulGuia.numerosri}</h5> 
+                        </div>                        
+                        <div class="p-field p-col-12 p-md-5"> 
+                            <h5>Fecha Despacho: #{guiasRemisionBean.consulGuia.consultaguiaremisionPK.fecha}</h5>
+                        </div>
+                        <div class="p-field p-col-12 p-md-3">
+                            <span style="font-weight: bold">
+                                <p:outputLabel>Núm. Orden: </p:outputLabel>
+                            </span>                                                        
+                            <p:outputLabel>#{guiasRemisionBean.consulGuia.numerooe}</p:outputLabel>                                                            
+                        </div>
+                        <div class="p-field p-col-12 p-md-4">
+                            <span style="font-weight: bold">
+                                <p:outputLabel>Núm. Fact: </p:outputLabel>
+                            </span>                                           
+                            <p:outputLabel>#{guiasRemisionBean.consulGuia.numerofactura}</p:outputLabel>                             
+                        </div>
+                        <div class="p-field p-col-12 p-md-5">
+                            <span style="font-weight: bold">
+                                <p:outputLabel>Terminal: </p:outputLabel>    
+                            </span>                           
+                            <p:outputLabel>#{guiasRemisionBean.consulGuia.codigoterminal} - #{guiasRemisionBean.nombreterminal(guiasRemisionBean.consulGuia.codigoterminal)}</p:outputLabel>                                
+                        </div>
+                        <div class="p-field p-col-12 p-md-7">
+                            <span style="font-weight: bold">
+                                <p:outputLabel>Conductor: </p:outputLabel>
+                            </span>                            
+                            <p:outputLabel>#{guiasRemisionBean.consulGuia.cedulaconductor} - #{guiasRemisionBean.consulGuia.nombreconductor}</p:outputLabel>                            
+                        </div>
+                        <div class="p-field p-col-12 p-md-5">
+                            <span style="font-weight: bold">
+                                <p:outputLabel>Autotanque: </p:outputLabel>
+                            </span>                            
+                            <p:outputLabel>#{guiasRemisionBean.consulGuia.autotanque}</p:outputLabel>                            
+                        </div>
+                        <div class="p-field p-col-12 p-md-7">
+                            <span style="font-weight: bold">
+                                <p:outputLabel>Cliente: </p:outputLabel>
+                            </span>                            
+                            <p:outputLabel>#{guiasRemisionBean.consulGuia.codigocliente} - #{guiasRemisionBean.nombreCliente(guiasRemisionBean.consulGuia.codigocliente)}</p:outputLabel>
+                        </div>                        
+                        <div class="p-field p-col-12 p-md-5">  
+                            <span style="font-weight: bold">
+                                <p:outputLabel>Fecha Recepción: </p:outputLabel>
+                            </span>                            
+                            <p:outputLabel >#{guiasRemisionBean.fecha(guiasRemisionBean.consulGuia.consultaguiaremisionPK.fecharecepcion)}</p:outputLabel>
+                        </div>
+                        <div class="p-field p-col-12 p-md-2">
+                            <span class="ui-float-label">
+                                <p:inputText id="selloIni" value="#{guiasRemisionBean.consulGuia.selloinicial}" required="true" disabled="#{guiasRemisionBean.soloLectura}"/>
+                                <p:outputLabel for="selloIni">Sello Ini.: </p:outputLabel>
+                            </span>
+                        </div>
+                        <div class="p-field p-col-12 p-md-2">
+                            <span class="ui-float-label">
+                                <p:inputText id="selloFin" value="#{guiasRemisionBean.consulGuia.sellofinal}" required="true" disabled="#{guiasRemisionBean.soloLectura}"/>
+                                <p:outputLabel for="selloFin">Sello Fin.:</p:outputLabel>
+                            </span>
+                        </div>
+                        <div class="p-field p-col-12 p-md-8">
+                            <span class="ui-float-label">
+                                <p:inputText id="observ" value="#{guiasRemisionBean.consulGuia.observacion}" required="true" disabled="#{guiasRemisionBean.soloLectura}"/>
+                                <p:outputLabel for="observ">Observación:</p:outputLabel>
+                            </span>
+                        </div>                        
+                        <div class="p-field p-col-12 p-md-12">
+                            <p:dataTable id="dt-productsPro" widgetVar="dtProductsPro" var="guiaP" value="#{guiasRemisionBean.listaConsultaGuiaAux}" reflow="true" styleClass="products-table"
+                                         rows="1" rowSelectMode="add">                                
+                                <p:column headerText="Producto" width="11%">
+                                    <h:outputText value="#{guiaP.codigoproducto}" />                                                                    
+                                </p:column>
+                                <p:column headerText="Medida" width="8%">
+                                    <h:outputText value="#{guiaP.codigomedida}" />
+                                </p:column>
+                                <p:column headerText="Volumen" width="8%">
+                                    <h:outputText value="#{guiaP.volumenentregado}" />
+                                </p:column>                            
+                            </p:dataTable>
+                        </div>
+                        <div class="p-field p-col-12 p-md-12">
+                            <p:dataTable id="dt-productsComp" widgetVar="dtProductsComp" var="guiaC" value="#{guiasRemisionBean.listaConsultaGuiaAux}" reflow="true" styleClass="products-table"
+                                         rows="1" rowSelectMode="add">                                
+                                <p:column headerText="Comp. 1" width="10%">
+                                    <h:outputText value="#{guiaC.compartimento1}" />                                                                    
+                                </p:column>
+                                <p:column headerText="Comp. 2" width="10%">
+                                    <h:outputText value="#{guiaC.compartimento2}" />
+                                </p:column>
+                                <p:column headerText="Comp. 3" width="10%">
+                                    <h:outputText value="#{guiaC.compartimento3}" />
+                                </p:column>        
+                                <p:column headerText="Comp. 4" width="10%">
+                                    <h:outputText value="#{guiaC.compartimento4}" />                                                                    
+                                </p:column>
+                                <p:column headerText="Comp. 5" width="10%">
+                                    <h:outputText value="#{guiaC.compartimento5}" />
+                                </p:column>
+                                <p:column headerText="Comp. 6" width="10%">
+                                    <h:outputText value="#{guiaC.compartimento6}" />
+                                </p:column>        
+                            </p:dataTable>
+                        </div>                        
+
+                        <!--<div class="p-field p-col-12 p-md-3">
+                            <span style="font-weight: bold">
+                                <p:outputLabel>Número: </p:outputLabel>
+                            </span>
+                            <p:outputLabel>{guiasRemisionBean.consulGuia.consultaguiaremisionPK.numero}</p:outputLabel>                                                        
+                        </div>
+                        <div class="p-field p-col-12 p-md-3">
+                            <span style="font-weight: bold">
+                                <p:outputLabel>Número SRI: </p:outputLabel>
+                            </span>                            
+                            <p:outputLabel>{guiasRemisionBean.consulGuia.numerosri}</p:outputLabel>                                                        
+                        </div>
+                        <div class="p-field p-col-12 p-md-3">
+                            <span class="ui-float-label">
+                                <p:inputText id="medida" value="{guiasRemisionBean.consulGuia.medida}" required="true" maxlength="4" disabled="{guiasRemisionBean.soloLectura}"/>
+                                <p:outputLabel for="medida">Medida</p:outputLabel>
+                            </span>
+                        </div>
+                        <div class="p-field p-col-12 p-md-6">
+                            <span class="ui-float-label">
+                                <p:inputText id="producto" value="#{guiasRemisionBean.consulGuia.producto}" required="true" maxlength="50" disabled="#{guiasRemisionBean.soloLectura}"/>
+                                <p:outputLabel for="producto">Producto</p:outputLabel>
+                            </span>
+                        </div>
+                        <div class="p-field p-col-12 p-md-3">
+                            <span class="ui-float-label">
+                                <p:inputText id="codigoComer" value="#{guiasRemisionBean.consulGuia.consultaguiaremisionPK.codigocomercializadora}" required="true" maxlength="4" disabled="#{guiasRemisionBean.soloLectura}"/>
+                                <p:outputLabel for="codigoComer">Comercializadora</p:outputLabel>
+                            </span>
+                        </div>                        
+                        <div class="p-field p-col-12 p-md-4">
+                            <span class="ui-float-label">
+                                <p:inputText id="areaM" value="#{guiasRemisionBean.consulGuia.codigoareamercadeo}" required="true" maxlength="4" disabled="#{guiasRemisionBean.soloLectura}"/>
+                                <p:outputLabel for="areaM">Area Mercadeo</p:outputLabel>
+                            </span>
+                        </div>
+                        <div class="p-field p-col-12 p-md-4">
+                            <span class="ui-float-label">
+                                <p:inputText id="codigoProd" value="#{guiasRemisionBean.consulGuia.codigoproducto}" required="true" maxlength="4" disabled="#{guiasRemisionBean.soloLectura}"/>
+                                <p:outputLabel for="codigoProd">Código Producto</p:outputLabel>
+                            </span>
+                        </div>
+                        <div class="p-field p-col-12 p-md-4">
+                            <span class="ui-float-label">
+                                <p:inputText id="codigoMed" value="#{guiasRemisionBean.consulGuia.codigomedida}" required="true" maxlength="4" disabled="#{guiasRemisionBean.soloLectura}"/>
+                                <p:outputLabel for="codigoMed">Código Medida</p:outputLabel>
+                            </span>
+                        </div>
+                        <div class="p-field p-col-12 p-md-4">
+                            <span class="ui-float-label">
+                                <p:inputText id="volgen" value="#{guiasRemisionBean.consulGuia.volumenentregado}" required="true" maxlength="50" disabled="#{guiasRemisionBean.soloLectura}"/>
+                                <p:outputLabel for="volgen">Volumen Entregado</p:outputLabel>
+                            </span>
+                        </div>
+
+                        <div class="p-field p-col-12 p-md-4">
+                            <span class="ui-float-label">
+                                <p:inputText id="est" value="#{guiasRemisionBean.consulGuia.estado}" required="true" maxlength="13" disabled="#{guiasRemisionBean.soloLectura}"/>
+                                <p:outputLabel for="est">Estado Guía</p:outputLabel>
+                            </span>
+                        </div>                        
+                        <div class="p-field p-col-12 p-md-6">
+                            <p:outputLabel for="estado"  value="Registro Activo"/>
+                            <div class="ui-inputgroup">
+                                <p:toggleSwitch id="estado" value="#{guiasRemisionBean.consulGuia.activo}" disabled="#{guiasRemisionBean.soloLectura}" > </p:toggleSwitch>
+                            </div>
+                        </div>-->
+                        <div class="p-field p-col-12 p-md-12"></div>
+                    </div>                                                                                           
+                </p:outputPanel>
+                <div class="p-grid p-justify-end">
+                    <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{guiasRemisionBean.save()}" rendered="#{!guiasRemisionBean.soloLectura}"
+                                     update=":form formNuevo" styleClass="p-mr-2"/>
+                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('nuevo').hide()" class="ui-button-secondary" />
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <h:form id="formNuevoGuia">
+            <p:outputPanel  id="manage-product-content" rendered="#{guiasRemisionBean.mostarGuia}">     
+                <p:growl id="messages" showDetail="true" />
+                <h2 style="color:#87ea2a">OBTENER GUIAS DE REMISION</h2>
+                <div class="ui-fluid p-formgrid p-grid">                            
+                    <div class="p-field p-col-12 p-md-6">
+                        <div class="ui-inputgroup">
+                            <span class="ui-inputgroup-addon">
+                                <i class="fa fa-shopping-cart"></i>
+                            </span>
+                            <p:selectOneMenu id="comercializadora2" value="#{guiasRemisionBean.comercializadora}" title="Comercializadora"
+                                             panelStyle="width:175px" style="min-width: 80%;" 
+                                             autoWidth="false" converter="converterg" disabled="#{!guiasRemisionBean.habilitarComer}">
+                                <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+                                <f:selectItems value="#{guiasRemisionBean.listaComercializadora}"
+                                               var="comer"
+                                               itemLabel="#{comer.objRelacionado}"
+                                               itemValue="#{comer}" />
+                                <p:ajax event="change" listener="#{guiasRemisionBean.seleccionarComercializdora}"
+                                        update="formNuevoGuia"/>
+                            </p:selectOneMenu> 
+                        </div>
+                    </div>
+                    <div class="p-field p-col-12 p-md-6">
+                        <div class="ui-inputgroup">
+                            <span class="ui-inputgroup-addon">
+                                <i class="fa fa-shopping-cart"></i>
+                            </span>
+                            <p:selectOneMenu id="terminal2" value="#{guiasRemisionBean.terminal}" title="Terminal"
+                                             panelStyle="width:175px" style="min-width: 80%;" 
+                                             autoWidth="false" converter="converterg" 
+                                             disabled="#{!guiasRemisionBean.habilitarTerminal}">
+                                <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
+                                <f:selectItems value="#{guiasRemisionBean.listaTermianles}"
+                                               var="terminal"
+                                               itemLabel="#{terminal.codigo} - #{terminal.nombre}"                                               
+                                               itemValue="#{terminal}" />
+                                <p:ajax event="change" listener="#{guiasRemisionBean.seleccionarTerminal}"/>
+                            </p:selectOneMenu> 
+                        </div>
+                    </div>
+                    <!--<div class="p-field p-col-12 p-m d-12">
+                        <p:outputLabel for="archivo" value="Subir Archivo"/>
+                        <p:fileUpload id="archivo" value="{guiasRemisionBean.file}" listener="{guiasRemisionBean.handleFilesUploads}"                                              
+                                      mode="advanced" multiple="true" immediate="true"
+                                      update="dt-products1 @form" auto="true"
+                                      sizeLimit="102400" allowTypes="/(\.|\/)(xml)$/"
+                                      invalidSizeMessage="Maximum file size allowed is 100 KB"
+                                      invalidFileMessage="only xml is allowed"/>                            
+                    </div>-->
+                    <!-- <div class="ui-fluid p-formgrid p-grid">-->
+                    <div class="p-field p-col-6 p-md-6">
+                        <!-- <p:outputLabel for="archivo" value="Leer - validar Archivos"/>-->
+                        <p:fileUpload label="Leer - validar Archivos" id="archivo" listener="#{guiasRemisionBean.handleFileUpload}" 
+                                      mode="advanced" dragDropSupport="false" 
+                                      multiple="true" update="messages, :formNuevoGuia:plistaDatos, @form" sizeLimit="102400"
+                                      allowTypes="/(\.|\/)(xml)$/" auto="true" process="@all"
+                                      invalidSizeMessage="Maximum file size allowed is 100 KB"
+                                      invalidFileMessage="only xml is allowed"/>                        
+                    </div>                    
+                    <div class="p-field p-col-6 p-md-3">                          
+                        <p:commandButton id="bus" value="Cargar Archivos" icon="pi pi-plus" actionListener="#{guiasRemisionBean.lecturaXml1()}" immediate="true" update="dt-products1 @form"/>
+                    </div>
+                    <!-- </div>comment -->
+
+
+                    <!--<div class="p-field p-col-12 p-md-12">
+                        <p:outputLabel for="archivo" value="Subir Archivo"/>
+                        <p:fileUpload id="archivo" listener="{guiasRemisionBean.handleFileUpload}"                                              
+                                      mode="advanced" multiple="false"
+                                      skinSimple="true"
+                                      update="nom dt-products1" auto="true"
+                                      sizeLimit="102400" allowTypes="/(\.|\/)(txt)$/"
+                                      invalidSizeMessage="Maximum file size allowed is 100 KB"
+                                      invalidFileMessage="only txt is allowed"/>    
+                        <p:outputLabel id="nom" value="{pagoFacturaBean.nombre}"/>
+                    </div>-->                                 
+                </div>  
+                <div class="p-grid crud-demo">
+                    <div class="p-field p-col-12 p-md-12">
+                        <div class="card">
+                            <p:panel id="plistaDatos">
+                                <p:dataTable id="dt-products1" widgetVar="dtProducts1" var="guia1" value="#{guiasRemisionBean.listaConsultaGuiaArchivoSubida}" reflow="true" styleClass="products-table"
+                                             paginator="true" rows="15" rowSelectMode="add" paginatorPosition="bottom" >
+                                    <f:facet name="header">
+                                        <div class="products-table-header">
+                                            <span style="font-weight: bold">Guias</span>
+
+                                            <span class="filter-container ui-input-icon-left">
+                                                <i class="pi pi-search"></i>
+                                                <p:inputText id="globalFilter" onkeyup="PF('dtProducts1').filter()" placeholder="Buscar" />
+                                            </span>
+                                        </div>
+                                    </f:facet>                                                                                                                                                                                                                          
+                                    <p:column style="width: 3.5rem">
+                                        <p:commandButton icon="pi pi-search" update="form :formNuevo" actionListener="#{guiasRemisionBean.lecturaDatos(guia1)}"
+                                                         styleClass="edit-button rounded-button ui-button-success" process="@this">
+                                            <f:setPropertyActionListener value="#{guia1}" target="#{guiasRemisionBean.consulGuia}" />
+                                        </p:commandButton>
+                                    </p:column>
+                                    <p:column headerText="Fecha Despacho" sortBy="#{guia1.consultaguiaremisionPK.fecha}" filterBy="#{guia1.consultaguiaremisionPK.fecha}" width="12%">
+                                        <h:outputText value="#{guia1.consultaguiaremisionPK.fecha}">
+                                            <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column headerText="Numero GR" sortBy="#{guia1.consultaguiaremisionPK.numero}" filterBy="#{guia1.consultaguiaremisionPK.numero}" width="10%">
+                                        <h:outputText value="#{guia1.consultaguiaremisionPK.numero}" />
+                                    </p:column>
+                                    <p:column headerText="Numero OE" sortBy="#{guia1.numerooe}" filterBy="#{guia1.numerooe}" width="10%">
+                                        <h:outputText value="#{guia1.numerooe}" />
+                                    </p:column>
+                                    <!--<p:column headerText="Numero Fact." sortBy="#{guia1.numerosri}" width="12%">
+                                        <h:outputText value="#{guia1.numerosri}" />
+                                    </p:column>-->
+                                    <p:column headerText="Producto" width="7%">
+                                        <h:outputText value="#{guia1.codigoproducto}" />
+                                    </p:column>
+                                    <p:column headerText="Vol. Entregado" filterBy="#{guia1.volumenentregado}" width="10%">
+                                        <h:outputText value="#{guia1.volumenentregado}" />
+                                    </p:column>
+                                    <p:column headerText="Autotanque" width="8%">
+                                        <h:outputText value="#{guia1.autotanque}" />
+                                    </p:column>
+                                    <p:column headerText="Ced. Conductor" width="10%">
+                                        <h:outputText value="#{guia1.cedulaconductor}" />
+                                    </p:column>
+                                    <!--<p:column headerText="Estado" width="8%">
+                                        <h:outputText value="{guia.estado}" />
+                                    </p:column>
+                                    <p:column headerText="F. Despacho" width="12%">
+                                        <h:outputText value="{guia.consultaguiaremisionPK.fecha}">
+                                            <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column headerText="N. GR" width="8%">
+                                        <p:inputText value="{guia.consultaguiaremisionPK.numero}" />
+                                    </p:column>
+                                    <p:column headerText="N. OE" width="8%">
+                                        <p:inputText value="{guia.numerooe}" />
+                                    </p:column>
+                                    <p:column headerText="AM" width="8%">
+                                        <p:inputText value="{guia.codigoareamercadeo}" />
+                                    </p:column>
+                                    <p:column headerText="Producto" width="8%">                        
+                                        <p:inputText value="{guia.codigoproducto}" />
+                                    </p:column>
+                                    <p:column headerText="Vol. Entregado" width="8%">
+                                        <p:inputText value="{guia.volumenentregado}" />
+                                    </p:column>
+                                    <p:column headerText="Autotanque" width="10%">
+                                        <p:inputText value="{guia.autotanque}" />
+                                    </p:column>  
+                                    <p:column headerText="Ced. Conductor"  width="12%">
+                                        <p:inputText value="{guia.cedulaconductor}" />
+                                    </p:column>                                   
+                                    <p:column headerText="Nom Conductor"  width="12%">
+                                        <p:inputText value="{guia.nombreconductor}"  />
+                                    </p:column>--> 
+                                    <p:column headerText="Sello Inicial"  width="9%">
+                                        <p:inputText value="#{guia1.selloinicial}"  required="true" >
+                                            <p:ajax event="change" /> 
+                                        </p:inputText>
+                                    </p:column>
+                                    <p:column headerText="Sello Final" width="9%">
+                                        <p:inputText value="#{guia1.sellofinal}" required="true" >
+                                            <p:ajax event="change" /> 
+                                        </p:inputText>
+                                    </p:column>
+                                    <p:column headerText="Observación"  width="18%">
+                                        <p:inputText value="#{guia1.observacion}" >
+                                            <p:ajax event="change" /> 
+                                        </p:inputText>
+                                    </p:column>                    
+                                </p:dataTable>
+                            </p:panel>
+                        </div>
+                    </div>
+                </div>                  
+            </p:outputPanel>
+            <p:outputPanel rendered="#{guiasRemisionBean.mostarGuia}"> 
+                <div class="p-grid">   
+                    <div class="p-field p-col-12 p-md-12"></div>
+                    <div class="p-field p-col-12 p-md-6">
+                        <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{guiasRemisionBean.guardar()}" update="formNuevoGuia" styleClass="p-mr-2"/>
+                        <p:commandButton value="Regresar" icon="pi pi-arrow-left" actionListener="#{guiasRemisionBean.regresar()}" update="formNuevoGuia :form" styleClass="ui-button-help p-mr-2"/>
+                        <p:commandButton value="Cancelar" icon="pi pi-times" class="ui-button-secondary" actionListener="#{guiasRemisionBean.init()}" update=":form formNuevoGuia" immediate="true"/>
+                    </div>
+                </div>
+            </p:outputPanel>
+        </h:form>
+
+        <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300" message="Eliminar Guia de Remisión?" header="Confirm" severity="warn">
+            <p:commandButton value="Si" icon="pi pi-check" actionListener="#{guiasRemisionBean.deleteItems()}" process="@this" oncomplete="PF('deleteProductDialog').hide()"/>
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('deleteProductDialog').hide()" />
+        </p:confirmDialog>
+
+        <p:confirmDialog widgetVar="configTermDialog" showEffect="fade" width="300" message="Requiere configurar Terminal?" header="Confirm" severity="warn">
+            <p:commandButton value="Si" icon="pi pi-check" process="@this" oncomplete="PF('configTermDialog').hide()" actionListener="#{listaPrecioBean.configTerminal(1)}"/>
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('configTermDialog').hide()" />
+        </p:confirmDialog>
+
+        <p:confirmDialog global="true" showEffect="fade" width="300">
+            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+        </p:confirmDialog>                    
+    </ui:define>
+</ui:composition>

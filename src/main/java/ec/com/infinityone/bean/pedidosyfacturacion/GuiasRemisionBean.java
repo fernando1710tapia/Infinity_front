@@ -24,15 +24,16 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.sql.Connection;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -44,8 +45,15 @@ import javax.inject.Named;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
 import org.primefaces.PrimeFaces;
 import org.primefaces.event.FileUploadEvent;
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
 import org.primefaces.model.file.UploadedFile;
 import org.primefaces.model.file.UploadedFiles;
 import org.primefaces.shaded.json.JSONArray;
@@ -59,7 +67,7 @@ import org.xml.sax.SAXException;
 
 /**
  *
- * @author Andres
+ * @author SonyVaio
  */
 @Named
 @ViewScoped
@@ -140,7 +148,9 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
      */
     protected List<Terminal> listaTermianles;
 
-    protected List<Cliente> listaClientes;
+    private List<Cliente> listaClientes;
+
+    private Cliente cliente;
     /**
      * Variable que permite establecer la fecha inicial para realizar la
      * busqueda de guias
@@ -159,10 +169,10 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
     Variable para renderizar la pantalla
      */
     protected boolean mostarPantallaInicial;
-    /*
-    Variable nombre de archivo 
-     */
-    private String nombre;
+
+    private String numGuia;
+
+    private String codCliente;
 
     private UploadedFile file;
 
@@ -173,6 +183,10 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
     private boolean procesoNuevo;
 
     private List<InputStream> inputStream;
+    /*
+    Vairbale para almacenar el pdf generado
+     */
+    protected StreamedContent pdfStream;
 
     /**
      * Constructor por defecto
@@ -204,6 +218,9 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
         contadorArchivosMal = 0;
         guiaVacia = "";
         manejoArchivos = true;
+        cliente = new Cliente();
+        numGuia = "";
+        codCliente = "";
         obtenerComercializadora();
         obtenerTerminales();
         habilitarBusqueda();
@@ -304,6 +321,12 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
         mostarGuia = false;
         mostarPantallaInicial = true;
         listaConsultaGuia = new ArrayList<>();
+    }
+
+    public void seleccionarCliente() {
+        if (cliente != null) {
+            codCliente = cliente.getCodigo();
+        }
     }
 
     public void actualizarTipoBusqueda() {
@@ -419,18 +442,17 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
                         if (!gui.isNull("numerofactura")) {
                             consulGuia.setNumerofactura(gui.getString("numerofactura"));
                         }
- 
+
                         if (!gui.isNull("fechafactura")) {
-                        Long lDateFechaFac = gui.getLong("fechafactura");
-                        Date dateFechaFac = new Date(lDateFechaFac);
-                        consulGuia.setFechafactura(dateFechaFac);
+                            Long lDateFechaFac = gui.getLong("fechafactura");
+                            Date dateFechaFac = new Date(lDateFechaFac);
+                            consulGuia.setFechafactura(dateFechaFac);
                         }
-                        
+
                         if (!gui.isNull("horaautorizacion")) {
-                        consulGuia.setHoraautorizacion(gui.getString("horaautorizacion"));
+                            consulGuia.setHoraautorizacion(gui.getString("horaautorizacion"));
                         }
-                        
-                        
+
                         listaConsultaGuia.add(consulGuia);
                         consulGuia = new Consultaguiaremision();
                         consulGuiaPK = new ConsultaguiaremisionPK();
@@ -461,14 +483,186 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
         }
     }
 
-//    public void onRowToggle(ToggleEvent event) {
-//        if (event.getVisibility() == Visibility.VISIBLE) {
-//            Precio precioD = (Precio) event.getData();
-//            if (precioD.getPrecioPK().getCodigoPrecio() != null) {
-//                obtenerDetallePrecio(precioD.getPrecioPK().getCodigoPrecio());
-//            }
-//        }
-//    }   
+    public void obtenerGuiaCli() throws ParseException {
+        try {
+            Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+            numGuia = params.get("form:numGuia");
+            DateFormat date = new SimpleDateFormat("yyyyMMdd");
+            if (!(numGuia.equals("") && fechaf == null)) {
+                String fechaD = "";
+                String tipoConsulta = "3";
+                if (!numGuia.equals("") && fechaf != null) {
+                    tipoConsulta = "3";
+                    fechaD = date.format(fechaf);
+                } else if (numGuia.equals("")) {
+                    tipoConsulta = "2";
+                    fechaD = date.format(fechaf);
+                } else if (fechaf == null) {
+                    tipoConsulta = "1";
+                }
+                if (cliente != null) {
+                    url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.consultaguiaremision/paracliente?codigocomercializadora=" + codigoComer
+                            + "&tipoconsulta=" + tipoConsulta + "&codigocliente=" + cliente.getCodigo() + "&numero=" + numGuia + "&fecha=" + fechaD);
+
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setDoInput(true);
+                    connection.setRequestMethod("GET");
+                    connection.setRequestProperty("Accept", "application/json");
+
+                    listaConsultaGuia = new ArrayList<>();
+
+                    InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+
+                    BufferedReader br = new BufferedReader(reader);
+                    String tmp = null;
+                    String respuesta = "";
+                    while ((tmp = br.readLine()) != null) {
+                        respuesta += tmp;
+                    }
+                    JSONObject precioJson = new JSONObject(respuesta);
+                    JSONArray retorno = precioJson.getJSONArray("retorno");
+                    for (int indice = 0; indice < retorno.length(); indice++) {
+                        if (!retorno.isNull(indice)) {
+                            JSONObject gui = retorno.getJSONObject(indice);
+                            consGuiaPK = gui.getJSONObject("consultaguiaremisionPK");
+                            consulGuiaPK.setCodigocomercializadora(consGuiaPK.getString("codigocomercializadora"));
+                            consulGuiaPK.setNumero(consGuiaPK.getString("numero"));
+                            consulGuiaPK.setFecha(consGuiaPK.getString("fecha"));
+                            Long lDateRec = consGuiaPK.getLong("fecharecepcion");
+                            Date dateRec = new Date(lDateRec);
+                            consulGuiaPK.setFecharecepcion(dateRec);
+                            consulGuia.setConsultaguiaremisionPK(consulGuiaPK);
+                            consulGuia.setCodigoterminal(gui.getString("codigoterminal"));
+                            consulGuia.setNumerooe(gui.getString("numerooe"));
+                            consulGuia.setCodigoareamercadeo(gui.getString("codigoareamercadeo"));
+                            consulGuia.setCodigoproducto(gui.getString("codigoproducto"));
+                            consulGuia.setCodigomedida(gui.getString("codigomedida"));
+                            consulGuia.setMedida(gui.getString("medida"));
+                            consulGuia.setProducto(gui.getString("producto"));
+                            consulGuia.setVolumenentregado(gui.getBigDecimal("volumenentregado"));
+                            consulGuia.setAutotanque(gui.getString("autotanque"));
+                            consulGuia.setEstado(gui.getString("estado"));
+                            consulGuia.setActivo(gui.getBoolean("activo"));
+                            consulGuia.setUsuarioactual(gui.getString("usuarioactual"));
+                            if (!gui.isNull("numerosri")) {
+                                consulGuia.setNumerosri(gui.getString("numerosri"));
+                            }
+                            if (!gui.isNull("cedulaconductor")) {
+                                consulGuia.setCedulaconductor(gui.getString("cedulaconductor"));
+                            }
+                            if (!gui.isNull("nombreconductor")) {
+                                consulGuia.setNombreconductor(gui.getString("nombreconductor"));
+                            }
+                            if (!gui.isNull("observacion")) {
+                                consulGuia.setObservacion(gui.getString("observacion"));
+                            }
+                            if (!gui.isNull("codigocliente")) {
+                                consulGuia.setCodigocliente(gui.getString("codigocliente"));
+                            }
+                            if (!gui.isNull("compartimento1")) {
+                                consulGuia.setCompartimento1(gui.getInt("compartimento1"));
+                            }
+                            if (!gui.isNull("compartimento2")) {
+                                consulGuia.setCompartimento2(gui.getInt("compartimento2"));
+                            }
+                            if (!gui.isNull("compartimento3")) {
+                                consulGuia.setCompartimento3(gui.getInt("compartimento3"));
+                            }
+                            if (!gui.isNull("compartimento4")) {
+                                consulGuia.setCompartimento4(gui.getInt("compartimento4"));
+                            }
+                            if (!gui.isNull("compartimento5")) {
+                                consulGuia.setCompartimento5(gui.getInt("compartimento5"));
+                            }
+                            if (!gui.isNull("compartimento6")) {
+                                consulGuia.setCompartimento6(gui.getInt("compartimento6"));
+                            }
+                            if (!gui.isNull("selloinicial")) {
+                                consulGuia.setSelloinicial((gui.getInt("selloinicial")));
+                            }
+                            if (!gui.isNull("sellofinal")) {
+                                consulGuia.setSellofinal((gui.getInt("sellofinal")));
+                            }
+                            if (!gui.isNull("numerofactura")) {
+                                consulGuia.setNumerofactura(gui.getString("numerofactura"));
+                            }
+
+                            if (!gui.isNull("fechafactura")) {
+                                Long lDateFechaFac = gui.getLong("fechafactura");
+                                Date dateFechaFac = new Date(lDateFechaFac);
+                                consulGuia.setFechafactura(dateFechaFac);
+                            }
+
+                            if (!gui.isNull("horaautorizacion")) {
+                                consulGuia.setHoraautorizacion(gui.getString("horaautorizacion"));
+                            }
+
+                            listaConsultaGuia.add(consulGuia);
+                            consulGuia = new Consultaguiaremision();
+                            consulGuiaPK = new ConsultaguiaremisionPK();
+                        }
+
+                    }
+                    if (connection.getResponseCode() != 200) {
+                        System.out.println(connection.getResponseCode());
+                        System.out.println(connection.getResponseMessage());
+                    }
+                } else {
+                    this.dialogo(FacesMessage.SEVERITY_ERROR, "Seleccione un cliente");
+                }
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "Complete un campo para la busqueda");
+            }
+        } catch (IOException e) {
+            this.dialogo(FacesMessage.SEVERITY_INFO, "NO SE ENCONTRARON REGISTROS");
+            e.printStackTrace();
+        }
+    }
+
+    public void generarReporte(Consultaguiaremision guia) {
+//        String path = "C:\\Users\\HOME\\Desktop\\Infinity\\Template\\Template\\guiaremision.jrxml";
+
+        String path = Fichero.getCARPETAREPORTES() + "/guiaremision.jrxml";
+        System.out.println("PATH:" + path);
+        InputStream file = null;
+        try {
+            file = new FileInputStream(new File(path));
+
+            JasperReport reporte = JasperCompileManager.compileReport(file);           
+
+            Map parametro = new HashMap();
+//            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+//            BufferedImage imageBar = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/barras.jpeg"));
+//            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
+//            BufferedImage imageBar = ImageIO.read(new File("C:\\archivos\\Template\\barras.jpg"));
+           
+            parametro.put("numerogr", guia.getConsultaguiaremisionPK().getNumero());            
+//            parametro.put("logo", image);
+//            parametro.put("barras", imageBar);
+
+            //actual local
+            Connection conexion = conexionJasperBD();
+
+            JasperPrint print = JasperFillManager.fillReport(reporte, parametro, conexion);
+
+            File directory = new File(Fichero.getCARPETAREPORTES());
+//            File directory = new File("C:\\archivos");
+
+            String nombreDocumento = "reporteGuiaRemision";
+
+            File pdf = File.createTempFile(nombreDocumento + "_", ".pdf", directory);
+            JasperExportManager.exportReportToPdfStream(print, new FileOutputStream(pdf));
+            File initialFile = new File(pdf.getAbsolutePath());
+            InputStream targetStream = new FileInputStream(initialFile);            
+            pdfStream = new DefaultStreamedContent(targetStream, "application/pdf", nombreDocumento + guia.getConsultaguiaremisionPK().getNumero() + ".pdf");            
+            PrimeFaces.current().executeScript("window.open(" + directory + ",'" + nombreDocumento + "','fullscreen=yes');parent.opener=top;");
+            System.err.print(pdf.getAbsolutePath());
+            System.out.println(pdf.getAbsolutePath());
+        } catch (Exception ex) {            
+            System.out.println("Excepcion: " + ex);
+        }
+    }
+
     public void save() throws ParseException {
         if (editarPrecio) {
             editItems();
@@ -575,7 +769,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
             obj.put("sellofinal", consulGuia.getSellofinal());
             obj.put("numerofactura", consulGuia.getNumerofactura());
             obj.put("horaautorizacion", consulGuia.getHoraautorizacion());
-            obj.put("fechafactura", sdf.format(consulGuia.getFechafactura())); 
+            obj.put("fechafactura", sdf.format(consulGuia.getFechafactura()));
             respuesta = obj.toString();
             writer.write(respuesta);
             writer.close();
@@ -650,6 +844,8 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
     public void seleccionarComer() {
         if (comercializadora != null) {
             codigoComer = comercializadora.getCodigo();
+            listaClientes = new ArrayList<>();
+            listaClientes = cliServicio.obtenerClientesPorComercializadora(codigoComer);
         }
     }
 
@@ -1452,6 +1648,38 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
 
     public void setFiles(UploadedFiles files) {
         this.files = files;
+    }
+
+    public List<Cliente> getListaClientes() {
+        return listaClientes;
+    }
+
+    public void setListaClientes(List<Cliente> listaClientes) {
+        this.listaClientes = listaClientes;
+    }
+
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
+
+    public String getNumGuia() {
+        return numGuia;
+    }
+
+    public void setNumGuia(String numGuia) {
+        this.numGuia = numGuia;
+    }
+
+    public StreamedContent getPdfStream() {
+        return pdfStream;
+    }
+
+    public void setPdfStream(StreamedContent pdfStream) {
+        this.pdfStream = pdfStream;
     }
 
 }

@@ -432,7 +432,7 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
     public void mostrarGarantia() {
         Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
         codCliente = params.get("form:cliente_input");
-        codComer = params.get("form:comercializadora_input");
+        codComer = comercializadora.getCodigo();
         if (!codComer.isEmpty() && !codCliente.isEmpty()) {
             obtenerGarantias(codComer, codCliente);
             DateTimeFormatter formatoFecha = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
@@ -464,13 +464,18 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
                 System.out.println("FT:: ENTRA A MOSTRAR porcentajeValores- " + valor.toString());
                 BigDecimal valorT = this.listaTotalgarantizado.get(0).getTotalgarantizado();
 
-                if (valorT.intValue() == 0) {
+                if (valor.intValue() == 0) {
                     System.out.println("FT:: ENTRA EN EL IF valorT.intValue()== 0 porcentajeValores- " + valor.toString() + " . valorT:. " + valorT.intValue());
                     this.dialogo(FacesMessage.SEVERITY_ERROR, "Este Cliente NO tiene un valor de garantía asignado!");
                     return 0;
                 } else {
+                    BigDecimal valorN;
                     BigDecimal porcentaje = new BigDecimal(90);
-                    BigDecimal valorN = (valor.multiply(porcentaje).divide(valorT, 2, RoundingMode.HALF_DOWN));
+                    if (valorT.intValue() == 0) {
+                        valorN = (valor.multiply(porcentaje).divide(valor, 2, RoundingMode.HALF_DOWN));
+                    } else {
+                        valorN = (valor.multiply(porcentaje).divide(valorT, 2, RoundingMode.HALF_DOWN));
+                    }
                     System.out.println("FT:: ENTRA A MOSTRAR porcentajeValores- " + valor.toString() + " RESULTADO: ." + valorN.intValue());
                     return valorN.intValue();
                 }
