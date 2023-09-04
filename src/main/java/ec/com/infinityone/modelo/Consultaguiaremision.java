@@ -70,8 +70,14 @@ public class Consultaguiaremision implements Serializable {
     private String numerofactura;
 
     private String horaautorizacion;
-    
+
     private Date fechafactura;
+
+    private String numeroautorizacion;
+
+    private String fechaautorizacion;
+
+    private String direstablecimiento;
 
     public Consultaguiaremision() {
     }
@@ -323,6 +329,30 @@ public class Consultaguiaremision implements Serializable {
 
     public void setFechafactura(Date fechafactura) {
         this.fechafactura = fechafactura;
+    }
+
+    public String getNumeroautorizacion() {
+        return numeroautorizacion;
+    }
+
+    public void setNumeroautorizacion(String numeroautorizacion) {
+        this.numeroautorizacion = numeroautorizacion;
+    }
+
+    public String getFechaautorizacion() {
+        return fechaautorizacion;
+    }
+
+    public void setFechaautorizacion(String fechaautorizacion) {
+        this.fechaautorizacion = fechaautorizacion;
+    }
+
+    public String getDirestablecimiento() {
+        return direstablecimiento;
+    }
+
+    public void setDirestablecimiento(String direstablecimiento) {
+        this.direstablecimiento = direstablecimiento;
     }
 
     @Override

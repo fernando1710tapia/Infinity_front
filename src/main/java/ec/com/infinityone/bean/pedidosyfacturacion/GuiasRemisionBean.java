@@ -15,6 +15,7 @@ import ec.com.infinityone.modelo.Consultaguiaremision;
 import ec.com.infinityone.modelo.ConsultaguiaremisionPK;
 import ec.com.infinityone.modelo.Terminal;
 import ec.com.infinityone.reusable.ReusableBean;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.*;
@@ -40,6 +41,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.view.ViewScoped;
+import javax.imageio.ImageIO;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.xml.parsers.DocumentBuilder;
@@ -628,17 +630,17 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
         try {
             file = new FileInputStream(new File(path));
 
-            JasperReport reporte = JasperCompileManager.compileReport(file);           
+            JasperReport reporte = JasperCompileManager.compileReport(file);
 
             Map parametro = new HashMap();
-//            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
-//            BufferedImage imageBar = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/barras.jpeg"));
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+            BufferedImage imageBar = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/barras.jpeg"));
 //            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
 //            BufferedImage imageBar = ImageIO.read(new File("C:\\archivos\\Template\\barras.jpg"));
-           
-            parametro.put("numerogr", guia.getConsultaguiaremisionPK().getNumero());            
-//            parametro.put("logo", image);
-//            parametro.put("barras", imageBar);
+
+            parametro.put("numerogr", guia.getConsultaguiaremisionPK().getNumero());
+            parametro.put("logo", image);
+            parametro.put("barras", imageBar);
 
             //actual local
             Connection conexion = conexionJasperBD();
@@ -653,12 +655,12 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
             File pdf = File.createTempFile(nombreDocumento + "_", ".pdf", directory);
             JasperExportManager.exportReportToPdfStream(print, new FileOutputStream(pdf));
             File initialFile = new File(pdf.getAbsolutePath());
-            InputStream targetStream = new FileInputStream(initialFile);            
-            pdfStream = new DefaultStreamedContent(targetStream, "application/pdf", nombreDocumento + guia.getConsultaguiaremisionPK().getNumero() + ".pdf");            
+            InputStream targetStream = new FileInputStream(initialFile);
+            pdfStream = new DefaultStreamedContent(targetStream, "application/pdf", nombreDocumento + guia.getConsultaguiaremisionPK().getNumero() + ".pdf");
             PrimeFaces.current().executeScript("window.open(" + directory + ",'" + nombreDocumento + "','fullscreen=yes');parent.opener=top;");
             System.err.print(pdf.getAbsolutePath());
             System.out.println(pdf.getAbsolutePath());
-        } catch (Exception ex) {            
+        } catch (Exception ex) {
             System.out.println("Excepcion: " + ex);
         }
     }
@@ -1001,6 +1003,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
                         System.out.println("\nCurrent Element :" + nNode.getFirstChild().getTextContent());
                         hora = nNode.getFirstChild().getTextContent();
                     }
+                    consulGuia.setFechaautorizacion(hora);
                     consulGuia.setHoraautorizacion((hora).substring(11));
                     NodeList nList = document.getElementsByTagName("comprobante");
                     System.out.println("----------------------------");
@@ -1027,6 +1030,10 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
                             consulGuiaPK.setNumero((eElement.getElementsByTagName("campoAdicional").item(5).getTextContent()).substring(0, 8));
 
                             consulGuia.setConsultaguiaremisionPK(consulGuiaPK);
+                            consulGuia.setNumeroautorizacion(eElement.getElementsByTagName("claveAcceso").item(0).getTextContent());
+                            //consulGuia.setFechaautorizacion(eElement.getElementsByTagName("fechaAutorizacion").item(0).getTextContent());
+                            consulGuia.setDirestablecimiento(eElement.getElementsByTagName("dirEstablecimiento").item(0).getTextContent());
+
                             //<campoAdicional nombre="PedidoFacturaFecha">0200011200102000000009610/07/2022</campoAdicional> -- 8 caracteres
                             consulGuia.setNumerooe((eElement.getElementsByTagName("campoAdicional").item(4).getTextContent()).substring(0, 8));
                             //dos primeros digitos codigoInterno                
@@ -1276,6 +1283,9 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
             obj.put("numerofactura", consulGuia.get(i).getNumerofactura());
             obj.put("horaautorizacion", consulGuia.get(i).getHoraautorizacion());
             obj.put("fechafactura", sdf.format(consulGuia.get(i).getFechafactura()));
+            obj.put("numeroautorizacion", consulGuia.get(i).getNumeroautorizacion());
+            obj.put("fechaautorizacion", consulGuia.get(i).getFechaautorizacion());
+            obj.put("direstablecimiento", consulGuia.get(i).getDirestablecimiento());
             listObjEnvRest.add(obj);
             obj = new JSONObject();
             objPK = new JSONObject();
