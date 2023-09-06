@@ -657,6 +657,24 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
                     detallepago.setActivoS("N");
                 }
                 detallepago.setUsuarioactual(detPago.getString("usuarioactual"));
+                if (!detPago.isNull("fechaventa")) {
+                    Long lDate = detPago.getLong("fechaventa");
+                    Date dateP = new Date(lDate);
+                    detallepago.setFechaventa(dateP);
+                }
+                if (!detPago.isNull("fechaacreditacionprorrogada")) {
+                    Long lDate = detPago.getLong("fechaacreditacionprorrogada");
+                    Date dateP = new Date(lDate);
+                    detallepago.setFechaacreditacionprorrogada(dateP);
+                }
+
+                detallepago.setDiasretraso(detPago.getInt("diasretraso"));
+                detallepago.setTasainteres(detPago.getBigDecimal("tasainteres"));
+                detallepago.setValormora(detPago.getBigDecimal("valormora"));
+                detallepago.setValorconrubros(detPago.getBigDecimal("valorconrubro"));
+                if (!detPago.isNull("claveacceso")) {
+                    detallepago.setClaveacceso(detPago.getString("claveacceso"));
+                }
                 listaDetallePago.add(detallepago);
                 detallepago = new Detallepago();
                 detallepagoPK = new DetallepagoPK();
@@ -2438,7 +2456,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             writer.close();
 
             if (connection.getResponseCode() == 200) {
-                InputStreamReader reader = new InputStreamReader(connection.getInputStream());                
+                InputStreamReader reader = new InputStreamReader(connection.getInputStream());
                 BufferedReader br = new BufferedReader(reader);
                 String tmp = null;
                 String resp = "";
@@ -2705,6 +2723,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 
     public void editDetallePagoItems() throws ParseException {
         try {
+            DateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
             String respuesta;
             //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.detallepago/porId");
             url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.detallepago/porId");
@@ -2728,6 +2747,13 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             obj.put("valor", detallepago.getValor());
             obj.put("activo", false);
             obj.put("usuarioactual", dataUser.getUser().getNombrever());
+            obj.put("fechaacreditacionprorrogada", date.format(detallepago.getFechaacreditacionprorrogada()));
+            obj.put("fechaventa", date.format(detallepago.getFechaventa()));
+            obj.put("valorconrubro", detallepago.getValorconrubros());
+            obj.put("tasainteres", detallepago.getTasainteres());
+            obj.put("diasretraso", detallepago.getDiasretraso());
+            obj.put("valormora", detallepago.getValormora());
+            obj.put("claveacceso", detallepago.getClaveacceso());
 
             respuesta = obj.toString();
             writer.write(respuesta);
