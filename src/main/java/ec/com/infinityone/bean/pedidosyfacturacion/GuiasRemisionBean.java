@@ -272,6 +272,12 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
                     }
                     if (comercializadora.getCodigo() != null) {
                         seleccionarComer();
+                        for (int i = 0; i < listaClientes.size(); i++) {
+                            if (listaClientes.get(i).getCodigo().equals(dataUser.getUser().getCodigocliente())) {
+                                this.cliente = listaClientes.get(i);
+                                break;
+                            }
+                        }
                     } else {
                         this.dialogo(FacesMessage.SEVERITY_FATAL, "La comercializadora se encuentra deshabilitada");
                     }
