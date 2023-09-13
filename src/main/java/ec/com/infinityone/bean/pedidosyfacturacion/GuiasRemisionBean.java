@@ -639,7 +639,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
             JasperReport reporte = JasperCompileManager.compileReport(file);
 
             Map parametro = new HashMap();
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logopetroecuador.jpeg"));
             BufferedImage imageBar = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/barras.jpeg"));
 //            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
 //            BufferedImage imageBar = ImageIO.read(new File("C:\\archivos\\Template\\barras.jpg"));

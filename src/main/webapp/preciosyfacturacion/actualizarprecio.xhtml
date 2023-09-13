@@ -45,7 +45,8 @@
                                         </span>
                                         <p:selectOneMenu id="listaPrecio" value="#{actualizarPrecioBean.listaprecioselected}" title="Lista Precios"
                                                          panelStyle="width:175px" style="min-width: 80%;" 
-                                                         autoWidth="false" converter="converterg">
+                                                         autoWidth="false" converter="converterg"
+                                                         filter="true" filterMatchMode="contains">
                                             <f:selectItem noSelectionOption="true" itemLabel="Lista Precios" itemValue="#{null}"/>
                                             <f:selectItems value="#{actualizarPrecioBean.listaListaprecios}"
                                                            var="lp"
