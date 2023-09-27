@@ -373,6 +373,8 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                 }
                 if (comercializadora.getActivo().equals("S")) {
                     this.dialogo(FacesMessage.SEVERITY_ERROR, "LA COMERCIALIZADORA DEBE ESTAR INACTIVA PARA PODER REALIZAR LA ACTUALIZACIÓN DE PRECIOS");
+                } else {
+                    seleccionarComercializdora();
                 }
             }
             if (dataUser.getUser().getNiveloperacion().equals("usac")) {
@@ -384,6 +386,8 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                 }
                 if (comercializadora.getActivo().equals("S")) {
                     this.dialogo(FacesMessage.SEVERITY_ERROR, "LA COMERCIALIZADORA DEBE ESTAR INACTIVA PARA PODER REALIZAR LA ACTUALIZACIÓN DE PRECIOS");
+                } else {
+                    seleccionarComercializdora();
                 }
             }
         }
@@ -1597,7 +1601,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }   
+    }
 
     public ComercializadoraBean getComercializadora() {
         return comercializadora;

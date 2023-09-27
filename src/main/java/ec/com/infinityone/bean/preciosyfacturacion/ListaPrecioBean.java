@@ -719,6 +719,7 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
             System.out.println(connection.getResponseMessage());
         } catch (IOException e) {
             e.printStackTrace();
+            System.out.println("AS: Error al obtener lista de precio");
         }
     }
 
@@ -1238,12 +1239,18 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
     }
 
     public void editItemsTerminalProd() {
+        System.out.println("AS: 1 Ingresando a edicion");
         obtenerPrecio(comercializadoraT);
+        System.out.println("AS: 2 Ingresando a edicion");
         List<ObjetoNivel1> listaTerminalAux = new ArrayList<>();
         listaTerminalAux.add(terminal);
+        System.out.println("AS: 3 Ingresando a edicion");
         for (int i = 0; i < listaTerminalAux.size(); i++) {
+        System.out.println("AS: 4 Ingresando a edicion");
             for (int indice = 0; indice < listaProductosComer.size(); indice++) {
+                System.out.println("AS: 5 Ingresando a edicion");
                 if (listaListapreciobean.get(indice).getMargenValor() != null) {
+                    System.out.println("AS: 6 Ingresando a edicion");
                     editItemsTerminal(i, indice, terminal);
                 }
             }
@@ -1261,6 +1268,7 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
             String margenporcentaje = "";
             String margenvalorcomercializadora = "";
             if (tipoT.equals(ListaPreciosEnum.MPO.getCodigo()) || tipoT.equals((ListaPreciosEnum.MTI.getCodigo()))) {            
+                System.out.println("AS: 7 Ingresando a edicion");
                 if (listaListapreciobean.get(indice).getMargenValor() != null) {
                     margenporcentaje = listaListapreciobean.get(indice).getMargenValor().toString();
                     margenvalorcomercializadora = "-99";
@@ -1282,6 +1290,8 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
                     + "&margenporcentaje=" + margenporcentaje
                     + "&margenvalorcomercializadora=" + margenvalorcomercializadora
                     + "&usuario=" + (dataUser.getUser().getNombrever()).trim());
+
+            System.out.println("AS: Url: " + url);
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
