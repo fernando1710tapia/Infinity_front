@@ -238,7 +238,7 @@
                                             <p:selectOneMenu id="direccionInen" value="#{clienteBean.direccioninen}" title="Direción INEN"
                                                              panelStyle="width:175px" style="min-width: 80%;" 
                                                              autoWidth="false" converter="converterg"
-                                                             filter="true" filterMatchMode="startsWith"
+                                                             filter="true" filterMatchMode="contains"
                                                              required="true" requiredMessage="Seleccione Direción INEN" disabled="#{clienteBean.soloLectura}">
                                                 <f:selectItem noSelectionOption="true" itemLabel="Seleccione" itemValue="#{null}"/>
                                                 <f:selectItems value="#{clienteBean.listaDireccioninen}"
