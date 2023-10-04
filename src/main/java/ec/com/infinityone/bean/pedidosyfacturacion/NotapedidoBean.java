@@ -789,9 +789,8 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
     }
 
     public void save() throws ParseException {
-        DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
-        SimpleDateFormat fechV = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        SimpleDateFormat fechD = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
+        DateFormat date = new SimpleDateFormat("yyyy-MM-dd");        
+        SimpleDateFormat fechFormat = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
         Calendar c = Calendar.getInstance();
         c.setTime(fechaVenta);
         //c.add(Calendar.D, 0);
@@ -819,8 +818,8 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                 np.setNotapedidoPK(npPK);
                 np.setCodigoterminal(terminal);
                 np.setActiva(true);
-                np.setFechaventa(fechV.format(fechaVenta));
-                np.setFechadespacho(fechD.format(fechaDespacho));
+                np.setFechaventa(fechFormat.format(fechaVenta));
+                np.setFechadespacho(fechFormat.format(fechaDespacho));
                 np.setCodigoautotanque("");
                 np.setCedulaconductor("");
                 np.setNumerofacturasri("0");
