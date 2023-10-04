@@ -40,9 +40,6 @@ public class RecoverpasswordBean extends ReusableBean implements Serializable {
 
     private static final Logger LOG = Logger.getLogger(RecoverpasswordBean.class.getName());
 
-    @Inject
-    DatosUsuario dataUser;
-
     private String claveUsuario;
     private String usuarioLog;
     private String correoLog;
@@ -244,6 +241,9 @@ public class RecoverpasswordBean extends ReusableBean implements Serializable {
         claveNueva = params.get("formNuevo:pwd1");
         if (!claveNueva.isEmpty()) {
             usuarioL.setClave(claveNueva);
+            dataUser.setUser(usuarioL);
+            dataUser.setUserConected(usuarioL.getNombrever());
+            dataUser.setProductoSinFe(Fichero.getPRODUCTOSINFE());
             editItems();
             usuarioLog = "";
             correoLog = "";
