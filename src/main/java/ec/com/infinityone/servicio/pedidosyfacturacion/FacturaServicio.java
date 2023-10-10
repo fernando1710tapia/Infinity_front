@@ -535,7 +535,7 @@ public class FacturaServicio extends ReusableBean {
             JSONObject objetoJson = new JSONObject(respuesta);
             JSONArray retorno = objetoJson.getJSONArray("retorno");
             for (int indice = 0; indice < retorno.length(); indice++) {
- 
+
                 JSONObject fa = retorno.getJSONObject(indice);
                 JSONObject faPK = fa.getJSONObject("facturaPK");
 
@@ -650,7 +650,7 @@ public class FacturaServicio extends ReusableBean {
                     factura.setOeenpetro(true);
                 } else {
                     factura.setOeenpetro(false);
-                }                
+                }
                 factura.setFacturaPK(facturaPK);
                 listaFacturas.add(factura);
                 factura = new Factura();
@@ -991,6 +991,7 @@ public class FacturaServicio extends ReusableBean {
             factura = new Factura();
             facturaPK = new FacturaPK();
             detFac = new Detallefactura();
+            detFacPK = new DetallefacturaPK();
             EnvioFactura envFac = new EnvioFactura();
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
@@ -1147,6 +1148,7 @@ public class FacturaServicio extends ReusableBean {
                         for (int i = 0; i < detalleList.length(); i++) {
                             JSONObject det = detalleList.getJSONObject(i);
                             JSONObject detFpk = det.getJSONObject("detallefacturaPK");
+                            JSONObject medidaJ = det.getJSONObject("codigomedida");
                             detFac.setVolumennaturalrequerido(det.getBigDecimal("volumennaturalrequerido"));
                             detFac.setVolumennaturalautorizado(det.getBigDecimal("volumennaturalautorizado"));
                             detFac.setPrecioproducto(det.getBigDecimal("precioproducto"));
@@ -1155,10 +1157,14 @@ public class FacturaServicio extends ReusableBean {
                             if (!det.isNull("ruccomercializadora")) {
                                 detFac.setRuccomercializadora(det.getString("ruccomercializadora"));
                             }
+                            if (!detFpk.isNull("codigoproducto")) {
+                                detFacPK.setCodigoproducto(detFpk.getString("codigoproducto"));
+                            }                            
                             detFac.setDetallefacturaPK(detFacPK);
                             if (!det.isNull("nombreproducto")) {
                                 detFac.setNombreproducto(det.getString("nombreproducto"));
-                            }
+                            }                            
+                            detFac.setCodigomedida(medidaJ.getString("codigo"));                            
                             listDet.add(detFac);
                             envFac.setDetalle(listDet);
                             detFac = new Detallefactura();
