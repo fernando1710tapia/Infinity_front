@@ -5,10 +5,10 @@
                 xmlns:p="http://primefaces.org/ui"
                 template="/WEB-INF/template.xhtml">
 
-    <ui:define name="title">Reportes Precios</ui:define>
+    <ui:define name="title">Archivo Factura Comercial</ui:define>
 
     <ui:define name="viewname">
-        <li>Reporte Precios</li>        
+        <li>Archivo de Facturas Comerciales</li>        
     </ui:define>
 
     <ui:define name="content">
@@ -18,34 +18,46 @@
                     <div class="p-col-12">
                         <div class="card">
                             <p:growl id="messages" showDetail="true" />
-                            
+
                             <div class="ui-fluid p-formgrid p-grid">
-                                <div class="p-field p-col-12 p-md-4">
+                                <div class="p-field p-col-12 p-md-3">
+                                    <p:outputLabel for="comercializadora" value="Comercializadora"/>
                                     <div class="ui-inputgroup">
                                         <span class="ui-inputgroup-addon">
-                                            <i class="fa fa-shopping-cart"></i>
+                                            <i class="pi pi-desktop"></i>
                                         </span>
-                                        <p:selectOneMenu id="comercializadora" value="#{reportepreciosBean.comercializadora}" title="Comercializadora"
+                                        <p:selectOneMenu id="comercializadora" value="#{archivoFacturaComercialBean.comercializadora}" title="Comercializadora"
                                                          panelStyle="width:175px" style="min-width: 80%;" 
                                                          autoWidth="false" converter="converterg"
-                                                         disabled="#{!reportepreciosBean.habilitarComer}">
+                                                         disabled="#{!archivoFacturaComercialBean.habilitarComer}">
                                             <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
-                                            <f:selectItems value="#{reportepreciosBean.listaComercializadora}"
+                                            <f:selectItems value="#{archivoFacturaComercialBean.listaComercializadora}"
                                                            var="comer"
                                                            itemLabel="#{comer.objRelacionado}"
                                                            itemValue="#{comer}" />
-                                            <p:ajax event="change" listener="#{reportepreciosBean.seleccionarComerc()}" update="form"/>
+                                            <p:ajax event="change" listener="#{archivoFacturaComercialBean.seleccionarComerc()}" update="form"/>
                                         </p:selectOneMenu> 
                                     </div>                          
                                 </div>
+                                <div class="p-field p-col-12 p-md-3">                                  
+                                    <p:outputLabel for="fechaI" value="Fecha Inicio"/>
+                                    <p:datePicker id="fechaI" value="#{archivoFacturaComercialBean.fechaI}" showIcon="true" pattern="dd/MM/yyyy">
+                                        <p:ajax event="dateSelect" update="fechaF"/>
+                                    </p:datePicker>
+                                </div>
+                                <div class="p-field p-col-12 p-md-3">                                  
+                                    <p:outputLabel for="fechaF" value="Fecha Fin"/>
+                                    <p:datePicker id="fechaF" value="#{archivoFacturaComercialBean.fechaf}" showIcon="true" pattern="dd/MM/yyyy" mindate="#{archivoFacturaComercialBean.fechaI}"/>                                   
+                                </div>
                                 <div class="p-field p-col-12 p-md-2">
-                                    <p:commandButton icon="pi pi-print" actionListener="#{reportepreciosBean.generarReporte()}" ajax="false"
+                                    <p:outputLabel value="&#160;"/>
+                                    <p:commandButton icon="pi pi-print" actionListener="#{archivoFacturaComercialBean.generarArchivo()}" ajax="false"
                                                      onstart="PF('blockUIWidget').block()" 
                                                      oncomplete="PF('blockUIWidget').unblock()"
                                                      onclick="PrimeFaces.monitorDownload(start, stop);"
                                                      update="@form" 
                                                      value='Generar Reporte'>
-                                        <p:fileDownload value="#{reportepreciosBean.pdfStream}"/>
+                                        <p:fileDownload value="#{archivoFacturaComercialBean.docStream}"/>
                                     </p:commandButton>                                   
                                 </div>                                
                                 <div class="p-field p-col-12 p-md-4">
