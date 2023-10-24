@@ -702,11 +702,19 @@ public class PrecioBean extends ReusableBean implements Serializable {
 
         UploadedFile uploadedFile = event.getFile();
         listObjDetalle = new ArrayList<>();
+        boolean continuar = true;
+        String primerErrorDetectado = "";
+        String columnaPrimerErrorDetectado = "";
         try (InputStream inputStream = uploadedFile.getInputStream()) {
             Workbook workbook = new XSSFWorkbook(inputStream);
             Sheet sheet = workbook.getSheetAt(0);
 
             for (int rowIndex = 1; rowIndex < sheet.getPhysicalNumberOfRows(); rowIndex++) {
+                if (!continuar) {
+                    System.out.println("FT:: Error en revisión de estructura de cada columna");
+                    throw new Throwable("Error Capturado en metodo handleFileUpload -> Fila con error: " + String.valueOf(rowIndex - 1) + " - Posición de la columna con error: " + columnaPrimerErrorDetectado + " - Valor con error: " + primerErrorDetectado);
+
+                }
                 Row row = sheet.getRow(rowIndex);
                 objDetalle = new ObjetoDetallePrecioAux();
                 if (row != null) {
@@ -714,19 +722,53 @@ public class PrecioBean extends ReusableBean implements Serializable {
                         Cell cell = row.getCell(cellIndex);
                         String cellValue = (cell != null) ? cell.toString() : "";
                         System.out.println("cellValue: " + cellValue);
+                        if (cellValue.equalsIgnoreCase("")) {
+                            columnaPrimerErrorDetectado = String.valueOf(cellIndex + 1);
+                            primerErrorDetectado = cellValue;
+                            continuar = false;
+                            break;
+                        }
                         switch (cellIndex) {
                             case 0:
-                                objDetalle.setCodigoTerminal(cellValue);
-                                break;
+                                if (cellValue.length() != 2) {
+                                    columnaPrimerErrorDetectado = String.valueOf(cellIndex + 1);
+                                    primerErrorDetectado = cellValue;
+                                    continuar = false;
+                                    break;
+                                } else {
+                                    objDetalle.setCodigoTerminal(cellValue);
+                                    break;
+                                }
                             case 1:
-                                objDetalle.setCodigoProd(cellValue);
-                                break;
+                                if (cellValue.length() != 4) {
+                                    columnaPrimerErrorDetectado = String.valueOf(cellIndex + 1);
+                                    primerErrorDetectado = cellValue;
+                                    continuar = false;
+                                    break;
+                                } else {
+                                    objDetalle.setCodigoProd(cellValue);
+                                    break;
+                                }
                             case 2:
-                                objDetalle.setCodigoMedida(cellValue);
-                                break;
+                                if (cellValue.length() != 2) {
+                                    columnaPrimerErrorDetectado = String.valueOf(cellIndex + 1);
+                                    primerErrorDetectado = cellValue;
+                                    continuar = false;
+                                    break;
+                                } else {
+                                    objDetalle.setCodigoMedida(cellValue);
+                                    break;
+                                }
                             case 3:
-                                objDetalle.setCodigoLisPrecio(cellValue);
-                                break;
+                                if (cellValue.indexOf('.') >= 0) {
+                                    columnaPrimerErrorDetectado = String.valueOf(cellIndex + 1);
+                                    primerErrorDetectado = cellValue;
+                                    continuar = false;
+                                    break;
+                                } else {
+                                    objDetalle.setCodigoLisPrecio(cellValue);
+                                    break;
+                                }
                             case 4:
                                 objDetalle.setPvpsugerido(new BigDecimal(cellValue));
                                 break;
@@ -756,8 +798,10 @@ public class PrecioBean extends ReusableBean implements Serializable {
                 listObjDetalle.add(objDetalle);
             }
             workbook.close();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             // Maneja las excepciones adecuadamente
+            this.dialogo(FacesMessage.SEVERITY_INFO, "Existe un error en la estructura de este archivo: " + e.getMessage());
+            System.out.println("FT:: ERROR DETECTADO: " + e.getMessage());
             e.printStackTrace();
         }
         return "";
@@ -797,7 +841,7 @@ public class PrecioBean extends ReusableBean implements Serializable {
             obj.put("fechafin", "");
             obj.put("activo", true);
             obj.put("observacion", observacion);
-            obj.put("precioproducto", listObjDetalle.get(j).getPvpsugerido());
+            obj.put("precioproducto", listObjDetalle.get(j).getPrecioProducto());
             obj.put("usuarioactual", dataUser.getUser().getNombrever());
             for (int i = 0; i < 6; i++) {
                 arrObj.add(addItemsDetailPAux(listObjDetalle.get(j), i));
