@@ -724,7 +724,7 @@ public class PrecioBean extends ReusableBean implements Serializable {
                         System.out.println("cellValue: " + cellValue);
                         if (cellValue.equalsIgnoreCase("")) {
                             columnaPrimerErrorDetectado = String.valueOf(cellIndex + 1);
-                            primerErrorDetectado = cellValue;
+                            primerErrorDetectado = "VACÍO";
                             continuar = false;
                             break;
                         }
