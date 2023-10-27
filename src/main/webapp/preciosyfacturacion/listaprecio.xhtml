@@ -299,16 +299,21 @@
                                 <p:dataTable id="dt-margen" rendered="#{listaPrecioBean.mostrarTabla}" widgetVar="dtMargen" var="margen" value="#{listaPrecioBean.listaListapreciobean}" reflow="true" styleClass="margen-table"
                                              selection="#{crudDemoView.selectedProducts}" rowKey="#{margen.listaProductosComer.comercializadoraproductoPK}" paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">                                                                                                
                                                                  
-                                    <p:column headerText="Código" sortBy="#{margen.productosComer.comercializadoraproductoPK.codigoproducto}" filterBy="#{margen.productosComer.comercializadoraproductoPK.codigoproducto}" width="15%">
+                                    <!-- sortBy="#{margen.productosComer.comercializadoraproductoPK.codigoproducto}" -->
+                                    
+                                    <p:column headerText="Código"  filterBy="#{margen.productosComer.comercializadoraproductoPK.codigoproducto}" width="15%">
                                         <h:outputText value="#{margen.productosComer.comercializadoraproductoPK.codigoproducto}" />
                                     </p:column>
-                                    <p:column headerText="Producto" sortBy="#{margen.productosComer.producto.nombre}" filterBy="#{margen.productosComer.producto.nombre}" width="25%">
+                                    <!-- sortBy="#{margen.productosComer.producto.nombre}" -->
+                                    <p:column headerText="Producto"  filterBy="#{margen.productosComer.producto.nombre}" width="25%">
                                         <h:outputText value="#{margen.productosComer.producto.nombre}" />
                                     </p:column>
-                                    <p:column headerText="Medida" sortBy="#{margen.productosComer.medida.abreviacion}" filterBy="#{margen.productosComer.medida.abreviacion}">
+                                    <!-- sortBy="#{margen.productosComer.medida.abreviacion}"  -->
+                                    <p:column headerText="Medida" filterBy="#{margen.productosComer.medida.abreviacion}">
                                         <h:outputText value="#{margen.productosComer.medida.abreviacion}" />
                                     </p:column>
-                                    <p:column headerText="Margen (%)" sortBy="#{margen.margenValor}" filterBy="#{margen.margenValor}">
+                                    <!-- sortBy="#{margen.margenValor}"  -->
+                                    <p:column headerText="Margen (%)" filterBy="#{margen.margenValor}">
                                         <h:outputText value="#{margen.margenValor}" />
                                     </p:column>
                                     <p:column exportable="false">
