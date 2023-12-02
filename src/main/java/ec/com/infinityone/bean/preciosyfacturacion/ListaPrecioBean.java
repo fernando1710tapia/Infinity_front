@@ -848,16 +848,16 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
     public void guardarMargen() {
         if (listapreciobean.getMargenValor() != null) {
             //obtenerListaPrecioTerminalProduc(comercializadoraT);
-            for (int i = 0; i < this.listaProductosComer.size(); i++) {
-                if (listapreciobean.getProductosComer().getComercializadoraproductoPK() != null) {
-                    if (listapreciobean.getProductosComer().getComercializadoraproductoPK().getCodigoproducto().equals(listaProductosComer.get(i).getComercializadoraproductoPK().getCodigoproducto())) {
-                        valorMargen = listapreciobean.getMargenValor();
-                        if (valorMargen != null) {
-                            this.listaListapreciobean.get(i).setMargenValor(valorMargen);
-                        }
-                    }
-                }
-            }
+//            for (int i = 0; i < this.listaProductosComer.size(); i++) {
+//                if (listapreciobean.getProductosComer().getComercializadoraproductoPK() != null) {
+//                    if (listapreciobean.getProductosComer().getComercializadoraproductoPK().getCodigoproducto().equals(listaProductosComer.get(i).getComercializadoraproductoPK().getCodigoproducto())) {
+//                        valorMargen = listapreciobean.getMargenValor();
+//                        if (valorMargen != null) {
+//                            this.listaListapreciobean.get(i).setMargenValor(valorMargen);
+//                        }
+//                    }
+//                }
+//            }
             PrimeFaces.current().executeScript("PF('margen').hide()");
         }
     }
