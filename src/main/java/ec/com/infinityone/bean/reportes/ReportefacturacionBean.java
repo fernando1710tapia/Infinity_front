@@ -85,7 +85,7 @@ public class ReportefacturacionBean extends ReusableBean implements Serializable
     Variable que almacena el código de la comercializadora
      */
     private String codAbas;
-/*
+    /*
     Variable que almacena el nombre de la comercializadora
      */
     private String nombComer;
@@ -182,6 +182,58 @@ public class ReportefacturacionBean extends ReusableBean implements Serializable
         }
     }
 
+    public void generarReportelf() throws ParseException, IOException {
+        listenvF = new ArrayList<>();
+        /*fechas para comparar entre las dos y establecer un rango de 7 dias*/
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
+        String dateI = sdf.format(fechaI);
+        String dateF = sdf.format(fechaf);
+
+        Date firstDate = sdf.parse(dateI);
+        Date secondDate = sdf.parse(dateF);
+
+        long diff = secondDate.getTime() - firstDate.getTime();
+        TimeUnit time = TimeUnit.DAYS;
+        long diffrence = time.convert(diff, TimeUnit.MILLISECONDS);
+        if (diffrence > 7) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "LA FECHA DE FIN NO PUEDE SER MAYOR A 7 DÍAS A LA FECHA DE INICIO");
+        } else {
+            listenvF = facturaServicio.obtenerFacturasObjEnv(fechaI, fechaf, "-1", null, "-1", null, codAbas, codComer, "1");
+            if (!listenvF.isEmpty()) {
+                generarExcelFacturacionlf(dateI, dateF, listenvF);
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_INFO, "NO SE ENCONTRARON DOCUMENTOS");
+            }
+
+        }
+    }
+
+    public void generarReportelfc() throws ParseException, IOException {
+        listenvF = new ArrayList<>();
+        /*fechas para comparar entre las dos y establecer un rango de 7 dias*/
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
+        String dateI = sdf.format(fechaI);
+        String dateF = sdf.format(fechaf);
+
+        Date firstDate = sdf.parse(dateI);
+        Date secondDate = sdf.parse(dateF);
+
+        long diff = secondDate.getTime() - firstDate.getTime();
+        TimeUnit time = TimeUnit.DAYS;
+        long diffrence = time.convert(diff, TimeUnit.MILLISECONDS);
+        if (diffrence > 7) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "LA FECHA DE FIN NO PUEDE SER MAYOR A 7 DÍAS A LA FECHA DE INICIO");
+        } else {
+            listenvF = facturaServicio.obtenerFacturasObjEnv(fechaI, fechaf, "-1", null, "-1", null, codAbas, codComer, "1");
+            if (!listenvF.isEmpty()) {
+                generarExcelFacturacionlfc(dateI, dateF, listenvF);
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_INFO, "NO SE ENCONTRARON DOCUMENTOS");
+            }
+
+        }
+    }
+
     public String retornarValor(String codProducto, List<Detallefactura> df) {
         for (int i = 0; i < df.size(); i++) {
             if (codProducto.equals(df.get(i).getCodigoimpuesto())) {
@@ -268,7 +320,7 @@ public class ReportefacturacionBean extends ReusableBean implements Serializable
                     dataRow.createCell(2).setCellValue(f.getFacturaPK().getNumero());
                     dataRow.createCell(3).setCellValue(f.getValorconrubro().setScale(2, RoundingMode.HALF_UP).toString());
                     dataRow.getCell(3).setCellStyle(numerosStyle);
-                    dataRow.createCell(4).setCellValue(f.getNombrecliente());                    
+                    dataRow.createCell(4).setCellValue(f.getNombrecliente());
                     dataRow.createCell(5).setCellValue(f.getCodigocliente());
                     dataRow.createCell(6).setCellValue(df.get(0).getVolumennaturalautorizado().setScale(2, RoundingMode.HALF_UP).toString());
                     dataRow.getCell(6).setCellStyle(numerosStyle);
@@ -284,10 +336,10 @@ public class ReportefacturacionBean extends ReusableBean implements Serializable
                     dataRow.getCell(11).setCellStyle(numerosStyle);
                     dataRow.createCell(12).setCellValue(f.getActiva() == true ? "Activa" : "Anulada");
                     dataRow.createCell(13).setCellValue(f.getOeenpetro() == true ? "Si" : "No");
-                    dataRow.createCell(14).setCellValue(sri.equals("S") ? "Si" : "No");                    
+                    dataRow.createCell(14).setCellValue(sri.equals("S") ? "Si" : "No");
                 }
             } catch (Exception ex) {
-                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL CREAR EXCEL:" + ex);                
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL CREAR EXCEL:" + ex);
             }
         }
 
@@ -299,7 +351,252 @@ public class ReportefacturacionBean extends ReusableBean implements Serializable
 //        HSSFCell total = rowTotales.createCell(4);
 //        total.setCellStyle(cellStyleTotal);
 //        total.setCellValue("Total:");
+//        total = rowTotales.createCell(9);
+//        total.setCellType(CellType.STRING);
+//        total.setCellFormula(String.format("SUM(J10:J%d)", 9 + transaccionesActuales.size()));
+//        total.setCellStyle(numeros2Style);
+        try {
+            workbook.write(outputStream);
+            workbook.close();
+        } catch (IOException ex) {
+            System.out.println("Excepcion: " + ex);
+        }
+        if (outputStream.size() != 0) {
+            byte[] bytes = outputStream.toByteArray();
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
+            docStream = new DefaultStreamedContent(inputStream, "application/xls", nombreDoc + ".xls");
+            System.out.println("¡El archivo Excel se ha generado exitosamente!");
+            outputStream.close();
+        }
+    }
 
+    public void generarExcelFacturacionlf(String fechaDesde, String fechaHasta, List<EnvioFactura> listenvF) throws IOException {
+        String nombreDoc = "LISTADOFACTURAS_" + fechaDesde.replace("/", "") + "_" + fechaHasta.replace("/", "");
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        HSSFSheet sheet = workbook.createSheet();
+        workbook.setSheetName(0, "ARCHIVO");
+        String[] headers = new String[]{
+            "Status",
+            "No. de Orden",
+            "Nombre del Cliente",
+            "Nombre Comercial",
+            "Código",
+            "Cod.Estab",
+            "Oficina",
+            "Fecha de Emisión",
+            "Fecha de Vencimiento",
+            "Fecha de Venta",
+            "Volumen",
+            "Producto",
+            "Valor",
+            "No. de Factura",
+            "No. de Autorización",
+            "Fecha de Autorización",
+            "Clave de Acceso"
+        };
+
+        CellStyle numerosStyle = workbook.createCellStyle();
+        numerosStyle.setDataFormat(workbook.createDataFormat().getFormat("0.00"));
+        numerosStyle.setAlignment(HorizontalAlignment.RIGHT);
+
+        CellStyle numeros2Style = workbook.createCellStyle();
+        numeros2Style.setDataFormat(workbook.createDataFormat().getFormat("0.00"));
+
+        HSSFFont font = workbook.createFont();
+        font.setBold(true);
+        numeros2Style.setFont(font);
+
+        CellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setFont(font);
+
+        HSSFRow headerRow = sheet.createRow(2);
+        for (int i = 0; i < headers.length; ++i) {
+            String header = headers[i];
+            HSSFCell cell = headerRow.createCell(i);
+            cell.setCellStyle(headerStyle);
+            cell.setCellValue(header);
+            sheet.autoSizeColumn(cell.getColumnIndex());
+        }
+
+//        HSSFRow titulo = sheet.createRow(0);
+//        HSSFCell cellFiltros = titulo.createCell(0);
+//        cellFiltros.setCellStyle(headerStyle);
+//        cellFiltros.setCellValue(nombComer);
+        HSSFRow desdeHasta = sheet.createRow(0);
+        HSSFCell cellFiltros = desdeHasta.createCell(0);
+        cellFiltros.setCellValue(
+                "PETROLRIOS C.A.: Listado de Facturas: " + fechaDesde
+                + " - " + fechaHasta);
+
+        List<String> listaIdFacturas = listenvF.stream().map(p -> p.getFactura().getFacturaPK().getNumero())
+                .collect(Collectors.toList());
+        System.out.println("Valores recibidos: " + fechaDesde + " " + fechaHasta);
+        System.out.println("Total id facturas: " + listaIdFacturas.toArray().length);
+
+        for (int i = 0; i < listenvF.size(); ++i) {
+            try {
+                HSSFRow dataRow = sheet.createRow(i + 3);
+                Factura f = listenvF.get(i).getFactura();
+                List<Detallefactura> df = listenvF.get(i).getDetalle();
+                String sri = listenvF.get(i).getEnsri();
+
+                if (df != null) {
+                    dataRow.createCell(0).setCellValue(f.getActiva() == true ? "LIQU" : "ANUL");
+                    dataRow.createCell(1).setCellValue(f.getFacturaPK().getNumeronotapedido());
+                    dataRow.createCell(2).setCellValue(f.getNombrecliente());
+                    dataRow.createCell(3).setCellValue(f.getNombrecliente());
+                    dataRow.createCell(4).setCellValue(f.getCodigocliente());
+                    dataRow.createCell(5).setCellValue(f.getFacturaPK().getCodigocomercializadora());
+                    dataRow.createCell(6).setCellValue(f.getFacturaPK().getCodigoabastecedora());
+                    dataRow.createCell(7).setCellValue(f.getFechaventa());
+                    dataRow.createCell(8).setCellValue(f.getFechavencimiento());
+                    dataRow.createCell(9).setCellValue(f.getFechaventa());
+                    dataRow.createCell(10).setCellValue(df.get(0).getVolumennaturalautorizado().setScale(2, RoundingMode.HALF_UP).toString());
+                    dataRow.getCell(10).setCellStyle(numerosStyle);
+                    for (int c = 0; c < df.size(); c++) {
+                        if (df.get(c).getNombreproducto() != null) {
+                            dataRow.createCell(11).setCellValue(df.get(c).getNombreproducto());
+                        }
+                    }                    
+                    dataRow.createCell(12).setCellValue(f.getValorconrubro().toString());
+                    dataRow.getCell(12).setCellStyle(numerosStyle);
+                    dataRow.createCell(13).setCellValue(f.getFacturaPK().getNumero());
+                    dataRow.createCell(14).setCellValue(f.getNumeroautorizacion());
+                    dataRow.createCell(15).setCellValue(f.getFechaautorizacion());
+                    dataRow.createCell(16).setCellValue(f.getClaveacceso());
+                }
+            } catch (Exception ex) {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL CREAR EXCEL:" + ex);
+            }
+        }
+
+        CellStyle cellStyleTotal = workbook.createCellStyle();
+        cellStyleTotal.setFont(font);
+        cellStyleTotal.setAlignment(HorizontalAlignment.RIGHT);
+
+//        HSSFRow rowTotales = sheet.createRow(9 + listenvF.size());
+//        HSSFCell total = rowTotales.createCell(4);
+//        total.setCellStyle(cellStyleTotal);
+//        total.setCellValue("Total:");
+//        total = rowTotales.createCell(9);
+//        total.setCellType(CellType.STRING);
+//        total.setCellFormula(String.format("SUM(J10:J%d)", 9 + transaccionesActuales.size()));
+//        total.setCellStyle(numeros2Style);
+        try {
+            workbook.write(outputStream);
+            workbook.close();
+        } catch (IOException ex) {
+            System.out.println("Excepcion: " + ex);
+        }
+        if (outputStream.size() != 0) {
+            byte[] bytes = outputStream.toByteArray();
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
+            docStream = new DefaultStreamedContent(inputStream, "application/xls", nombreDoc + ".xls");
+            System.out.println("¡El archivo Excel se ha generado exitosamente!");
+            outputStream.close();
+        }
+    }
+
+    public void generarExcelFacturacionlfc(String fechaDesde, String fechaHasta, List<EnvioFactura> listenvF) throws IOException {
+        String nombreDoc = "LISTADOFACTURASCOBRANZA_" + fechaDesde.replace("/", "") + "_" + fechaHasta.replace("/", "");
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        HSSFSheet sheet = workbook.createSheet();
+        workbook.setSheetName(0, "ARCHIVO");
+        String[] headers = new String[]{
+            "Status",
+            "No. de Orden",
+            "No. de Factura",
+            "Nombre del Cliente",
+            "Nombre Comercial",
+            "Código",
+            "Cod.Estab",
+            "Código Propio",
+            "Valor",
+            "Forma de Pago",
+            "Fecha de Emisión",
+            "Fecha de Vencimiento",
+            "Fecha de Pago",
+            "Oficina "
+        };
+
+        CellStyle numerosStyle = workbook.createCellStyle();
+        numerosStyle.setDataFormat(workbook.createDataFormat().getFormat("0.00"));
+        numerosStyle.setAlignment(HorizontalAlignment.RIGHT);
+
+        CellStyle numeros2Style = workbook.createCellStyle();
+        numeros2Style.setDataFormat(workbook.createDataFormat().getFormat("0.00"));
+
+        HSSFFont font = workbook.createFont();
+        font.setBold(true);
+        numeros2Style.setFont(font);
+
+        CellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setFont(font);
+
+        HSSFRow headerRow = sheet.createRow(2);
+        for (int i = 0; i < headers.length; ++i) {
+            String header = headers[i];
+            HSSFCell cell = headerRow.createCell(i);
+            cell.setCellStyle(headerStyle);
+            cell.setCellValue(header);
+            sheet.autoSizeColumn(cell.getColumnIndex());
+        }
+
+//        HSSFRow titulo = sheet.createRow(0);
+//        HSSFCell cellFiltros = titulo.createCell(0);
+//        cellFiltros.setCellStyle(headerStyle);
+//        cellFiltros.setCellValue(nombComer);
+        HSSFRow desdeHasta = sheet.createRow(0);
+        HSSFCell cellFiltros = desdeHasta.createCell(0);
+        cellFiltros.setCellValue(
+                "PETROLRIOS C.A.: Listado de Facturas Cobranzas: " + fechaDesde
+                + " - " + fechaHasta);
+
+        List<String> listaIdFacturas = listenvF.stream().map(p -> p.getFactura().getFacturaPK().getNumero())
+                .collect(Collectors.toList());
+        System.out.println("Valores recibidos: " + fechaDesde + " " + fechaHasta);
+        System.out.println("Total id facturas: " + listaIdFacturas.toArray().length);
+
+        for (int i = 0; i < listenvF.size(); ++i) {
+            try {
+                HSSFRow dataRow = sheet.createRow(i + 3);
+                Factura f = listenvF.get(i).getFactura();
+                List<Detallefactura> df = listenvF.get(i).getDetalle();
+                String sri = listenvF.get(i).getEnsri();
+
+                if (df != null) {
+                    dataRow.createCell(0).setCellValue(f.getActiva() == true ? "LIQU" : "ANUL");
+                    dataRow.createCell(1).setCellValue(f.getFacturaPK().getNumeronotapedido());
+                    dataRow.createCell(2).setCellValue(f.getFacturaPK().getNumero());
+                    dataRow.createCell(3).setCellValue(f.getNombrecliente());
+                    dataRow.createCell(4).setCellValue(f.getNombrecliente());
+                    dataRow.createCell(5).setCellValue("E - " + f.getCodigocliente());
+                    dataRow.createCell(6).setCellValue(f.getFacturaPK().getCodigocomercializadora());
+                    dataRow.createCell(7).setCellValue("");
+                    dataRow.createCell(8).setCellValue(f.getValorconrubro().toString());
+                    dataRow.createCell(9).setCellValue(f.getCampoadicionalCampo1());
+                    dataRow.createCell(10).setCellValue(f.getFechaventa());
+                    dataRow.createCell(11).setCellValue(f.getFechavencimiento());
+                    dataRow.createCell(12).setCellValue("");
+                    dataRow.createCell(13).setCellValue("");
+                }
+            } catch (Exception ex) {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL CREAR EXCEL:" + ex);
+            }
+        }
+
+        CellStyle cellStyleTotal = workbook.createCellStyle();
+        cellStyleTotal.setFont(font);
+        cellStyleTotal.setAlignment(HorizontalAlignment.RIGHT);
+
+//        HSSFRow rowTotales = sheet.createRow(9 + listenvF.size());
+//        HSSFCell total = rowTotales.createCell(4);
+//        total.setCellStyle(cellStyleTotal);
+//        total.setCellValue("Total:");
 //        total = rowTotales.createCell(9);
 //        total.setCellType(CellType.STRING);
 //        total.setCellFormula(String.format("SUM(J10:J%d)", 9 + transaccionesActuales.size()));
