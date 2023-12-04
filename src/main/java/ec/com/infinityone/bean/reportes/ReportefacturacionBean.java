@@ -499,6 +499,7 @@ public class ReportefacturacionBean extends ReusableBean implements Serializable
         }
     }
 
+
     public void generarExcelFacturacionlfc(String fechaDesde, String fechaHasta, List<EnvioFactura> listenvF) throws IOException {
         String nombreDoc = "LISTADOFACTURASCOBRANZA_" + fechaDesde.replace("/", "") + "_" + fechaHasta.replace("/", "");
 
