@@ -204,6 +204,139 @@ public class ArchivoFacturaComercialBean extends ReusableBean implements Seriali
     }
 
     public String crearArchivo(String fechaDesde, String fechaHasta, List<FacturaComercialDto> listFacturaComercialDto) throws Throwable {
+    FileWriter flwriter = null;
+    String nombreArchivo = "";
+    String lineaCabecera = "";
+    String lineaCabeceraAux = "";
+    try {
+      nombreArchivo = "ARCHIVO_" + fechaDesde.replace("/", "") + "_" + fechaHasta.replace("/", "") + ".txt";
+      flwriter = new FileWriter(Fichero.getCARPETAREPORTES() + nombreArchivo);
+      String linea = "";
+      long contadorFacturas = 0L;
+      BufferedWriter bfwriter = new BufferedWriter(flwriter);
+      for (FacturaComercialDto facturaComercialDto : listFacturaComercialDto) {
+          System.out.println("FT: VERIFICAR DATOS DE LINEA DETALLE "+ facturaComercialDto.getDcodigoproducto() +" VALOR_ "+ facturaComercialDto.getDtotal());
+        contadorFacturas++;
+        lineaCabecera = generarLineaCabecera(facturaComercialDto.getFacturaComercialPKDto());
+        //if (!facturaComercialDto.getDcodigoproducto().equalsIgnoreCase("0002") ){  
+             if(!facturaComercialDto.getDtotal().equalsIgnoreCase("000000000000.00")){
+        if (!lineaCabecera.equals(lineaCabeceraAux)) {
+          bfwriter.write(lineaCabecera + "\n");
+          lineaCabeceraAux = "";
+          lineaCabeceraAux = lineaCabecera;
+        } 
+        linea = linea + facturaComercialDto.getDcodigocomercializadora() + ";";
+        linea = linea + facturaComercialDto.getDcodigobanco() + ";";
+        linea = linea + facturaComercialDto.getDtiporegistro() + ";";
+        linea = linea + facturaComercialDto.getDnumeroorden() + ";";
+        linea = linea + facturaComercialDto.getDcodigocliente() + ";";
+        linea = linea + facturaComercialDto.getDcodigoestablecimiento() + ";";
+        switch (facturaComercialDto.getDcodigoproducto()) {
+          case "0001":
+            linea = linea + "  IV;";
+            break;
+          case "0002":
+            linea = linea + "  IP;";
+            break;
+          case "0003":
+            linea = linea + "  I3;";
+            break;
+          default:
+            linea = linea + facturaComercialDto.getDcodigoproducto() + ";";
+            break;
+        } 
+        String[] partesCantidad = facturaComercialDto.getDcantidad().split("\\.");
+        if (partesCantidad[1].length() == 3) {
+          linea = linea + "0" + partesCantidad[0] + "." + partesCantidad[1].substring(0, 2) + ";";
+        } else {
+          linea = linea + facturaComercialDto.getDcantidad() + ";";
+        } 
+        linea = linea + facturaComercialDto.getDunidadmedida() + ";";
+        String[] partesPUnitario = facturaComercialDto.getDpreciounitario().split("\\.");
+        if (partesPUnitario[1].length() < 6) {
+          linea = linea + partesPUnitario[0].substring(4) + "." + String.format("%-6s", new Object[] { partesPUnitario[1] }).replace(' ', '0') + ";";
+        } else {
+          linea = linea + facturaComercialDto.getDpreciounitario() + ";";
+        } 
+        linea = linea + facturaComercialDto.getDtotal() + ";";
+        linea = linea + facturaComercialDto.getDtiporubro() + ";";
+        bfwriter.write(linea + "\n");
+        linea = "";
+      //}
+      }  //FT endif eliminar linea IP para clientes propios  
+      } 
+      bfwriter.close();
+      dialogo(FacesMessage.SEVERITY_INFO, "Archivo creado satisfactoriamente..");
+      System.out.println("Archivo creado satisfactoriamente..");
+      descargar(nombreArchivo);
+      return nombreArchivo;
+    } catch (Throwable e) {
+      System.out.println("FT:: error capturado " + getClass() + "::" + e.getMessage());
+      e.printStackTrace(System.out);
+    } finally {
+      if (flwriter != null)
+        try {
+          flwriter.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }  
+    } 
+    return nombreArchivo;
+  }
+  
+  public String generarLineaCabecera(FacturaComercialPKDto facturaComercialPKDto) throws Throwable {
+    String lineaCabecera = "";
+    try {
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getCodigoComercializadora() + ";";
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getCodigoBanco() + ";";
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getTipoRegistro() + ";";
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getNumeroOrden() + ";";
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getCodigoCliente() + ";";
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getCodigoEstablecimiento() + ";";
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getFechaVenta() + ";";
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getAgencia() + ";";
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getCodigoTerminal() + ";";
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getValorTotal() + ";";
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getFechaEmision() + ";";
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getFechaVencimiento() + ";";
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getFechaPostergacion() + ";";
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getNumeroSri() + ";";
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getEstadoFactura() + ";";
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getClaveAcceso() + ";";
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getNumeroAutorizacionsri() + ";";
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getFechaVigencia() + ";";
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getFechaCaducidad() + ";";
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getFormaPago1() + ";";
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getDescripcionFormapago1() + ";";
+      if (!facturaComercialPKDto.getNumeroCuentaformapago1().isEmpty()) {
+        String[] parts = facturaComercialPKDto.getCodigoBancoformapago1().split("-");
+        lineaCabecera = lineaCabecera + String.format("%18s", new Object[] { parts[1] }) + ";";
+        lineaCabecera = lineaCabecera + String.format("%10s", new Object[] { parts[2] }) + ";";
+        lineaCabecera = lineaCabecera + String.format("%3s", new Object[] { parts[0] }) + ";";
+        lineaCabecera = lineaCabecera + String.format("%30s", new Object[] { parts[0] }) + ";";
+      } else {
+        lineaCabecera = lineaCabecera + String.format("%18s", new Object[] { " " }) + ";";
+        lineaCabecera = lineaCabecera + String.format("%10s", new Object[] { " " }) + ";";
+        lineaCabecera = lineaCabecera + String.format("%3s", new Object[] { " " }) + ";";
+        lineaCabecera = lineaCabecera + String.format("%30s", new Object[] { " " }) + ";";
+      } 
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getFormaPago2() + ";";
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getDescripcionBancoformapago2() + ";";
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getNumeroCuentaformapago2() + ";";
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getNumeroChequeformapago2() + ";";
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getCodigoBancoformapago2() + ";";
+      lineaCabecera = lineaCabecera + facturaComercialPKDto.getDescripcionBancoformapago2() + ";";
+      return lineaCabecera;
+    } catch (Throwable t) {
+      System.out.println("FT:: error capturado " + getClass() + "::" + t.getMessage());
+      t.printStackTrace(System.out);
+      return lineaCabecera;
+    } 
+  }
+    
+    /* FT: 20231205 cambio POR CÓDIGO DESDE .CLASS DE PETROLRIOS
+    
+    public String crearArchivo(String fechaDesde, String fechaHasta, List<FacturaComercialDto> listFacturaComercialDto) throws Throwable {
         FileWriter flwriter = null;
         String nombreArchivo = "";
         String lineaCabecera = "";
@@ -353,6 +486,8 @@ public class ArchivoFacturaComercialBean extends ReusableBean implements Seriali
         }
     }
 
+    */
+    
     public void descargar(String nombre) throws FileNotFoundException {
         File initialFile = new File(Fichero.getCARPETAREPORTES() + nombre);
         InputStream targetStream = new FileInputStream(initialFile);

@@ -448,10 +448,10 @@ public class ReportefacturacionBean extends ReusableBean implements Serializable
                     dataRow.createCell(2).setCellValue(f.getNombrecliente());
                     dataRow.createCell(3).setCellValue(f.getNombrecliente());
                     dataRow.createCell(4).setCellValue(f.getCodigocliente());
-                    dataRow.createCell(5).setCellValue(f.getFacturaPK().getCodigocomercializadora());
-                    dataRow.createCell(6).setCellValue(f.getFacturaPK().getCodigoabastecedora());
+                    dataRow.createCell(5).setCellValue(f.getSeriesri().substring(0, 3));
+                    dataRow.createCell(6).setCellValue(f.getCodigoterminal());
                     dataRow.createCell(7).setCellValue(f.getFechaventa());
-                    dataRow.createCell(8).setCellValue(f.getFechavencimiento());
+                    dataRow.createCell(8).setCellValue(f.getFechaacreditacionprorrogada());
                     dataRow.createCell(9).setCellValue(f.getFechaventa());
                     dataRow.createCell(10).setCellValue(df.get(0).getVolumennaturalautorizado().setScale(2, RoundingMode.HALF_UP).toString());
                     dataRow.getCell(10).setCellStyle(numerosStyle);
@@ -570,20 +570,20 @@ public class ReportefacturacionBean extends ReusableBean implements Serializable
                 String sri = listenvF.get(i).getEnsri();
 
                 if (df != null) {
-                    dataRow.createCell(0).setCellValue(f.getActiva() == true ? "LIQU" : "ANUL");
+                    dataRow.createCell(0).setCellValue(f.getPagada() == true ? "LIQU" : "Pendiente");
                     dataRow.createCell(1).setCellValue(f.getFacturaPK().getNumeronotapedido());
                     dataRow.createCell(2).setCellValue(f.getFacturaPK().getNumero());
                     dataRow.createCell(3).setCellValue(f.getNombrecliente());
                     dataRow.createCell(4).setCellValue(f.getNombrecliente());
                     dataRow.createCell(5).setCellValue("E - " + f.getCodigocliente());
-                    dataRow.createCell(6).setCellValue(f.getFacturaPK().getCodigocomercializadora());
+                    dataRow.createCell(6).setCellValue(f.getSeriesri().substring(0, 3));
                     dataRow.createCell(7).setCellValue("");
                     dataRow.createCell(8).setCellValue(f.getValorconrubro().toString());
                     dataRow.createCell(9).setCellValue(f.getCampoadicionalCampo1());
                     dataRow.createCell(10).setCellValue(f.getFechaventa());
-                    dataRow.createCell(11).setCellValue(f.getFechavencimiento());
+                    dataRow.createCell(11).setCellValue(f.getFechaacreditacionprorrogada());
                     dataRow.createCell(12).setCellValue("");
-                    dataRow.createCell(13).setCellValue("");
+                    dataRow.createCell(13).setCellValue(f.getCodigoterminal());
                 }
             } catch (Exception ex) {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL CREAR EXCEL:" + ex);

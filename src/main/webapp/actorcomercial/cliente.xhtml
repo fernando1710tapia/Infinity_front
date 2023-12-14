@@ -391,6 +391,7 @@
                                             <p:selectOneMenu id="codListaPrecio" value="#{clienteBean.listaprecio}" title="Lista Precio"
                                                              panelStyle="width:175px" style="min-width: 80%;" 
                                                              autoWidth="false" converter="converterg"
+                                                             filter="true" filterMatchMode="contains"
                                                              required="true" requiredMessage="Seleccione Lista Precio" disabled="#{clienteBean.soloLectura}">
                                                 <f:selectItem noSelectionOption="true" itemLabel="Seleccione" itemValue="#{null}"/>
                                                 <f:selectItems value="#{clienteBean.listaListaprecios}"
