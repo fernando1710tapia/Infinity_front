@@ -5,7 +5,9 @@
  */
 package ec.com.infinityone.servicio.preciosyfacturacion;
 
+import com.lowagie.text.pdf.PdfName;
 import ec.com.infinityone.configuration.Fichero;
+import ec.com.infinityone.modelo.EnvioClientePrecio;
 import ec.com.infinityone.modelo.Listaprecio;
 import ec.com.infinityone.modelo.ListaprecioPK;
 import ec.com.infinityone.modelo.Precio;
@@ -47,6 +49,11 @@ public class ListaprecioServicio {
     private Precio precio;
 
     private PrecioPK precioPK;
+    
+    // lista de clientes y sus precios
+    private List<EnvioClientePrecio> listenvCliPre;
+    
+    private EnvioClientePrecio unEnvioClientePrecio;
 
     /*
     variable para devolver una fecha
@@ -392,6 +399,65 @@ public class ListaprecioServicio {
 
     public void setListaprecio(Listaprecio listaprecio) {
         this.listaprecio = listaprecio;
+    }
+
+    public List<EnvioClientePrecio> obtenerClientePrecio(String codComer) {
+        try {
+            //URL url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.listaprecio/porComercializadora?codigocomercializadora=" + codComer);
+            URL url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.precio/clienteprecio?codigocomercializadora=" + codComer);
+            System.out.println("FT:: obtenerClientePrecio. "+url.toString());
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+
+            listenvCliPre = new ArrayList<>(); 
+            unEnvioClientePrecio = new EnvioClientePrecio();
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+
+            BufferedReader br = new BufferedReader(reader);
+            String tmp = null;
+            String respuesta = "";
+            while ((tmp = br.readLine()) != null) {
+                respuesta += tmp;
+            }       
+            JSONObject objetoJson = new JSONObject(respuesta);
+            JSONArray retorno = objetoJson.getJSONArray("retorno");
+            for (int indice = 0; indice < retorno.length(); indice++) {
+                JSONObject listaP = retorno.getJSONObject(indice);
+                unEnvioClientePrecio.setCliente(listaP.getString("cliente"));
+                unEnvioClientePrecio.setListaprecio(listaP.getString("listaprecio"));
+                unEnvioClientePrecio.setTerminal(listaP.getString("terminal"));
+                unEnvioClientePrecio.setProducto(listaP.getString("producto"));
+                unEnvioClientePrecio.setCodigoprecio(listaP.getString("codigoprecio"));
+                unEnvioClientePrecio.setActivo(listaP.getString("activo"));
+                unEnvioClientePrecio.setFechainicio(listaP.getString("fechainicio")); 
+                
+                unEnvioClientePrecio.setPrecioterminalepp(listaP.getString("precioterminalepp").substring(0,8)); 
+                unEnvioClientePrecio.setIva(listaP.getString("iva").substring(0,8)); 
+//                unEnvioClientePrecio.setMargencomercializacion(listaP.getString("margencomercializacion")); 
+                unEnvioClientePrecio.setIvapresuntivo(listaP.getString("ivapresuntivo").substring(0,8)); 
+                unEnvioClientePrecio.setMargenxcliente(listaP.getString("margenxcliente").substring(0,8)); 
+                unEnvioClientePrecio.setPrecioproducto(listaP.getString("precioproducto").substring(0,8)); 
+                unEnvioClientePrecio.setTrexmil(listaP.getString("trexmil").substring(0,8)); 
+               
+//                unEnvioClientePrecio.setGravamen(listaP.getString("gravamen")); 
+//                unEnvioClientePrecio.setValor(listaP.getString("valor")); 
+//                
+                listenvCliPre.add(unEnvioClientePrecio);
+                unEnvioClientePrecio = new EnvioClientePrecio();
+            }
+            if (connection.getResponseCode() != 200) {
+                System.out.println(connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
+            }
+
+//            return listenvCliPre;
+        } catch (Throwable e) {
+            System.out.println("FT:: Error en obtenerClientePrecio " + e.getMessage());
+            e.printStackTrace(System.out);
+        }
+        return listenvCliPre;
     }
 
 }
