@@ -651,6 +651,7 @@ public class ReportefacturacionBean extends ReusableBean implements Serializable
         workbook.setSheetName(0, "ARCHIVO");
         String[] headers = new String[]{ 
             "CLIENTE",
+            "CLIENTE",
             "LISTA DE PRECIO", 
             "TERMINAL",
             "PRODUCTO",
@@ -706,23 +707,24 @@ public class ReportefacturacionBean extends ReusableBean implements Serializable
                 EnvioClientePrecio f = listenvCliPre.get(i);
 
                 if (f != null) {
-                    dataRow.createCell(0).setCellValue(f.getCliente());
-                    dataRow.createCell(1).setCellValue(f.getListaprecio());
-                    dataRow.createCell(2).setCellValue(f.getTerminal());
-                    dataRow.createCell(3).setCellValue(f.getProducto());
-                    dataRow.createCell(4).setCellValue(f.getCodigoprecio());
+                    dataRow.createCell(0).setCellValue(f.getCliente().substring(0,8));
+                    dataRow.createCell(1).setCellValue(f.getCliente().substring(9));
+                    dataRow.createCell(2).setCellValue(f.getListaprecio());
+                    dataRow.createCell(3).setCellValue(f.getTerminal());
+                    dataRow.createCell(4).setCellValue(f.getProducto());
+                    dataRow.createCell(5).setCellValue(f.getCodigoprecio());
 //                    dataRow.createCell(5).setCellValue(  f.getActivo().trim());
-                    dataRow.createCell(5).setCellValue(f.getFechainicio());
+                    dataRow.createCell(6).setCellValue(f.getFechainicio());
 //                    dataRow.createCell(7).setCellValue(f.getGravamen());
 //                    dataRow.createCell(8).setCellValue(f.getValor());
                     
-                    dataRow.createCell(6).setCellValue(f.getPrecioterminalepp());
-                    dataRow.createCell(7).setCellValue(f.getIva());
+                    dataRow.createCell(7).setCellValue(f.getPrecioterminalepp());
+                    dataRow.createCell(8).setCellValue(f.getIva());
 //                    dataRow.createCell(7).setCellValue(f.getMargencomercializacion());
-                    dataRow.createCell(8).setCellValue(f.getIvapresuntivo());
-                    dataRow.createCell(9).setCellValue(f.getMargenxcliente());
-                    dataRow.createCell(10).setCellValue(f.getPrecioproducto());
-                    dataRow.createCell(11).setCellValue(f.getTrexmil()); 
+                    dataRow.createCell(9).setCellValue(f.getIvapresuntivo());
+                    dataRow.createCell(10).setCellValue(f.getMargenxcliente());
+                    dataRow.createCell(11).setCellValue(f.getPrecioproducto());
+                    dataRow.createCell(12).setCellValue(f.getTrexmil()); 
                  }
             } catch (Throwable ex) {
                 System.out.println("FT:: Error en metodo generarExcelClientePrecio (1): " + ex);
