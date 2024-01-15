@@ -634,6 +634,7 @@ public class ActualizarPrecioBean extends ReusableBean implements Serializable {
 
     public void calcularPreciosProd() {
         BigDecimal dpcg1 = new BigDecimal(0);
+        BigDecimal dpcg1Iva = new BigDecimal(0);
         BigDecimal dpcg2 = new BigDecimal(0);
         BigDecimal dpcg3 = new BigDecimal(0);
         BigDecimal dpcg4 = new BigDecimal(0);
@@ -651,6 +652,7 @@ public class ActualizarPrecioBean extends ReusableBean implements Serializable {
                     //Precio Terminal EPP
                     case "0001":
                         dpcg1 = listaObjetoPrecio.get(i).getPrecioepp().divide(listaGravamen.get(j).getValordefecto(), 6, RoundingMode.HALF_UP);
+                        dpcg1Iva = listaObjetoPrecio.get(i).getPrecioepp();
                         detallePrecioPK.setCodigocomercializadora(listaObjetoPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
                         detallePrecioPK.setCodigoproducto(listaObjetoPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
                         detallePrecioPK.setCodigomedida(listaObjetoPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
@@ -687,7 +689,13 @@ public class ActualizarPrecioBean extends ReusableBean implements Serializable {
                             detallePrecioPK = new DetalleprecioPK();
                             objDetalle.setMargenxcliente(dpcg4);
                         } else {
-                            dpcg4 = (dpcg1.multiply((listaObjetoPrecio.get(i).getMargenporcentaje().divide(new BigDecimal(100))))).setScale(6, RoundingMode.HALF_UP);
+//                            dpcg4 = (dpcg1.multiply((listaObjetoPrecio.get(i).getMargenporcentaje().divide(new BigDecimal(100))))).setScale(6, RoundingMode.HALF_UP);
+                            if (listaObjetoPrecio.get(i).getPrecio().getListaprecio().getTipo().equals("MPO")) {
+                                    dpcg4 = (dpcg1.multiply((listaObjetoPrecio.get(i).getMargenporcentaje().divide(new BigDecimal(100))))).setScale(6, RoundingMode.HALF_UP);
+                                } else {
+                                    dpcg4 = (dpcg1Iva.multiply((listaObjetoPrecio.get(i).getMargenporcentaje().divide(new BigDecimal(100))))).setScale(6, RoundingMode.HALF_UP);
+                                }
+                            
                             detallePrecioPK.setCodigocomercializadora(listaObjetoPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
                             detallePrecioPK.setCodigoproducto(listaObjetoPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
                             detallePrecioPK.setCodigomedida(listaObjetoPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());

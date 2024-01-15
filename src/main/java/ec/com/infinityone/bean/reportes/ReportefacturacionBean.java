@@ -4,6 +4,7 @@ import ec.com.infinityone.bean.actorcomercial.ComercializadoraBean;
 import ec.com.infinityone.serivicio.actorcomercial.ComercializadoraServicio;
 import ec.com.infinityone.bean.enums.ImpuestosEnum;
 import ec.com.infinityone.modelo.Detallefactura;
+import ec.com.infinityone.modelo.EnvioClientePrecio;
 import ec.com.infinityone.modelo.EnvioFactura;
 import ec.com.infinityone.modelo.Factura;
 import ec.com.infinityone.modelo.Listaprecio;
@@ -111,6 +112,13 @@ public class ReportefacturacionBean extends ReusableBean implements Serializable
     Variable para guardar una listda de Factura y Detalle Factura
      */
     private List<EnvioFactura> listenvF;
+    
+    /*
+    Variable para guardar una lista clientes y sus precios
+     */
+    private List<EnvioClientePrecio> listenvCliPre;
+    
+    private EnvioClientePrecio unEnvioClientePrecio;
 
     /**
      * Constructor por defecto
@@ -448,10 +456,10 @@ public class ReportefacturacionBean extends ReusableBean implements Serializable
                     dataRow.createCell(2).setCellValue(f.getNombrecliente());
                     dataRow.createCell(3).setCellValue(f.getNombrecliente());
                     dataRow.createCell(4).setCellValue(f.getCodigocliente());
-                    dataRow.createCell(5).setCellValue(f.getFacturaPK().getCodigocomercializadora());
-                    dataRow.createCell(6).setCellValue(f.getFacturaPK().getCodigoabastecedora());
+                    dataRow.createCell(5).setCellValue(f.getSeriesri().substring(0, 3));
+                    dataRow.createCell(6).setCellValue(f.getCodigoterminal());
                     dataRow.createCell(7).setCellValue(f.getFechaventa());
-                    dataRow.createCell(8).setCellValue(f.getFechavencimiento());
+                    dataRow.createCell(8).setCellValue(f.getFechaacreditacionprorrogada());
                     dataRow.createCell(9).setCellValue(f.getFechaventa());
                     dataRow.createCell(10).setCellValue(df.get(0).getVolumennaturalautorizado().setScale(2, RoundingMode.HALF_UP).toString());
                     dataRow.getCell(10).setCellStyle(numerosStyle);
@@ -570,20 +578,20 @@ public class ReportefacturacionBean extends ReusableBean implements Serializable
                 String sri = listenvF.get(i).getEnsri();
 
                 if (df != null) {
-                    dataRow.createCell(0).setCellValue(f.getActiva() == true ? "LIQU" : "ANUL");
+                    dataRow.createCell(0).setCellValue(f.getPagada() == true ? "LIQU" : "Pendiente");
                     dataRow.createCell(1).setCellValue(f.getFacturaPK().getNumeronotapedido());
                     dataRow.createCell(2).setCellValue(f.getFacturaPK().getNumero());
                     dataRow.createCell(3).setCellValue(f.getNombrecliente());
                     dataRow.createCell(4).setCellValue(f.getNombrecliente());
                     dataRow.createCell(5).setCellValue("E - " + f.getCodigocliente());
-                    dataRow.createCell(6).setCellValue(f.getFacturaPK().getCodigocomercializadora());
+                    dataRow.createCell(6).setCellValue(f.getSeriesri().substring(0, 3));
                     dataRow.createCell(7).setCellValue("");
                     dataRow.createCell(8).setCellValue(f.getValorconrubro().toString());
                     dataRow.createCell(9).setCellValue(f.getCampoadicionalCampo1());
                     dataRow.createCell(10).setCellValue(f.getFechaventa());
-                    dataRow.createCell(11).setCellValue(f.getFechavencimiento());
+                    dataRow.createCell(11).setCellValue(f.getFechaacreditacionprorrogada());
                     dataRow.createCell(12).setCellValue("");
-                    dataRow.createCell(13).setCellValue("");
+                    dataRow.createCell(13).setCellValue(f.getCodigoterminal());
                 }
             } catch (Exception ex) {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL CREAR EXCEL:" + ex);
@@ -617,6 +625,136 @@ public class ReportefacturacionBean extends ReusableBean implements Serializable
         }
     }
 
+// REPORTE DE CLIENTE Y SUS PRECIOS
+    
+    public void generarReporteClientePrecio() throws Throwable {  
+        listenvCliPre = new ArrayList<>();
+        unEnvioClientePrecio = new EnvioClientePrecio();
+        System.out.println("FT:: (1 en) generarReporteClientePrecio");
+            listenvCliPre = listaPrecioServicio.obtenerClientePrecio(codComer);
+            System.out.println("FT:: (1 en) generarReporteClientePrecio - SALIÓ DE listaPrecioServicio.obtenerClientePrecio(codComer) CANTIDAD DE CLIENTES Y PRECIOS RECUPERADOS. " + listenvCliPre.size());
+            if (!listenvCliPre.isEmpty()) {
+                generarExcelClientePrecio(listenvCliPre);
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_INFO, "NO SE ENCONTRARON REGISTROS");
+            } 
+    }
+    
+        public void generarExcelClientePrecio(List<EnvioClientePrecio> unalistenvCliPre) throws Throwable {
+        
+        System.out.println("FT:: ENTRA EN METODO generarExcelClientePrecio(List<EnvioClientePrecio> unalistenvCliPre)");     
+        String nombreDoc = "LISTADO_CLIENTE_PRECIOSACTIVOS-" + new Date();
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        HSSFSheet sheet = workbook.createSheet();
+        workbook.setSheetName(0, "ARCHIVO");
+        String[] headers = new String[]{ 
+            "CLIENTE",
+            "CLIENTE",
+            "LISTA DE PRECIO", 
+            "TERMINAL",
+            "PRODUCTO",
+            "CODIGO PRECIO",
+            "FECHA INICIO",
+            "PRECIO DEL TERMINAL EPP",
+            "IVA",
+            "IVA PRESUNTIVO",
+            "MARGEN / PROCENTAJE",
+            "PRECIO PRODUCTO",
+            "TRES X MIL",
+        };
+ 
+       
+        CellStyle numerosStyle = workbook.createCellStyle();
+        numerosStyle.setDataFormat(workbook.createDataFormat().getFormat("0.00"));
+        numerosStyle.setAlignment(HorizontalAlignment.RIGHT);
+
+        CellStyle numeros2Style = workbook.createCellStyle();
+        numeros2Style.setDataFormat(workbook.createDataFormat().getFormat("0.00"));
+
+        HSSFFont font = workbook.createFont();
+        font.setBold(true);
+        numeros2Style.setFont(font);
+
+        CellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setFont(font);
+
+        HSSFRow headerRow = sheet.createRow(2);
+        for (int i = 0; i < headers.length; ++i) {
+            String header = headers[i];
+            HSSFCell cell = headerRow.createCell(i);
+            cell.setCellStyle(headerStyle);
+            cell.setCellValue(header);
+            sheet.autoSizeColumn(cell.getColumnIndex());
+        }
+
+//        HSSFRow titulo = sheet.createRow(0);
+//        HSSFCell cellFiltros = titulo.createCell(0);
+//        cellFiltros.setCellStyle(headerStyle);
+//        cellFiltros.setCellValue(nombComer);
+        HSSFRow desdeHasta = sheet.createRow(0);
+        HSSFCell cellFiltros = desdeHasta.createCell(0);
+        cellFiltros.setCellValue("Listado de Clientes y sus Precios activos" );
+
+        List<String> listaIdCliente = listenvCliPre.stream().map(p -> p.getCliente())
+                .collect(Collectors.toList());
+        System.out.println("Total de clientes: " + listaIdCliente.toArray().length);
+
+        for (int i = 0; i < listenvCliPre.size(); ++i) {
+            try {
+                HSSFRow dataRow = sheet.createRow(i + 3);
+                EnvioClientePrecio f = listenvCliPre.get(i);
+
+                if (f != null) {
+                    dataRow.createCell(0).setCellValue(f.getCliente().substring(0,8));
+                    dataRow.createCell(1).setCellValue(f.getCliente().substring(9));
+                    dataRow.createCell(2).setCellValue(f.getListaprecio());
+                    dataRow.createCell(3).setCellValue(f.getTerminal());
+                    dataRow.createCell(4).setCellValue(f.getProducto());
+                    dataRow.createCell(5).setCellValue(f.getCodigoprecio());
+//                    dataRow.createCell(5).setCellValue(  f.getActivo().trim());
+                    dataRow.createCell(6).setCellValue(f.getFechainicio());
+//                    dataRow.createCell(7).setCellValue(f.getGravamen());
+//                    dataRow.createCell(8).setCellValue(f.getValor());
+                    
+                    dataRow.createCell(7).setCellValue(f.getPrecioterminalepp());
+                    dataRow.createCell(8).setCellValue(f.getIva());
+//                    dataRow.createCell(7).setCellValue(f.getMargencomercializacion());
+                    dataRow.createCell(9).setCellValue(f.getIvapresuntivo());
+                    dataRow.createCell(10).setCellValue(f.getMargenxcliente());
+                    dataRow.createCell(11).setCellValue(f.getPrecioproducto());
+                    dataRow.createCell(12).setCellValue(f.getTrexmil()); 
+                 }
+            } catch (Throwable ex) {
+                System.out.println("FT:: Error en metodo generarExcelClientePrecio (1): " + ex);
+                ex.printStackTrace(System.out);
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL CREAR EXCEL:" + ex);
+            }
+        }
+
+        CellStyle cellStyleTotal = workbook.createCellStyle();
+        cellStyleTotal.setFont(font);
+        cellStyleTotal.setAlignment(HorizontalAlignment.RIGHT);
+        try {
+            workbook.write(outputStream);
+            workbook.close();
+       
+        if (outputStream.size() != 0) {
+            byte[] bytes = outputStream.toByteArray();
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
+            docStream = new DefaultStreamedContent(inputStream, "application/xls", nombreDoc + ".xls");
+            System.out.println("¡El archivo Excel se ha generado exitosamente!");
+            outputStream.close();
+        }
+         } catch (Throwable ex) {
+            System.out.println("FT:: Error en metodo generarExcelClientePrecio (2): " + ex);
+            ex.printStackTrace(System.out);
+        }
+    }
+
+    
+    
     public void habilitarBusqueda() {
         if (dataUser.getUser() != null) {
             switch (dataUser.getUser().getNiveloperacion()) {
