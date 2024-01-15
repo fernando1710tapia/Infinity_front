@@ -294,9 +294,7 @@ public class ActualizarPrecioBean extends ReusableBean implements Serializable {
                         this.comercializadora = listComercializadora.get(i);
                     }
                 }
-                if (comercializadora.getActivo().equals("S")) {
-                    this.dialogo(FacesMessage.SEVERITY_ERROR, "LA COMERCIALIZADORA DEBE ESTAR INACTIVA PARA PODER REALIZAR LA ACTUALIZACIÓN DE PRECIOS");
-                }
+                seleccionarComercializadora();
 
             }
             if (dataUser.getUser().getNiveloperacion().equals("usac")) {
