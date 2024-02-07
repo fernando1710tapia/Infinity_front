@@ -454,7 +454,7 @@ public class ReportefacturacionBean extends ReusableBean implements Serializable
                     dataRow.createCell(0).setCellValue(f.getActiva() == true ? "LIQU" : "ANUL");
                     dataRow.createCell(1).setCellValue(f.getFacturaPK().getNumeronotapedido());
                     dataRow.createCell(2).setCellValue(f.getNombrecliente());
-                    dataRow.createCell(3).setCellValue(f.getNombrecliente());
+                    dataRow.createCell(3).setCellValue(f.getCampoadicionalCampo3().trim());
                     dataRow.createCell(4).setCellValue(f.getCodigocliente());
                     dataRow.createCell(5).setCellValue(f.getSeriesri().substring(0, 3));
                     dataRow.createCell(6).setCellValue(f.getCodigoterminal());
@@ -582,7 +582,7 @@ public class ReportefacturacionBean extends ReusableBean implements Serializable
                     dataRow.createCell(1).setCellValue(f.getFacturaPK().getNumeronotapedido());
                     dataRow.createCell(2).setCellValue(f.getFacturaPK().getNumero());
                     dataRow.createCell(3).setCellValue(f.getNombrecliente());
-                    dataRow.createCell(4).setCellValue(f.getNombrecliente());
+                    dataRow.createCell(4).setCellValue(f.getCampoadicionalCampo3().trim());
                     dataRow.createCell(5).setCellValue("E - " + f.getCodigocliente());
                     dataRow.createCell(6).setCellValue(f.getSeriesri().substring(0, 3));
                     dataRow.createCell(7).setCellValue("");
