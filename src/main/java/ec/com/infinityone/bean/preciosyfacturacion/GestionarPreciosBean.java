@@ -919,6 +919,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
         BigDecimal dpcg9 = new BigDecimal(0);
         BigDecimal dpcg5F = new BigDecimal(0);
         BigDecimal valorIvaDividir = new BigDecimal(1);
+        BigDecimal ivaLocalGlobal = new BigDecimal(0);
 
         for (int i = 0; i < listaGravamen.size(); i++) {
             if (listaGravamen.get(i).getGravamenPK().getCodigo().equals("0002")) {
@@ -1021,6 +1022,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                             break;
                         //Iva
                         case "0002":
+                            ivaLocalGlobal = listaGravamen.get(j).getValordefecto();
                             dpcg2 = (dpcg9.multiply(listaGravamen.get(j).getValordefecto())).setScale(6, RoundingMode.HALF_UP);
                             detallePrecioPK.setCodigocomercializadora(listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
                             detallePrecioPK.setCodigoterminal(listaTerminalProdAux.get(k).getListaprecioterminalproductoPK().getCodigoterminal());
@@ -1069,9 +1071,9 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
 
                                 //(componente PARA FENAPET cambiado 2023-05-31 pedido ing. Cruz, sr. Rambay)Retencion Iva Presuntivo MANTENER EL CALCULO DE IVA PRESUNTIVO
                                 if (detallePrecioPK.getCodigocomercializadora().equalsIgnoreCase("0095")) {
-                                    System.out.println("FT::Calculando PROCENTAJE DE IVA PRESUNTIVO- DENTRO DE IF " + detallePrecioPK.getCodigocomercializadora() + " - " + dpcg5F.toString());
-                                    dpcg5F = ((listaPrecio.get(i).getPvpsugerido().multiply(new BigDecimal(0.12))).setScale(6, RoundingMode.HALF_UP)).subtract(dpcg2).setScale(6, RoundingMode.HALF_UP);
-                                    //System.out.println("FT::Calculando PROCENTAJE DE IVA PRESUNTIVO- DENTRO DE IF - FORMULA FENAPET "+detallePrecioPK.getCodigocomercializadora()+ " - PVP: "+listaPrecio.get(i).getPvpsugerido().toString()+"- IVA DEL PVP:-"+ ((listaPrecio.get(i).getPvpsugerido().multiply(new BigDecimal(0.12))).setScale(6, RoundingMode.HALF_UP))+ " - VALOR ORIGINAL IVA:- "+dpcg2.toString() +" - RESULTADO:- "+dpcg5F.toString());
+                                    System.out.println("FT::CALCULANDO PROCENTAJE DE IVA PRESUNTIVO- DENTRO DE IF " + detallePrecioPK.getCodigocomercializadora() + " - " + dpcg5F.toString());
+                                    dpcg5F = ((listaPrecio.get(i).getPvpsugerido().multiply(ivaLocalGlobal)).setScale(6, RoundingMode.HALF_UP)).subtract(dpcg2).setScale(6, RoundingMode.HALF_UP);
+                                    System.out.println("FT::SE HA CALCULADO PROCENTAJE DE IVA PRESUNTIVO- DENTRO DE IF - FORMULA FENAPET "+detallePrecioPK.getCodigocomercializadora()+ " - PVP: "+listaPrecio.get(i).getPvpsugerido().toString()+"% IVA:. "+ivaLocalGlobal.toString()+" - IVA DEL PVP:-"+ ((listaPrecio.get(i).getPvpsugerido().multiply(ivaLocalGlobal)).setScale(6, RoundingMode.HALF_UP))+ " - VALOR ORIGINAL IVA:- "+dpcg2.toString() +" - RESULTADO:- "+dpcg5F.toString());
                                 }
 
                                 detallePrecioPK.setCodigoterminal(listaTerminalProdAux.get(k).getListaprecioterminalproductoPK().getCodigoterminal());

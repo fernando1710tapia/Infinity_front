@@ -268,9 +268,9 @@ public class ReportefacturacionBean extends ReusableBean implements Serializable
             "Volumen",
             "Costo Unitario",
             "Valor Parcial",
-            "IVA 12%",
+            "IVA ",
             "IMPTO. 3X1000",
-            "IVA PRESUNTIVO 12%",
+            "IVA PRESUNTIVO ",
             "Estado",
             "Oe enpetro",
             "En sri"

@@ -639,7 +639,8 @@ public class ActualizarPrecioBean extends ReusableBean implements Serializable {
         BigDecimal dpcg5 = new BigDecimal(0);
         BigDecimal dpcg6 = new BigDecimal(0);
         BigDecimal dpcg9 = new BigDecimal(0);
-        BigDecimal dpcg5F = new BigDecimal(0);
+        BigDecimal dpcg5F = new BigDecimal(0); 
+        BigDecimal ivaLocalGlobal = new BigDecimal(0);
 
         for (int i = 0; i < listaObjetoPrecio.size(); i++) {
             objDetalle.setPrecio(listaObjetoPrecio.get(i).getPrecio());
@@ -730,8 +731,10 @@ public class ActualizarPrecioBean extends ReusableBean implements Serializable {
                         break;
                     //Iva
                     case "0002":
+                        ivaLocalGlobal = listaGravamen.get(j).getValordefecto();
                         dpcg2 = (dpcg9.multiply(listaGravamen.get(j).getValordefecto())).setScale(6, RoundingMode.HALF_UP);
                         detallePrecioPK.setCodigocomercializadora(listaObjetoPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
+                        
                         detallePrecioPK.setCodigoproducto(listaObjetoPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
                         detallePrecioPK.setCodigomedida(listaObjetoPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
                         detallePrecioPK.setCodigolistaprecio(listaObjetoPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());
@@ -768,6 +771,15 @@ public class ActualizarPrecioBean extends ReusableBean implements Serializable {
                             //dpcg5 = ((listaObjetoPrecio.get(i).getPvpsugerido().divide(new BigDecimal(1.12), 6, RoundingMode.HALF_UP)).subtract(dpcg9)).multiply(listaGravamen.get(j).getValordefecto()).setScale(6, RoundingMode.HALF_UP);
                             dpcg5F = dpcg2.multiply(listaObjetoPrecio.get(i).getPrecio().getComercializadoraproducto().getProducto().getPorcentajeivapresuntivo()).divide(new BigDecimal(100)).setScale(6, RoundingMode.HALF_UP);
                             detallePrecioPK.setCodigocomercializadora(listaObjetoPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
+                            System.out.println("CLASE DE ACTUALIZACION PERSONALIZADA DE PRECIOS POR UNA LISTA DE PRECIOS - FT::Calculando PROCENTAJE DE IVA PRESUNTIVO- " + detallePrecioPK.getCodigocomercializadora() + " - " + dpcg5F.toString());
+
+                                //(componente PARA FENAPET cambiado 2023-05-31 pedido ing. Cruz, sr. Rambay)Retencion Iva Presuntivo MANTENER EL CALCULO DE IVA PRESUNTIVO
+                                if (detallePrecioPK.getCodigocomercializadora().equalsIgnoreCase("0095")) {
+                                    System.out.println("FT::Calculando PROCENTAJE DE IVA PRESUNTIVO- DENTRO DE IF " + detallePrecioPK.getCodigocomercializadora() + " - " + dpcg5F.toString());
+                                    dpcg5F = ((listaObjetoPrecio.get(i).getPvpsugerido().multiply(ivaLocalGlobal)).setScale(6, RoundingMode.HALF_UP)).subtract(dpcg2).setScale(6, RoundingMode.HALF_UP);
+                                    //System.out.println("FT::Calculando PROCENTAJE DE IVA PRESUNTIVO- DENTRO DE IF - FORMULA FENAPET "+detallePrecioPK.getCodigocomercializadora()+ " - PVP: "+listaPrecio.get(i).getPvpsugerido().toString()+"- IVA DEL PVP:-"+ ((listaPrecio.get(i).getPvpsugerido().multiply(new BigDecimal(0.12))).setScale(6, RoundingMode.HALF_UP))+ " - VALOR ORIGINAL IVA:- "+dpcg2.toString() +" - RESULTADO:- "+dpcg5F.toString());
+                                }
+                        
                             detallePrecioPK.setCodigoproducto(listaObjetoPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
                             detallePrecioPK.setCodigomedida(listaObjetoPrecio.get(i).getPrecio().getPrecioPK().getCodigomedida());
                             detallePrecioPK.setCodigolistaprecio(listaObjetoPrecio.get(i).getPrecio().getPrecioPK().getCodigolistaprecio());

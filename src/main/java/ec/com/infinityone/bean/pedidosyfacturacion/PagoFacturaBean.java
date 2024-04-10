@@ -52,7 +52,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -1166,7 +1165,9 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 //                21	Número Factura	Numérico	200
                 linea = linea + String.format("%200s", factura.getFacturaPK().getNumero()) + separador;
 
-                /*                // ESCRIBIR LINEA DE DESGLOSE DE RUBROS
+
+                
+                                // ESCRIBIR LINEA DE DESGLOSE DE RUBROS
 //                1	TipoProceso	Carácter 	2
                 lineaIva = lineaIva + "DE" + separador;
 
@@ -1175,6 +1176,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 
 //                3	Tiporubro	Carácter 	20
                 lineaIva = lineaIva + String.format("%20s", "IVA_BIEN") + separador;
+
 
 //                4	Concepto	Carácter 	50
                 lineaIva = lineaIva + String.format("%20s", "IVA_FACTURA: " + factura.getFacturaPK().getNumero()) + separador;
@@ -1190,7 +1192,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 //                6	Porcentaje	Numérico 	13 
                 BigDecimal porcentajeIVA = new BigDecimal("0");
                 System.out.println("ANTES DE DIVIDIR FT::myFormatterPorcentajeIVA FAC:" + factura.getFacturaPK().getNumero() + " - IVA: " + factura.getIvatotal() + " - VALOR SIN IVA: " + factura.getValorsinimpuestos());
-                porcentajeIVA = (factura.getIvatotal().divide(factura.getValorsinimpuestos(), 3, RoundingMode.CEILING)).movePointRight(2);
+//SIEMPRE ES CERO SEGUN PYS Y SRI                porcentajeIVA = (factura.getIvatotal().divide(factura.getValorsinimpuestos(), 3, RoundingMode.CEILING)).movePointRight(2);
                 System.out.println("DESPUES DE DIVIDIR FT::myFormatterPorcentajeIVA FAC:" + factura.getFacturaPK().getNumero() + " - " + porcentajeIVA);
                 DecimalFormat myFormatterPorcentajeIVA = new DecimalFormat("00000000000.00");
 
@@ -1202,29 +1204,31 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 
 //                7	Valorneto	Numérico 	13 
                 DecimalFormat myFormatterIVAValor = new DecimalFormat("00000000000.00");
-                //System.out.println("FT::myFormatter "+myFormatter.toString());
-                String outputIVAValor = myFormatterIVAValor.format(factura.getIvatotal().doubleValue());
+                System.out.println("FT::INICIA - 7	Valorneto	Numérico 	13  - myFormatter "+myFormatter.toString());
+//SIEMPRE ES CERO SEGUN PYS Y SRI                                String outputIVAValor = myFormatterIVAValor.format(factura.getIvatotal().doubleValue());
+                String outputIVAValor = myFormatterIVAValor.format(new BigDecimal("0.00")); 
                 String datoIVAValor = outputIVAValor.substring(0, 11) + outputIVAValor.substring(12, 14);
-                //System.out.println("FT::dato "+dato);
+                System.out.println("FT:: - Valorneto	Numérico 	13  - datoIVAValor:. "+datoIVAValor);
                 lineaIva = lineaIva + datoIVAValor + separador;
                 lineasIVA.add(lineaIva);
                 lineaIva = "";
                 System.out.println("FT::linea: " + linea + "aqui se acaba la linea");
-                //escribe los datos en el archivo*/
+                //escribe los datos en el archivo
+    
                 bfwriter.write(linea + "\n");
                 linea = "";
 
             }
 
-            System.out.println("FT::ESCRIBIENDO LINEAS DE DESGLOSE: ");
-            /*for (int i = 0; i < contadorFacturas; i++) {
+            /*System.out.println("FT::ESCRIBIENDO LINEAS DE DESGLOSE: ");
+            for (int i = 0; i < contadorFacturas; i++) {
 
                 //escribe los datos en el archivo
                 bfwriter.write(lineasIVA.get(i) + "\n");
 //                linea = "";
 
-            }*/
-
+            }
+            */
             //cierra el buffer intermedio
             bfwriter.close();
             this.dialogo(FacesMessage.SEVERITY_INFO, "Archivo creado satisfactoriamente..");
