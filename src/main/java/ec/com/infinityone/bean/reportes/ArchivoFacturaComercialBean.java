@@ -215,13 +215,17 @@ public class ArchivoFacturaComercialBean extends ReusableBean implements Seriali
       long contadorFacturas = 0L;
       BufferedWriter bfwriter = new BufferedWriter(flwriter);
       for (FacturaComercialDto facturaComercialDto : listFacturaComercialDto) {
-          System.out.println("FT: VERIFICAR DATOS DE LINEA DETALLE "+ facturaComercialDto.getDcodigoproducto() +" VALOR_ "+ facturaComercialDto.getDtotal());
+          System.out.println("FT: VERIFICAR DATOS DE LINEA DETALLE FAC:. "+ facturaComercialDto.getFacturaComercialPKDto().getNumeroOrden() +" - PROD -"+facturaComercialDto.getDcodigoproducto() +" VALOR_ "+ facturaComercialDto.getDtotal());
         contadorFacturas++;
         lineaCabecera = generarLineaCabecera(facturaComercialDto.getFacturaComercialPKDto());
         //if (!facturaComercialDto.getDcodigoproducto().equalsIgnoreCase("0002") ){  
-             if(!facturaComercialDto.getDtotal().equalsIgnoreCase("000000000000.00")){
-        if (!lineaCabecera.equals(lineaCabeceraAux)) {
-          bfwriter.write(lineaCabecera + "\n");
+         System.out.println("FT: ANTES DE IF :. !facturaComercialDto.getDtotal().equalsIgnoreCase(\"000000000000.00\")){"+ facturaComercialDto.getFacturaComercialPKDto().getNumeroOrden() +" - PROD -"+facturaComercialDto.getDcodigoproducto() +" VALOR_ "+ facturaComercialDto.getDtotal());
+        if(!facturaComercialDto.getDtotal().equalsIgnoreCase("000000000000.00")){
+            System.out.println("FT: ENTRÓ EN EL IF :. !facturaComercialDto.getDtotal().equalsIgnoreCase(\"000000000000.00\")){"+ facturaComercialDto.getFacturaComercialPKDto().getNumeroOrden() +" - PROD -"+facturaComercialDto.getDcodigoproducto() +" VALOR_ "+ facturaComercialDto.getDtotal());
+          System.out.println("FT: ANTES DE IF :. (!lineaCabecera.equals(lineaCabeceraAux)lineaCabecera:. "+ lineaCabecera +" - lineaCabeceraAux - "+lineaCabeceraAux);
+            if (!lineaCabecera.equals(lineaCabeceraAux)) {
+                System.out.println("FT: ENTRÓ EN EL IF --escribe linea cabecera:. (!lineaCabecera.equals(lineaCabeceraAux)lineaCabecera:. "+ lineaCabecera +" - lineaCabeceraAux - "+lineaCabeceraAux);
+                bfwriter.write(lineaCabecera + "\n");
           lineaCabeceraAux = "";
           lineaCabeceraAux = lineaCabecera;
         } 
@@ -231,6 +235,7 @@ public class ArchivoFacturaComercialBean extends ReusableBean implements Seriali
         linea = linea + facturaComercialDto.getDnumeroorden() + ";";
         linea = linea + facturaComercialDto.getDcodigocliente() + ";";
         linea = linea + facturaComercialDto.getDcodigoestablecimiento() + ";";
+        System.out.println("FT: IMPRIMIENDO LINEA VIENE UN switch (facturaComercialDto.getDcodigoproducto()):. "+ linea+" - facturaComercialDto.getDcodigoproducto() - "+facturaComercialDto.getDcodigoproducto());
         switch (facturaComercialDto.getDcodigoproducto()) {
           case "0001":
             linea = linea + "  IV;";
@@ -245,6 +250,8 @@ public class ArchivoFacturaComercialBean extends ReusableBean implements Seriali
             linea = linea + facturaComercialDto.getDcodigoproducto() + ";";
             break;
         } 
+        
+        System.out.println("FT: IMPRIMIENDO LINEA SALE DEL switch (facturaComercialDto.getDcodigoproducto()):. "+ linea+" - facturaComercialDto.getDcodigoproducto() - "+facturaComercialDto.getDcodigoproducto());
         String[] partesCantidad = facturaComercialDto.getDcantidad().split("\\.");
         if (partesCantidad[1].length() == 3) {
           linea = linea + "0" + partesCantidad[0] + "." + partesCantidad[1].substring(0, 2) + ";";
@@ -287,6 +294,7 @@ public class ArchivoFacturaComercialBean extends ReusableBean implements Seriali
   public String generarLineaCabecera(FacturaComercialPKDto facturaComercialPKDto) throws Throwable {
     String lineaCabecera = "";
     try {
+        System.out.println("FT: ENTRA EN generarLineaCabecera:. "+ facturaComercialPKDto.getNumeroOrden() +" - TIPOREG -"+facturaComercialPKDto.getTipoRegistro());
       lineaCabecera = lineaCabecera + facturaComercialPKDto.getCodigoComercializadora() + ";";
       lineaCabecera = lineaCabecera + facturaComercialPKDto.getCodigoBanco() + ";";
       lineaCabecera = lineaCabecera + facturaComercialPKDto.getTipoRegistro() + ";";

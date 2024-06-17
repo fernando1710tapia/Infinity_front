@@ -501,17 +501,22 @@
                                 <p:column headerText="Nom Conductor"  width="12%">
                                     <p:inputText value="{guia.nombreconductor}"  />
                                 </p:column>--> 
-                                <p:column headerText="Sello Inicial"  width="9%">
+                                <p:column headerText="Sello Inicial"  width="8%">
                                     <p:inputText value="#{guia1.selloinicial}"  required="true" >
                                         <p:ajax event="change" /> 
                                     </p:inputText>
                                 </p:column>
-                                <p:column headerText="Sello Final" width="9%">
+                                <p:column headerText="Sello Final" width="8%">
                                     <p:inputText value="#{guia1.sellofinal}" required="true" >
                                         <p:ajax event="change" /> 
                                     </p:inputText>
                                 </p:column>
-                                <p:column headerText="Observación"  width="18%">
+                                <p:column headerText="Cant. sellos" width="7%">
+                                    <p:inputText value="#{guia1.cantidadsellos}" required="false" >
+                                        <p:ajax event="change" /> 
+                                    </p:inputText>
+                                </p:column>
+                                <p:column headerText="Observación"  width="13%">
                                     <p:inputText value="#{guia1.observacion}" >
                                         <p:ajax event="change" /> 
                                     </p:inputText>
