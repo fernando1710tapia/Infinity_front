@@ -310,6 +310,20 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
     private Conductor conductor;
 
     private BigDecimal volTotal;
+    
+    private BigDecimal compartimento1;
+    private BigDecimal compartimento2;
+    private BigDecimal compartimento3;
+    private BigDecimal compartimento4;
+    private BigDecimal compartimento5;
+    private BigDecimal compartimento6;
+    private BigDecimal compartimento7;
+    private BigDecimal compartimento8;
+    private BigDecimal compartimento9;
+    private BigDecimal compartimento10;
+    private Integer selloinicial;
+    private Integer sellofinal;
+    
 
     /**
      * Constructor por defecto
@@ -969,11 +983,24 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
                 //}
 
                 detNPK.setNumero("");
+                
                 detNP.setVolumennaturalrequerido(volTotal);
                 detNP.setDetallenotapedidoPK(detNPK);
                 detNP.setVolumennaturalautorizado(detNP.getVolumennaturalrequerido());
                 detNP.setUsuarioactual(dataUser.getUser().getNombrever());
-
+                detNP.setCompartimento1(compartimento1);
+                detNP.setCompartimento2(compartimento2);
+                detNP.setCompartimento3(compartimento3);
+                detNP.setCompartimento4(compartimento4);
+                detNP.setCompartimento5(compartimento5);
+                detNP.setCompartimento6(compartimento6);
+                detNP.setCompartimento7(compartimento7);
+                detNP.setCompartimento8(compartimento8);
+                detNP.setCompartimento9(compartimento9);
+                detNP.setCompartimento10(compartimento10);
+//                detNP.setSelloinicial(selloinicial);
+//                detNP.setSellofinal(sellofinal);
+                
                 envNP.setNotapedido(np);
                 envNP.setDetalle(detNP);
                 if (editarNotapedido) {
@@ -1381,33 +1408,43 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
         if (autotanqueAux.getCompartimento1() != null) {
             if (!autotanqueAux.getCompartimento1().equals(new BigDecimal("-1.0")) && !autotanqueAux.getCompartimento1().equals(new BigDecimal("-1")) && !autotanqueAux.getCompartimento1().equals(new BigDecimal("-1.00"))) {
                 volTotal = volTotal.add(autotanqueAux.getCompartimento1());
+                compartimento1 = autotanqueAux.getCompartimento1();
             }
             if (!autotanqueAux.getCompartimento2().equals(new BigDecimal("-1.0")) && !autotanqueAux.getCompartimento2().equals(new BigDecimal("-1")) && !autotanqueAux.getCompartimento2().equals(new BigDecimal("-1.00"))) {
                     volTotal = volTotal.add(autotanqueAux.getCompartimento2());
+                    compartimento2 = autotanqueAux.getCompartimento2();
             }
             if (!autotanqueAux.getCompartimento3().equals(new BigDecimal("-1.0")) && !autotanqueAux.getCompartimento3().equals(new BigDecimal("-1")) && !autotanqueAux.getCompartimento3().equals(new BigDecimal("-1.00"))) {
                 volTotal = volTotal.add(autotanqueAux.getCompartimento3());
+                compartimento3 = autotanqueAux.getCompartimento3();
             }
             if (!autotanqueAux.getCompartimento4().equals(new BigDecimal("-1.0")) && !autotanqueAux.getCompartimento4().equals(new BigDecimal("-1")) && !autotanqueAux.getCompartimento4().equals(new BigDecimal("-1.00"))) {
                 volTotal = volTotal.add(autotanqueAux.getCompartimento4());
+                compartimento4 = autotanqueAux.getCompartimento4();
             }
             if (!autotanqueAux.getCompartimento5().equals(new BigDecimal("-1.0")) && !autotanqueAux.getCompartimento5().equals(new BigDecimal("-1")) && !autotanqueAux.getCompartimento5().equals(new BigDecimal("-1.00"))) {
                 volTotal = volTotal.add(autotanqueAux.getCompartimento5());
+                compartimento5 = autotanqueAux.getCompartimento5();
             }
             if (!autotanqueAux.getCompartimento6().equals(new BigDecimal("-1.0")) && !autotanqueAux.getCompartimento6().equals(new BigDecimal("-1")) && !autotanqueAux.getCompartimento6().equals(new BigDecimal("-1.00"))) {
                 volTotal = volTotal.add(autotanqueAux.getCompartimento6());
+                compartimento6 = autotanqueAux.getCompartimento6();
             }
             if (!autotanqueAux.getCompartimento7().equals(new BigDecimal("-1.0")) && !autotanqueAux.getCompartimento7().equals(new BigDecimal("-1")) && !autotanqueAux.getCompartimento7().equals(new BigDecimal("-1.00"))) {
                 volTotal = volTotal.add(autotanqueAux.getCompartimento7());
+                compartimento7 = autotanqueAux.getCompartimento7();
             }
             if (!autotanqueAux.getCompartimento8().equals(new BigDecimal("-1.0")) && !autotanqueAux.getCompartimento8().equals(new BigDecimal("-1")) && !autotanqueAux.getCompartimento8().equals(new BigDecimal("-1.00"))) {
                 volTotal = volTotal.add(autotanqueAux.getCompartimento8());
+                compartimento8 = autotanqueAux.getCompartimento8();
             }
             if (!autotanqueAux.getCompartimento9().equals(new BigDecimal("-1.0")) && !autotanqueAux.getCompartimento9().equals(new BigDecimal("-1")) && !autotanqueAux.getCompartimento9().equals(new BigDecimal("-1.00"))) {
                 volTotal = volTotal.add(autotanqueAux.getCompartimento9());
+                compartimento9 = autotanqueAux.getCompartimento9();
             }
             if (!autotanqueAux.getCompartimento10().equals(new BigDecimal("-1.0")) && !autotanqueAux.getCompartimento10().equals(new BigDecimal("-1")) && !autotanqueAux.getCompartimento10().equals(new BigDecimal("-1.00"))) {
                 volTotal = volTotal.add(autotanqueAux.getCompartimento10());
+                compartimento10 = autotanqueAux.getCompartimento10();
             }
             volTotal.setScale(2, RoundingMode.HALF_UP);
         }

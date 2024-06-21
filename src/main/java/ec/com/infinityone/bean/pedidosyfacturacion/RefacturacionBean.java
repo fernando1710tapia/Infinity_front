@@ -596,6 +596,18 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
                         detNP.setUsuarioactual(dataUser.getUser().getNombrever());
                         detNP.setVolumennaturalautorizado(envF.getDetalleFactura().getVolumennaturalautorizado());
                         detNP.setVolumennaturalrequerido(det.getBigDecimal("volumennaturalrequerido"));
+                        detNP.setCompartimento1(det.getBigDecimal("compartimento1"));
+                            detNP.setCompartimento2(det.getBigDecimal("compartimento2"));
+                            detNP.setCompartimento3(det.getBigDecimal("compartimento3"));
+                            detNP.setCompartimento4(det.getBigDecimal("compartimento4"));
+                            detNP.setCompartimento5(det.getBigDecimal("compartimento5"));
+                            detNP.setCompartimento6(det.getBigDecimal("compartimento6"));
+                            detNP.setCompartimento7(det.getBigDecimal("compartimento7"));
+                            detNP.setCompartimento8(det.getBigDecimal("compartimento8"));
+                            detNP.setCompartimento9(det.getBigDecimal("compartimento9"));
+                            detNP.setCompartimento10(det.getBigDecimal("compartimento10"));
+                            detNP.setSelloinicial(det.getInt("selloinicial"));
+                            detNP.setSellofinal(det.getInt("sellofinal"));
                     }
                 }
                 if (connection.getResponseCode() >= 200 || connection.getResponseCode() <= 200) {

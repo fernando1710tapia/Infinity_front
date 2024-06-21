@@ -1493,6 +1493,19 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         np.setAbastecedora(abas);
 
                         np.setNumerofacturasri(nt.getString("numerofacturasri"));
+                        
+                        if (!nt.isNull("codigoautotanque")) {
+                            np.setCodigoautotanque(nt.getString("codigoautotanque"));
+                            }else{
+                                np.setCodigoautotanque("");
+                                }
+                        
+                        if (!nt.isNull("codigoautotanque")) {
+                            np.setCedulaconductor(nt.getString("cedulaconductor"));
+                            }else{
+                                np.setCedulaconductor("");
+                                } 
+                        
                         npPK.setNumero(ntPK.getString("numero"));
                         npPK.setCodigoabastecedora(ntPK.getString("codigoabastecedora"));
                         npPK.setCodigocomercializadora(ntPK.getString("codigocomercializadora"));
@@ -1518,6 +1531,72 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                             JSONObject prod = det.getJSONObject("producto");
                             detNP.setVolumennaturalautorizado(det.getBigDecimal("volumennaturalautorizado"));
                             detNP.setVolumennaturalrequerido(det.getBigDecimal("volumennaturalrequerido"));
+                            
+                            if (!det.isNull("compartimento1")) {
+                            detNP.setCompartimento1(det.getBigDecimal("compartimento1"));
+                            }else{
+                                    detNP.setCompartimento1(BigDecimal.ZERO);
+                                    }
+                            
+                            if (!det.isNull("compartimento2")) {
+                            detNP.setCompartimento2(det.getBigDecimal("compartimento2"));
+                            }else{
+                                    detNP.setCompartimento2(BigDecimal.ZERO);
+                                    }
+                            if (!det.isNull("compartimento3")) {
+                                detNP.setCompartimento3(det.getBigDecimal("compartimento3"));
+                            }else{
+                                    detNP.setCompartimento3(BigDecimal.ZERO);
+                                    }
+                            if (!det.isNull("compartimento4")) {
+                                detNP.setCompartimento4(det.getBigDecimal("compartimento4"));
+                            }else{
+                                    detNP.setCompartimento4(BigDecimal.ZERO);
+                                    }
+                            if (!det.isNull("compartimento5")) {
+                                detNP.setCompartimento5(det.getBigDecimal("compartimento5"));
+                            }else{
+                                    detNP.setCompartimento5(BigDecimal.ZERO);
+                                    }
+                            if (!det.isNull("compartimento6")) {
+                                detNP.setCompartimento6(det.getBigDecimal("compartimento6"));
+                            }else{
+                                    detNP.setCompartimento6(BigDecimal.ZERO);
+                                    }
+                            
+                            if (!det.isNull("compartimento7")) {
+                                detNP.setCompartimento7(det.getBigDecimal("compartimento7"));
+                            }else{
+                                    detNP.setCompartimento7(BigDecimal.ZERO);
+                                    }
+                            if (!det.isNull("compartimento8")) {
+                                detNP.setCompartimento8(det.getBigDecimal("compartimento8"));
+                            }else{
+                                    detNP.setCompartimento8(BigDecimal.ZERO);
+                                    }
+                            if (!det.isNull("compartimento9")) {
+                                detNP.setCompartimento9(det.getBigDecimal("compartimento9"));
+                            }else{
+                                    detNP.setCompartimento9(BigDecimal.ZERO);
+                                    }
+                            if (!det.isNull("compartimento10")) {
+                                detNP.setCompartimento10(det.getBigDecimal("compartimento10"));
+                            }else{
+                                    detNP.setCompartimento10(BigDecimal.ZERO);
+                                    }
+                            
+                            if (!det.isNull("selloinicial")) {
+                                detNP.setSelloinicial(det.getInt("selloinicial"));
+                            }else{
+                                detNP.setSelloinicial(Integer.valueOf("0"));
+                            }
+                            
+                            if (!det.isNull("sellofinal")) {
+                                detNP.setSellofinal(det.getInt("sellofinal"));
+                            }else{
+                                detNP.setSellofinal(Integer.valueOf("0"));
+                            }
+                                                      
 
                             medida.setCodigo(med.getString("codigo"));
                             medida.setNombre(med.getString("nombre"));
@@ -1683,6 +1762,20 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         detNP.setUsuarioactual(dataUser.getUser().getNombrever());
                         detNP.setVolumennaturalautorizado(envP.getDetalle().getVolumennaturalautorizado());
                         detNP.setVolumennaturalrequerido(det.getBigDecimal("volumennaturalrequerido"));
+                        
+                        detNP.setCompartimento1(det.getBigDecimal("compartimento1"));
+                            detNP.setCompartimento2(det.getBigDecimal("compartimento2"));
+                            detNP.setCompartimento3(det.getBigDecimal("compartimento3"));
+                            detNP.setCompartimento4(det.getBigDecimal("compartimento4"));
+                            detNP.setCompartimento5(det.getBigDecimal("compartimento5"));
+                            detNP.setCompartimento6(det.getBigDecimal("compartimento6"));
+                            detNP.setCompartimento7(det.getBigDecimal("compartimento7"));
+                            detNP.setCompartimento8(det.getBigDecimal("compartimento8"));
+                            detNP.setCompartimento9(det.getBigDecimal("compartimento9"));
+                            detNP.setCompartimento10(det.getBigDecimal("compartimento10"));
+                            detNP.setSelloinicial(det.getInt("selloinicial"));
+                            detNP.setSellofinal(det.getInt("sellofinal"));
+                        
                     }
                 }
                 if (connection.getResponseCode() >= 200 || connection.getResponseCode() <= 200) {
@@ -2225,8 +2318,8 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         notaPedido.setFechaventa(feachaVenta);
         notaPedido.setFechadespacho(feachaDespacho);
         notaPedido.setActiva(envNP.getNotapedido().isActiva());
-        notaPedido.setCodigoautotanque("");
-        notaPedido.setCedulaconductor("");
+        notaPedido.setCodigoautotanque(envNP.getNotapedido().getCodigoautotanque());
+        notaPedido.setCedulaconductor(envNP.getNotapedido().getCedulaconductor());
         notaPedido.setNumerofacturasri("0");
         notaPedido.setRespuestageneracionoeepp("");
         notaPedido.setObservacion(envNP.getNotapedido().getObservacion());
@@ -2256,7 +2349,20 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         detalleNotaP.setMedida(envNP.getDetalle().getMedida());
         detalleNotaP.setProducto(envNP.getDetalle().getProducto());
         detalleNotaP.setUsuarioactual(dataUser.getUser().getNombrever());
-
+        detalleNotaP.setSelloinicial(envNP.getDetalle().getSelloinicial());
+        detalleNotaP.setSellofinal(envNP.getDetalle().getSellofinal());
+        
+        detalleNotaP.setCompartimento1(envNP.getDetalle().getCompartimento1());
+        detalleNotaP.setCompartimento2(envNP.getDetalle().getCompartimento2());
+        detalleNotaP.setCompartimento3(envNP.getDetalle().getCompartimento3());
+        detalleNotaP.setCompartimento4(envNP.getDetalle().getCompartimento4());
+        detalleNotaP.setCompartimento5(envNP.getDetalle().getCompartimento5());
+        detalleNotaP.setCompartimento6(envNP.getDetalle().getCompartimento6());
+        detalleNotaP.setCompartimento7(envNP.getDetalle().getCompartimento7());
+        detalleNotaP.setCompartimento8(envNP.getDetalle().getCompartimento8());
+        detalleNotaP.setCompartimento9(envNP.getDetalle().getCompartimento9());
+        detalleNotaP.setCompartimento10(envNP.getDetalle().getCompartimento10());
+        
         envioPedido.setNotapedido(notaPedido);
         envioPedido.setDetalle(detalleNotaP);
         getTrama(envioPedido, numFact);

@@ -31,6 +31,19 @@ public class Detallenotapedido implements Serializable {
 
     private Producto producto;
     
+    private BigDecimal compartimento1;
+    private BigDecimal compartimento2;
+    private BigDecimal compartimento3;
+    private BigDecimal compartimento4;
+    private BigDecimal compartimento5;
+    private BigDecimal compartimento6;
+    private BigDecimal compartimento7;
+    private BigDecimal compartimento8;
+    private BigDecimal compartimento9;
+    private BigDecimal compartimento10;
+    private Integer selloinicial;
+    private Integer sellofinal;
+    
     public Detallenotapedido() {
     }
 
@@ -111,6 +124,102 @@ public class Detallenotapedido implements Serializable {
 
     public void setProducto(Producto codProducto) {
         this.producto = codProducto;
+    }
+
+    public BigDecimal getCompartimento1() {
+        return compartimento1;
+    }
+
+    public void setCompartimento1(BigDecimal compartimento1) {
+        this.compartimento1 = compartimento1;
+    }
+
+    public BigDecimal getCompartimento2() {
+        return compartimento2;
+    }
+
+    public void setCompartimento2(BigDecimal compartimento2) {
+        this.compartimento2 = compartimento2;
+    }
+
+    public BigDecimal getCompartimento3() {
+        return compartimento3;
+    }
+
+    public void setCompartimento3(BigDecimal compartimento3) {
+        this.compartimento3 = compartimento3;
+    }
+
+    public BigDecimal getCompartimento4() {
+        return compartimento4;
+    }
+
+    public void setCompartimento4(BigDecimal compartimento4) {
+        this.compartimento4 = compartimento4;
+    }
+
+    public BigDecimal getCompartimento5() {
+        return compartimento5;
+    }
+
+    public void setCompartimento5(BigDecimal compartimento5) {
+        this.compartimento5 = compartimento5;
+    }
+
+    public BigDecimal getCompartimento6() {
+        return compartimento6;
+    }
+
+    public void setCompartimento6(BigDecimal compartimento6) {
+        this.compartimento6 = compartimento6;
+    }
+
+    public BigDecimal getCompartimento7() {
+        return compartimento7;
+    }
+
+    public void setCompartimento7(BigDecimal compartimento7) {
+        this.compartimento7 = compartimento7;
+    }
+
+    public BigDecimal getCompartimento8() {
+        return compartimento8;
+    }
+
+    public void setCompartimento8(BigDecimal compartimento8) {
+        this.compartimento8 = compartimento8;
+    }
+
+    public BigDecimal getCompartimento9() {
+        return compartimento9;
+    }
+
+    public void setCompartimento9(BigDecimal compartimento9) {
+        this.compartimento9 = compartimento9;
+    }
+
+    public BigDecimal getCompartimento10() {
+        return compartimento10;
+    }
+
+    public void setCompartimento10(BigDecimal compartimento10) {
+        this.compartimento10 = compartimento10;
+    }
+
+    public Integer getSelloinicial() {
+        return selloinicial;
+    }
+
+    public void setSelloinicial(Integer selloinicial) {
+        this.selloinicial = selloinicial;
+    }
+
+    public Integer getSellofinal() {
+        return sellofinal;
+    }
+
+    public void setSellofinal(Integer sellofinal) {
+        this.sellofinal = sellofinal;
     }
     
     
