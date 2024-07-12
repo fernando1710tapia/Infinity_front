@@ -7,6 +7,7 @@ package ec.com.infinityone.bean.pedidosyfacturacion;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.lowagie.text.pdf.PdfName;
 import ec.com.infinityone.serivicio.actorcomercial.ComercializadoraServicio;
 import ec.com.infinityone.servicio.catalogo.BancoServicio;
 import ec.com.infinityone.modelo.Banco;
@@ -965,15 +966,20 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
         byte[] buffer = new byte[1024];
         String nombreArchivo = "cobrosBancos.zip";
         try {
+            System.out.println("FT:: zip(List<String> listaArchivos) INICIA CREACION ZIP");
             FileOutputStream fos = new FileOutputStream(Fichero.getCARPETAREPORTES() + nombreArchivo);
+            System.out.println("FT:: fos = new FileOutputStream(Fichero.getCARPETAREPORTES() + nombreArchivo) "+ fos.toString());
             ZipOutputStream zos = new ZipOutputStream(fos);
             for (int i = 0; i < listaArchivos.size(); i++) {
+                System.out.println("FT:: listaArchivos.get(i) "+ listaArchivos.get(i).toString());
                 ZipEntry ze = new ZipEntry(listaArchivos.get(i));
                 zos.putNextEntry(ze);
                 FileInputStream in = new FileInputStream(Fichero.getCARPETAREPORTES() + listaArchivos.get(i));
+                System.out.println("FT:: FileInputStream in = new FileInputStream(Fichero.getCARPETAREPORTES() + listaArchivos.get(i)) "+ in.toString());
                 int len;
                 while ((len = in.read(buffer)) > 0) {
                     zos.write(buffer, 0, len);
+                    System.out.println("FT:: dentro del while zos.write(buffer, 0, len); "+ len);
                 }
                 in.close();
             }
@@ -982,7 +988,8 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
             System.out.println("Hecho");
             descargar(nombreArchivo);
         } catch (IOException ex) {
-            ex.printStackTrace();
+            System.out.println("FT::ERROR CAPTURADO EN zip(List<String> listaArchivos) "+ex.toString());
+            ex.printStackTrace(System.out);
         }
     }
 
@@ -1220,7 +1227,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 
             }
 
-            /*System.out.println("FT::ESCRIBIENDO LINEAS DE DESGLOSE: ");
+            System.out.println("FT::ESCRIBIENDO LINEAS DE DESGLOSE: ");
             for (int i = 0; i < contadorFacturas; i++) {
 
                 //escribe los datos en el archivo
@@ -1228,7 +1235,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
 //                linea = "";
 
             }
-            */
+            
             //cierra el buffer intermedio
             bfwriter.close();
             this.dialogo(FacesMessage.SEVERITY_INFO, "Archivo creado satisfactoriamente..");

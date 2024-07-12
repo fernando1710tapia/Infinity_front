@@ -932,6 +932,7 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
     }
 
     public void save() throws ParseException {
+        System.out.println("FT:: NOTAPEDIDOBEAN1 - INICIA EL GUARDADO DE NP save()");
         DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat fechV = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         SimpleDateFormat fechD = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
@@ -977,6 +978,7 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
                 np.setUsuarioactual(dataUser.getUser().getNombrever());
                 np.setPrefijo(prefijo);
                 //if (np.getObservacion().i()) {
+//PARA CONTROLAR EL MODELO DE PETROLRIOS DEBE HACERSE UN IF PARA ENCENDER ESAS CELDAS SOLO PARA PETROLRIOS                np.setObservacion("Bco: " + nomBanco + " - Cta: " + numCuenta + " - Ch: " + numCheque); 
                 np.setObservacion("");
                 np.setCodigoautotanque(autotanque.getPlaca());
                 np.setCedulaconductor(autotanque.getCedularuc().getCedularuc());
@@ -1029,7 +1031,11 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
 
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             ObjectMapper mapper = new ObjectMapper();
+            
             String jsonStr = mapper.writeValueAsString(envNP);
+            
+            System.out.println("FT:: addItems OBJETO NOTAPEDIDO "+ jsonStr);
+            
             DataOutputStream out = new DataOutputStream(connection.getOutputStream());
             out.write(jsonStr.getBytes());
             out.flush();
@@ -1050,8 +1056,8 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
                 this.dialogo(FacesMessage.SEVERITY_INFO, "NOTA DE PEDIDO REGISTRADA EXITOSAMENTE");
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
-                System.out.println(connection.getResponseCode());
-                System.out.println(connection.getResponseMessage());
+                System.out.println("FT:: ERROR EN addItems RESPONSECODE "+connection.getResponseCode());
+                System.out.println("FT:: ERROR EN addItems RESPONSEMESSAGE "+connection.getResponseMessage());
             }
 
         } catch (IOException e) {
@@ -1467,8 +1473,11 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
         autoAux = this.autotanque;
         editAutotanque();
         obtenerAutotanque();
+        
         for (int i = 0; i < listaAutotanque.size(); i++) {
+            System.out.println("FT:: actualizarAutotanque ubicar el autotanque seleccionado anteriormente "+autoAux.getPlaca() + " -i "+i+" - "+listaAutotanque.get(i).getPlaca());
             if (autoAux.getPlaca().equals(listaAutotanque.get(i).getPlaca())) {
+                System.out.println("FT:: actualizarAutotanque autotanque ENCONTRADO "+autoAux.getPlaca() + " -i "+i+" - "+listaAutotanque.get(i).getPlaca());
                 this.autotanque = listaAutotanque.get(i);
                 break;
             }

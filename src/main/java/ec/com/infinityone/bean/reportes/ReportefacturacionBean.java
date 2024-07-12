@@ -273,7 +273,8 @@ public class ReportefacturacionBean extends ReusableBean implements Serializable
             "IVA PRESUNTIVO ",
             "Estado",
             "Oe enpetro",
-            "En sri"
+            "En sri",
+            "Fecha-Hora autorización SRI"
         };
 
         CellStyle numerosStyle = workbook.createCellStyle();
@@ -345,6 +346,7 @@ public class ReportefacturacionBean extends ReusableBean implements Serializable
                     dataRow.createCell(12).setCellValue(f.getActiva() == true ? "Activa" : "Anulada");
                     dataRow.createCell(13).setCellValue(f.getOeenpetro() == true ? "Si" : "No");
                     dataRow.createCell(14).setCellValue(sri.equals("S") ? "Si" : "No");
+                    dataRow.createCell(15).setCellValue(f.getFechaautorizacion());
                 }
             } catch (Exception ex) {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL CREAR EXCEL:" + ex);

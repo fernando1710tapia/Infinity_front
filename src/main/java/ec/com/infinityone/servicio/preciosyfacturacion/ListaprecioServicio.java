@@ -403,6 +403,7 @@ public class ListaprecioServicio {
 
     public List<EnvioClientePrecio> obtenerClientePrecio(String codComer) {
         try {
+            System.out.println("FT:: INICIA obtenerClientePrecio BUSQUEDA DE PRECIOS Y SUS CLIENTES");
             //URL url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.listaprecio/porComercializadora?codigocomercializadora=" + codComer);
             URL url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.precio/clienteprecio?codigocomercializadora=" + codComer);
             System.out.println("FT:: obtenerClientePrecio. "+url.toString());
@@ -430,15 +431,21 @@ public class ListaprecioServicio {
                 unEnvioClientePrecio.setTerminal(listaP.getString("terminal"));
                 unEnvioClientePrecio.setProducto(listaP.getString("producto"));
                 unEnvioClientePrecio.setCodigoprecio(listaP.getString("codigoprecio"));
+                System.out.println("FT::listaP.getString(\"codigoprecio\") "+ listaP.getString("codigoprecio")); 
                 unEnvioClientePrecio.setActivo(listaP.getString("activo"));
                 unEnvioClientePrecio.setFechainicio(listaP.getString("fechainicio")); 
-                
+                System.out.println("FT:: listaP.getString(\"precioterminalepp\") "+listaP.getString("precioterminalepp"));
                 unEnvioClientePrecio.setPrecioterminalepp(listaP.getString("precioterminalepp").substring(0,8)); 
+                System.out.println("FT:: listaP.getString(\"iva\") "+listaP.getString("iva"));
                 unEnvioClientePrecio.setIva(listaP.getString("iva").substring(0,8)); 
 //                unEnvioClientePrecio.setMargencomercializacion(listaP.getString("margencomercializacion")); 
+                System.out.println("FT:: listaP.getString(\"ivapresuntivo\") "+listaP.getString("ivapresuntivo"));
                 unEnvioClientePrecio.setIvapresuntivo(listaP.getString("ivapresuntivo").substring(0,8)); 
+                System.out.println("FT:: listaP.getString(\"margenxcliente\") "+listaP.getString("margenxcliente"));
                 unEnvioClientePrecio.setMargenxcliente(listaP.getString("margenxcliente").substring(0,8)); 
+                System.out.println("FT:: listaP.getString(\"precioproducto\") "+listaP.getString("precioproducto"));
                 unEnvioClientePrecio.setPrecioproducto(listaP.getString("precioproducto").substring(0,8)); 
+                System.out.println("FT:: listaP.getString(\"trexmil\") "+listaP.getString("trexmil"));
                 unEnvioClientePrecio.setTrexmil(listaP.getString("trexmil").substring(0,8)); 
                
 //                unEnvioClientePrecio.setGravamen(listaP.getString("gravamen")); 

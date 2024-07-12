@@ -39,6 +39,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.Connection;
@@ -832,11 +833,28 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                 np.setTramarecibidaaoe("");
                 np.setUsuarioactual(dataUser.getUser().getNombrever());
                 np.setPrefijo(prefijo);
-                np.setObservacion("Bco: " + nomBanco + " - Cta: " + numCuenta + " - Ch: " + numCheque);               
+                np.setObservacion("Bco: " + nomBanco + " - Cta: " + numCuenta + " - Ch: " + numCheque); 
+//                np.setCodigoautotanque(autotanque.getPlaca());
+//                np.setCedulaconductor(autotanque.getCedularuc().getCedularuc());
+
                 detNPK.setNumero("");
+
                 detNP.setDetallenotapedidoPK(detNPK);
                 detNP.setVolumennaturalautorizado(detNP.getVolumennaturalrequerido());
                 detNP.setUsuarioactual(dataUser.getUser().getNombrever());
+                 detNP.setCompartimento1(BigDecimal.ZERO);
+                detNP.setCompartimento2(BigDecimal.ZERO);
+                detNP.setCompartimento3(BigDecimal.ZERO);
+                detNP.setCompartimento4(BigDecimal.ZERO);
+                detNP.setCompartimento5(BigDecimal.ZERO);
+                detNP.setCompartimento6(BigDecimal.ZERO);
+                detNP.setCompartimento7(BigDecimal.ZERO);
+                detNP.setCompartimento8(BigDecimal.ZERO);
+                detNP.setCompartimento9(BigDecimal.ZERO);
+                detNP.setCompartimento10(BigDecimal.ZERO); 
+                detNP.setSelloinicial(Integer.valueOf("0") );
+                detNP.setSellofinal(Integer.valueOf("0"));
+
 
                 envNP.setNotapedido(np);
                 envNP.setDetalle(detNP);
@@ -867,6 +885,9 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             ObjectMapper mapper = new ObjectMapper();
             String jsonStr = mapper.writeValueAsString(envNP);
+            
+            System.out.println("FT:: addItems OBJETO NOTAPEDIDO "+ jsonStr);
+            
             DataOutputStream out = new DataOutputStream(connection.getOutputStream());
             out.write(jsonStr.getBytes());
             out.flush();
@@ -887,8 +908,8 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                 this.dialogo(FacesMessage.SEVERITY_INFO, "NOTA DE PEDIDO REGISTRADA EXITOSAMENTE");
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
-                System.out.println(connection.getResponseCode());
-                System.out.println(connection.getResponseMessage());
+                System.out.println("FT:: ERROR EN addItems RESPONSECODE "+connection.getResponseCode());
+                System.out.println("FT:: ERROR EN addItems RESPONSEMESSAGE "+connection.getResponseMessage());
             }
 
         } catch (IOException e) {
