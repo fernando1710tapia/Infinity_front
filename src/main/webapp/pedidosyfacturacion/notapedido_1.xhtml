@@ -124,7 +124,7 @@
                                 <p:column headerText="Número NP" sortBy="#{notap.notapedido.notapedidoPK.numero}" filterBy="#{notap.notapedido.notapedidoPK.numero}" width="15%">
                                     <h:outputText value="#{notap.notapedido.notapedidoPK.numero}" />
                                 </p:column>
-                                 <p:column headerText="Número Factura" sortBy="#{notap.notapedido.numerofacturasri}" filterBy="#{notap.notapedido.numerofacturasri}" width="15%">
+                                <p:column headerText="Número Factura" sortBy="#{notap.notapedido.numerofacturasri}" filterBy="#{notap.notapedido.numerofacturasri}" width="15%">
                                     <h:outputText value="#{notap.notapedido.numerofacturasri}" />
                                 </p:column>
                                 <p:column headerText="Cliente" sortBy="#{notap.notapedido.codigocliente.codigo}" filterBy="#{notap.notapedido.codigocliente.codigo}" width="25%">
@@ -345,7 +345,7 @@
                         </span>
                     </div>
                     <div class="p-field p-col-12 p-md-2">
-                            <p:commandButton value="Cambiar Conductor" icon="pi pi-check" actionListener="#{notapedidoBean1.cambiarConductor()}" update="cond :formElegirConductor" styleClass="p-mr-2" process="@this"/>
+                        <p:commandButton value="Cambiar Conductor" icon="pi pi-check" actionListener="#{notapedidoBean1.cambiarConductor()}" update="cond :formElegirConductor" styleClass="p-mr-2" process="@this"/>
                     </div>                                                                                                                           
                     <div class="p-field p-col-12 p-md-12"></div>
                     <!--<div class="p-field p-col-12 p-md-12">
@@ -391,19 +391,54 @@
                             </p:selectOneMenu>
                         </div>                            
                     </div> 
-                    <div class="p-field p-col-12 p-md-3">
+                    <div class="p-field p-col-12 p-md-2">
                         <span class="ui-float-label">
-                            <p:inputText id="sI" value="#{notapedidoBean1.detNP.selloinicial}" maxlength="50" />
+                            <p:inputText id="sI" value="#{notapedidoBean1.detNP.selloinicial}" maxlength="50" >
+                                <p:ajax event="change" /> 
+                            </p:inputText>
                             <p:outputLabel for="sI">Sello Inicial</p:outputLabel>
                         </span>
                     </div>
-                    <div class="p-field p-col-12 p-md-3">
+                    <div class="p-field p-col-12 p-md-2">
                         <span class="ui-float-label">
-                            <p:inputText id="sF" value="#{notapedidoBean1.detNP.sellofinal}" maxlength="50" />
+                            <p:inputText id="sF" value="#{notapedidoBean1.detNP.sellofinal}" maxlength="50" >
+                                <p:ajax event="change" listener="#{notapedidoBean1.calcularCantidadSellos(notapedidoBean1)}" update="cantidadSellos" />
+                            </p:inputText>
                             <p:outputLabel for="sF">Sello Final</p:outputLabel>
                         </span>
                     </div>
-                    
+                    <div class="p-field p-col-12 p-md-2">
+                        <span class="ui-float-label">
+                            <p:inputText id="cantidadSellos" value="#{notapedidoBean1.cantidadSellos}" maxlength="50" readonly="true"/>
+                            <p:outputLabel for="cantidadSellos">Total Sellos</p:outputLabel>
+                        </span>
+                    </div>
+                    <p:outputPanel rendered="#{notapedidoBean1.mostarFormaPago}"> 
+                        <div class="p-field p-col-12 p-md-12" id="panelFormaDePago">
+                            <p:outputLabel>Forma de pago</p:outputLabel>        
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-4">
+                                    <span class="ui-float-label">
+                                        <p:inputText id="nomBanco" value="#{notapedidoBean1.nomBanco}" maxlength="40"/>                                                                
+                                        <p:outputLabel for="nomBanco">Nombre Banco</p:outputLabel>
+                                    </span>
+                                </div>  
+                                <div class="p-field p-col-12 p-md-4">
+                                    <span class="ui-float-label">
+                                        <p:inputText id="numCuenta" value="#{notapedidoBean1.numCuenta}" maxlength="30"/>                                                                
+                                        <p:outputLabel for="numCuenta">Número Cuenta</p:outputLabel>
+                                    </span>
+                                </div>  
+                                <div class="p-field p-col-12 p-md-4">
+                                    <span class="ui-float-label">
+                                        <p:inputText id="numCheque" value="#{notapedidoBean1.numCheque}" maxlength="30"/>                                                                
+                                        <p:outputLabel for="numCheque">Número Cheque</p:outputLabel>
+                                    </span>
+                                </div>   
+                            </div>
+                        </div>
+                    </p:outputPanel>
+
                     <div class="p-field p-col-12 p-md-12">                                
                         <p:outputLabel id="comps" >Compartimientos: </p:outputLabel>                            
                     </div>  
@@ -497,7 +532,7 @@
                 </p:outputPanel>
                 <div class="p-grid p-justify-end">
                     <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{notapedidoBean1.actualizarAutotanque()}"
-                                     update=":form @([id$=cond])" styleClass="p-mr-2"/>
+                                     update=":formNuevo:cond :formNuevo:ci" styleClass="p-mr-2"/>
                     <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('elegirconductor').hide()" class="ui-button-secondary" />
                 </div>
             </h:form>

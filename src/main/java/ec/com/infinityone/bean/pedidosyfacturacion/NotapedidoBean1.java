@@ -27,6 +27,7 @@ import ec.com.infinityone.modelo.Producto;
 import ec.com.infinityone.modelo.Terminal;
 import ec.com.infinityone.reusable.ReusableBean;
 import ec.com.infinityone.bean.actorcomercial.ComercializadoraBean;
+import ec.com.infinityone.bean.enums.CodigoComerEnum;
 import ec.com.infinityone.configuration.Fichero;
 import ec.com.infinityone.modelo.Autotanque;
 import ec.com.infinityone.modelo.Conductor;
@@ -300,7 +301,7 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
     private boolean todosClientes;
 
     private List<Autotanque> listaAutotanque;
-
+    
     private List<Conductor> listaConductores;
 
     private Autotanque autotanque;
@@ -310,7 +311,7 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
     private Conductor conductor;
 
     private BigDecimal volTotal;
-    
+
     private BigDecimal compartimento1;
     private BigDecimal compartimento2;
     private BigDecimal compartimento3;
@@ -323,7 +324,21 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
     private BigDecimal compartimento10;
     private Integer selloinicial;
     private Integer sellofinal;
-    
+    private Integer cantidadSellos;
+
+    /*
+    Variables para almacenar la imfoanción de forma de pago y guardar en observacion
+     */
+    private String nomBanco;
+
+    private String numCuenta;
+
+    private String numCheque;
+
+    /*
+    Variable para renderizar o no el panel forma de pago, dependiedo la comercializadora
+     */
+    private boolean mostarFormaPago;
 
     /**
      * Constructor por defecto
@@ -346,7 +361,7 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
         obtenerAutotanque();
         obtenerConductores();
         todosClientes = false;
-
+        mostarFormaPago = false;
         //habilitarBusqueda();
     }
 
@@ -423,6 +438,10 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
         listaProd = new ArrayList<>();
         listaBancos = new ArrayList<>();
         listaMedida = new ArrayList<>();
+        nomBanco = "";
+        numCuenta = "";
+        numCheque = "";
+        mostarFormaPago = false;
         //listaProductos = new ArrayList<>();
     }
 
@@ -589,7 +608,13 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
 //                        }
 //                    }
 //                }
+                if (codComer.equals(CodigoComerEnum.PETROL_RIOS.getCodigo())) {
+                    mostarFormaPago = true;
+                } else {
+                    mostarFormaPago = false;
+                }
             } else {
+                mostarFormaPago = false;
                 listaClientes = new ArrayList<>();
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "LA COMERCIALIZADORA SE ENCUENTRA INACTIVA");
             }
@@ -979,13 +1004,13 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
                 np.setPrefijo(prefijo);
                 //if (np.getObservacion().i()) {
 //PARA CONTROLAR EL MODELO DE PETROLRIOS DEBE HACERSE UN IF PARA ENCENDER ESAS CELDAS SOLO PARA PETROLRIOS                np.setObservacion("Bco: " + nomBanco + " - Cta: " + numCuenta + " - Ch: " + numCheque); 
-                np.setObservacion("");
+                np.setObservacion("Bco: " + nomBanco + " - Cta: " + numCuenta + " - Ch: " + numCheque);
                 np.setCodigoautotanque(autotanque.getPlaca());
                 np.setCedulaconductor(autotanque.getCedularuc().getCedularuc());
                 //}
 
                 detNPK.setNumero("");
-                
+
                 detNP.setVolumennaturalrequerido(volTotal);
                 detNP.setDetallenotapedidoPK(detNPK);
                 detNP.setVolumennaturalautorizado(detNP.getVolumennaturalrequerido());
@@ -1002,7 +1027,7 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
                 detNP.setCompartimento10(compartimento10);
 //                detNP.setSelloinicial(selloinicial);
 //                detNP.setSellofinal(sellofinal);
-                
+
                 envNP.setNotapedido(np);
                 envNP.setDetalle(detNP);
                 if (editarNotapedido) {
@@ -1031,11 +1056,11 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
 
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             ObjectMapper mapper = new ObjectMapper();
-            
+
             String jsonStr = mapper.writeValueAsString(envNP);
-            
-            System.out.println("FT:: addItems OBJETO NOTAPEDIDO "+ jsonStr);
-            
+
+            System.out.println("FT:: addItems OBJETO NOTAPEDIDO " + jsonStr);
+
             DataOutputStream out = new DataOutputStream(connection.getOutputStream());
             out.write(jsonStr.getBytes());
             out.flush();
@@ -1056,8 +1081,8 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
                 this.dialogo(FacesMessage.SEVERITY_INFO, "NOTA DE PEDIDO REGISTRADA EXITOSAMENTE");
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
-                System.out.println("FT:: ERROR EN addItems RESPONSECODE "+connection.getResponseCode());
-                System.out.println("FT:: ERROR EN addItems RESPONSEMESSAGE "+connection.getResponseMessage());
+                System.out.println("FT:: ERROR EN addItems RESPONSECODE " + connection.getResponseCode());
+                System.out.println("FT:: ERROR EN addItems RESPONSEMESSAGE " + connection.getResponseMessage());
             }
 
         } catch (IOException e) {
@@ -1417,8 +1442,8 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
                 compartimento1 = autotanqueAux.getCompartimento1();
             }
             if (!autotanqueAux.getCompartimento2().equals(new BigDecimal("-1.0")) && !autotanqueAux.getCompartimento2().equals(new BigDecimal("-1")) && !autotanqueAux.getCompartimento2().equals(new BigDecimal("-1.00"))) {
-                    volTotal = volTotal.add(autotanqueAux.getCompartimento2());
-                    compartimento2 = autotanqueAux.getCompartimento2();
+                volTotal = volTotal.add(autotanqueAux.getCompartimento2());
+                compartimento2 = autotanqueAux.getCompartimento2();
             }
             if (!autotanqueAux.getCompartimento3().equals(new BigDecimal("-1.0")) && !autotanqueAux.getCompartimento3().equals(new BigDecimal("-1")) && !autotanqueAux.getCompartimento3().equals(new BigDecimal("-1.00"))) {
                 volTotal = volTotal.add(autotanqueAux.getCompartimento3());
@@ -1473,11 +1498,11 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
         autoAux = this.autotanque;
         editAutotanque();
         obtenerAutotanque();
-        
+
         for (int i = 0; i < listaAutotanque.size(); i++) {
-            System.out.println("FT:: actualizarAutotanque ubicar el autotanque seleccionado anteriormente "+autoAux.getPlaca() + " -i "+i+" - "+listaAutotanque.get(i).getPlaca());
+            System.out.println("FT:: actualizarAutotanque ubicar el autotanque seleccionado anteriormente " + autoAux.getPlaca() + " -i " + i + " - " + listaAutotanque.get(i).getPlaca());
             if (autoAux.getPlaca().equals(listaAutotanque.get(i).getPlaca())) {
-                System.out.println("FT:: actualizarAutotanque autotanque ENCONTRADO "+autoAux.getPlaca() + " -i "+i+" - "+listaAutotanque.get(i).getPlaca());
+                System.out.println("FT:: actualizarAutotanque autotanque ENCONTRADO " + autoAux.getPlaca() + " -i " + i + " - " + listaAutotanque.get(i).getPlaca());
                 this.autotanque = listaAutotanque.get(i);
                 break;
             }
@@ -1527,6 +1552,12 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
             System.out.println(connection.getResponseMessage());
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void calcularCantidadSellos(NotapedidoBean1 np) {
+        if (np.detNP.getSelloinicial() != 0 && np.detNP.getSellofinal() != 0) {
+            this.setCantidadSellos(np.detNP.getSellofinal() - np.detNP.getSelloinicial() + 1);
         }
     }
 
@@ -1930,4 +1961,43 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
         this.autotanqueAux = autotanqueAux;
     }
 
+    public Integer getCantidadSellos() {
+        return cantidadSellos;
+    }
+
+    public void setCantidadSellos(Integer cantidadSellos) {
+        this.cantidadSellos = cantidadSellos;
+    }
+
+    public String getNomBanco() {
+        return nomBanco;
+    }
+
+    public void setNomBanco(String nomBanco) {
+        this.nomBanco = nomBanco;
+    }
+
+    public String getNumCuenta() {
+        return numCuenta;
+    }
+
+    public void setNumCuenta(String numCuenta) {
+        this.numCuenta = numCuenta;
+    }
+
+    public String getNumCheque() {
+        return numCheque;
+    }
+
+    public void setNumCheque(String numCheque) {
+        this.numCheque = numCheque;
+    }
+
+    public boolean isMostarFormaPago() {
+        return mostarFormaPago;
+    }
+
+    public void setMostarFormaPago(boolean mostarFormaPago) {
+        this.mostarFormaPago = mostarFormaPago;
+    }
 }

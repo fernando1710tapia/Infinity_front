@@ -66,7 +66,7 @@ public class Consultaguiaremision implements Serializable {
     private int selloinicial;
 
     private int sellofinal;
-    
+
     private int cantidadsellos;
 
     private String numerofactura;
@@ -304,17 +304,19 @@ public class Consultaguiaremision implements Serializable {
     public int getSellofinal() {
         return sellofinal;
     }
-    
 
     public void setSellofinal(int sellofinal) {
         this.sellofinal = sellofinal;
     }
-    
+
     public int getCantidadsellos() {
-        return sellofinal - selloinicial;
+//        return sellofinal - selloinicial;
+        return cantidadsellos;
     }
+
     public void setCantidadsellos(int cantidadSellos) {
-        this.cantidadsellos = sellofinal - selloinicial;
+        //        this.cantidadsellos = sellofinal - selloinicial;
+        this.cantidadsellos = cantidadSellos;
     }
 
     public String getNumerofactura() {

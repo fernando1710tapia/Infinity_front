@@ -775,6 +775,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
             obj.put("compartimento6", consulGuia.getCompartimento6());
             obj.put("selloinicial", consulGuia.getSelloinicial());
             obj.put("sellofinal", consulGuia.getSellofinal());
+//            obj.put("cantidadsellos", consulGuia.getSellofinal() - consulGuia.getSelloinicial());
             obj.put("numerofactura", consulGuia.getNumerofactura());
             obj.put("horaautorizacion", consulGuia.getHoraautorizacion());
             obj.put("fechafactura", sdf.format(consulGuia.getFechafactura()));
@@ -1480,6 +1481,12 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
 //        for (int i = 0; i <) {
 //            
 //        }
+    }
+    
+    public void calcularCantidadSellos(Consultaguiaremision guia) {
+        if (guia.getSelloinicial() != 0 && guia.getSellofinal() != 0) {
+            guia.setCantidadsellos(guia.getSellofinal() - guia.getSelloinicial() + 1);
+        }
     }
 
     public Boolean getVigente() {

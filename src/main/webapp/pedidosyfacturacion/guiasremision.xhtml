@@ -407,8 +407,8 @@
                         <p:commandButton id="bus" value="Cargar Archivos" icon="pi pi-plus" actionListener="#{guiasRemisionBean.lecturaXml1()}" immediate="true" update="dt-products1 @form"/>
                     </div>
                     <!-- </div>comment -->
-                    
-                                     
+
+
                     <!--<div class="p-field p-col-12 p-md-12">
                         <p:outputLabel for="archivo" value="Subir Archivo"/>
                         <p:fileUpload id="archivo" listener="{guiasRemisionBean.handleFileUpload}"                                              
@@ -425,104 +425,104 @@
                     <div class="p-field p-col-12 p-md-12">
                         <div class="card">
                             <p:panel id="plistaDatos">
-                            <p:dataTable id="dt-products1" widgetVar="dtProducts1" var="guia1" value="#{guiasRemisionBean.listaConsultaGuiaArchivoSubida}" reflow="true" styleClass="products-table"
-                                         paginator="true" rows="15" rowSelectMode="add" paginatorPosition="bottom" >
-                                <f:facet name="header">
-                                    <div class="products-table-header">
-                                        <span style="font-weight: bold">Guias</span>
+                                <p:dataTable id="dt-products1" widgetVar="dtProducts1" var="guia1" value="#{guiasRemisionBean.listaConsultaGuiaArchivoSubida}" reflow="true" styleClass="products-table"
+                                             paginator="true" rows="15" rowSelectMode="add" paginatorPosition="bottom" >
+                                    <f:facet name="header">
+                                        <div class="products-table-header">
+                                            <span style="font-weight: bold">Guias</span>
 
-                                        <span class="filter-container ui-input-icon-left">
-                                            <i class="pi pi-search"></i>
-                                            <p:inputText id="globalFilter" onkeyup="PF('dtProducts1').filter()" placeholder="Buscar" />
-                                        </span>
-                                    </div>
-                                </f:facet>                                                                                                                                                                                                                          
-                                <p:column style="width: 3.5rem">
-                                    <p:commandButton icon="pi pi-search" update="form :formNuevo" actionListener="#{guiasRemisionBean.lecturaDatos(guia1)}"
-                                                     styleClass="edit-button rounded-button ui-button-success" process="@this">
-                                        <f:setPropertyActionListener value="#{guia1}" target="#{guiasRemisionBean.consulGuia}" />
-                                    </p:commandButton>
-                                </p:column>
-                                <p:column headerText="Fecha Despacho" sortBy="#{guia1.consultaguiaremisionPK.fecha}" filterBy="#{guia1.consultaguiaremisionPK.fecha}" width="12%">
-                                    <h:outputText value="#{guia1.consultaguiaremisionPK.fecha}">
-                                        <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
-                                    </h:outputText>
-                                </p:column>
-                                <p:column headerText="Numero GR" sortBy="#{guia1.consultaguiaremisionPK.numero}" filterBy="#{guia1.consultaguiaremisionPK.numero}" width="10%">
-                                    <h:outputText value="#{guia1.consultaguiaremisionPK.numero}" />
-                                </p:column>
-                                <p:column headerText="Numero OE" sortBy="#{guia1.numerooe}" filterBy="#{guia1.numerooe}" width="10%">
-                                    <h:outputText value="#{guia1.numerooe}" />
-                                </p:column>
-                                <!--<p:column headerText="Numero Fact." sortBy="#{guia1.numerosri}" width="12%">
-                                    <h:outputText value="#{guia1.numerosri}" />
-                                </p:column>-->
-                                <p:column headerText="Producto" width="7%">
-                                    <h:outputText value="#{guia1.codigoproducto}" />
-                                </p:column>
-                                <p:column headerText="Vol. Entregado" filterBy="#{guia1.volumenentregado}" width="10%">
-                                    <h:outputText value="#{guia1.volumenentregado}" />
-                                </p:column>
-                                <p:column headerText="Autotanque" width="8%">
-                                    <h:outputText value="#{guia1.autotanque}" />
-                                </p:column>
-                                <p:column headerText="Ced. Conductor" width="10%">
-                                    <h:outputText value="#{guia1.cedulaconductor}" />
-                                </p:column>
-                                <!--<p:column headerText="Estado" width="8%">
-                                    <h:outputText value="{guia.estado}" />
-                                </p:column>
-                                <p:column headerText="F. Despacho" width="12%">
-                                    <h:outputText value="{guia.consultaguiaremisionPK.fecha}">
-                                        <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
-                                    </h:outputText>
-                                </p:column>
-                                <p:column headerText="N. GR" width="8%">
-                                    <p:inputText value="{guia.consultaguiaremisionPK.numero}" />
-                                </p:column>
-                                <p:column headerText="N. OE" width="8%">
-                                    <p:inputText value="{guia.numerooe}" />
-                                </p:column>
-                                <p:column headerText="AM" width="8%">
-                                    <p:inputText value="{guia.codigoareamercadeo}" />
-                                </p:column>
-                                <p:column headerText="Producto" width="8%">                        
-                                    <p:inputText value="{guia.codigoproducto}" />
-                                </p:column>
-                                <p:column headerText="Vol. Entregado" width="8%">
-                                    <p:inputText value="{guia.volumenentregado}" />
-                                </p:column>
-                                <p:column headerText="Autotanque" width="10%">
-                                    <p:inputText value="{guia.autotanque}" />
-                                </p:column>  
-                                <p:column headerText="Ced. Conductor"  width="12%">
-                                    <p:inputText value="{guia.cedulaconductor}" />
-                                </p:column>                                   
-                                <p:column headerText="Nom Conductor"  width="12%">
-                                    <p:inputText value="{guia.nombreconductor}"  />
-                                </p:column>--> 
-                                <p:column headerText="Sello Inicial"  width="8%">
-                                    <p:inputText value="#{guia1.selloinicial}"  required="true" >
-                                        <p:ajax event="change" /> 
-                                    </p:inputText>
-                                </p:column>
-                                <p:column headerText="Sello Final" width="8%">
-                                    <p:inputText value="#{guia1.sellofinal}" required="true" >
-                                        <p:ajax event="change" /> 
-                                    </p:inputText>
-                                </p:column>
-                                <p:column headerText="Cant. sellos" width="7%">
-                                    <p:inputText value="#{guia1.cantidadsellos}" required="false" >
-                                        <p:ajax event="change" /> 
-                                    </p:inputText>
-                                </p:column>
-                                <p:column headerText="Observación"  width="13%">
-                                    <p:inputText value="#{guia1.observacion}" >
-                                        <p:ajax event="change" /> 
-                                    </p:inputText>
-                                </p:column>                    
-                            </p:dataTable>
-                                </p:panel>
+                                            <span class="filter-container ui-input-icon-left">
+                                                <i class="pi pi-search"></i>
+                                                <p:inputText id="globalFilter" onkeyup="PF('dtProducts1').filter()" placeholder="Buscar" />
+                                            </span>
+                                        </div>
+                                    </f:facet>                                                                                                                                                                                                                          
+                                    <p:column style="width: 3.5rem">
+                                        <p:commandButton icon="pi pi-search" update="form :formNuevo" actionListener="#{guiasRemisionBean.lecturaDatos(guia1)}"
+                                                         styleClass="edit-button rounded-button ui-button-success" process="@this">
+                                            <f:setPropertyActionListener value="#{guia1}" target="#{guiasRemisionBean.consulGuia}" />
+                                        </p:commandButton>
+                                    </p:column>
+                                    <p:column headerText="Fecha Despacho" sortBy="#{guia1.consultaguiaremisionPK.fecha}" filterBy="#{guia1.consultaguiaremisionPK.fecha}" width="12%">
+                                        <h:outputText value="#{guia1.consultaguiaremisionPK.fecha}">
+                                            <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column headerText="Numero GR" sortBy="#{guia1.consultaguiaremisionPK.numero}" filterBy="#{guia1.consultaguiaremisionPK.numero}" width="10%">
+                                        <h:outputText value="#{guia1.consultaguiaremisionPK.numero}" />
+                                    </p:column>
+                                    <p:column headerText="Numero OE" sortBy="#{guia1.numerooe}" filterBy="#{guia1.numerooe}" width="10%">
+                                        <h:outputText value="#{guia1.numerooe}" />
+                                    </p:column>
+                                    <!--<p:column headerText="Numero Fact." sortBy="#{guia1.numerosri}" width="12%">
+                                        <h:outputText value="#{guia1.numerosri}" />
+                                    </p:column>-->
+                                    <p:column headerText="Producto" width="7%">
+                                        <h:outputText value="#{guia1.codigoproducto}" />
+                                    </p:column>
+                                    <p:column headerText="Vol. Entregado" filterBy="#{guia1.volumenentregado}" width="10%">
+                                        <h:outputText value="#{guia1.volumenentregado}" />
+                                    </p:column>
+                                    <p:column headerText="Autotanque" width="8%">
+                                        <h:outputText value="#{guia1.autotanque}" />
+                                    </p:column>
+                                    <p:column headerText="Ced. Conductor" width="10%">
+                                        <h:outputText value="#{guia1.cedulaconductor}" />
+                                    </p:column>
+                                    <!--<p:column headerText="Estado" width="8%">
+                                        <h:outputText value="{guia.estado}" />
+                                    </p:column>
+                                    <p:column headerText="F. Despacho" width="12%">
+                                        <h:outputText value="{guia.consultaguiaremisionPK.fecha}">
+                                            <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
+                                        </h:outputText>
+                                    </p:column>
+                                    <p:column headerText="N. GR" width="8%">
+                                        <p:inputText value="{guia.consultaguiaremisionPK.numero}" />
+                                    </p:column>
+                                    <p:column headerText="N. OE" width="8%">
+                                        <p:inputText value="{guia.numerooe}" />
+                                    </p:column>
+                                    <p:column headerText="AM" width="8%">
+                                        <p:inputText value="{guia.codigoareamercadeo}" />
+                                    </p:column>
+                                    <p:column headerText="Producto" width="8%">                        
+                                        <p:inputText value="{guia.codigoproducto}" />
+                                    </p:column>
+                                    <p:column headerText="Vol. Entregado" width="8%">
+                                        <p:inputText value="{guia.volumenentregado}" />
+                                    </p:column>
+                                    <p:column headerText="Autotanque" width="10%">
+                                        <p:inputText value="{guia.autotanque}" />
+                                    </p:column>  
+                                    <p:column headerText="Ced. Conductor"  width="12%">
+                                        <p:inputText value="{guia.cedulaconductor}" />
+                                    </p:column>                                   
+                                    <p:column headerText="Nom Conductor"  width="12%">
+                                        <p:inputText value="{guia.nombreconductor}"  />
+                                    </p:column>--> 
+                                    <p:column headerText="Sello Inicial"  width="8%">
+                                        <p:inputText value="#{guia1.selloinicial}"  required="true" >
+                                            <p:ajax event="change" /> 
+                                        </p:inputText>
+                                    </p:column>
+                                    <p:column headerText="Sello Final" width="8%">
+                                        <p:inputText value="#{guia1.sellofinal}" required="true" >
+                                             <p:ajax event="change" listener="#{guiasRemisionBean.calcularCantidadSellos(guia1)}" update="dt-products1" />
+                                        </p:inputText>
+                                    </p:column>
+                                    <p:column headerText="Cant. sellos" width="7%">
+                                        <p:inputText value="#{guia1.cantidadsellos}" required="false" readonly="true" >
+                                            <p:ajax event="change" /> 
+                                        </p:inputText>
+                                    </p:column>
+                                    <p:column headerText="Observación"  width="13%">
+                                        <p:inputText value="#{guia1.observacion}" >
+                                            <p:ajax event="change" /> 
+                                        </p:inputText>
+                                    </p:column>                    
+                                </p:dataTable>
+                            </p:panel>
                         </div>
                     </div>
                 </div>                  
