@@ -504,6 +504,8 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
                 for (int i = 0; i < listaComercializadora.size(); i++) {
                     if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
                         this.comercializadora = listaComercializadora.get(i);
+                        if(comercializadora != null)
+                            codigoComer = comercializadora.getCodigo();
                     }
                 }
                 obtenerPagoFactura(comercializadora.getCodigo(), new Date());
@@ -513,6 +515,8 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
                 for (int i = 0; i < listaComercializadora.size(); i++) {
                     if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
                         this.comercializadora = listaComercializadora.get(i);
+                        if(comercializadora != null)
+                            codigoComer = comercializadora.getCodigo();
                     }
                 }
                 obtenerPagoFactura(comercializadora.getCodigo(), new Date());
