@@ -3532,7 +3532,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         //        String path = "C:\\archivos\\Template\\FormatoNotaPedido.jrxml";
 //        String subreport = "C:\\archivos\\Template\\notapedido.jrxml";
         String rutaGuardar = Fichero.getCARPETAREPORTES();
-        String subreport = Fichero.getCARPETAREPORTES() + "/notapedido.jrxml";
+        String subreport = Fichero.getCARPETAREPORTES() + "/notapedidoext.jrxml";
         String path = Fichero.getCARPETAREPORTES() + "/FormatoNotaPedido.jrxml";
         System.out.println("PATH:" + path);
         InputStream file = null;

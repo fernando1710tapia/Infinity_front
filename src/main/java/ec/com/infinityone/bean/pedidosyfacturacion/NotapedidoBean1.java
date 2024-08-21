@@ -1004,7 +1004,10 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
                 np.setPrefijo(prefijo);
                 //if (np.getObservacion().i()) {
 //PARA CONTROLAR EL MODELO DE PETROLRIOS DEBE HACERSE UN IF PARA ENCENDER ESAS CELDAS SOLO PARA PETROLRIOS                np.setObservacion("Bco: " + nomBanco + " - Cta: " + numCuenta + " - Ch: " + numCheque); 
-                np.setObservacion("Bco: " + nomBanco + " - Cta: " + numCuenta + " - Ch: " + numCheque);
+                
+                if (np.getComercializadora().getCodigo().equalsIgnoreCase("0008")){
+                    np.setObservacion("Bco: " + nomBanco + " - Cta: " + numCuenta + " - Ch: " + numCheque);
+                }
                 np.setCodigoautotanque(autotanque.getPlaca());
                 np.setCedulaconductor(autotanque.getCedularuc().getCedularuc());
                 //}
@@ -1334,7 +1337,7 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
     public void generarReporte(EnvioPedido envP) {
 //        String path = "C:\\archivos\\Template\\notapedido.jrxml";
         String rutaGuardar = Fichero.getCARPETAREPORTES();
-        String path = Fichero.getCARPETAREPORTES() + "/notapedido.jrxml";
+        String path = Fichero.getCARPETAREPORTES() + "/notapedidoext.jrxml";
         System.out.println("PATH:" + path);
         InputStream file = null;
         try {
@@ -1378,7 +1381,7 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
 //        String path = "C:\\archivos\\Template\\FormatoNotaPedido.jrxml";
 //        String subreport = "C:\\archivos\\Template\\notapedido.jrxml";
         String rutaGuardar = Fichero.getCARPETAREPORTES();
-        String subreport = Fichero.getCARPETAREPORTES() + "/notapedido.jrxml";
+        String subreport = Fichero.getCARPETAREPORTES() + "/notapedidoext.jrxml";
         String path = Fichero.getCARPETAREPORTES() + "/FormatoNotaPedido.jrxml";
         System.out.println("PATH:" + path);
         InputStream file = null;
@@ -1496,17 +1499,22 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
     public void actualizarAutotanque() {
         Autotanque autoAux = new Autotanque();
         autoAux = this.autotanque;
-        editAutotanque();
-        obtenerAutotanque();
+//FT 20240723 NO ACTUALIZAR EL AUTOTANQUE CON EL CONDUCTOR CAMBIADO
+//        editAutotanque();
+//        obtenerAutotanque();
+//FT 20240723 EL AUTOTANQUE SELECCIONADO TOMA EL CONDUCTOR SELECCIONADO SOLO PARA ESTE CICLO DE VIDA DE LA PAGINA 
+          this.autotanque.getCedularuc().setCedularuc(conductor.getCedularuc());  
+          this.autotanque.setCedularuc(conductor);
+          PrimeFaces.current().executeScript("PF('elegirconductor').hide()");
 
-        for (int i = 0; i < listaAutotanque.size(); i++) {
-            System.out.println("FT:: actualizarAutotanque ubicar el autotanque seleccionado anteriormente " + autoAux.getPlaca() + " -i " + i + " - " + listaAutotanque.get(i).getPlaca());
-            if (autoAux.getPlaca().equals(listaAutotanque.get(i).getPlaca())) {
-                System.out.println("FT:: actualizarAutotanque autotanque ENCONTRADO " + autoAux.getPlaca() + " -i " + i + " - " + listaAutotanque.get(i).getPlaca());
-                this.autotanque = listaAutotanque.get(i);
-                break;
-            }
-        }
+//        for (int i = 0; i < listaAutotanque.size(); i++) {
+//            System.out.println("FT:: actualizarAutotanque ubicar el autotanque seleccionado anteriormente " + autoAux.getPlaca() + " -i " + i + " - " + listaAutotanque.get(i).getPlaca());
+//            if (autoAux.getPlaca().equals(listaAutotanque.get(i).getPlaca())) {
+//                System.out.println("FT:: actualizarAutotanque autotanque ENCONTRADO " + autoAux.getPlaca() + " -i " + i + " - " + listaAutotanque.get(i).getPlaca());
+//                this.autotanque = listaAutotanque.get(i);
+//                break;
+//            }
+//        }
 
     }
 
