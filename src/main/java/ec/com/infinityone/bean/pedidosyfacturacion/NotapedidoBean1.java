@@ -339,6 +339,10 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
     Variable para renderizar o no el panel forma de pago, dependiedo la comercializadora
      */
     private boolean mostarFormaPago;
+    /*
+    Variable para renderizar o no el panel de observacion, dependiedo la comercializadora
+     */
+    private boolean mostarObservacion;
 
     /**
      * Constructor por defecto
@@ -362,6 +366,7 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
         obtenerConductores();
         todosClientes = false;
         mostarFormaPago = false;
+        mostarObservacion = false;
         //habilitarBusqueda();
     }
 
@@ -442,6 +447,7 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
         numCuenta = "";
         numCheque = "";
         mostarFormaPago = false;
+        mostarObservacion = false;
         //listaProductos = new ArrayList<>();
     }
 
@@ -610,11 +616,14 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
 //                }
                 if (codComer.equals(CodigoComerEnum.PETROL_RIOS.getCodigo())) {
                     mostarFormaPago = true;
+                    mostarObservacion = false;
                 } else {
                     mostarFormaPago = false;
+                    mostarObservacion = true;
                 }
             } else {
                 mostarFormaPago = false;
+                mostarObservacion = false;
                 listaClientes = new ArrayList<>();
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "LA COMERCIALIZADORA SE ENCUENTRA INACTIVA");
             }
@@ -1002,11 +1011,8 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
                 np.setTramarecibidaaoe("");
                 np.setUsuarioactual(dataUser.getUser().getNombrever());
                 np.setPrefijo(prefijo);
-                //if (np.getObservacion().i()) {
-//PARA CONTROLAR EL MODELO DE PETROLRIOS DEBE HACERSE UN IF PARA ENCENDER ESAS CELDAS SOLO PARA PETROLRIOS                np.setObservacion("Bco: " + nomBanco + " - Cta: " + numCuenta + " - Ch: " + numCheque); 
-                
-                if (np.getComercializadora().getCodigo().equalsIgnoreCase("0008")){
-                    np.setObservacion("Bco: " + nomBanco + " - Cta: " + numCuenta + " - Ch: " + numCheque);
+                if (codComer.equals(CodigoComerEnum.PETROL_RIOS.getCodigo())) {
+                     np.setObservacion("Bco: " + nomBanco + " - Cta: " + numCuenta + " - Ch: " + numCheque);
                 }
                 np.setCodigoautotanque(autotanque.getPlaca());
                 np.setCedulaconductor(autotanque.getCedularuc().getCedularuc());
@@ -2008,4 +2014,13 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
     public void setMostarFormaPago(boolean mostarFormaPago) {
         this.mostarFormaPago = mostarFormaPago;
     }
+
+    public boolean isMostarObservacion() {
+        return mostarObservacion;
+    }
+
+    public void setMostarObservacion(boolean mostarObservacion) {
+        this.mostarObservacion = mostarObservacion;
+    }
+    
 }

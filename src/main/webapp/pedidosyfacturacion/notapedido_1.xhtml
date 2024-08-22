@@ -438,6 +438,12 @@
                             </div>
                         </div>
                     </p:outputPanel>
+                    <p:outputPanel rendered="#{notapedidoBean1.mostarObservacion}" class="p-field p-col-12 p-md-12"> 
+                        <span class="ui-float-label">
+                            <p:inputTextarea id="comentario" value="#{notapedidoBean1.np.observacion}" maxlength="50"/>
+                            <p:outputLabel for="comentario">Comentario</p:outputLabel>
+                        </span>
+                    </p:outputPanel>
 
                     <div class="p-field p-col-12 p-md-12">                                
                         <p:outputLabel id="comps" >Compartimientos: </p:outputLabel>                            
