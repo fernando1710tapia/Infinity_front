@@ -5,6 +5,7 @@
  */
 package ec.com.infinityone.modelo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 
 /**
@@ -15,6 +16,7 @@ public class EnvioFactura {
     
     private Factura factura;
     private List<Detallefactura> detalle;
+    @JsonIgnore
     private String ensri;
     
     public EnvioFactura() {

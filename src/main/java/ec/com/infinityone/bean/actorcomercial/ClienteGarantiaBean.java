@@ -115,6 +115,8 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
     private LocalDateTime fechaActualizacion;
 
     private boolean estadoClienteGarantia;
+    
+    private boolean habilitarEstadoCliente;
 
     private boolean editarCliente;
     /*
@@ -400,6 +402,7 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
     public void nuevoClienteGarantia() {
         editarCliente = false;
         estadoClienteGarantia = true;
+        habilitarEstadoCliente = true;
         clientegarantia = new Clientegarantia();
         clientegarantiaPK = new ClientegarantiaPK();
         PrimeFaces.current().executeScript("PF('nuevo').show()");
@@ -409,6 +412,7 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
         editarCliente = true;
         clientegarantia = obj;
         estadoClienteGarantia = clientegarantia.getActivo();
+        habilitarEstadoCliente = false;
         for (int i = 0; i < listaComercializadora.size(); i++) {
             if (listaComercializadora.get(i).getCodigo().equals(clientegarantia.getClientegarantiaPK().getCodigocomercializadora())) {
                 this.comercializadora = listaComercializadora.get(i);
@@ -754,4 +758,11 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
         this.comercializadora = comercializadora;
     }
 
+    public boolean isHabilitarEstadoCliente() {
+        return habilitarEstadoCliente;
+    }
+
+    public void setHabilitarEstadoCliente(boolean habilitarEstadoCliente) {
+        this.habilitarEstadoCliente = habilitarEstadoCliente;
+    }
 }
