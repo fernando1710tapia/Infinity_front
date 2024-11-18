@@ -849,7 +849,13 @@ public class PrecioBean extends ReusableBean implements Serializable {
 
             objEnvRest.put("precio", obj);
             objEnvRest.put("detalle", arrObj);
-            listObjEnvRest.add(objEnvRest);
+            listObjEnvRest.add(objEnvRest); 
+            
+            System.out.println("FT-2-FRont::. OBJETO JSON-PAGO"+obj.toString() );
+            System.out.println("FT-2-FRont::. OBJETO JSON-DETALLEPAGO"+arrObj.toString() );
+            System.out.println("FT-2-FRont::. OBJETO JSON-ENVIOPAGO"+objEnvRest.toString() );
+            System.out.println("FT-2-FRont::. OBJETO JSON-arreglode ENVIOPAGO"+listObjEnvRest.toString() );
+            
             obj = new JSONObject();
             objPK = new JSONObject();
             arrObj = new ArrayList<>();
