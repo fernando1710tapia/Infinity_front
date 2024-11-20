@@ -853,11 +853,11 @@ public class CargaFacturaBean extends ReusableBean implements Serializable {
             writer.close();
 
             if (connection.getResponseCode() == 200) {
-                this.dialogo(FacesMessage.SEVERITY_INFO, "SE HA REGISTRADO CON EXITO");
+                this.dialogo(FacesMessage.SEVERITY_INFO, connection.getResponseMessage());
                 System.out.println("Se ha registrado con exito");
                 return true;
             } else {
-                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
+                this.dialogo(FacesMessage.SEVERITY_ERROR, connection.getResponseMessage());
                 System.out.println("Error al añadir:" + connection.getResponseCode());
                 System.out.println("Error:" + connection.getErrorStream());
                 System.out.println(connection.getResponseMessage());
