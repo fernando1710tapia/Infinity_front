@@ -17,6 +17,7 @@ import ec.com.infinityone.modelo.EnvioFactura;
 import ec.com.infinityone.modelo.Factura;
 import ec.com.infinityone.modelo.FacturaPK;
 import ec.com.infinityone.modelo.Medida;
+import ec.com.infinityone.modelo.ObjetoDetallePrecioAux;
 import ec.com.infinityone.modelo.Pagocheque;
 import ec.com.infinityone.modelo.PagochequePK;
 import ec.com.infinityone.modelo.Pagofactura;
@@ -35,8 +36,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -54,9 +58,11 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.ws.rs.WebApplicationException;
+import jdk.internal.org.jline.terminal.TerminalBuilder;
 import org.primefaces.PrimeFaces;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.file.UploadedFile;
+import org.primefaces.shaded.json.JSONObject;
 
 /**
  *
@@ -111,6 +117,11 @@ public class CargaFacturaBean extends ReusableBean implements Serializable {
     private boolean pantallaInicial;
 
     private Date fecha;
+    
+    private String fechaVentaStr;
+    private String fechaVencimientoStr;
+    short s = 0;
+    private String npFija = "54000000";//"02000000"
 
     /*
     variable para mostrar pantalla de carga
@@ -218,7 +229,7 @@ public class CargaFacturaBean extends ReusableBean implements Serializable {
     }
 
     public List<EnvioFactura> armarEnvioFacturaDesdeTxt(String lineaLeida, List<EnvioFactura> listaEnvF) throws WebApplicationException {
-        System.out.println("FT(1)::. Armar una coleccion de obtejos EnvioFactura, desde un archivo TXT de unBanco");
+        System.out.println("FT(1)::. FRONT-END Armar una coleccion de obtejos EnvioFactura, desde un archivo TXT de unBanco");
         SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Factura fac = new Factura();
         Cliente cli = new Cliente();
@@ -249,7 +260,10 @@ public class CargaFacturaBean extends ReusableBean implements Serializable {
             fpk.setCodigocomercializadora(comercializadora.getCodigo());//COMBOComercializadora.getCodigo());
 
             fpk.setNumeronotapedido(lineaLeida.substring(5, 13));
-            fpk.setNumero(lineaLeida.substring(13, 26));
+            ////FTFT-> CAMBIO A NP FIJA 54000000(DESARROLLO) --> 02000000 (PRODUCCION) fpk.setNumeronotapedido(lineaLeida.substring(5, 13));
+            fpk.setNumeronotapedido(npFija);
+            
+            fpk.setNumero(lineaLeida.substring(13, 26)); 
             fac.setFacturaPK(fpk);
             //String fd = date.format(envNP.getNotapedido().getFechadespacho());
             //String fv = date.format(envNP.getNotapedido().getFechaventa());
@@ -276,25 +290,25 @@ public class CargaFacturaBean extends ReusableBean implements Serializable {
                     throw new AssertionError();
             }
 
-            fac.setValortotal(new BigDecimal(lineaLeida.substring(64, 76)).movePointLeft(2));
+            fac.setValortotal(new BigDecimal(lineaLeida.substring(64, 75)).movePointLeft(2));
             fac.setValorconrubro(fac.getValortotal());
             // IVA NO SE ENTREGA EN ARCHIVO DEL BANCO. SE ASUME EL MISMO VALOR QUE EL TOTAL DE LA FACTURA
             fac.setIvatotal(fac.getValortotal());
-            fac.setObservacion("FACTURA MIGRADA DESDE TXT-BANCO: ");
+            fac.setObservacion("FACTURA MIGRADA DESDE TXT-BANCO NP: "+lineaLeida.substring(5, 13));
             fac.setPagada(false);
             fac.setOeenpetro(true);
             fac.setCodigocliente(lineaLeida.substring(35, 43));
             fac.setCodigoterminal(lineaLeida.substring(61, 63));
-            fac.setCodigobanco(lineaLeida.substring(2, 4));
+            fac.setCodigobanco(lineaLeida.substring(1, 3));
             fac.setAdelantar(false);
 // REVISAR SE DEBE TOMAR EL USUARIO CONECTADO            
-            fac.setUsuarioactual("FTFTFT");
+            fac.setUsuarioactual(dataUser.getUser().getNombrever());
             fac.setNombrecomercializadora(comercializadora.getNombre());
             fac.setRuccomercializadora(comercializadora.getRuc());
             fac.setDireccionmatrizcomercializadora(comercializadora.getDireccion());
             fac.setNombrecliente("");
             fac.setRuccliente(lineaLeida.substring(43, 56));
-            fac.setValorsinimpuestos(new BigDecimal(lineaLeida.substring(130, 143)).movePointLeft(2));
+            fac.setValorsinimpuestos(BigDecimal.ZERO);
             fac.setCorreocliente("");
             fac.setDireccioncliente("");
             fac.setTelefonocliente("");
@@ -302,7 +316,7 @@ public class CargaFacturaBean extends ReusableBean implements Serializable {
             fac.setClienteformapago("");
             fac.setClienteformapagonosri("");
             // REVISAR SI EN LOS ARCHIVOS TXT VIENE LA CLAVE DE ACCESO Y/O EL NUMERO DE AUTORIZACION. SI NO DEJAR EN BLANCO??????
-            fac.setNumeroautorizacion("0");
+            fac.setNumeroautorizacion("");
             fac.setFechaautorizacion("");
             fac.setPlazocliente(Integer.valueOf(lineaLeida.substring(57, 60)));
             fac.setClaveacceso("0");
@@ -355,7 +369,7 @@ public class CargaFacturaBean extends ReusableBean implements Serializable {
             detalleFactura.setSubtotal(BigDecimal.ZERO);
 
 //ftft            detalleFactura.setUsuarioactual(usuarioActualPantalla);
-            detalleFactura.setUsuarioactual("ftft");
+            detalleFactura.setUsuarioactual(dataUser.getUser().getNombrever());
 
             detalleFactura.setRuccomercializadora(comercializadora.getRuc());
             detalleFactura.setCodigoimpuesto("");
@@ -392,18 +406,25 @@ public class CargaFacturaBean extends ReusableBean implements Serializable {
                     StringBuilder contenido = new StringBuilder();
                     String linea;
                     List<EnvioFactura> listaEnvF = new ArrayList<>();
+                    List<JSONObject> listObjEnvRest = new ArrayList<>();
                     while ((linea = br.readLine()) != null) {
-                        armarEnvioFacturaDesdeTxt(linea, listaEnvF);
-                        contenido.append(linea).append("\n"); // Procesa cada línea
+////////////                        armarEnvioFacturaDesdeTxt(linea, listaEnvF);
+                        armarJSONEnvioFacturaDesdeTxt(linea, listObjEnvRest);
+// ftfttftftft                       contenido.append(linea).append("\n"); // Procesa cada línea
+
                     }
-//                    ubicacion = "Archivo leído correctamente:\n" + contenido.toString();
-//                    System.out.println(ubicacion); // Para ver el contenido en consola
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    String jsonListaEnvF = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(listaEnvF);
-//                    System.out.println("JSON de listaEnvF:");
-//                    System.out.println(jsonListaEnvF);
-//                    if(!jsonListaEnvF.equals(""))                  
-                       cargarFacturaServicio.actualizarGarantias(jsonListaEnvF);
+                    System.out.println("FT-2-FRont::. listaEnvF " + listaEnvF.toString() + " - Items - " + listaEnvF.size());
+//////////////                    guardarFacturasLote(listaEnvF);
+                    guardarFacturasLoteJSON(listObjEnvRest);
+                    
+//////////// (5veces el //)                   ubicacion = "Archivo leído correctamente:\n" + contenido.toString();
+////////////                    System.out.println(ubicacion); // Para ver el contenido en consola
+//////////                    ObjectMapper objectMapper = new ObjectMapper();
+//////////                    String jsonListaEnvF = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(listaEnvF);
+////////////                    System.out.println("JSON de listaEnvF:");
+////////////                    System.out.println(jsonListaEnvF);
+////////////                    if(!jsonListaEnvF.equals(""))                  
+//////////   (5veces el //)                    cargarFacturaServicio.actualizarGarantias(jsonListaEnvF);
                 } catch (IOException e) {
                     ubicacion = "Error al leer el archivo: " + e.getMessage();
                     System.err.println(ubicacion);
@@ -416,6 +437,157 @@ public class CargaFacturaBean extends ReusableBean implements Serializable {
         }
     }
 
+    public List<JSONObject> armarJSONEnvioFacturaDesdeTxt(String lineaLeida, List<JSONObject> listaEnvF) {
+        
+        System.out.println("FT::. INICI armarJSONEnvioFacturaDesdeTxt String lineaLeida :. " +lineaLeida + " ENTRA Y SALE listaEnvF:. " +listaEnvF.toString() );
+        DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
+        //String fechaI = date.format(precio.get(i).getPrecioPK().getFechainicio()) + "T12:00:00";
+//        String fechaI = date.format(fechaVencimiento) + "T12:00:00";
+
+        JSONObject obj = new JSONObject();
+        JSONObject objPK = new JSONObject();
+        JSONObject detalle = new JSONObject();
+        JSONObject detallePK = new JSONObject();
+
+        JSONObject objEnvRest = new JSONObject();
+        List<JSONObject> arrObj = new ArrayList<>();
+//////////        List<JSONObject> listObjEnvRest = new ArrayList<>();
+
+////////////////        for (int j = 0; j < listObjDetalle.size(); j++) {
+
+            objPK.put("codigoabastecedora", comercializadora.getAbastecedora());
+            objPK.put("codigocomercializadora", comercializadora.getCodigo());
+//FT. FIJAR UN NUMERO DE NP FICTICIA-NO SE DEBE USAR ESTA INFORMACION EN PROCESOS ADICIONALES AL CONTROL DE GARANTIAS            objPK.put("numeronotapedido", lineaLeida.substring(5, 13));
+            objPK.put("numeronotapedido", npFija);
+            objPK.put("numero", lineaLeida.substring(13, 26));
+            obj.put("facturaPK", objPK);
+
+            // FORMATO PARA FECHAS"yyyy-MM-dd HH:mm:ss"
+            fechaVentaStr = lineaLeida.substring(26, 30) + "-" 
+                    + lineaLeida.substring(30, 32) + "-" 
+                    + lineaLeida.substring(32, 34) + "T11:00:00";
+            fechaVencimientoStr = lineaLeida.substring(179, 183) + "-" 
+                    + lineaLeida.substring(183, 185) + "-" 
+                    + lineaLeida.substring(185, 187) + "T11:00:00";
+            //VERIFICAR COMO CREAR UNA FECHA DESDE UN STRING ???
+            
+            obj.put("fechaventa",fechaVentaStr );
+            obj.put("fechavencimiento", fechaVencimientoStr);
+            obj.put("fechaacreditacion", fechaVencimientoStr);
+            obj.put("fechadespacho", fechaVentaStr);
+            switch (lineaLeida.substring(0, 1)) {
+                case "1":
+                    obj.put("activa", true);
+                    break;
+                case "2":
+                    obj.put("activa", false);
+                    break;
+                default:
+                    throw new AssertionError();
+            } 
+            obj.put("valortotal", new BigDecimal(lineaLeida.substring(64, 75)).movePointLeft(2));
+            obj.put("valorconrubro", new BigDecimal(lineaLeida.substring(64, 75)).movePointLeft(2));
+            obj.put("ivatotal", BigDecimal.ZERO);
+            obj.put("observacion", "FACTURA MIGRADA DESDE TXT-BANCO NP: "+lineaLeida.substring(5, 13));
+            obj.put("pagada", false);
+            obj.put("oeenpetro", true);
+            obj.put("codigocliente", lineaLeida.substring(35, 43));
+            obj.put("codigoterminal", lineaLeida.substring(61, 63));
+            obj.put("codigobanco", lineaLeida.substring(1, 3));
+            obj.put("usuarioactual", dataUser.getUser().getNombrever());
+            obj.put("nombrecomercializadora", comercializadora.getNombre());
+            obj.put("ruccomercializadora", comercializadora.getRuc());
+            obj.put("direccionmatrizcomercializadora", comercializadora.getDireccion());
+            obj.put("nombrecliente", "");
+            obj.put("ruccliente", lineaLeida.substring(43, 56));
+            obj.put("valorsinimpuestos", BigDecimal.ZERO);
+            obj.put("correocliente", "");
+            obj.put("direccioncliente", "");
+            obj.put("telefonocliente", "");
+            obj.put("numeroautorizacion", "");
+            obj.put("fechaautorizacion", "");
+            obj.put("clienteformapago", ""); 
+            obj.put("plazocliente", Integer.valueOf(lineaLeida.substring(57, 60)));
+            obj.put("claveacceso", "0");
+            obj.put("campoadicionalCampo1", "");
+            obj.put("campoadicionalCampo2", "Grandes Contribuyentes NAC-GCFOIOC21-00001239-E");
+            obj.put("campoadicionalCampo3", "");
+            obj.put("campoadicionalCampo4", "");
+            obj.put("campoadicionalCampo5", "");
+            obj.put("campoadicionalCampo6", "Contribuyente Especial según resolución del 07/05/1996");
+            obj.put("estado", "AUTORIZADA");
+            obj.put("errordocumento", s); 
+            obj.put("hospedado", s);
+            obj.put("ambientesri", "1");
+            obj.put("tipoemision", "2");
+            obj.put("codigodocumento", "01");
+            obj.put("esagenteretencion", true);
+            obj.put("escontribuyenteespacial", "si");
+            obj.put("obligadocontabilidad", "si");
+            obj.put("tipocomprador", "04");
+            obj.put("moneda", "DOLAR");
+            obj.put("seriesri", lineaLeida.substring(13, 19));
+            obj.put("adelantar", false);
+            
+//FT::.. REVISAR TIPOPLAZO NO VIENE EN EL ARCHIVO DEL BANCO??????
+            obj.put("tipoplazocredito", "CAL");
+            
+            obj.put("oeanuladaenpetro", false);
+                obj.put("refacturada", false);
+            obj.put("reliquidada", false);
+            obj.put("seleccionar", false);
+            obj.put("fechaacreditacionprorrogada",fechaVencimientoStr);
+            obj.put("clienteformapagonosri", "03");
+            obj.put("despachada", true);
+            obj.put("enviadaxcobrar", false);
+
+//FT::. CREAR DETALLE DE FACTURA 
+            detallePK.put("codigoabastecedora", comercializadora.getAbastecedora());
+            detallePK.put("codigocomercializadora", comercializadora.getCodigo());
+            detallePK.put("numeronotapedido", npFija);
+            detallePK.put("numero", lineaLeida.substring(13, 26));
+            detallePK.put("codigoproducto", lineaLeida.substring(102, 106));
+            detalle.put("detallefacturaPK", detallePK);
+            
+            detalle.put("volumennaturalrequerido", new BigDecimal(lineaLeida.substring(106, 116)).movePointLeft(3));
+            detalle.put("volumennaturalautorizado", new BigDecimal(lineaLeida.substring(106, 116)).movePointLeft(3));
+            detalle.put("precioproducto", BigDecimal.ZERO);
+            detalle.put("subtotal", BigDecimal.ZERO);
+            detalle.put("usuarioactual", dataUser.getUser().getNombrever());
+            detalle.put("ruccomercializadora", comercializadora.getRuc());
+            detalle.put("nombreproducto", "");
+            detalle.put("codigoimpuesto", "");
+            detalle.put("nombreimpuesto","");
+            detalle.put("codigoprecio", "3000000");
+            detalle.put("seimprime", false);
+            
+            detalle.put("valordefecto", BigDecimal.ZERO);
+            detalle.put("codigomedida", "01");
+            arrObj.add(detalle);
+//         -------
+            objEnvRest.put("factura", obj);
+            objEnvRest.put("detalle", arrObj);
+            
+//////////            listObjEnvRest.add(objEnvRest);
+            listaEnvF.add(objEnvRest);
+            
+            System.out.println("FT-2-FRont::. OBJETO JSON-FACTURA"+obj.toString() );
+            System.out.println("FT-2-FRont::. OBJETO JSON-DETALLEFACTURA"+arrObj.toString() );
+            System.out.println("FT-2-FRont::. OBJETO JSON-ENVIOFACTURA"+objEnvRest.toString() );
+//////////            System.out.println("FT-2-FRont::. OBJETO JSON-arreglode ENVIOFACTURA"+listObjEnvRest.toString() );
+            System.out.println("FT-2-FRont::. OBJETO JSON-arreglode ENVIOFACTURA"+listaEnvF.toString() );
+            obj = new JSONObject();
+            objPK = new JSONObject();
+            arrObj = new ArrayList<>();
+            objEnvRest = new JSONObject();
+////////////////////        }
+           
+////////        return listObjEnvRest;
+        return listaEnvF;
+
+    }
+    
+    
     public BancoServicio getBancoServicio() {
         return bancoServicio;
     }
@@ -512,4 +684,189 @@ public class CargaFacturaBean extends ReusableBean implements Serializable {
         this.listaBancos = listaBancos;
     }
 
+    public void guardarFacturasLote(List<EnvioFactura> listaEnvF1) {
+        List<JSONObject> arregloJSON = new ArrayList<>();
+        arregloJSON.addAll(addItemsArregloJSON(listaEnvF1));
+        if (addItemsFacturaAux(arregloJSON)) {
+            PrimeFaces.current().executeScript("PF('subirPrecios').hide()");
+        }
+    }
+    
+        public void guardarFacturasLoteJSON(List<JSONObject> listaEnvF1) {
+        List<JSONObject> arregloJSON = new ArrayList<>();
+        System.out.println("FT::. INICIA guardarFacturasLoteJSON List<JSONObject> listaEnvF1 TAMAÑO"+ listaEnvF1.size());
+//        arregloJSON.addAll(addItemsArregloJSON(listaEnvF1));
+        if (addItemsFacturaAux(listaEnvF1)) {
+            PrimeFaces.current().executeScript("PF('subirPrecios').hide()");
+        }
+    }
+
+
+    public List<JSONObject> addItemsArregloJSON(List<EnvioFactura> listObjDetalle) {
+        
+        System.out.println("FT::. INICI addItemsArregloJSON List<EnvioFactura> listObjDetalle TAMAÑO"+ listObjDetalle.size());
+        DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
+        //String fechaI = date.format(precio.get(i).getPrecioPK().getFechainicio()) + "T12:00:00";
+//        String fechaI = date.format(fechaVencimiento) + "T12:00:00";
+
+        JSONObject obj = new JSONObject();
+        JSONObject objPK = new JSONObject();
+        JSONObject detalle = new JSONObject();
+        JSONObject detallePK = new JSONObject();
+
+        JSONObject objEnvRest = new JSONObject();
+        List<JSONObject> arrObj = new ArrayList<>();
+        List<JSONObject> listObjEnvRest = new ArrayList<>();
+
+        for (int j = 0; j < listObjDetalle.size(); j++) {
+
+//         -------
+            objPK.put("codigoabastecedora", listObjDetalle.get(j).getFactura().getFacturaPK().getCodigoabastecedora());
+            objPK.put("codigocomercializadora", listObjDetalle.get(j).getFactura().getFacturaPK().getCodigocomercializadora());
+            objPK.put("numeronotapedido", listObjDetalle.get(j).getFactura().getFacturaPK().getNumeronotapedido());
+            objPK.put("numero", listObjDetalle.get(j).getFactura().getFacturaPK().getNumero());
+            obj.put("facturaPK", objPK);
+            obj.put("fechaventa", listObjDetalle.get(j).getFactura().getFechaventa());
+            obj.put("fechavencimiento", listObjDetalle.get(j).getFactura().getFechavencimiento());
+            obj.put("fechaacreditacion", listObjDetalle.get(j).getFactura().getFechaacreditacion());
+            obj.put("fechadespacho", listObjDetalle.get(j).getFactura().getFechadespacho());
+            obj.put("activa", listObjDetalle.get(j).getFactura().getActiva());
+            obj.put("valortotal", listObjDetalle.get(j).getFactura().getValortotal());
+            obj.put("valorconrubro", listObjDetalle.get(j).getFactura().getValorconrubro());
+            obj.put("ivatotal", listObjDetalle.get(j).getFactura().getIvatotal());
+            obj.put("observacion", listObjDetalle.get(j).getFactura().getObservacion());
+            obj.put("pagada", listObjDetalle.get(j).getFactura().getPagada());
+            obj.put("oeenpetro", listObjDetalle.get(j).getFactura().getOeenpetro());
+            obj.put("codigocliente", listObjDetalle.get(j).getFactura().getCodigocliente());
+            obj.put("codigoterminal", listObjDetalle.get(j).getFactura().getCodigoterminal());
+            obj.put("codigobanco", listObjDetalle.get(j).getFactura().getCodigobanco());
+            obj.put("usuarioactual", listObjDetalle.get(j).getFactura().getUsuarioactual());
+            obj.put("nombrecomercializadora", listObjDetalle.get(j).getFactura().getNombrecomercializadora());
+            obj.put("ruccomercializadora", listObjDetalle.get(j).getFactura().getRuccomercializadora());
+            obj.put("direccionmatrizcomercializadora", listObjDetalle.get(j).getFactura().getDireccionmatrizcomercializadora());
+            obj.put("nombrecliente", listObjDetalle.get(j).getFactura().getNombrecliente());
+            obj.put("ruccliente", listObjDetalle.get(j).getFactura().getRuccliente());
+            obj.put("valorsinimpuestos", listObjDetalle.get(j).getFactura().getValorsinimpuestos());
+            obj.put("correocliente", listObjDetalle.get(j).getFactura().getCorreocliente());
+            obj.put("direccioncliente", listObjDetalle.get(j).getFactura().getDireccioncliente());
+            obj.put("telefonocliente", listObjDetalle.get(j).getFactura().getTelefonocliente());
+            obj.put("numeroautorizacion", listObjDetalle.get(j).getFactura().getNumeroautorizacion());
+            obj.put("fechaautorizacion", listObjDetalle.get(j).getFactura().getFechaautorizacion());
+            obj.put("clienteformapago", listObjDetalle.get(j).getFactura().getClienteformapago());
+            obj.put("plazocliente", listObjDetalle.get(j).getFactura().getPlazocliente());
+            obj.put("claveacceso", listObjDetalle.get(j).getFactura().getClaveacceso());
+            obj.put("campoadicionalCampo1", listObjDetalle.get(j).getFactura().getCampoadicionalCampo1());
+            obj.put("campoadicionalCampo2", listObjDetalle.get(j).getFactura().getCampoadicionalCampo2());
+            obj.put("campoadicionalCampo3", listObjDetalle.get(j).getFactura().getCampoadicionalCampo3());
+            obj.put("campoadicionalCampo4", listObjDetalle.get(j).getFactura().getCampoadicionalCampo4());
+            obj.put("campoadicionalCampo5", listObjDetalle.get(j).getFactura().getCampoadicionalCampo5());
+            obj.put("campoadicionalCampo6", listObjDetalle.get(j).getFactura().getCampoadicionalCampo6());
+            obj.put("estado", listObjDetalle.get(j).getFactura().getEstado());
+            obj.put("errordocumento", listObjDetalle.get(j).getFactura().getErrordocumento());
+            obj.put("hospedado", listObjDetalle.get(j).getFactura().getHospedado());
+            obj.put("ambientesri", listObjDetalle.get(j).getFactura().getAmbientesri());
+            obj.put("tipoemision", listObjDetalle.get(j).getFactura().getTipoemision());
+            obj.put("codigodocumento", listObjDetalle.get(j).getFactura().getCodigodocumento());
+            obj.put("esagenteretencion", listObjDetalle.get(j).getFactura().getEsagenteretencion());
+            obj.put("escontribuyenteespacial", listObjDetalle.get(j).getFactura().getEscontribuyenteespacial());
+            obj.put("obligadocontabilidad", listObjDetalle.get(j).getFactura().getObligadocontabilidad());
+            obj.put("tipocomprador", listObjDetalle.get(j).getFactura().getTipocomprador());
+            obj.put("moneda", listObjDetalle.get(j).getFactura().getMoneda());
+            obj.put("seriesri", listObjDetalle.get(j).getFactura().getSeriesri());
+//                                      obj.put("facturaPK",
+            obj.put("adelantar", listObjDetalle.get(j).getFactura().getAdelantar());
+            obj.put("tipoplazocredito", listObjDetalle.get(j).getFactura().getTipoplazocredito());
+            obj.put("oeanuladaenpetro", listObjDetalle.get(j).getFactura().getOeanuladaenpetro());
+            obj.put("refacturada", listObjDetalle.get(j).getFactura().getRefacturada());
+            obj.put("reliquidada", listObjDetalle.get(j).getFactura().getReliquidada());
+            obj.put("seleccionar", false);
+            obj.put("fechaacreditacionprorrogada", listObjDetalle.get(j).getFactura().getFechaacreditacionprorrogada());
+            obj.put("clienteformapagonosri", listObjDetalle.get(j).getFactura().getClienteformapagonosri());
+            obj.put("despachada", listObjDetalle.get(j).getFactura().getDespachada());
+            obj.put("enviadaxcobrar", listObjDetalle.get(j).getFactura().getEnviadaxcobrar());
+
+// detalle
+            detallePK.put("codigoabastecedora", listObjDetalle.get(j).getDetalle().get(0).getDetallefacturaPK().getCodigoabastecedora());
+            detallePK.put("codigocomercializadora", listObjDetalle.get(j).getDetalle().get(0).getDetallefacturaPK().getCodigocomercializadora());
+            detallePK.put("numeronotapedido", listObjDetalle.get(j).getDetalle().get(0).getDetallefacturaPK().getNumeronotapedido());
+            detallePK.put("numero", listObjDetalle.get(j).getDetalle().get(0).getDetallefacturaPK().getNumero());
+            detallePK.put("codigoproducto", listObjDetalle.get(j).getDetalle().get(0).getDetallefacturaPK().getCodigoproducto());
+            detalle.put("detallefacturaPK", detallePK);
+
+            detalle.put("volumennaturalrequerido", listObjDetalle.get(j).getDetalle().get(0).getVolumennaturalrequerido());
+            detalle.put("volumennaturalautorizado", listObjDetalle.get(j).getDetalle().get(0).getVolumennaturalrequerido());
+            detalle.put("precioproducto", listObjDetalle.get(j).getDetalle().get(0).getPrecioproducto());
+            detalle.put("subtotal", listObjDetalle.get(j).getDetalle().get(0).getSubtotal());
+            detalle.put("usuarioactual", listObjDetalle.get(j).getDetalle().get(0).getUsuarioactual());
+            detalle.put("ruccomercializadora", listObjDetalle.get(j).getDetalle().get(0).getRuccomercializadora());
+            detalle.put("nombreproducto", listObjDetalle.get(j).getDetalle().get(0).getNombreproducto());
+            detalle.put("codigoimpuesto", listObjDetalle.get(j).getDetalle().get(0).getCodigoimpuesto());
+            detalle.put("nombreimpuesto", listObjDetalle.get(j).getDetalle().get(0).getNombreimpuesto());
+            detalle.put("codigoprecio", listObjDetalle.get(j).getDetalle().get(0).getCodigoprecio());
+            detalle.put("seimprime", listObjDetalle.get(j).getDetalle().get(0).getSeimprime());
+            detalle.put("valordefecto", listObjDetalle.get(j).getDetalle().get(0).getValordefecto());
+//detalle.put("detallefacturaPK",listObjDetalle.get(j).getDetalle().get(0).get);
+//detalle.put("factura",listObjDetalle.get(j).getDetalle().get(0).get);
+            detalle.put("codigomedida", listObjDetalle.get(j).getDetalle().get(0).getCodigomedida());
+            arrObj.add(detalle);
+//         -------
+            objEnvRest.put("factura", obj);
+            objEnvRest.put("detallefactura", arrObj);
+            
+            listObjEnvRest.add(objEnvRest);
+            
+            System.out.println("FT-2-FRont::. OBJETO JSON-FACTURA"+obj.toString() );
+            System.out.println("FT-2-FRont::. OBJETO JSON-DETALLEFACTURA"+arrObj.toString() );
+            System.out.println("FT-2-FRont::. OBJETO JSON-ENVIOFACTURA"+objEnvRest.toString() );
+            System.out.println("FT-2-FRont::. OBJETO JSON-arreglode ENVIOFACTURA"+listObjEnvRest.toString() );
+            obj = new JSONObject();
+            objPK = new JSONObject();
+            arrObj = new ArrayList<>();
+            objEnvRest = new JSONObject();
+        }
+
+        //listaobjEnvRest.add(objEnvRest)           
+        return listObjEnvRest;
+
+    }
+
+    public boolean addItemsFacturaAux(List<JSONObject> arregloJSON) {
+        try {
+
+            DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
+            String respuesta;
+            //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.precio/agregar";
+            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura/cargarfacturasbancos";
+
+            url = new URL(direcc);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-type", "application/json");
+
+            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+            //JSONObject arrObj = new JSONObject();               
+
+            //arrObj.put("", arregloJSON);
+            respuesta = arregloJSON.toString();
+            writer.write(respuesta);
+            writer.close();
+
+            if (connection.getResponseCode() == 200) {
+                this.dialogo(FacesMessage.SEVERITY_INFO, connection.getResponseMessage());
+                System.out.println("Se ha registrado con exito");
+                return true;
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, connection.getResponseMessage());
+                System.out.println("Error al añadir:" + connection.getResponseCode());
+                System.out.println("Error:" + connection.getErrorStream());
+                System.out.println(connection.getResponseMessage());
+                return false;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

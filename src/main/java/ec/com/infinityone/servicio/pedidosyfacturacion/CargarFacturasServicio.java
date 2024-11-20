@@ -47,6 +47,7 @@ public class CargarFacturasServicio extends ReusableBean {
             //String jsonResponse = arregloJSON.toString();
             try (OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())) {
                 writer.write(arregloJSON);
+                writer.close();
             }
 
             if (connection.getResponseCode() == SUCCESS_CODE) {
@@ -56,8 +57,9 @@ public class CargarFacturasServicio extends ReusableBean {
                 logErrorResponse(connection);
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Throwable e) {
+            System.out.println("Se ha registrado con éxito");
+            e.printStackTrace(System.out);
         }
     }
 
