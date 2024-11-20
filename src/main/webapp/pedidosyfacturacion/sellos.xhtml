@@ -1,0 +1,274 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Sellos</ui:define>
+
+    <ui:define name="viewname">
+        <li>Sellos</li>        
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="form">
+            <p:outputPanel id="manage-product-content1" rendered="#{notapedidoBean.mostarPantallaInicial}">
+                <div class="p-grid crud-demo">
+                    <div class="p-col-12">
+                        <div class="card">
+                            <p:growl id="messages" showDetail="true" />
+
+                            <p:toolbar styleClass="p-mb-4">
+                                <p:toolbarGroup>
+                                    <p:commandButton value="Generar" icon="pi pi-plus" actionListener="#{notapedidoBean.nuevaNotaPedido()}" update="form :formNuevo"
+                                                     styleClass="ui-button-success" style="margin-right: .5rem" />
+                                </p:toolbarGroup>
+                            </p:toolbar>
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-3">
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>
+                                        <p:selectOneMenu id="comercializadora" value="#{notapedidoBean.comercializadora}" title="Comercializadora"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         disabled="#{!notapedidoBean.habilitarComer}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+                                            <f:selectItems value="#{notapedidoBean.listaComercializadora}"
+                                                           var="comer"
+                                                           itemLabel="#{comer.objRelacionado}"
+                                                           itemValue="#{comer}" />
+                                            <p:ajax event="change" listener="#{notapedidoBean.seleccionarComerc(1)}" update="form"/>
+                                        </p:selectOneMenu> 
+                                    </div>                          
+                                </div>
+                                <div class="p-field p-col-12 p-md-3">
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>
+                                        <p:selectOneMenu id="term" value="#{notapedidoBean.terminal}" title="Terminal"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         disabled="#{!notapedidoBean.habilitarTerminal}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
+                                            <f:selectItems value="#{notapedidoBean.listaTermianles}"
+                                                           var="ter"
+                                                           itemLabel="#{ter.codigo} - #{ter.nombre}"                                                           
+                                                           itemValue="#{ter}" />
+                                            <p:ajax event="change" listener="#{notapedidoBean.seleccionarTerminal(1)}" />
+                                        </p:selectOneMenu> 
+                                    </div> 
+                                </div>
+                                <div class="p-field p-col-12 p-md-2">                                  
+                                    <p:outputLabel for="fechaIn" value="Fecha Inicio"/>
+                                    <p:datePicker id="fechaIn" value="#{notapedidoBean.fechaInicial}" showIcon="true" pattern="dd/MM/yyyy" >
+                                        <p:ajax event="dateSelect" update="fechaFin"/>
+                                    </p:datePicker>
+                                </div>
+                                <div class="p-field p-col-12 p-md-2">                                  
+                                    <p:outputLabel for="fechaFin" value="Fecha Final"/>
+                                    <p:datePicker id="fechaFin" value="#{notapedidoBean.fechaFinal}" showIcon="true" pattern="dd/MM/yyyy" mindate="#{notapedidoBean.fechaInicial}"/>                                   
+                                </div>
+                                <div class="p-field p-col-12 p-md-2">
+                                    <p:commandButton value="Buscar" icon="pi pi-search"  actionListener="#{notapedidoBean.obtenerNotasPedido()}" update="form"/>
+                                </div>
+                            </div>                              
+                            <p:dataTable id="dt-products" widgetVar="dtProducts" var="notap" value="#{notapedidoBean.listenvNP}" reflow="true" styleClass="products-table"
+                                         paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
+                                <f:facet name="header">
+                                    <div class="products-table-header">
+                                        <span style="font-weight: bold">Sellos</span>
+
+                                        <span class="filter-container ui-input-icon-left">
+                                            <i class="pi pi-search"></i>
+                                            <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar" />
+                                        </span>
+                                    </div>
+                                </f:facet>
+
+                                <p:ajax event="rowToggle" listener="#{crudDemoView.onRowToggle}" />
+
+                                <p:column headerText="Ter. Entrega" sortBy="#{notap.notapedido.codigocliente.codigo}" filterBy="#{notap.notapedido.codigocliente.codigo}" width="15%">
+                                    <h:outputText value="#{notap.notapedido.codigocliente.codigo} - #{notap.notapedido.codigocliente.nombrecomercial}" />
+                                </p:column>
+                                <p:column headerText="Ter. Recibe" sortBy="#{notap.notapedido.numerofacturasri}" filterBy="#{notap.notapedido.numerofacturasri}" width="15%">
+                                    <h:outputText value="#{notap.notapedido.numerofacturasri}" />
+                                </p:column>
+                                <p:column headerText="F. Movimiento" sortBy="#{notap.notapedido.notapedidoPK.numero}" filterBy="#{notap.notapedido.notapedidoPK.numero}" width="15%">
+                                    <h:outputText value="#{notap.notapedido.notapedidoPK.numero}" />
+                                </p:column>
+                                <p:column headerText="Sello Inicial" sortBy="#{notap.notapedido.notapedidoPK.numero}" filterBy="#{notap.notapedido.notapedidoPK.numero}" width="15%">
+                                    <h:outputText value="#{notap.notapedido.notapedidoPK.numero}" />
+                                </p:column>
+                                <p:column headerText="Sello Final" sortBy="#{notap.notapedido.notapedidoPK.numero}" filterBy="#{notap.notapedido.notapedidoPK.numero}" width="15%">
+                                    <h:outputText value="#{notap.notapedido.notapedidoPK.numero}" />
+                                </p:column>
+                                <p:column headerText="Sellos Validos" sortBy="#{notap.notapedido.notapedidoPK.numero}" filterBy="#{notap.notapedido.notapedidoPK.numero}" width="15%">
+                                    <h:outputText value="#{notap.notapedido.notapedidoPK.numero}" />
+                                </p:column>
+                                <p:column headerText="Estado" sortBy="#{notap.notapedido.activa}" filterBy="#{notap.notapedido.activa}" width="15%">
+                                    <h:outputText styleClass="product-badge status-#{estilos.tipoActivoBool(notap.notapedido.activa)}" value="#{estilos.valorBoolActivo(notap.notapedido.activa)}" />
+                                </p:column>
+                                <p:column exportable="false">
+                                    <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-times" process="@this" actionListener="#{notapedidoBean.dialogoAnulacionNotaPedido(notap)}" >
+                                        <f:setPropertyActionListener value="#{notap}" target="#{notapedidoBean.envNP}" />
+                                    </p:commandButton>
+                                </p:column>
+                                <p:column style="width: 3.5rem">
+                                    <p:commandButton icon="pi pi-print" actionListener="#{notapedidoBean.generarReporteAux(notap)}" ajax="false"
+                                                     onstart="PF('blockUIWidget').block()" 
+                                                     oncomplete="PF('blockUIWidget').unblock()"
+                                                     onclick="PrimeFaces.monitorDownload(start, stop);"
+                                                     update="@form" styleClass="edit-button rounded-button ui-button-success">
+                                        <p:fileDownload value="#{notapedidoBean.pdfStream}"/>
+                                    </p:commandButton>
+                                </p:column>
+                            </p:dataTable>
+                        </div>
+                    </div>
+                </div>
+            </p:outputPanel>
+        </h:form>
+
+        <!--        <p:dialog header="Nota Pedido" width="50%" showEffect="fade" modal="true" widgetVar="manageProductDialog" responsive="true">-->
+        <h:form id="formNuevo">
+            <p:outputPanel id="manage-product-content" rendered="#{notapedidoBean.mostarNotaPedido}">    
+                <p:growl id="messages" showDetail="true" />
+                <div class="ui-fluid p-formgrid p-grid">
+                    <div class="p-field p-col-12 p-md-4">
+                        <div class="ui-inputgroup">
+                            <span class="ui-inputgroup-addon">
+                                <i class="fa fa-shopping-cart"></i>
+                            </span>
+                            <p:selectOneMenu id="comercializadora" value="#{notapedidoBean.comercializadora}" title="Comercializadora"
+                                             panelStyle="width:175px" style="min-width: 80%;" 
+                                             autoWidth="false" converter="converterg"
+                                             required="true"
+                                             disabled="#{!notapedidoBean.habilitarComer}">
+                                <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+                                <f:selectItems value="#{notapedidoBean.listaComercializadora}"
+                                               var="comer"
+                                               itemLabel="#{comer.objRelacionado}"
+                                               itemValue="#{comer}" />
+                                <p:ajax event="change" listener="#{notapedidoBean.seleccionarComercializdora}"
+                                        update="formNuevo" />
+                            </p:selectOneMenu> 
+                        </div>                           
+                    </div>
+                    <div class="p-field p-col-12 p-md-3">
+                        <div class="ui-inputgroup">
+                            <span class="ui-inputgroup-addon">
+                                <i class="fa fa-shopping-cart"></i>
+                            </span>
+                            <p:selectOneMenu id="terminalE" value="#{notapedidoBean.terminal}" title="Terminal"
+                                             panelStyle="width:175px" style="min-width: 80%;" 
+                                             autoWidth="false" converter="converterg"
+                                             disabled="#{!notapedidoBean.habilitarTerminal}">
+                                <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
+                                <f:selectItems value="#{notapedidoBean.listaTermianles}"
+                                               var="ter"                                               
+                                               itemLabel="#{ter.codigo}-#{ter.nombre}"
+                                               itemValue="#{ter}" />
+                                <p:ajax event="change" listener="#{notapedidoBean.seleccionarTerminal(2)}" />
+                            </p:selectOneMenu> 
+                        </div> 
+                    </div>
+                    <div class="p-field p-col-12 p-md-3">
+                        <div class="ui-inputgroup">
+                            <span class="ui-inputgroup-addon">
+                                <i class="fa fa-shopping-cart"></i>
+                            </span>
+                            <p:selectOneMenu id="terminalR" value="#{notapedidoBean.terminal}" title="Terminal"
+                                             panelStyle="width:175px" style="min-width: 80%;" 
+                                             autoWidth="false" converter="converterg"
+                                             disabled="#{!notapedidoBean.habilitarTerminal}">
+                                <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
+                                <f:selectItems value="#{notapedidoBean.listaTermianles}"
+                                               var="ter"                                               
+                                               itemLabel="#{ter.codigo}-#{ter.nombre}"
+                                               itemValue="#{ter}" />
+                                <p:ajax event="change" listener="#{notapedidoBean.seleccionarTerminal(2)}" />
+                            </p:selectOneMenu> 
+                        </div> 
+                    </div>
+                    <div class="p-field p-col-12 p-md-2">                                  
+                        <p:outputLabel for="fechaIn" value="Fecha Actual"/>
+                        <p:datePicker id="fechaIn" value="#{notapedidoBean.fechaInicial}" showIcon="true" pattern="dd/MM/yyyy" >
+                            <p:ajax event="dateSelect"/>
+                        </p:datePicker>
+                    </div>
+                    <div class="p-field p-col-12 p-md-12">
+                        <p:dataTable id="dt-products" widgetVar="dtProducts" var="notap" value="#{notapedidoBean.listenvNP}" reflow="true" styleClass="products-table"
+                                     paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
+                            <f:facet name="header">
+                                <div class="products-table-header">
+                                    <span style="font-weight: bold">Sellos</span>
+
+                                    <span class="filter-container ui-input-icon-left">
+                                        <i class="pi pi-search"></i>
+                                        <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar" />
+                                    </span>
+                                </div>
+                            </f:facet>
+
+                            <p:ajax event="rowToggle" listener="#{crudDemoView.onRowToggle}" />
+
+                            <p:column headerText="Seleccione" sortBy="#{notap.notapedido.codigocliente.codigo}" filterBy="#{notap.notapedido.codigocliente.codigo}" width="15%">
+                                <p:selectBooleanCheckbox value="false" />
+                            </p:column>
+                            <p:column headerText="Sello Inicial" sortBy="#{notap.notapedido.numerofacturasri}" filterBy="#{notap.notapedido.numerofacturasri}" width="15%">
+                                <h:outputText value="#{notap.notapedido.numerofacturasri}" />
+                            </p:column>
+                            <p:column headerText="Sello Final" sortBy="#{notap.notapedido.notapedidoPK.numero}" filterBy="#{notap.notapedido.notapedidoPK.numero}" width="15%">
+                                <h:outputText value="#{notap.notapedido.notapedidoPK.numero}" />
+                            </p:column>
+                            <p:column headerText="Sellos Disponibles" sortBy="#{notap.notapedido.notapedidoPK.numero}" filterBy="#{notap.notapedido.notapedidoPK.numero}" width="15%">
+                                <h:outputText value="#{notap.notapedido.notapedidoPK.numero}" />
+                            </p:column>
+                            <p:column headerText="Detalle" sortBy="#{notap.notapedido.notapedidoPK.numero}" filterBy="#{notap.notapedido.notapedidoPK.numero}" width="15%">
+                                <h:outputText value="#{notap.notapedido.notapedidoPK.numero}" />
+                            </p:column>
+                            <p:column exportable="false">
+                                <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-times" process="@this" actionListener="#{notapedidoBean.dialogoAnulacionNotaPedido(notap)}" >
+                                    <f:setPropertyActionListener value="#{notap}" target="#{notapedidoBean.envNP}" />
+                                </p:commandButton>
+                            </p:column>
+                            <p:column style="width: 3.5rem">
+                                <p:commandButton icon="pi pi-print" actionListener="#{notapedidoBean.generarReporteAux(notap)}" ajax="false"
+                                                 onstart="PF('blockUIWidget').block()" 
+                                                 oncomplete="PF('blockUIWidget').unblock()"
+                                                 onclick="PrimeFaces.monitorDownload(start, stop);"
+                                                 update="@form" styleClass="edit-button rounded-button ui-button-success">
+                                    <p:fileDownload value="#{notapedidoBean.pdfStream}"/>
+                                </p:commandButton>
+                            </p:column>
+                        </p:dataTable>
+                    </div>
+                </div>                                                                                           
+            </p:outputPanel>
+            <p:outputPanel rendered="#{notapedidoBean.mostarNotaPedido}"> 
+                <div class="p-grid">   
+                    <div class="p-field p-col-12 p-md-12"></div>
+                    <div class="p-field p-col-12 p-md-6">
+                        <p:commandButton value="Procesar" icon="pi pi-check"  actionListener="#{notapedidoBean.save()}" update=":form formNuevo" styleClass="p-mr-2"/>
+                        <p:commandButton value="Cancelar" icon="pi pi-times" class="ui-button-secondary"  actionListener="#{notapedidoBean.init()}" update=":form formNuevo" immediate="true"/>
+                    </div>
+                </div>
+            </p:outputPanel>
+        </h:form>
+        <!--</p:dialog>-->
+
+        <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300" message="Anular Nota Pedido?" header="Confirm" severity="warn">
+            <p:commandButton value="Si" icon="pi pi-check" actionListener="#{notapedidoBean.anularNotaPedido()}" process="@this" oncomplete="PF('deleteProductDialog').hide()" update=":form"/>
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('deleteProductDialog').hide()" />
+        </p:confirmDialog>
+
+        <p:confirmDialog global="true" showEffect="fade" width="300">
+            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+        </p:confirmDialog>                  
+    </ui:define>
+</ui:composition>
