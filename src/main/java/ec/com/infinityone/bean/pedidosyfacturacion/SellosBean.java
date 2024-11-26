@@ -6,18 +6,28 @@ package ec.com.infinityone.bean.pedidosyfacturacion;
 
 import ec.com.infinityone.bean.actorcomercial.ComercializadoraBean;
 import ec.com.infinityone.modelo.Cliente;
+import ec.com.infinityone.modelo.Detalleterminalsello;
+import ec.com.infinityone.modelo.DetalleterminalselloPK;
 import ec.com.infinityone.modelo.Terminal;
+import ec.com.infinityone.modelo.TerminalSello;
+import ec.com.infinityone.modelo.TerminalSelloPK;
 import ec.com.infinityone.reusable.ReusableBean;
 import ec.com.infinityone.serivicio.actorcomercial.ComercializadoraServicio;
 import ec.com.infinityone.servicio.catalogo.TerminalServicio;
+import ec.com.infinityone.servicio.pedidosyfacturacion.SellosServicio;
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.PostConstruct;
+import javax.faces.application.FacesMessage;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import org.primefaces.shaded.json.JSONArray;
+import org.primefaces.shaded.json.JSONObject;
 
 /**
  *
@@ -38,6 +48,11 @@ public class SellosBean extends ReusableBean implements Serializable {
     @Inject
     private TerminalServicio termServicio;
     /*
+    Variable para acceder a los servicios de Terminal
+     */
+    @Inject
+    private SellosServicio sellosServicio;
+    /*
     Variable Comercializadora
      */
     private ComercializadoraBean comercializadora;
@@ -53,6 +68,30 @@ public class SellosBean extends ReusableBean implements Serializable {
     Variable para almacenar los datos comercializadora
      */
     private List<Terminal> listaTermianles;
+    /*
+    Variable para almacenar los datos teminalSello
+     */
+    private TerminalSello terminalSello;
+    /*
+    Variable para almacenar litsa de los datos teminalSello
+     */
+    private List<TerminalSello> terminalesSellos;
+    /*
+    Variable para almacenar los datos teminalSelloPK
+     */
+    private TerminalSelloPK terminalSelloPk;
+    /*
+    Variable para almacenar los datos de detalleTerminalSello
+     */
+    private Detalleterminalsello detalleTerminalSello;
+    /*
+    Variable para almacenar los datos de detalleTerminalSello
+     */
+    private List<Detalleterminalsello> detallesTerminalesSellos;
+    /*
+    Variable para almacenar los datos de detalleTerminalSello
+     */
+    private DetalleterminalselloPK detalleTerminalSelloPK;
     /*
     Variable que almacena el código de la comercializadora
      */
@@ -74,9 +113,25 @@ public class SellosBean extends ReusableBean implements Serializable {
      */
     private boolean mostrarPantallaInicial;
     /*
+    Variable para renderizar la pantalla
+     */
+    private boolean mostrarNuevosSellos;
+    /*
+    Variable para renderizar la pantalla
+     */
+    private boolean mostrarDetalleSellos;
+    /*
     Variable para validar si es guardar o editar
      */
     private boolean editarSellos;
+    /*
+    variable para establecer la fecha inicial para la busqueda de notas de pedido
+     */
+    private Date fechaInicial;
+    /*
+    variable para establecer la fecha final para la busqueda de notas de pedido
+     */
+    private Date fechaFinal;
 
     /**
      * Constructor por defecto
@@ -92,8 +147,80 @@ public class SellosBean extends ReusableBean implements Serializable {
         reestablecer();
         mostrarSellos = false;
         mostrarPantallaInicial = true;
+        mostrarDetalleSellos = false;
         obtenerTerminales();
         obtenerComercializadora();
+    }
+
+    public void nuevosSellos() {
+        reestablecer();
+        if (habilitarComer) {
+            comercializadora = new ComercializadoraBean();
+        } else {
+            seleccionarComerc(1);
+        }
+        mostrarNuevosSellos = true;
+        mostrarPantallaInicial = false;
+        mostrarDetalleSellos = false;
+    }
+
+    public void detalleSellos(TerminalSello termSello) {
+        reestablecer();
+        DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
+        mostrarNuevosSellos = false;
+        mostrarPantallaInicial = false;
+        mostrarDetalleSellos = true;
+        JSONArray retorno = sellosServicio.cargarDetalleSellos(termSello.getTerminalselloPK().getCodigocomercializadora(),
+                termSello.getTerminalselloPK().getCodigoterminalentrega(),
+                termSello.getTerminalselloPK().getCodigoterminalrecibe(),
+                termSello.getTerminalselloPK().getSelloinicial(),
+                termSello.getTerminalselloPK().getSellofinal());
+        if (retorno.isEmpty()) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "NO SE ENCOTRO DETALLES DEL SELLO SELECCIONADO");
+        } else {
+            for (int indice = 0; indice < retorno.length(); indice++) {
+                if (!retorno.isNull(indice)) {
+                    JSONObject detTerminalS = retorno.getJSONObject(indice);
+                    JSONObject detTerminalSPK = detTerminalS.getJSONObject("detalleterminalselloPK");
+                    JSONObject terminalS = detTerminalS.getJSONObject("terminalsello");
+                    JSONObject terminalSPK = terminalS.getJSONObject("terminalselloPK");
+                    Long dateStrTerminal = detTerminalS.getLong("fecha");
+                    Date dateFecha = new Date(dateStrTerminal);
+                    String fecha = date.format(dateFecha);
+                    
+                    detalleTerminalSelloPK.setCodigocomercializadora(detTerminalSPK.getString("codigocomercializadora"));
+                    detalleTerminalSelloPK.setCodigoterminalentrega(detTerminalSPK.getString("codigoterminalentrega"));
+                    detalleTerminalSelloPK.setCodigoterminalrecibe(detTerminalSPK.getString("codigoterminalrecibe"));
+                    detalleTerminalSelloPK.setSelloinicial(detTerminalSPK.getBigInteger("selloinicial"));
+                    detalleTerminalSelloPK.setSellofinal(detTerminalSPK.getBigInteger("sellofinal"));
+
+                    detalleTerminalSello.setObservacion(detTerminalS.getString("observacion"));
+                    detalleTerminalSello.setActivo(detTerminalS.getBoolean("activo"));
+                    detalleTerminalSello.setFecha(fecha);
+                    detalleTerminalSello.setUsuarioactual(detTerminalS.getString("usuarioactual"));
+                    
+                    detalleTerminalSello.setDetalleterminalselloPK(detalleTerminalSelloPK);
+
+                    terminalSelloPk.setCodigocomercializadora(terminalSPK.getString("codigocomercializadora"));
+                    terminalSelloPk.setCodigoterminalentrega(terminalSPK.getString("codigoterminalentrega"));
+                    terminalSelloPk.setCodigoterminalrecibe(terminalSPK.getString("codigoterminalrecibe"));
+                    terminalSelloPk.setSelloinicial(terminalSPK.getBigInteger("selloinicial"));
+                    terminalSelloPk.setSellofinal(terminalSPK.getBigInteger("sellofinal"));
+                    
+                    terminalSello.setTerminalselloPK(terminalSelloPk);
+                    terminalSello.setUsuarioactual(terminalS.getString("usuarioactual"));
+                    terminalSello.setFecha(fecha);
+                    
+                    detallesTerminalesSellos.add(detalleTerminalSello);
+
+                    detalleTerminalSello = new Detalleterminalsello();
+                    detalleTerminalSelloPK = new DetalleterminalselloPK();
+                    terminalSello = new TerminalSello();
+                    terminalSelloPk = new TerminalSelloPK();
+                }
+            }
+        }
+
     }
 
     public void reestablecer() {
@@ -102,6 +229,12 @@ public class SellosBean extends ReusableBean implements Serializable {
         //codTerminal = "";
         fecha = new Date();
         terminal = new Terminal();
+        terminalSello = new TerminalSello();
+        terminalSelloPk = new TerminalSelloPK();
+        terminalesSellos = new ArrayList<>();
+        detallesTerminalesSellos = new ArrayList<>();
+        detalleTerminalSello = new Detalleterminalsello();
+        detalleTerminalSelloPK = new DetalleterminalselloPK();
         //listaProductos = new ArrayList<>();
     }
 
@@ -159,5 +292,220 @@ public class SellosBean extends ReusableBean implements Serializable {
             }
         }
     }
+
+    public void obtenerSellos() {
+        DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
+        /*fechas para hacer la consulta*/
+        String fechaI = date.format(fechaInicial);
+        String fechaF = date.format(fechaFinal);
+        terminalesSellos = new ArrayList<>();
+
+        JSONArray retorno = sellosServicio.buscarSellos(codComer, codTerminal, "e", fechaI, fechaF);
+        if (retorno.isEmpty()) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "NO SE ENCONTRARON SELLOS");
+        } else {
+            for (int indice = 0; indice < retorno.length(); indice++) {
+                if (!retorno.isNull(indice)) {
+                    JSONObject terminal = retorno.getJSONObject(indice);
+                    JSONObject terminalPk = terminal.getJSONObject("terminalselloPK");
+                    Long dateStrTerminal = terminal.getLong("fecha");
+                    Date dateFecha = new Date(dateStrTerminal);
+                    String fecha = date.format(dateFecha);
+
+                    terminalSelloPk.setCodigocomercializadora(terminalPk.getString("codigocomercializadora"));
+                    terminalSelloPk.setCodigoterminalentrega(terminalPk.getString("codigoterminalentrega"));
+                    terminalSelloPk.setCodigoterminalrecibe(terminalPk.getString("codigoterminalrecibe"));
+                    terminalSelloPk.setSelloinicial(terminalPk.getBigInteger("selloinicial"));
+                    terminalSelloPk.setSellofinal(terminalPk.getBigInteger("sellofinal"));
+
+                    terminalSello.setTerminalselloPK(terminalSelloPk);
+                    terminalSello.setUsuarioactual(terminal.getString("usuarioactual"));
+                    terminalSello.setFecha(fecha);
+                    terminalesSellos.add(terminalSello);
+
+                    terminalSello = new TerminalSello();
+                    terminalSelloPk = new TerminalSelloPK();
+                }
+            }
+        }
+    }
+
+    public ComercializadoraServicio getComerServicio() {
+        return comerServicio;
+    }
+
+    public void setComerServicio(ComercializadoraServicio comerServicio) {
+        this.comerServicio = comerServicio;
+    }
+
+    public TerminalServicio getTermServicio() {
+        return termServicio;
+    }
+
+    public void setTermServicio(TerminalServicio termServicio) {
+        this.termServicio = termServicio;
+    }
+
+    public ComercializadoraBean getComercializadora() {
+        return comercializadora;
+    }
+
+    public void setComercializadora(ComercializadoraBean comercializadora) {
+        this.comercializadora = comercializadora;
+    }
+
+    public List<ComercializadoraBean> getListaComercializadora() {
+        return listaComercializadora;
+    }
+
+    public void setListaComercializadora(List<ComercializadoraBean> listaComercializadora) {
+        this.listaComercializadora = listaComercializadora;
+    }
+
+    public Terminal getTerminal() {
+        return terminal;
+    }
+
+    public void setTerminal(Terminal terminal) {
+        this.terminal = terminal;
+    }
+
+    public List<Terminal> getListaTermianles() {
+        return listaTermianles;
+    }
+
+    public void setListaTermianles(List<Terminal> listaTermianles) {
+        this.listaTermianles = listaTermianles;
+    }
+
+    public String getCodComer() {
+        return codComer;
+    }
+
+    public void setCodComer(String codComer) {
+        this.codComer = codComer;
+    }
+
+    public String getCodTerminal() {
+        return codTerminal;
+    }
+
+    public void setCodTerminal(String codTerminal) {
+        this.codTerminal = codTerminal;
+    }
+
+    public Date getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(Date fecha) {
+        this.fecha = fecha;
+    }
+
+    public boolean isMostrarSellos() {
+        return mostrarSellos;
+    }
+
+    public void setMostrarSellos(boolean mostrarSellos) {
+        this.mostrarSellos = mostrarSellos;
+    }
+
+    public boolean isMostrarPantallaInicial() {
+        return mostrarPantallaInicial;
+    }
+
+    public void setMostrarPantallaInicial(boolean mostrarPantallaInicial) {
+        this.mostrarPantallaInicial = mostrarPantallaInicial;
+    }
+
+    public boolean isEditarSellos() {
+        return editarSellos;
+    }
+
+    public void setEditarSellos(boolean editarSellos) {
+        this.editarSellos = editarSellos;
+    }
+
+    public Date getFechaInicial() {
+        return fechaInicial;
+    }
+
+    public void setFechaInicial(Date fechaInicial) {
+        this.fechaInicial = fechaInicial;
+    }
+
+    public Date getFechaFinal() {
+        return fechaFinal;
+    }
+
+    public void setFechaFinal(Date fechaFinal) {
+        this.fechaFinal = fechaFinal;
+    }
+
+    public TerminalSello getTerminalSello() {
+        return terminalSello;
+    }
+
+    public void setTerminalSello(TerminalSello terminalSello) {
+        this.terminalSello = terminalSello;
+    }
+
+    public List<TerminalSello> getTerminalesSellos() {
+        return terminalesSellos;
+    }
+
+    public void setTerminalesSellos(List<TerminalSello> terminalesSellos) {
+        this.terminalesSellos = terminalesSellos;
+    }
+
+    public TerminalSelloPK getTerminalSelloPk() {
+        return terminalSelloPk;
+    }
+
+    public void setTerminalSelloPk(TerminalSelloPK terminalSelloPk) {
+        this.terminalSelloPk = terminalSelloPk;
+    }
+
+    public boolean isMostrarNuevosSellos() {
+        return mostrarNuevosSellos;
+    }
+
+    public void setMostrarNuevosSellos(boolean mostrarNuevosSellos) {
+        this.mostrarNuevosSellos = mostrarNuevosSellos;
+    }
+
+    public boolean isMostrarDetalleSellos() {
+        return mostrarDetalleSellos;
+    }
+
+    public void setMostrarDetalleSellos(boolean mostrarDetalleSellos) {
+        this.mostrarDetalleSellos = mostrarDetalleSellos;
+    }
+
+    public Detalleterminalsello getDetalleTerminalSello() {
+        return detalleTerminalSello;
+    }
+
+    public void setDetalleTerminalSello(Detalleterminalsello detalleTerminalSello) {
+        this.detalleTerminalSello = detalleTerminalSello;
+    }
+
+    public List<Detalleterminalsello> getDetallesTerminalesSellos() {
+        return detallesTerminalesSellos;
+    }
+
+    public void setDetallesTerminalesSellos(List<Detalleterminalsello> detallesTerminalesSellos) {
+        this.detallesTerminalesSellos = detallesTerminalesSellos;
+    }
+
+    public DetalleterminalselloPK getDetalleTerminalSelloPK() {
+        return detalleTerminalSelloPK;
+    }
+
+    public void setDetalleTerminalSelloPK(DetalleterminalselloPK detalleTerminalSelloPK) {
+        this.detalleTerminalSelloPK = detalleTerminalSelloPK;
+    }
+    
+    
 
 }

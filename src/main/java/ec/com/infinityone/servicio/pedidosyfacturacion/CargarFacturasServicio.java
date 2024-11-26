@@ -6,7 +6,9 @@ package ec.com.infinityone.servicio.pedidosyfacturacion;
 
 import ec.com.infinityone.configuration.Fichero;
 import ec.com.infinityone.reusable.ReusableBean;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -27,31 +29,77 @@ import org.primefaces.shaded.json.JSONObject;
 @Stateless
 public class CargarFacturasServicio extends ReusableBean {
 
-    public void actualizarGarantias(String arregloJSON) {
-        //String urlPath = "http://www.supertech.ec:8080/infinityone1/resources/ec.com.infinity.modelo.clientegarantia/actualizargarantiasvencidas";
-        String urlPath = "http://www.supertech.ec:8080/infinityone1/resources/ec.com.infinity.modelo.factura/cargarfacturasbancos";
-        //String urlPath = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.precio/agregarlote";
+    public void cargarFacturasBanco(List<JSONObject> arregloJSON) {
+        //String urlPath = "http://www.supertech.ec:8080/infinityone1/resources/ec.com.infinity.modelo.factura/cargarfacturasbancos";
+        String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura/cargarfacturasbancos";
         final int SUCCESS_CODE = 200;
 
         try {
             // Primero crea un URI y luego lo convierte a URL
-            URI uri = new URI(urlPath);
+            URI uri = new URI(direcc);
             URL url = uri.toURL();
+            String respuesta;
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-type", "application/json");
 
-            // Convertir arregloJSON a String y escribirlo en el cuerpo de la solicitud
-            //String jsonResponse = arregloJSON.toString();
             try (OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())) {
-                writer.write(arregloJSON);
+                respuesta = arregloJSON.toString();
+                writer.write(respuesta);
                 writer.close();
             }
 
             if (connection.getResponseCode() == SUCCESS_CODE) {
-                //showDialog(FacesMessage.SEVERITY_INFO, "SE HA REGISTRADO CON ÉXITO");
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+                reader.close();
+                JSONObject jsonResponse = new JSONObject(response.toString());
+                String developerMessage = jsonResponse.optString("developerMessage", "No message provided");
+                this.dialogo(FacesMessage.SEVERITY_INFO, developerMessage);
+                System.out.println("Se ha registrado con éxito");
+            } else {
+                logErrorResponse(connection);
+            }
+
+        } catch (Throwable e) {
+            System.out.println("Se ha registrado con éxito");
+            e.printStackTrace(System.out);
+        }
+    }
+
+    public void actualizarGarantias() {
+        //String urlPath = "http://www.supertech.ec:8080/infinityone1/resources/ec.com.infinity.modelo.factura/cargarfacturasbancos";
+        String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.clientegarantia/actualizargarantiasvencidas";
+        final int SUCCESS_CODE = 200;
+
+        try {
+            // Primero crea un URI y luego lo convierte a URL
+            URI uri = new URI(direcc);
+            URL url = uri.toURL();
+            String respuesta;
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-type", "application/json");
+
+            if (connection.getResponseCode() == SUCCESS_CODE) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+                reader.close();
+                JSONObject jsonResponse = new JSONObject(response.toString());
+                String developerMessage = jsonResponse.optString("developerMessage", "No message provided");
+                this.dialogo(FacesMessage.SEVERITY_INFO, developerMessage);
                 System.out.println("Se ha registrado con éxito");
             } else {
                 logErrorResponse(connection);
@@ -64,10 +112,19 @@ public class CargarFacturasServicio extends ReusableBean {
     }
 
     private void logErrorResponse(HttpURLConnection connection) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
+        StringBuilder response = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            response.append(line);
+        }
+        reader.close();
+        JSONObject jsonResponse = new JSONObject(response.toString());
+        String developerMessage = jsonResponse.optString("developerMessage", "No message provided");
         System.out.println("Error al añadir: " + connection.getResponseCode());
         System.out.println("Error: " + connection.getErrorStream());
         System.out.println(connection.getResponseMessage());
-        //showDialog(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
+        this.dialogo(FacesMessage.SEVERITY_ERROR, connection.getResponseMessage());
     }
 
 }
