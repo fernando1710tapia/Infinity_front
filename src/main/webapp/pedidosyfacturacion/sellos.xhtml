@@ -21,12 +21,14 @@
 
                             <p:toolbar styleClass="p-mb-4">
                                 <p:toolbarGroup>
-                                    <p:commandButton value="Generar" icon="pi pi-plus" actionListener="#{sellosBean.nuevosSellos()}" update="form :formNuevo"
+                                    <p:commandButton value="Comprar Sellos" icon="pi pi-plus" actionListener="#{sellosBean.dialogoAdquision()}"
                                                      styleClass="ui-button-success" style="margin-right: .5rem" />
+                                    <p:commandButton value="Entrega / Recepción" icon="pi pi-plus" actionListener="#{sellosBean.nuevosSellos()}" update="form :formNuevo"
+                                                     styleClass="ui-button-info" style="margin-right: .5rem" />
                                 </p:toolbarGroup>
                             </p:toolbar>
                             <div class="ui-fluid p-formgrid p-grid">
-                                <div class="p-field p-col-12 p-md-3">
+                                <div class="p-field p-col-12 p-md-4">
                                     <div class="ui-inputgroup">
                                         <span class="ui-inputgroup-addon">
                                             <i class="fa fa-shopping-cart"></i>
@@ -44,7 +46,7 @@
                                         </p:selectOneMenu> 
                                     </div>                          
                                 </div>
-                                <div class="p-field p-col-12 p-md-3">
+                                <div class="p-field p-col-12 p-md-4">
                                     <div class="ui-inputgroup">
                                         <span class="ui-inputgroup-addon">
                                             <i class="fa fa-shopping-cart"></i>
@@ -62,18 +64,18 @@
                                         </p:selectOneMenu> 
                                     </div> 
                                 </div>
-                                <div class="p-field p-col-12 p-md-2">                                  
+                                <div class="p-field p-col-12 p-md-4">
+                                    <p:commandButton value="Buscar" icon="pi pi-search"  actionListener="#{sellosBean.obtenerSellos()}" update="form"/>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">                                  
                                     <p:outputLabel for="fechaIn" value="Fecha Inicio"/>
                                     <p:datePicker id="fechaIn" value="#{sellosBean.fechaInicial}" showIcon="true" pattern="dd/MM/yyyy" >
                                         <p:ajax event="dateSelect" update="fechaFin"/>
                                     </p:datePicker>
                                 </div>
-                                <div class="p-field p-col-12 p-md-2">                                  
+                                <div class="p-field p-col-12 p-md-4">                                  
                                     <p:outputLabel for="fechaFin" value="Fecha Final"/>
-                                    <p:datePicker id="fechaFin" value="#{sellosBean.fechaFinal}" showIcon="true" pattern="dd/MM/yyyy" mindate="#{notapedidoBean.fechaInicial}"/>                                   
-                                </div>
-                                <div class="p-field p-col-12 p-md-2">
-                                    <p:commandButton value="Buscar" icon="pi pi-search"  actionListener="#{sellosBean.obtenerSellos()}" update="form"/>
+                                    <p:datePicker id="fechaFin" value="#{sellosBean.fechaFinal}" showIcon="true" pattern="dd/MM/yyyy" mindate="#{sellosBean.fechaInicial}"/>                                   
                                 </div>
                             </div>                              
                             <p:dataTable id="dt-products" widgetVar="dtProducts" var="terms" value="#{sellosBean.terminalesSellos}" reflow="true" styleClass="products-table"
@@ -113,12 +115,13 @@
                                     <h:outputText styleClass="product-badge status-#{estilos.tipoActivoBool(notap.notapedido.activa)}" value="#{estilos.valorBoolActivo(notap.notapedido.activa)}" />
                                 </p:column>-->
                                 <p:column exportable="false">
-                                    <p:commandButton icon="pi pi-pencil" update="form :formDetalleSellos" actionListener="#{sellosBean.detalleSellos(terms)}"
+                                    <p:commandButton icon="pi pi-eye" update="form :formDetalleSellos" actionListener="#{sellosBean.detalleSellos(terms, false)}"
                                                      styleClass="edit-button rounded-button ui-button-success" process="@this">
-                                        <f:setPropertyActionListener value="#{terms}" target="#{terms.terminalselloPK}" />
+                                        <f:setPropertyActionListener value="#{terms}" target="#{terms}" />
                                     </p:commandButton>
-                                    <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-times" process="@this" actionListener="#{notapedidoBean.dialogoAnulacionNotaPedido(notap)}" >
-                                        <f:setPropertyActionListener value="#{terms}" target="#{terms.terminalselloPK.codigoterminalentrega}" />
+                                    <p:commandButton icon="pi pi-pencil" update="form :formDetalleSellos" actionListener="#{sellosBean.detalleSellos(terms, true)}"
+                                                     styleClass="edit-button rounded-button ui-button-success" process="@this">
+                                        <f:setPropertyActionListener value="#{terms}" target="#{terms}" />
                                     </p:commandButton>
                                 </p:column>
                             </p:dataTable>
@@ -130,101 +133,134 @@
 
         <!--        <p:dialog header="Nota Pedido" width="50%" showEffect="fade" modal="true" widgetVar="manageProductDialog" responsive="true">-->
         <h:form id="formNuevo">
-            <p:outputPanel id="manage-product-content" rendered="#{sellosBean.mostrarNuevosSellos}">    
-                <p:growl id="messages" showDetail="true" />
-                <div class="ui-fluid p-formgrid p-grid">
-                    <div class="p-field p-col-12 p-md-4">
-                        <div class="ui-inputgroup">
-                            <span class="ui-inputgroup-addon">
-                                <i class="fa fa-shopping-cart"></i>
-                            </span>
-                            <p:selectOneMenu id="comercializadora" value="#{sellosBean.comercializadora}" title="Comercializadora"
-                                             panelStyle="width:175px" style="min-width: 80%;" 
-                                             autoWidth="false" converter="converterg"
-                                             required="true"
-                                             disabled="#{!sellosBean.habilitarComer}">
-                                <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
-                                <f:selectItems value="#{sellosBean.listaComercializadora}"
-                                               var="comer"
-                                               itemLabel="#{comer.objRelacionado}"
-                                               itemValue="#{comer}" />
-                                <p:ajax event="change" listener="#{sellosBean.seleccionarComerc(1)}"
-                                        update="formNuevo" />
-                            </p:selectOneMenu> 
-                        </div>                           
-                    </div>
-                    <div class="p-field p-col-12 p-md-4">
-                        <div class="ui-inputgroup">
-                            <span class="ui-inputgroup-addon">
-                                <i class="fa fa-shopping-cart"></i>
-                            </span>
-                            <p:selectOneMenu id="terminalE" value="#{sellosBean.terminal}" title="Terminal"
-                                             panelStyle="width:175px" style="min-width: 80%;" 
-                                             autoWidth="false" converter="converterg">
-<!--                                             disabled="#{!sellosBean.habilitarTerminal}">-->
-                                <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
-                                <f:selectItems value="#{sellosBean.listaTermianles}"
-                                               var="ter"                                               
-                                               itemLabel="#{ter.codigo}-#{ter.nombre}"
-                                               itemValue="#{ter}" />
-                                <p:ajax event="change" listener="#{sellosBean.seleccionarTerminal(1)}" />
-                            </p:selectOneMenu> 
-                        </div> 
-                    </div>
-                </div>
-                <div class="p-field p-col-12 p-md-4">                                  
-                    <p:outputLabel for="fechaIn" value="Fecha Actual"/>
-                    <p:datePicker id="fechaIn" value="#{sellosBean.fechaInicial}" showIcon="true" pattern="dd/MM/yyyy" >
-                        <p:ajax event="dateSelect"/>
-                    </p:datePicker>
-                </div>
-                <div class="p-field p-col-12 p-md-12">
-                    <p:dataTable id="dt-products" widgetVar="dtProducts" var="notap" value="#{notapedidoBean.listenvNP}" reflow="true" styleClass="products-table"
-                                 paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
-                        <f:facet name="header">
-                            <div class="products-table-header">
-                                <span style="font-weight: bold">Sellos</span>
-
-                                <span class="filter-container ui-input-icon-left">
-                                    <i class="pi pi-search"></i>
-                                    <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar" />
-                                </span>
+            <p:outputPanel id="manage-product-content" rendered="#{sellosBean.mostrarNuevosSellos}"> 
+                <div class="p-grid crud-demo">
+                    <div class="p-col-12">
+                        <div class="card">
+                            <p:growl id="messages" showDetail="true" />
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-3">
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>
+                                        <p:selectOneMenu id="comercializadora" value="#{sellosBean.comercializadora}" title="Comercializadora"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         required="true"
+                                                         disabled="#{!sellosBean.habilitarComer}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+                                            <f:selectItems value="#{sellosBean.listaComercializadora}"
+                                                           var="comer"
+                                                           itemLabel="#{comer.objRelacionado}"
+                                                           itemValue="#{comer}" />
+                                            <p:ajax event="change" listener="#{sellosBean.seleccionarComerc(1)}"
+                                                    update="formNuevo" />
+                                        </p:selectOneMenu> 
+                                    </div>                           
+                                </div>
+                                <div class="p-field p-col-12 p-md-3">
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>
+                                        <p:selectOneMenu id="terminalE" value="#{sellosBean.terminal}" title="Terminal Entrega"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg">
+            <!--                                             disabled="#{!sellosBean.habilitarTerminal}">-->
+                                            <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
+                                            <f:selectItems value="#{sellosBean.listaTermianles}"
+                                                           var="ter"                                               
+                                                           itemLabel="#{ter.codigo}-#{ter.nombre}"
+                                                           itemValue="#{ter}" />
+                                            <p:ajax event="change" listener="#{sellosBean.seleccionarTerminal(1)}" />
+                                        </p:selectOneMenu> 
+                                    </div> 
+                                </div>
+                                <div class="p-field p-col-12 p-md-3">                                  
+                                    <p:outputLabel for="efechaIn" value="Fecha Inicio"/>
+                                    <p:datePicker id="efechaIn" value="#{sellosBean.fechaInicial}" showIcon="true" pattern="dd/MM/yyyy" >
+                                        <p:ajax event="dateSelect" update="efechaIn"/>
+                                    </p:datePicker>
+                                </div>
+                                <div class="p-field p-col-12 p-md-3">                                  
+                                    <p:outputLabel for="efechaFin" value="Fecha Final"/>
+                                    <p:datePicker id="efechaFin" value="#{sellosBean.fechaFinal}" showIcon="true" pattern="dd/MM/yyyy" mindate="#{sellosBean.fechaInicial}"/>                                   
+                                </div>
+                                <div class="p-field p-col-12 p-md-3">                                  
+                                    <p:datePicker id="efechaAc" value="#{sellosBean.fechaActual}" showIcon="true" pattern="dd/MM/yyyy" >
+                                        <p:ajax event="dateSelect"/>
+                                    </p:datePicker>
+                                </div>
+                                <div class="p-field p-col-12 p-md-3">
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>
+                                        <p:selectOneMenu id="terminalR" value="#{sellosBean.terminal}" title="Terminal Recibe"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg">
+            <!--                                             disabled="#{!sellosBean.habilitarTerminal}">-->
+                                            <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
+                                            <f:selectItems value="#{sellosBean.listaTermianles}"
+                                                           var="ter"                                               
+                                                           itemLabel="#{ter.codigo}-#{ter.nombre}"
+                                                           itemValue="#{ter}" />
+                                            <p:ajax event="change" listener="#{sellosBean.seleccionarTerminal(1)}" />
+                                        </p:selectOneMenu> 
+                                    </div> 
+                                </div>
+                                <div class="p-field p-col-12 p-md-3">
+                                    <p:commandButton value="Buscar" icon="pi pi-search"  actionListener="#{sellosBean.obtenerSellos()}" update="formNuevo"/>
+                                </div>
                             </div>
-                        </f:facet>
+                            <div class="p-field p-col-12 p-md-12">
+                                <p:dataTable id="dt-products" widgetVar="dtProducts" var="terms" 
+                                             value="#{sellosBean.terminalesSellos}" 
+                                             reflow="true" styleClass="products-table"
+                                             paginator="true" rows="10" rowSelectMode="add" 
+                                             paginatorPosition="bottom" 
+                                             selection="#{sellosBean.selectedItem}" 
+                                             rowKey="#{terms.terminalselloPK.selloinicial}">
+                                    <f:facet name="header">
+                                        <div class="products-table-header">
+                                            <span style="font-weight: bold">Sellos</span>
+                                            <span class="filter-container ui-input-icon-left">
+                                                <i class="pi pi-search"></i>
+                                                <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar" />
+                                            </span>
+                                        </div>
+                                    </f:facet>
 
-                        <p:ajax event="rowToggle" listener="#{crudDemoView.onRowToggle}" />
+                                    <p:ajax event="rowToggle" listener="#{crudDemoView.onRowToggle}" />
 
-                        <p:column headerText="Seleccione" sortBy="#{notap.notapedido.codigocliente.codigo}" filterBy="#{notap.notapedido.codigocliente.codigo}" width="15%">
-                            <p:selectBooleanCheckbox value="false" />
-                        </p:column>
-                        <p:column headerText="Sello Inicial" sortBy="#{notap.notapedido.numerofacturasri}" filterBy="#{notap.notapedido.numerofacturasri}" width="15%">
-                            <h:outputText value="#{notap.notapedido.numerofacturasri}" />
-                        </p:column>
-                        <p:column headerText="Sello Final" sortBy="#{notap.notapedido.notapedidoPK.numero}" filterBy="#{notap.notapedido.notapedidoPK.numero}" width="15%">
-                            <h:outputText value="#{notap.notapedido.notapedidoPK.numero}" />
-                        </p:column>
-                        <p:column headerText="Sellos Disponibles" sortBy="#{notap.notapedido.notapedidoPK.numero}" filterBy="#{notap.notapedido.notapedidoPK.numero}" width="15%">
-                            <h:outputText value="#{notap.notapedido.notapedidoPK.numero}" />
-                        </p:column>
-                        <p:column headerText="Detalle" sortBy="#{notap.notapedido.notapedidoPK.numero}" filterBy="#{notap.notapedido.notapedidoPK.numero}" width="15%">
-                            <h:outputText value="#{notap.notapedido.notapedidoPK.numero}" />
-                        </p:column>
-                        <p:column exportable="false">
-                            <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-times" process="@this" actionListener="#{notapedidoBean.dialogoAnulacionNotaPedido(notap)}" >
-                                <f:setPropertyActionListener value="#{notap}" target="#{notapedidoBean.envNP}" />
-                            </p:commandButton>
-                        </p:column>
-                        <p:column style="width: 3.5rem">
-                            <p:commandButton icon="pi pi-print" actionListener="#{notapedidoBean.generarReporteAux(notap)}" ajax="false"
-                                             onstart="PF('blockUIWidget').block()" 
-                                             oncomplete="PF('blockUIWidget').unblock()"
-                                             onclick="PrimeFaces.monitorDownload(start, stop);"
-                                             update="@form" styleClass="edit-button rounded-button ui-button-success">
-                                <p:fileDownload value="#{notapedidoBean.pdfStream}"/>
-                            </p:commandButton>
-                        </p:column>
-                    </p:dataTable>
-                </div>                                                                                          
+                                    <p:column headerText="Ter. Entrega" sortBy="#{terms.terminalselloPK.codigoterminalentrega}" filterBy="#{terms.terminalselloPK.codigoterminalentrega}" width="15%">
+                                        <h:outputText value="#{terms.terminalselloPK.codigoterminalentrega}" />
+                                    </p:column>
+                                    <p:column headerText="Sello Inicial" sortBy="#{terms.terminalselloPK.selloinicial}" filterBy="#{terms.terminalselloPK.selloinicial}" width="15%">
+                                        <h:outputText value="#{terms.terminalselloPK.selloinicial}" />
+                                    </p:column>
+                                    <p:column headerText="Sello Final" sortBy="#{terms.terminalselloPK.sellofinal}" filterBy="#{terms.terminalselloPK.sellofinal}" width="15%">
+                                        <h:outputText value="#{terms.terminalselloPK.sellofinal}" />
+                                    </p:column>
+                                    <p:column headerText="Sellos Validos" sortBy="#{terms.terminalselloPK.sellofinal}" filterBy="#{terms.terminalselloPK.sellofinal}" width="15%">
+                                        <h:outputText value="#{terms.terminalselloPK.sellofinal}" />
+                                    </p:column>
+                                    <p:column exportable="false">
+                                        <p:commandButton icon="pi pi-eye" update="form :formDetalleSellos" actionListener="#{sellosBean.detalleSellos(terms, false)}"
+                                                         styleClass="edit-button rounded-button ui-button-success" process="@this">
+                                            <f:setPropertyActionListener value="#{terms}" target="#{terms}" />
+                                        </p:commandButton>
+                                        <p:commandButton icon="pi pi-pencil" update="form :formDetalleSellos" actionListener="#{sellosBean.entregaRecepcionSellos(terms)}"
+                                                         styleClass="edit-button rounded-button ui-button-success" process="@this">
+                                            <f:setPropertyActionListener value="#{terms}" target="#{terms}" />
+                                        </p:commandButton>
+                                    </p:column>
+                                </p:dataTable>
+                            </div>        
+                        </div>
+                    </div>
+                </div>
             </p:outputPanel>
             <p:outputPanel rendered="#{notapedidoBean.mostarNotaPedido}"> 
                 <div class="p-grid">   
@@ -246,7 +282,7 @@
                             <p:growl id="messages" showDetail="true" />
                             <div class="ui-fluid p-formgrid p-grid">                                
                                 <p:dataTable id="dt-products" widgetVar="dtProducts" var="detTerms" value="#{sellosBean.detallesTerminalesSellos}" reflow="true" styleClass="products-table"
-                                             paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
+                                             paginator="true" rows="10" editable="true" paginatorPosition="bottom">
                                     <f:facet name="header">
                                         <div class="products-table-header">
                                             <span style="font-weight: bold">Detalle Sellos</span>
@@ -269,19 +305,88 @@
                                     <p:column headerText="Sellos" sortBy="#{detTerms.detalleterminalselloPK.sello}" filterBy="#{detTerms.detalleterminalselloPK.sello}" width="15%">
                                         <h:outputText value="#{detTerms.detalleterminalselloPK.sello}" />
                                     </p:column>
-                                    <p:column headerText="Valido" sortBy="#{detTerms.activo}" filterBy="#{detTerms.activo}" width="15%">
-                                        <h:outputText value="#{detTerms.activo}" />
+                                    <!-- Columna "Valido" Editable -->
+                                    <p:column headerText="Valido" width="15%">
+                                        <h:outputText value="#{detTerms.activo ? 'Sí' : 'No'}" rendered="#{!sellosBean.permitirEdicionActivo}" />
+                                        <p:selectBooleanCheckbox value="#{detTerms.activo}" rendered="#{sellosBean.permitirEdicionActivo}" disabled="#{!sellosBean.permitirEdicionActivo}">
+                                            <!-- Ajax para capturar cambios -->
+                                            <p:ajax event="change" listener="#{sellosBean.onRowEdit(detTerms)}"/>
+                                        </p:selectBooleanCheckbox>
                                     </p:column>
-                                    <p:column headerText="Observación" sortBy="#{detTerms.observacion}" filterBy="#{detTerms.observacion}" width="15%">
-                                        <h:outputText value="#{detTerms.observacion}" />
-                                    </p:column>                          
+
+                                    <!-- Columna "Observación" Editable -->
+                                    <p:column headerText="Observación" width="15%">
+                                        <h:outputText value="#{detTerms.observacion}" rendered="#{!sellosBean.permitirEdicionObservacion}" />
+                                        <p:inputText value="#{detTerms.observacion}" rendered="#{sellosBean.permitirEdicionObservacion}">
+                                            <!-- Ajax para capturar cambios -->
+                                            <p:ajax event="change" listener="#{sellosBean.onRowEdit(detTerms)}" />
+                                        </p:inputText>
+                                    </p:column>                         
                                 </p:dataTable>
                             </div>
                         </div>
+                        <p:toolbar>
+                            <p:toolbarGroup>
+                                <p:commandButton value="Regresar" icon="pi pi-times" actionListener="#{sellosBean.regresar()}" class="ui-button-secondary" update="form :formDetalleSellos" styleClass="p-mr-2"/>
+                                <p:commandButton rendered="#{sellosBean.permitirEdicionActivo}" value="Actualizar Sellos" icon="pi pi-plus" actionListener="#{sellosBean.actualizarDetalleSellos()}" styleClass="ui-button-info" update="form :formDetalleSellos"/>
+                            </p:toolbarGroup>
+                        </p:toolbar> 
                     </div>
                 </div>
             </p:outputPanel>
         </h:form>
+
+        <p:dialog header="Adquirir Sellos" width="30%" showEffect="fade" modal="true" widgetVar="adquirirSellos" responsive="true">
+            <h:form id="formAdquisicion">
+                <p:outputPanel rendered = "true">                               
+                    <div class="ui-fluid p-formgrid p-grid">
+                        <div class="p-field p-col-12 p-md-6">
+                            <p:outputLabel for="selloInicial">Sello Inicial</p:outputLabel>
+                            <p:inputNumber id="selloInicial" value="#{sellosBean.selloInicial}" maxlength="4" />
+                        </div>  
+                        <div class="p-field p-col-12 p-md-6">
+                            <p:outputLabel for="selloFinal">Sello Final</p:outputLabel>
+                            <p:inputNumber id="selloFinal" value="#{sellosBean.selloFinal}" maxlength="4" />
+                        </div>  
+                        <div class="p-field p-col-12 p-md-12"></div>
+                    </div>                                                                                           
+                </p:outputPanel>
+                <div class="p-grid p-justify-end">
+                    <p:commandButton value="Aceptar" icon="pi pi-check" actionListener="#{sellosBean.comprarSellos()}"
+                                     styleClass="p-mr-2"/>
+                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('adquirirSellos').hide()" class="ui-button-secondary" />
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <p:dialog header="Entrega Recepción Detalle Entrega" width="30%" showEffect="fade" modal="true" widgetVar="entregaRecepcion" responsive="true">
+            <h:form id="formEntregaRecepcion">
+                <p:outputPanel rendered = "true">                               
+                    <div class="ui-fluid p-formgrid p-grid">
+                        <div class="p-field p-col-12 p-md-6">
+                            <p:outputLabel for="selloInicial">Sello Inicial</p:outputLabel>
+                            <p:inputText id="selloInicial" 
+                                         value="#{sellosBean.selloInicial}">
+                                <p:ajax event="blur" listener="#{sellosBean.validarRangoInicial}" update="form :formNuevo formEntregaRecepcion" />
+                            </p:inputText>
+                        </div>  
+                        <div class="p-field p-col-12 p-md-6">
+                            <p:outputLabel for="selloFinal">Sello Final</p:outputLabel>
+                            <p:inputText id="selloFinal" 
+                                         value="#{sellosBean.selloFinal}"  >
+                                <p:ajax event="blur" listener="#{sellosBean.validarRangoFinal}" update="form :formNuevo formEntregaRecepcion" />
+                            </p:inputText>
+                        </div>  
+                        <div class="p-field p-col-12 p-md-12"></div>
+                    </div>                                                                                           
+                </p:outputPanel>
+                <div class="p-grid p-justify-end">
+                    <p:commandButton value="Aceptar" icon="pi pi-check" actionListener="#{sellosBean.comprarSellos()}"
+                                     styleClass="p-mr-2" disabled="#{!sellosBean.rangosValidos}"/>
+                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('entregaRecepcion').hide()" class="ui-button-secondary" />
+                </div>
+            </h:form>
+        </p:dialog>
 
         <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300" message="Anular Nota Pedido?" header="Confirm" severity="warn">
             <p:commandButton value="Si" icon="pi pi-check" actionListener="#{notapedidoBean.anularNotaPedido()}" process="@this" oncomplete="PF('deleteProductDialog').hide()" update=":form"/>

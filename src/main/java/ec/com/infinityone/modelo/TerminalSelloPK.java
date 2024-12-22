@@ -11,16 +11,16 @@ import java.math.BigInteger;
  *
  * @author David Ayala
  */
-public class TerminalSelloPK implements Serializable{
-    
+public class TerminalSelloPK implements Serializable {
+
     private String codigocomercializadora;
 
     private String codigoterminalentrega;
 
     private String codigoterminalrecibe;
-    
+
     private BigInteger selloinicial;
-    
+
     private BigInteger sellofinal;
 
     public TerminalSelloPK() {
@@ -72,5 +72,29 @@ public class TerminalSelloPK implements Serializable{
 
     public void setSellofinal(BigInteger sellofinal) {
         this.sellofinal = sellofinal;
-    } 
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 31 * hash + (codigoterminalentrega != null ? codigoterminalentrega.hashCode() : 0);
+        hash = 31 * hash + (selloinicial != null ? selloinicial.hashCode() : 0);
+        hash = 31 * hash + (sellofinal != null ? sellofinal.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        TerminalSelloPK other = (TerminalSelloPK) obj;
+        return codigoterminalentrega != null && codigoterminalentrega.equals(other.codigoterminalentrega)
+                && selloinicial != null && selloinicial.equals(other.selloinicial)
+                && sellofinal != null && sellofinal.equals(other.sellofinal);
+    }
+
 }
