@@ -392,9 +392,7 @@ public class ProrrogarFacturaBean extends ReusableBean implements Serializable {
             System.out.println("FT:: ERROR EN " + this.toString() + "::Crear EnvioFactura desde archivoTXT " + t.getMessage());
             t.printStackTrace(System.out);
             return listaEnvF;
-// ftft           throw new Throwable("ERROR EN crearEnvioFactura: " + t.getMessage());
         }
-//HASTA AQUI DEBERÍA ESTAR EL FOR(){  PARA IR LEYENDO LAS LINEAS DEL ARCHIVO TXT
     }
 
     public void handleFileUploadDoc(FileUploadEvent event) {
@@ -438,7 +436,10 @@ public class ProrrogarFacturaBean extends ReusableBean implements Serializable {
         JSONObject detalle = new JSONObject();
         JSONObject detallePK = new JSONObject();
         JSONObject objEnvRest = new JSONObject();
-        
+    
+    // 3627002142XX001006100214220241216    
+    // 012345678901234567890123456789012 
+      
         List<JSONObject> arrObj = new ArrayList<>();
             obj.put("codigoAbastecedora", comercializadora.getAbastecedora());
             obj.put("codigoComercializadora", comercializadora.getCodigo());
@@ -455,9 +456,7 @@ public class ProrrogarFacturaBean extends ReusableBean implements Serializable {
                 default: 
                     throw new AssertionError();
             } 
-//FT. FIJAR UN NUMERO DE NP FICTICIA-NO SE DEBE USAR ESTA INFORMACION EN PROCESOS ADICIONALES AL CONTROL DE GARANTIAS            objPK.put("numeronotapedido", lineaLeida.substring(5, 13));
-            
-            
+   
             fechaVentaStr = lineaLeida.substring(25, 29) + "-" 
                     + lineaLeida.substring(29, 31) + "-" 
                     + lineaLeida.substring(31, 33) + "T11:00:00";

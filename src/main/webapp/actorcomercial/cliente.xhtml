@@ -456,6 +456,14 @@
                                         </div>
                                     </div>
                                     <div class="p-field p-col-12 p-md-4">
+                                        <p:outputLabel for="controProrroga"  value="Controla Fac.Prorrogadas"/>
+                                        <div class="ui-inputgroup">
+                                            <p:toggleSwitch id="controProrroga" value="#{clienteBean.cliente.controlaprorroga}" disabled="#{clienteBean.soloLectura}">
+                                                <p:ajax event="change" listener="#{clienteBean.controlaProrroga()}" update=":form" ></p:ajax>
+                                            </p:toggleSwitch>
+                                        </div>
+                                    </div>
+                                    <div class="p-field p-col-12 p-md-4">
                                         <p:outputLabel for="subsidio2"  value="Aplica Subsidio 2"/>
                                         <div class="ui-inputgroup">
                                             <p:toggleSwitch id="subsidio2" value="#{clienteBean.cliente.aplicasubsidio2}" disabled="#{clienteBean.soloLectura}"> </p:toggleSwitch>

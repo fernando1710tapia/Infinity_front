@@ -1473,6 +1473,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         clienteNP.setCodigolistaprecio(cli.getLong("codigolistaprecio"));
                         clienteNP.setCodigoformapago(formap);
                         clienteNP.setControldespacho(cli.getInt("controldespacho"));
+                        clienteNP.setControlaprorroga(cli.getBoolean("controlaprorroga"));
 
                         /*----Objeto Terminal----*/
                         terminalT.setCodigo(term.getString("codigo"));
@@ -1493,19 +1494,19 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         np.setAbastecedora(abas);
 
                         np.setNumerofacturasri(nt.getString("numerofacturasri"));
-                        
+
                         if (!nt.isNull("codigoautotanque")) {
                             np.setCodigoautotanque(nt.getString("codigoautotanque"));
-                            }else{
-                                np.setCodigoautotanque("");
-                                }
-                        
+                        } else {
+                            np.setCodigoautotanque("");
+                        }
+
                         if (!nt.isNull("codigoautotanque")) {
                             np.setCedulaconductor(nt.getString("cedulaconductor"));
-                            }else{
-                                np.setCedulaconductor("");
-                                } 
-                        
+                        } else {
+                            np.setCedulaconductor("");
+                        }
+
                         npPK.setNumero(ntPK.getString("numero"));
                         npPK.setCodigoabastecedora(ntPK.getString("codigoabastecedora"));
                         npPK.setCodigocomercializadora(ntPK.getString("codigocomercializadora"));
@@ -1531,72 +1532,71 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                             JSONObject prod = det.getJSONObject("producto");
                             detNP.setVolumennaturalautorizado(det.getBigDecimal("volumennaturalautorizado"));
                             detNP.setVolumennaturalrequerido(det.getBigDecimal("volumennaturalrequerido"));
-                            
+
                             if (!det.isNull("compartimento1")) {
-                            detNP.setCompartimento1(det.getBigDecimal("compartimento1"));
-                            }else{
-                                    detNP.setCompartimento1(BigDecimal.ZERO);
-                                    }
-                            
+                                detNP.setCompartimento1(det.getBigDecimal("compartimento1"));
+                            } else {
+                                detNP.setCompartimento1(BigDecimal.ZERO);
+                            }
+
                             if (!det.isNull("compartimento2")) {
-                            detNP.setCompartimento2(det.getBigDecimal("compartimento2"));
-                            }else{
-                                    detNP.setCompartimento2(BigDecimal.ZERO);
-                                    }
+                                detNP.setCompartimento2(det.getBigDecimal("compartimento2"));
+                            } else {
+                                detNP.setCompartimento2(BigDecimal.ZERO);
+                            }
                             if (!det.isNull("compartimento3")) {
                                 detNP.setCompartimento3(det.getBigDecimal("compartimento3"));
-                            }else{
-                                    detNP.setCompartimento3(BigDecimal.ZERO);
-                                    }
+                            } else {
+                                detNP.setCompartimento3(BigDecimal.ZERO);
+                            }
                             if (!det.isNull("compartimento4")) {
                                 detNP.setCompartimento4(det.getBigDecimal("compartimento4"));
-                            }else{
-                                    detNP.setCompartimento4(BigDecimal.ZERO);
-                                    }
+                            } else {
+                                detNP.setCompartimento4(BigDecimal.ZERO);
+                            }
                             if (!det.isNull("compartimento5")) {
                                 detNP.setCompartimento5(det.getBigDecimal("compartimento5"));
-                            }else{
-                                    detNP.setCompartimento5(BigDecimal.ZERO);
-                                    }
+                            } else {
+                                detNP.setCompartimento5(BigDecimal.ZERO);
+                            }
                             if (!det.isNull("compartimento6")) {
                                 detNP.setCompartimento6(det.getBigDecimal("compartimento6"));
-                            }else{
-                                    detNP.setCompartimento6(BigDecimal.ZERO);
-                                    }
-                            
+                            } else {
+                                detNP.setCompartimento6(BigDecimal.ZERO);
+                            }
+
                             if (!det.isNull("compartimento7")) {
                                 detNP.setCompartimento7(det.getBigDecimal("compartimento7"));
-                            }else{
-                                    detNP.setCompartimento7(BigDecimal.ZERO);
-                                    }
+                            } else {
+                                detNP.setCompartimento7(BigDecimal.ZERO);
+                            }
                             if (!det.isNull("compartimento8")) {
                                 detNP.setCompartimento8(det.getBigDecimal("compartimento8"));
-                            }else{
-                                    detNP.setCompartimento8(BigDecimal.ZERO);
-                                    }
+                            } else {
+                                detNP.setCompartimento8(BigDecimal.ZERO);
+                            }
                             if (!det.isNull("compartimento9")) {
                                 detNP.setCompartimento9(det.getBigDecimal("compartimento9"));
-                            }else{
-                                    detNP.setCompartimento9(BigDecimal.ZERO);
-                                    }
+                            } else {
+                                detNP.setCompartimento9(BigDecimal.ZERO);
+                            }
                             if (!det.isNull("compartimento10")) {
                                 detNP.setCompartimento10(det.getBigDecimal("compartimento10"));
-                            }else{
-                                    detNP.setCompartimento10(BigDecimal.ZERO);
-                                    }
-                            
+                            } else {
+                                detNP.setCompartimento10(BigDecimal.ZERO);
+                            }
+
                             if (!det.isNull("selloinicial")) {
                                 detNP.setSelloinicial(det.getInt("selloinicial"));
-                            }else{
+                            } else {
                                 detNP.setSelloinicial(Integer.valueOf("0"));
                             }
-                            
+
                             if (!det.isNull("sellofinal")) {
                                 detNP.setSellofinal(det.getInt("sellofinal"));
-                            }else{
+                            } else {
                                 detNP.setSellofinal(Integer.valueOf("0"));
                             }
-                                                      
 
                             medida.setCodigo(med.getString("codigo"));
                             medida.setNombre(med.getString("nombre"));
@@ -1762,20 +1762,20 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         detNP.setUsuarioactual(dataUser.getUser().getNombrever());
                         detNP.setVolumennaturalautorizado(envP.getDetalle().getVolumennaturalautorizado());
                         detNP.setVolumennaturalrequerido(det.getBigDecimal("volumennaturalrequerido"));
-                        
+
                         detNP.setCompartimento1(det.getBigDecimal("compartimento1"));
-                            detNP.setCompartimento2(det.getBigDecimal("compartimento2"));
-                            detNP.setCompartimento3(det.getBigDecimal("compartimento3"));
-                            detNP.setCompartimento4(det.getBigDecimal("compartimento4"));
-                            detNP.setCompartimento5(det.getBigDecimal("compartimento5"));
-                            detNP.setCompartimento6(det.getBigDecimal("compartimento6"));
-                            detNP.setCompartimento7(det.getBigDecimal("compartimento7"));
-                            detNP.setCompartimento8(det.getBigDecimal("compartimento8"));
-                            detNP.setCompartimento9(det.getBigDecimal("compartimento9"));
-                            detNP.setCompartimento10(det.getBigDecimal("compartimento10"));
-                            detNP.setSelloinicial(det.getInt("selloinicial"));
-                            detNP.setSellofinal(det.getInt("sellofinal"));
-                        
+                        detNP.setCompartimento2(det.getBigDecimal("compartimento2"));
+                        detNP.setCompartimento3(det.getBigDecimal("compartimento3"));
+                        detNP.setCompartimento4(det.getBigDecimal("compartimento4"));
+                        detNP.setCompartimento5(det.getBigDecimal("compartimento5"));
+                        detNP.setCompartimento6(det.getBigDecimal("compartimento6"));
+                        detNP.setCompartimento7(det.getBigDecimal("compartimento7"));
+                        detNP.setCompartimento8(det.getBigDecimal("compartimento8"));
+                        detNP.setCompartimento9(det.getBigDecimal("compartimento9"));
+                        detNP.setCompartimento10(det.getBigDecimal("compartimento10"));
+                        detNP.setSelloinicial(det.getInt("selloinicial"));
+                        detNP.setSellofinal(det.getInt("sellofinal"));
+
                     }
                 }
                 if (connection.getResponseCode() >= 200 || connection.getResponseCode() <= 200) {
@@ -1860,6 +1860,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             String respuesta;
             String numeroFactura = "";
             String mensajeError = "";
+            int facturasProrrogadasCaidas = 0;
             String usuario = dataUser.getUser().getNombrever().trim().replace(" ", "");
             url = new URL(direccion + tablaFactura + "/crearF?"
                     + "codigoabastecedora=" + envNP.getNotapedido().getNotapedidoPK().getCodigoabastecedora()
@@ -1896,6 +1897,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     }
                     this.dialogo(FacesMessage.SEVERITY_INFO, "FACTURA REGISTRADA EXITOSAMENTE");
                     enviarOrdenPetro(envNP, numeroFactura);
+
                 } else if (connection.getResponseCode() == 299) {
                     for (int indice = 0; indice < retorno.length(); indice++) {
                         if (!retorno.isNull(indice)) {
@@ -2351,7 +2353,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         detalleNotaP.setUsuarioactual(dataUser.getUser().getNombrever());
         detalleNotaP.setSelloinicial(envNP.getDetalle().getSelloinicial());
         detalleNotaP.setSellofinal(envNP.getDetalle().getSellofinal());
-        
+
         detalleNotaP.setCompartimento1(envNP.getDetalle().getCompartimento1());
         detalleNotaP.setCompartimento2(envNP.getDetalle().getCompartimento2());
         detalleNotaP.setCompartimento3(envNP.getDetalle().getCompartimento3());
@@ -2362,7 +2364,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         detalleNotaP.setCompartimento8(envNP.getDetalle().getCompartimento8());
         detalleNotaP.setCompartimento9(envNP.getDetalle().getCompartimento9());
         detalleNotaP.setCompartimento10(envNP.getDetalle().getCompartimento10());
-        
+
         envioPedido.setNotapedido(notaPedido);
         envioPedido.setDetalle(detalleNotaP);
         getTrama(envioPedido, numFact);
@@ -2403,6 +2405,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         try {
             String respuesta = "";
             String trama = "";
+            int facturasProrrogadasCaidas = 0;
             //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.notapedido/tramaOE?";
             String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.notapedido/tramaOE?";
             url = new URL(direcc + "nfactura=" + numFact + "&clave=" + envioPedido.getNotapedido().getComercializadora().getClavewsepp());
@@ -2443,7 +2446,21 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                 envioPedido.getNotapedido().setNumerofacturasri(numFact);
                 envioPedido.getNotapedido().setActiva(true);
                 editarNotaPedido(envioPedido.getNotapedido());
-                enviarOrdenEntreEpp(envioPedido, trama);
+                
+                System.out.println("FT:. ENVIANDO ORIGINALMENTE getTrama:. envioPedido.getNotapedido().getCodigocliente().getControlaprorroga(). "+envioPedido.getNotapedido().getCodigocliente().getControlaprorroga());
+                if (envioPedido.getNotapedido().getCodigocliente().getControlaprorroga()) {
+                    facturasProrrogadasCaidas = controlarProrroga(envioPedido.getNotapedido().getNotapedidoPK().getCodigocomercializadora(), envioPedido.getNotapedido().getCodigocliente().getCodigo());
+                } else {
+                    facturasProrrogadasCaidas = 0;
+                }
+                if (0 == facturasProrrogadasCaidas) {
+                    enviarOrdenEntreEpp(envioPedido, trama);
+                } else {
+
+                    this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ENVIAR ESTA FACTURA HACIA PETROECUADOR: . SE HAN ENCONTRADO " + facturasProrrogadasCaidas + " FACTURAS PRORROGADAS VENCIDAS Y NO PAGADAS - CONSULTE CON LOS ADMINISTRADORES DEL SISTEMA");
+
+                }
+
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "NO SE LOGRÓ GENERAR LA TRAMA DE LA ORDEN DE ENTREGA PARA PETROECUADOR");
                 System.out.println(connection.getResponseCode());
@@ -2633,6 +2650,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
 
     public void dialogoReenvioOrdenPetro(EnvioFactura envioFactura) {
         try {
+            Cliente unCliente = new Cliente();
             DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
 
             //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.notapedido/porId?";
@@ -2640,6 +2658,8 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             url = new URL(direcc + "codigoabastecedora=" + envioFactura.getFactura().getFacturaPK().getCodigoabastecedora()
                     + "&codigocomercializadora=" + envioFactura.getFactura().getFacturaPK().getCodigocomercializadora()
                     + "&numero=" + envioFactura.getFactura().getFacturaPK().getNumeronotapedido());
+            
+            System.out.println("FT:. dialogoReenvioOrdenPetro:. servicio de consulta "+url.toString());
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
@@ -2666,6 +2686,8 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         JSONObject ntPK = nt.getJSONObject("notapedidoPK");
                         JSONObject com = nt.getJSONObject("comercializadora");
                         JSONObject abastecedora = nt.getJSONObject("abastecedora");
+                        JSONObject cliente = nt.getJSONObject("codigocliente");
+                        System.out.println("FT:. dialogoReenvioOrdenPetro:. JSONObject cliente "+cliente.toString());
                         /*----Objeto Abastecedora----*/
                         abas.setCodigo(abastecedora.getString("codigo"));
 
@@ -2679,8 +2701,14 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         if (!nt.isNull("tramaenviadagoe")) {
                             np.setTramaenviadagoe(nt.getString("tramaenviadagoe"));
                         }
+                        /*---------------Objeto Cliente--------------------------------------*/
+                        unCliente.setCodigo(cliente.getString("codigo"));
+                        unCliente.setControlaprorroga(cliente.getBoolean("controlaprorroga"));
+                        System.out.println("FT:. dialogoReenvioOrdenPetro:. unCliente.setControlaprorroga "+unCliente.getCodigo() +" - "+unCliente.getControlaprorroga());
+                        
                         np.setNumerofacturasri(nt.getString("numerofacturasri"));
                         np.setActiva(nt.getBoolean("activa"));
+                        np.setCodigocliente(unCliente);
                         npPK.setNumero(ntPK.getString("numero"));
                         npPK.setCodigoabastecedora(ntPK.getString("codigoabastecedora"));
                         npPK.setCodigocomercializadora(ntPK.getString("codigocomercializadora"));
@@ -2706,9 +2734,27 @@ public class FacturacionBean extends ReusableBean implements Serializable {
     }
 
     public void reenvioOrdenPetro() {
+
+        int facturasProrrogadasCaidas = 0;
         if (envioPedidoAuxiliar != null) {
             try {
-                enviarOrdenEntreEpp(envioPedidoAuxiliar, envioPedidoAuxiliar.getNotapedido().getTramaenviadagoe());
+                System.out.println("FT:. reenvioOrdenPetro:. envioPedidoAuxiliar.getNotapedido().getCodigocliente().getControlaprorroga() "+envioPedidoAuxiliar.getNotapedido().getCodigocliente().getControlaprorroga());
+                if (envioPedidoAuxiliar.getNotapedido().getCodigocliente().getControlaprorroga()) {
+                    facturasProrrogadasCaidas = controlarProrroga(envioPedidoAuxiliar.getNotapedido().getNotapedidoPK().getCodigocomercializadora(), envioPedidoAuxiliar.getNotapedido().getCodigocliente().getCodigo());
+                } else {
+                    facturasProrrogadasCaidas = 0;
+                }
+
+                
+//ff
+                if (0 == facturasProrrogadasCaidas) {
+                    enviarOrdenEntreEpp(envioPedidoAuxiliar, envioPedidoAuxiliar.getNotapedido().getTramaenviadagoe());
+                } else {
+
+                    this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ENVIAR ESTA FACTURA HACIA PETROECUADOR: . SE HAN ENCONTRADO " + facturasProrrogadasCaidas + " FACTURAS PRORROGADAS VENCIDAS Y NO PAGADAS - CONSULTE CON LOS ADMINISTRADORES DEL SISTEMA");
+
+                }
+
                 obtenerFacturas();
             } catch (ParseException ex) {
                 Logger.getLogger(FacturacionBean.class.getName()).log(Level.SEVERE, null, ex);
@@ -4217,6 +4263,50 @@ public class FacturacionBean extends ReusableBean implements Serializable {
 
     public void setFechaActual(Date fechaActual) {
         this.fechaActual = fechaActual;
+    }
+
+    public int controlarProrroga(String codigoComercializadora, String codigoCliente) {
+
+        try {
+            String respuesta = "";
+            int value = 0;
+            java.sql.Date fechafinal = new java.sql.Date(System.currentTimeMillis());
+            //url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura/porId");
+            url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura/controlaprorroga?"
+                    + "codigocomercializadora=" + codigoComercializadora
+                    + "&activa=" + true
+                    + "&pagada=" + false
+                    + "&codigocliente=" + codigoCliente
+                    + "&fechaacreditacionprorrogada=" + fechafinal);
+
+            System.out.println("FT:. controlarProrroga:. url de servicio de consulta "+url.toString());
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+
+            BufferedReader br = new BufferedReader(reader);
+            String tmp = null;
+            while ((tmp = br.readLine()) != null) {
+                respuesta += tmp;
+            }
+            JSONObject objetoJson = new JSONObject(respuesta);
+            JSONArray retorno = objetoJson.getJSONArray("retorno");
+            value = retorno.length();
+            if (connection.getResponseCode() != 200) {
+                System.out.println(connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
+            }
+            return value;
+        } catch (Throwable e) {
+            System.out.println("FT::. ERROR EN controlarProrroga. " + e.getMessage());
+            e.printStackTrace(System.out);
+            return 0;
+        }
+
     }
 
 }

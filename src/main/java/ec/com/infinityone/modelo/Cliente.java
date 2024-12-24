@@ -96,6 +96,8 @@ public class Cliente implements Serializable {
     private Terminal codigoterminaldefecto;
 
     private int controldespacho; 
+    
+    private Boolean controlaprorroga;
 
     public Cliente() {
     }
@@ -460,4 +462,14 @@ public class Cliente implements Serializable {
     public boolean isEstado(boolean b) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
+
+    public Boolean getControlaprorroga() {
+        return controlaprorroga;
+    }
+
+    public void setControlaprorroga(Boolean controlaprorroga) {
+        this.controlaprorroga = controlaprorroga;
+    }
+    
+    
 }

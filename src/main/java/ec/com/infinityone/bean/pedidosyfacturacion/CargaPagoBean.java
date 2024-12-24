@@ -443,7 +443,48 @@ public class CargaPagoBean extends ReusableBean implements Serializable {
             System.err.println(ubicacion);
         }
     }
-
+    
+    
+//    public List<JSONObject> armarJSONEnvioPagosDesdeTxt37abc(String lineaLeida, List<JSONObject> listaEnvF) throws Throwable {
+//        String respuesta;
+//        DateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
+//        JSONObject obj = new JSONObject();
+//        JSONObject objPK = new JSONObject();
+//        JSONObject objEnvRest = new JSONObject();
+//        List<JSONObject> arrObj = new ArrayList<>();
+//        List<JSONObject> listObjEnvRest = new ArrayList<>();
+//
+//        objPK.put("codigoabastecedora", listaPagofacturaArchivoSubida.get(0).getPagofacturaPK().getCodigoabastecedora());
+//        objPK.put("codigocomercializadora", listaPagofacturaArchivoSubida.get(0).getPagofacturaPK().getCodigocomercializadora());
+//        objPK.put("numero", listaPagofacturaArchivoSubida.get(0).getPagofacturaPK().getNumero());
+//        objPK.put("codigobanco", listaPagofacturaArchivoSubida.get(0).getPagofacturaPK().getCodigobanco());
+//        obj.put("pagofacturaPK", objPK);
+//        String fechaS = date.format(listaPagofacturaArchivoSubida.get(0).getFecha());
+//        obj.put("fecha", fechaS);
+//        obj.put("activo", listaPagofacturaArchivoSubida.get(0).getActivo());
+//        obj.put("valor", suma);
+//        obj.put("observacion", observacion);
+//        String fechaR = date.format(listaPagofacturaArchivoSubida.get(0).getFecharegistro());
+//        obj.put("fecharegistro", fechaR);
+//        obj.put("usuarioactual", listaPagofacturaArchivoSubida.get(0).getUsuarioactual());
+//
+//        for (int indice = 0; indice < listaPagosBancoRechazado.size(); indice++) {
+//            arrObj.add(addItemsDetailPAux(listaPagosBancoRechazado.get(indice)));
+//        }
+//
+//        objEnvRest.put("pago", obj);
+//        objEnvRest.put("detallepago", arrObj);
+//        listObjEnvRest.add(objEnvRest);
+//        obj = new JSONObject();
+//        objPK = new JSONObject();
+//        arrObj = new ArrayList<>();
+//        objEnvRest = new JSONObject();
+//
+//        return listObjEnvRest;
+//
+//    }
+    
+    
     public List<JSONObject> armarJSONEnvioPagosDesdeTxt37(String lineaLeida, List<JSONObject> listaEnvF) {
 
         System.out.println("FT::. INICI armarJSONEnvioPagosDesdeTxt37 String lineaLeida :. " + lineaLeida + " ENTRA Y SALE listaEnvF:. " + listaEnvF.toString());
@@ -473,18 +514,11 @@ public class CargaPagoBean extends ReusableBean implements Serializable {
                 + lineaLeida.substring(33, 35) + "T11:00:00";
 
         obj.put("fecha", fechaVentaStr);
-        switch (lineaLeida.substring(0, 1)) {
-            case "1":
-                obj.put("activo", true);
-                break;
-            case "2":
-                obj.put("activo", false);
-                break;
-            default:
-                throw new AssertionError();
-        }
+
+        obj.put("activo", true);
+
         obj.put("valor", new BigDecimal((lineaLeida.substring(35, 50).replace(".", ""))).movePointLeft(2));
-        obj.put("observacion", "CARGA DE PAGOS DESDE ARCHIVO NP:. " + lineaLeida.substring(0, 1));
+        obj.put("observacion", "CARGA DE PAGOS DESDE ARCHIVO #-NP:. " + lineaLeida.substring(8, 16));
         obj.put("fecharegistro", fechaVentaStr);
         obj.put("usuarioactual", dataUser.getUser().getNombrever());
         obj.put("codigobancocheque", "");
@@ -492,27 +526,23 @@ public class CargaPagoBean extends ReusableBean implements Serializable {
         obj.put("numerocheque", "");
 
 //FT::. CREAR DETALLE DE PAGO
+        // LINEA BG e INFINITY 00002 037 371145980 2011726003 20241121 000000014579.44
+        //                     01234 567 890123456 7890123456 78901234 567890123456789  35 47 48 50
+
         detallePK.put("codigoabastecedora", comercializadora.getAbastecedora());
         detallePK.put("codigocomercializadora", comercializadora.getCodigo());
         detallePK.put("numeronotapedido", npFija);
         detallePK.put("numero", lineaLeida.substring(5, 17));
         detallePK.put("codigobanco", lineaLeida.substring(6, 8));
-        detallePK.put("numerofactura", lineaLeida.substring(13, 26));
+        detallePK.put("numerofactura", ("0000000"+lineaLeida.substring(8, 16)));
         detalle.put("detallepagoPK", detallePK);
 
         detalle.put("valor", new BigDecimal((lineaLeida.substring(35, 50).replace(".", ""))).movePointLeft(2));
-        switch (lineaLeida.substring(0, 1)) {
-            case "1":
+        
                 detalle.put("activo", true);
-                break;
-            case "2":
-                detalle.put("activo", false);
-                break;
-            default:
-                throw new AssertionError();
-        }
+        
         detalle.put("usuarioactual", dataUser.getUser().getNombrever());
-        detalle.put("claveacceso", lineaLeida.substring(13, 26));
+        detalle.put("claveacceso", "00000000000000000000000000000000000000000000000000");
         detalle.put("valormora", BigDecimal.ZERO);
         detalle.put("tasainteres", BigDecimal.ZERO);
         detalle.put("fechaventa", fechaVentaStr);
@@ -757,14 +787,6 @@ public class CargaPagoBean extends ReusableBean implements Serializable {
         this.listaBancos = listaBancos;
     }
 
-    public void guardarFacturasLote(List<EnvioFactura> listaEnvF1) {
-        List<JSONObject> arregloJSON = new ArrayList<>();
-        arregloJSON.addAll(addItemsArregloJSON(listaEnvF1));
-        if (addItemsFacturaAux(arregloJSON)) {
-            PrimeFaces.current().executeScript("PF('subirPrecios').hide()");
-        }
-    }
-
     public void guardarPagosLoteJSON(List<JSONObject> listaEnvF1) {
         List<JSONObject> arregloJSON = new ArrayList<>();
         System.out.println("FT::. INICIA guardarPagosLoteJSON List<JSONObject> listaEnvF1 TAMAÑO" + listaEnvF1.size());
@@ -774,141 +796,13 @@ public class CargaPagoBean extends ReusableBean implements Serializable {
         }
     }
 
-    public List<JSONObject> addItemsArregloJSON(List<EnvioFactura> listObjDetalle) {
-
-        System.out.println("FT::. INICI addItemsArregloJSON List<EnvioFactura> listObjDetalle TAMAÑO" + listObjDetalle.size());
-        DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
-        //String fechaI = date.format(precio.get(i).getPrecioPK().getFechainicio()) + "T12:00:00";
-//        String fechaI = date.format(fechaVencimiento) + "T12:00:00";
-
-        JSONObject obj = new JSONObject();
-        JSONObject objPK = new JSONObject();
-        JSONObject detalle = new JSONObject();
-        JSONObject detallePK = new JSONObject();
-
-        JSONObject objEnvRest = new JSONObject();
-        List<JSONObject> arrObj = new ArrayList<>();
-        List<JSONObject> listObjEnvRest = new ArrayList<>();
-
-        for (int j = 0; j < listObjDetalle.size(); j++) {
-
-//         -------
-            objPK.put("codigoabastecedora", listObjDetalle.get(j).getFactura().getFacturaPK().getCodigoabastecedora());
-            objPK.put("codigocomercializadora", listObjDetalle.get(j).getFactura().getFacturaPK().getCodigocomercializadora());
-            objPK.put("numeronotapedido", listObjDetalle.get(j).getFactura().getFacturaPK().getNumeronotapedido());
-            objPK.put("numero", listObjDetalle.get(j).getFactura().getFacturaPK().getNumero());
-            obj.put("facturaPK", objPK);
-            obj.put("fechaventa", listObjDetalle.get(j).getFactura().getFechaventa());
-            obj.put("fechavencimiento", listObjDetalle.get(j).getFactura().getFechavencimiento());
-            obj.put("fechaacreditacion", listObjDetalle.get(j).getFactura().getFechaacreditacion());
-            obj.put("fechadespacho", listObjDetalle.get(j).getFactura().getFechadespacho());
-            obj.put("activa", listObjDetalle.get(j).getFactura().getActiva());
-            obj.put("valortotal", listObjDetalle.get(j).getFactura().getValortotal());
-            obj.put("valorconrubro", listObjDetalle.get(j).getFactura().getValorconrubro());
-            obj.put("ivatotal", listObjDetalle.get(j).getFactura().getIvatotal());
-            obj.put("observacion", listObjDetalle.get(j).getFactura().getObservacion());
-            obj.put("pagada", listObjDetalle.get(j).getFactura().getPagada());
-            obj.put("oeenpetro", listObjDetalle.get(j).getFactura().getOeenpetro());
-            obj.put("codigocliente", listObjDetalle.get(j).getFactura().getCodigocliente());
-            obj.put("codigoterminal", listObjDetalle.get(j).getFactura().getCodigoterminal());
-            obj.put("codigobanco", listObjDetalle.get(j).getFactura().getCodigobanco());
-            obj.put("usuarioactual", listObjDetalle.get(j).getFactura().getUsuarioactual());
-            obj.put("nombrecomercializadora", listObjDetalle.get(j).getFactura().getNombrecomercializadora());
-            obj.put("ruccomercializadora", listObjDetalle.get(j).getFactura().getRuccomercializadora());
-            obj.put("direccionmatrizcomercializadora", listObjDetalle.get(j).getFactura().getDireccionmatrizcomercializadora());
-            obj.put("nombrecliente", listObjDetalle.get(j).getFactura().getNombrecliente());
-            obj.put("ruccliente", listObjDetalle.get(j).getFactura().getRuccliente());
-            obj.put("valorsinimpuestos", listObjDetalle.get(j).getFactura().getValorsinimpuestos());
-            obj.put("correocliente", listObjDetalle.get(j).getFactura().getCorreocliente());
-            obj.put("direccioncliente", listObjDetalle.get(j).getFactura().getDireccioncliente());
-            obj.put("telefonocliente", listObjDetalle.get(j).getFactura().getTelefonocliente());
-            obj.put("numeroautorizacion", listObjDetalle.get(j).getFactura().getNumeroautorizacion());
-            obj.put("fechaautorizacion", listObjDetalle.get(j).getFactura().getFechaautorizacion());
-            obj.put("clienteformapago", listObjDetalle.get(j).getFactura().getClienteformapago());
-            obj.put("plazocliente", listObjDetalle.get(j).getFactura().getPlazocliente());
-            obj.put("claveacceso", listObjDetalle.get(j).getFactura().getClaveacceso());
-            obj.put("campoadicionalCampo1", listObjDetalle.get(j).getFactura().getCampoadicionalCampo1());
-            obj.put("campoadicionalCampo2", listObjDetalle.get(j).getFactura().getCampoadicionalCampo2());
-            obj.put("campoadicionalCampo3", listObjDetalle.get(j).getFactura().getCampoadicionalCampo3());
-            obj.put("campoadicionalCampo4", listObjDetalle.get(j).getFactura().getCampoadicionalCampo4());
-            obj.put("campoadicionalCampo5", listObjDetalle.get(j).getFactura().getCampoadicionalCampo5());
-            obj.put("campoadicionalCampo6", listObjDetalle.get(j).getFactura().getCampoadicionalCampo6());
-            obj.put("estado", listObjDetalle.get(j).getFactura().getEstado());
-            obj.put("errordocumento", listObjDetalle.get(j).getFactura().getErrordocumento());
-            obj.put("hospedado", listObjDetalle.get(j).getFactura().getHospedado());
-            obj.put("ambientesri", listObjDetalle.get(j).getFactura().getAmbientesri());
-            obj.put("tipoemision", listObjDetalle.get(j).getFactura().getTipoemision());
-            obj.put("codigodocumento", listObjDetalle.get(j).getFactura().getCodigodocumento());
-            obj.put("esagenteretencion", listObjDetalle.get(j).getFactura().getEsagenteretencion());
-            obj.put("escontribuyenteespacial", listObjDetalle.get(j).getFactura().getEscontribuyenteespacial());
-            obj.put("obligadocontabilidad", listObjDetalle.get(j).getFactura().getObligadocontabilidad());
-            obj.put("tipocomprador", listObjDetalle.get(j).getFactura().getTipocomprador());
-            obj.put("moneda", listObjDetalle.get(j).getFactura().getMoneda());
-            obj.put("seriesri", listObjDetalle.get(j).getFactura().getSeriesri());
-//                                      obj.put("facturaPK",
-            obj.put("adelantar", listObjDetalle.get(j).getFactura().getAdelantar());
-            obj.put("tipoplazocredito", listObjDetalle.get(j).getFactura().getTipoplazocredito());
-            obj.put("oeanuladaenpetro", listObjDetalle.get(j).getFactura().getOeanuladaenpetro());
-            obj.put("refacturada", listObjDetalle.get(j).getFactura().getRefacturada());
-            obj.put("reliquidada", listObjDetalle.get(j).getFactura().getReliquidada());
-            obj.put("seleccionar", false);
-            obj.put("fechaacreditacionprorrogada", listObjDetalle.get(j).getFactura().getFechaacreditacionprorrogada());
-            obj.put("clienteformapagonosri", listObjDetalle.get(j).getFactura().getClienteformapagonosri());
-            obj.put("despachada", listObjDetalle.get(j).getFactura().getDespachada());
-            obj.put("enviadaxcobrar", listObjDetalle.get(j).getFactura().getEnviadaxcobrar());
-
-// detalle
-            detallePK.put("codigoabastecedora", listObjDetalle.get(j).getDetalle().get(0).getDetallefacturaPK().getCodigoabastecedora());
-            detallePK.put("codigocomercializadora", listObjDetalle.get(j).getDetalle().get(0).getDetallefacturaPK().getCodigocomercializadora());
-            detallePK.put("numeronotapedido", listObjDetalle.get(j).getDetalle().get(0).getDetallefacturaPK().getNumeronotapedido());
-            detallePK.put("numero", listObjDetalle.get(j).getDetalle().get(0).getDetallefacturaPK().getNumero());
-            detallePK.put("codigoproducto", listObjDetalle.get(j).getDetalle().get(0).getDetallefacturaPK().getCodigoproducto());
-            detalle.put("detallefacturaPK", detallePK);
-
-            detalle.put("volumennaturalrequerido", listObjDetalle.get(j).getDetalle().get(0).getVolumennaturalrequerido());
-            detalle.put("volumennaturalautorizado", listObjDetalle.get(j).getDetalle().get(0).getVolumennaturalrequerido());
-            detalle.put("precioproducto", listObjDetalle.get(j).getDetalle().get(0).getPrecioproducto());
-            detalle.put("subtotal", listObjDetalle.get(j).getDetalle().get(0).getSubtotal());
-            detalle.put("usuarioactual", listObjDetalle.get(j).getDetalle().get(0).getUsuarioactual());
-            detalle.put("ruccomercializadora", listObjDetalle.get(j).getDetalle().get(0).getRuccomercializadora());
-            detalle.put("nombreproducto", listObjDetalle.get(j).getDetalle().get(0).getNombreproducto());
-            detalle.put("codigoimpuesto", listObjDetalle.get(j).getDetalle().get(0).getCodigoimpuesto());
-            detalle.put("nombreimpuesto", listObjDetalle.get(j).getDetalle().get(0).getNombreimpuesto());
-            detalle.put("codigoprecio", listObjDetalle.get(j).getDetalle().get(0).getCodigoprecio());
-            detalle.put("seimprime", listObjDetalle.get(j).getDetalle().get(0).getSeimprime());
-            detalle.put("valordefecto", listObjDetalle.get(j).getDetalle().get(0).getValordefecto());
-//detalle.put("detallefacturaPK",listObjDetalle.get(j).getDetalle().get(0).get);
-//detalle.put("factura",listObjDetalle.get(j).getDetalle().get(0).get);
-            detalle.put("codigomedida", listObjDetalle.get(j).getDetalle().get(0).getCodigomedida());
-            arrObj.add(detalle);
-//         -------
-            objEnvRest.put("factura", obj);
-            objEnvRest.put("detallefactura", arrObj);
-
-            listObjEnvRest.add(objEnvRest);
-
-            System.out.println("FT-2-FRont::. OBJETO JSON-FACTURA" + obj.toString());
-            System.out.println("FT-2-FRont::. OBJETO JSON-DETALLEFACTURA" + arrObj.toString());
-            System.out.println("FT-2-FRont::. OBJETO JSON-ENVIOFACTURA" + objEnvRest.toString());
-            System.out.println("FT-2-FRont::. OBJETO JSON-arreglode ENVIOFACTURA" + listObjEnvRest.toString());
-            obj = new JSONObject();
-            objPK = new JSONObject();
-            arrObj = new ArrayList<>();
-            objEnvRest = new JSONObject();
-        }
-
-        //listaobjEnvRest.add(objEnvRest)           
-        return listObjEnvRest;
-
-    }
-
     public boolean addItemsFacturaAux(List<JSONObject> arregloJSON) {
         try {
 
             DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
             String respuesta;
             //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.precio/agregar";
-            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.pagofactura/agregarlote";
+            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.pagofactura/agregarlotearchivo";
 
             url = new URL(direcc);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();

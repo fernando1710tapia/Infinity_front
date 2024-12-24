@@ -125,6 +125,7 @@ public class ClienteBean extends ReusableBean implements Serializable {
     private boolean estadoCliente;
     private String esContribuyente;
     private boolean controlaGarantia;
+    private boolean controlaProrroga;
     private boolean aplicaSubsidio;
     /*
     Variable para almacenar el código de la comercializadora
@@ -448,6 +449,7 @@ public class ClienteBean extends ReusableBean implements Serializable {
             estadoCliente = cliente.isEstado();
             esContribuyente = cliente.getEscontribuyenteespacial();
             controlaGarantia = cliente.getControlagarantia();
+            controlaProrroga = cliente.getControlaprorroga();
             aplicaSubsidio = cliente.getAplicasubsidio2();
             formapago = cliente.getCodigoformapago();
             banco.setCodigo(cliente.getCodigobancodebito());
@@ -484,6 +486,7 @@ public class ClienteBean extends ReusableBean implements Serializable {
         estadoCliente = cliente.isEstado();
         esContribuyente = cliente.getEscontribuyenteespacial();
         controlaGarantia = cliente.getControlagarantia();
+        controlaProrroga = cliente.getControlaprorroga();
         aplicaSubsidio = cliente.getAplicasubsidio2();
         formapago = cliente.getCodigoformapago();
         banco.setCodigo(cliente.getCodigobancodebito());
@@ -511,10 +514,21 @@ public class ClienteBean extends ReusableBean implements Serializable {
                     + "y se modifiquen en este módulo");
         } else {
             this.dialogo(FacesMessage.SEVERITY_INFO, "Control de garantía acaba de ser apagado, ningun valor de garntías, facturación o pagos serán controlados\n"
-                    + "para este cliente");
+                    + "para este cliente"); 
         }
     }
 
+    public void controlaProrroga() {
+        if (cliente.getControlaprorroga() == true) {
+            this.dialogo(FacesMessage.SEVERITY_INFO, "Control de Facturas Prorrogadas acaba de ser encendido. \n"
+                    + "No se permitirá facturar y retirar producto en Petroecuador a Clientes con Facturas prorrogadas-vencidas-y-NO pagadas!\n"
+                    + "Considere este control con todos las Sucursales");
+        } else {
+            this.dialogo(FacesMessage.SEVERITY_INFO, "Control de Facturas Prorrogadas acaba de ser apagado para este cliente. \n"
+                    + "No se controlará las Facturas prorrogadas-vencidas-No pagadas");
+        }
+    }
+    
     public Direccioninen getDireccioninen() {
         return direccioninen;
     }

@@ -320,7 +320,10 @@ public class ClienteServicio {
                 if (!cliente.isNull("controlagarantia")) {
                     cli.setControlagarantia(cliente.getBoolean("controlagarantia"));
                 }
-
+                if (!cliente.isNull("controlaprorroga")) {
+                    cli.setControlaprorroga(cliente.getBoolean("controlaprorroga"));
+                }
+                
                 cli.setCodigolistaprecio(cliente.getLong("codigolistaprecio"));
 
                 if (!cliente.isNull("codigolistaflete")) {
@@ -495,7 +498,10 @@ public class ClienteServicio {
                 if (!cliente.isNull("controlagarantia")) {
                     cli.setControlagarantia(cliente.getBoolean("controlagarantia"));
                 }
-
+                if (!cliente.isNull("controlaprorroga")) {
+                    cli.setControlaprorroga(cliente.getBoolean("controlaprorroga"));
+                }
+                
                 cli.setCodigolistaprecio(cliente.getLong("codigolistaprecio"));
 
                 if (!cliente.isNull("codigolistaflete")) {
@@ -670,7 +676,10 @@ public class ClienteServicio {
                 if (!cliente.isNull("controlagarantia")) {
                     cli.setControlagarantia(cliente.getBoolean("controlagarantia"));
                 }
-
+                if (!cliente.isNull("controlaprorroga")) {
+                    cli.setControlaprorroga(cliente.getBoolean("controlaprorroga"));
+                }
+                
                 cli.setCodigolistaprecio(cliente.getLong("codigolistaprecio"));
 
                 if (!cliente.isNull("codigolistaflete")) {
@@ -944,7 +953,10 @@ public class ClienteServicio {
                 if (!cliente.isNull("controlagarantia")) {
                     cli.setControlagarantia(cliente.getBoolean("controlagarantia"));
                 }
-
+                if (!cliente.isNull("controlaprorroga")) {
+                    cli.setControlaprorroga(cliente.getBoolean("controlaprorroga"));
+                }
+                
                 cli.setCodigolistaprecio(cliente.getLong("codigolistaprecio"));
 
                 if (!cliente.isNull("codigolistaflete")) {
