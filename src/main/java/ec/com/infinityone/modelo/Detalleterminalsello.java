@@ -87,5 +87,16 @@ public class Detalleterminalsello implements Serializable {
         this.terminalsello = terminalsello;
     }
 
-    
+    @Override
+    public Detalleterminalsello clone() {
+        Detalleterminalsello cloned = new Detalleterminalsello();
+        cloned.setDetalleterminalselloPK(new DetalleterminalselloPK(this.getDetalleterminalselloPK()));
+        cloned.setActivo(this.getActivo());
+        cloned.setObservacion(this.getObservacion());
+        cloned.setFecha(this.getFecha());
+        cloned.setUsuarioactual(this.getUsuarioactual());
+        cloned.setTerminalsello(this.terminalsello);
+        return cloned;
+    }
+
 }

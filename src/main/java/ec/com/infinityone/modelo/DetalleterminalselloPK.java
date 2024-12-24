@@ -36,6 +36,15 @@ public class DetalleterminalselloPK implements Serializable {
         this.sellofinal = sellofinal;
         this.sello = sello;
     }
+    
+      public DetalleterminalselloPK(DetalleterminalselloPK other) {
+        this.codigocomercializadora = other.codigocomercializadora;
+        this.codigoterminalentrega = other.codigoterminalentrega;
+        this.codigoterminalrecibe = other.codigoterminalrecibe;
+        this.selloinicial = other.selloinicial;
+        this.sellofinal = other.sellofinal;
+        this.sello = other.sello;
+    }
 
     public String getCodigocomercializadora() {
         return codigocomercializadora;

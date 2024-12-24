@@ -65,4 +65,24 @@ public class TerminalSello implements Serializable {
     public void setDetalleterminalselloList(List<Detalleterminalsello> detalleterminalselloList) {
         this.detalleterminalselloList = detalleterminalselloList;
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 31 * hash + (terminalselloPK != null ? terminalselloPK.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        TerminalSello other = (TerminalSello) obj;
+        return terminalselloPK != null && terminalselloPK.equals(other.terminalselloPK);
+    }
+
 }
