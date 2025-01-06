@@ -256,6 +256,56 @@ public class SellosServicio extends ReusableBean {
         return retorno;
     }
 
+    public Boolean entregaRecpcionSellos(List<JSONObject> bodySello) {
+        //String urlPath = "http://www.supertech.ec:8080/infinityone1/resources/ec.com.infinity.modelo.factura/cargarfacturasbancos";
+
+        String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.terminalsello/entregarecepcion";
+        final int SUCCESS_CODE = 200;
+        Boolean valido = false;
+        try {
+            URI uri = new URI(direcc);
+            url = uri.toURL();
+
+            String respuesta;
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-type", "application/json");
+
+            try (OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())) {
+                respuesta = bodySello.toString();
+                writer.write(respuesta);
+                writer.close();
+            }
+
+            if (connection.getResponseCode() == SUCCESS_CODE) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+                reader.close();
+                JSONObject jsonResponse = new JSONObject(response.toString());
+                String developerMessage = jsonResponse.optString("developerMessage", "No message provided");
+                this.dialogo(FacesMessage.SEVERITY_INFO, developerMessage);
+                System.out.println("Se ha procesado con exito la entrega recepción");
+                valido = true;
+            } else {
+                logErrorResponse(connection);
+                valido = false;
+            }
+
+        } catch (Throwable e) {
+            System.out.println("Error");
+            e.printStackTrace(System.out);
+            valido = false;
+        }
+        
+        return valido;
+    }
+
     private void logErrorResponse(HttpURLConnection connection) throws IOException {
         System.out.println("Error al añadir: " + connection.getResponseCode());
         System.out.println("Error: " + connection.getErrorStream());

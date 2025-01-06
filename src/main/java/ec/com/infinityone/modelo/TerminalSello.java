@@ -5,6 +5,7 @@
 package ec.com.infinityone.modelo;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
 
@@ -23,15 +24,18 @@ public class TerminalSello implements Serializable {
     private String usuarioactual;
 
     private List<Detalleterminalsello> detalleterminalselloList;
+    
+    private BigInteger sellosvalidos;
 
     public TerminalSello() {
     }
 
-    public TerminalSello(TerminalSelloPK terminalselloPK, String fecha, String usuarioactual, List<Detalleterminalsello> detalleterminalselloList) {
+    public TerminalSello(TerminalSelloPK terminalselloPK, String fecha, String usuarioactual, List<Detalleterminalsello> detalleterminalselloList, BigInteger sellosvalidos) {
         this.terminalselloPK = terminalselloPK;
         this.fecha = fecha;
         this.usuarioactual = usuarioactual;
         this.detalleterminalselloList = detalleterminalselloList;
+        this.sellosvalidos = sellosvalidos;
     }
 
     public TerminalSelloPK getTerminalselloPK() {
@@ -66,6 +70,14 @@ public class TerminalSello implements Serializable {
         this.detalleterminalselloList = detalleterminalselloList;
     }
 
+    public BigInteger getSellosvalidos() {
+        return sellosvalidos;
+    }
+
+    public void setSellosvalidos(BigInteger sellosvalidos) {
+        this.sellosvalidos = sellosvalidos;
+    }
+    
     @Override
     public int hashCode() {
         int hash = 7;

@@ -24,6 +24,7 @@ import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
@@ -76,6 +77,10 @@ public class SellosBean extends ReusableBean implements Serializable {
      */
     private Terminal terminal;
     /*
+    Variable Terminal
+     */
+    private Terminal terminalRecibe;
+    /*
     Variable para almacenar los datos comercializadora
      */
     private List<Terminal> listaTermianles;
@@ -107,6 +112,8 @@ public class SellosBean extends ReusableBean implements Serializable {
     private List<Detalleterminalsello> filasEditadas = new ArrayList<>();
 
     private List<Detalleterminalsello> detalleEntregaRecepcion = new ArrayList<>();
+
+    private List<JSONObject> detallesTerminalSelloERJSON;
     /*
     Variable para almacenar los datos de detalleTerminalSello
      */
@@ -119,6 +126,10 @@ public class SellosBean extends ReusableBean implements Serializable {
     Variable que almacena el código del terminal
      */
     private String codTerminal;
+    /*
+    Variable que almacena el código del terminal que recibe
+     */
+    private String codTerminalRecibe;
     /**
      * Variable que permite establecer la fecha
      */
@@ -171,6 +182,12 @@ public class SellosBean extends ReusableBean implements Serializable {
     variable para establecer el sello final entrega
      */
     private int selloFinalEntrega;
+    /*
+    variable para establecer el sello final entrega en ER
+     */
+    private int sellosEntregar;
+
+    private int sellosExistentes;
 
     private boolean permitirEdicionActivo = false; // Condición para "Activo"
     private boolean permitirEdicionObservacion = false; // Condición para "Observación"
@@ -287,12 +304,15 @@ public class SellosBean extends ReusableBean implements Serializable {
         selloFinal = 0;
         selloInicialEntrega = 0;
         selloFinalEntrega = 0;
+        sellosEntregar = 0;
+        sellosExistentes = 0;
         editarSellos = false;
         codComer = "";
         //codTerminal = "";
         fecha = new Date();
         comercializadora = new ComercializadoraBean();
         terminal = new Terminal();
+        terminalRecibe = new Terminal();
         terminalSello = new TerminalSello();
         terminalSelloPk = new TerminalSelloPK();
         terminalesSellos = new ArrayList<>();
@@ -303,6 +323,7 @@ public class SellosBean extends ReusableBean implements Serializable {
         detalleTerminalSello = new Detalleterminalsello();
         detalleTerminalSelloPK = new DetalleterminalselloPK();
         selectedItem = new TerminalSello();
+        detallesTerminalSelloERJSON = new ArrayList<>();
         //listaProductos = new ArrayList<>();
     }
 
@@ -333,8 +354,14 @@ public class SellosBean extends ReusableBean implements Serializable {
     }
 
     public void seleccionarTerminal(int busqueda) {
-        if (terminal != null) {
-            codTerminal = terminal.getCodigo();
+        if (busqueda == 1) {
+            if (terminal != null) {
+                codTerminal = terminal.getCodigo();
+            }
+        } else {
+            if (terminalRecibe != null) {
+                codTerminalRecibe = terminalRecibe.getCodigo();
+            }
         }
     }
 
@@ -369,40 +396,46 @@ public class SellosBean extends ReusableBean implements Serializable {
     }
 
     public void obtenerSellos() {
-        DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
-        /*fechas para hacer la consulta*/
-        String fechaI = date.format(fechaInicial);
-        String fechaF = date.format(fechaFinal);
-        terminalesSellos = new ArrayList<>();
+        if (comercializadora != null && terminal != null && fechaInicial != null && fechaFinal != null) {
+            DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
+            /*fechas para hacer la consulta*/
+            String fechaI = date.format(fechaInicial);
+            String fechaF = date.format(fechaFinal);
+            terminalesSellos = new ArrayList<>();
 
-        JSONArray retorno = sellosServicio.buscarSellos(codComer, codTerminal, "e", fechaI, fechaF);
-        if (retorno.isEmpty()) {
-            this.dialogo(FacesMessage.SEVERITY_ERROR, "NO SE ENCONTRARON SELLOS");
-        } else {
-            for (int indice = 0; indice < retorno.length(); indice++) {
-                if (!retorno.isNull(indice)) {
-                    JSONObject terminal = retorno.getJSONObject(indice);
-                    JSONObject terminalPk = terminal.getJSONObject("terminalselloPK");
-                    Long dateStrTerminal = terminal.getLong("fecha");
-                    Date dateFecha = new Date(dateStrTerminal);
-                    String fecha = date.format(dateFecha);
+            JSONArray retorno = sellosServicio.buscarSellos(codComer, codTerminal, "e", fechaI, fechaF);
+            if (retorno.isEmpty()) {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "NO SE ENCONTRARON SELLOS");
+            } else {
+                for (int indice = 0; indice < retorno.length(); indice++) {
+                    if (!retorno.isNull(indice)) {
+                        JSONObject terminal = retorno.getJSONObject(indice);
+                        JSONObject terminalPk = terminal.getJSONObject("terminalselloPK");
+                        Long dateStrTerminal = terminal.getLong("fecha");
+                        Date dateFecha = new Date(dateStrTerminal);
+                        String fecha = date.format(dateFecha);
 
-                    terminalSelloPk.setCodigocomercializadora(terminalPk.getString("codigocomercializadora"));
-                    terminalSelloPk.setCodigoterminalentrega(terminalPk.getString("codigoterminalentrega"));
-                    terminalSelloPk.setCodigoterminalrecibe(terminalPk.getString("codigoterminalrecibe"));
-                    terminalSelloPk.setSelloinicial(terminalPk.getBigInteger("selloinicial"));
-                    terminalSelloPk.setSellofinal(terminalPk.getBigInteger("sellofinal"));
+                        terminalSelloPk.setCodigocomercializadora(terminalPk.getString("codigocomercializadora"));
+                        terminalSelloPk.setCodigoterminalentrega(terminalPk.getString("codigoterminalentrega"));
+                        terminalSelloPk.setCodigoterminalrecibe(terminalPk.getString("codigoterminalrecibe"));
+                        terminalSelloPk.setSelloinicial(terminalPk.getBigInteger("selloinicial"));
+                        terminalSelloPk.setSellofinal(terminalPk.getBigInteger("sellofinal"));
 
-                    terminalSello.setTerminalselloPK(terminalSelloPk);
-                    terminalSello.setUsuarioactual(terminal.getString("usuarioactual"));
-                    terminalSello.setFecha(fecha);
-                    terminalesSellos.add(terminalSello);
+                        terminalSello.setTerminalselloPK(terminalSelloPk);
+                        terminalSello.setUsuarioactual(terminal.getString("usuarioactual"));
+                        terminalSello.setSellosvalidos(terminal.getBigInteger("sellosvalidos"));
+                        terminalSello.setFecha(fecha);
+                        terminalesSellos.add(terminalSello);
 
-                    terminalSello = new TerminalSello();
-                    terminalSelloPk = new TerminalSelloPK();
+                        terminalSello = new TerminalSello();
+                        terminalSelloPk = new TerminalSelloPK();
+                    }
                 }
             }
+        } else {
+            this.dialogo(FacesMessage.SEVERITY_WARN, "Debe seleccionar una comercializadora, un terminal y establecer fechas para realizar la búsqueda");
         }
+
     }
 
     public void dialogoAdquision() {
@@ -412,14 +445,15 @@ public class SellosBean extends ReusableBean implements Serializable {
     public void comprarSellos() {
         JSONObject teminalSello = new JSONObject();
         JSONObject teminalSelloPK = new JSONObject();
-        LocalDate fechaActual = LocalDate.now();
-        long timestamp = fechaActual.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        LocalDateTime fechaActual = LocalDateTime.now().withHour(12);
+        long timestamp = fechaActual.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
         teminalSelloPK.put("codigocomercializadora", CodigoComerEnum.PETROL_RIOS.getCodigo());
         teminalSelloPK.put("codigoterminalentrega", TerminalEnum.TERMINAL_ENTREGA.getCodigo());
         teminalSelloPK.put("codigoterminalrecibe", TerminalEnum.TERMINAL_RECIBE.getCodigo());
         teminalSelloPK.put("selloinicial", BigInteger.valueOf(selloInicial));
         teminalSelloPK.put("sellofinal", BigInteger.valueOf(selloFinal));
+        teminalSello.put("sellosvalidos", BigInteger.valueOf(-1));
         teminalSello.put("terminalselloPK", teminalSelloPK);
         teminalSello.put("fecha", timestamp);
         teminalSello.put("usuarioactual", dataUser.getUser().getNombrever());
@@ -489,6 +523,9 @@ public class SellosBean extends ReusableBean implements Serializable {
             detalleEntregaRecepcion = new ArrayList<>();
             selloInicialEntrega = filaSeleccionada.getTerminalselloPK().getSelloinicial().intValue();
             selloFinalEntrega = filaSeleccionada.getTerminalselloPK().getSellofinal().intValue();
+            sellosExistentes = 0;
+            selloInicial = 0;
+            selloFinal = 0;
             PrimeFaces.current().executeScript("PF('entregaRecepcion').show()");
             JSONArray retorno = sellosServicio.entregaRecepcionConsulta(
                     filaSeleccionada.getTerminalselloPK().getCodigocomercializadora(),
@@ -525,6 +562,9 @@ public class SellosBean extends ReusableBean implements Serializable {
                         terminalSello.setTerminalselloPK(terminalSelloPk);
                         terminalSello.setFecha(fecha);
                         terminalSello.setUsuarioactual(termSello.getString("usuarioactual"));
+                        terminalSello.setSellosvalidos(termSello.getBigInteger("sellosvalidos"));
+
+                        sellosExistentes = termSello.getBigInteger("sellosvalidos").intValue();
 
                         detalleTerminalSello.setDetalleterminalselloPK(detalleTerminalSelloPK);
                         detalleTerminalSello.setTerminalsello(terminalSello);
@@ -543,7 +583,7 @@ public class SellosBean extends ReusableBean implements Serializable {
     }
 
     public void validarRangoInicial() {
-        if (selloInicial <= selloInicialEntrega || selloInicial >= selloFinalEntrega) {
+        if (selloInicial < selloInicialEntrega || selloInicial > selloFinalEntrega) {
             this.dialogo(FacesMessage.SEVERITY_WARN, "El sello inicial se encuentra fuera del rango seleccionado");
             rangoInicialValido = false;
             rangosValidos = false;
@@ -553,37 +593,74 @@ public class SellosBean extends ReusableBean implements Serializable {
     }
 
     public void validarRangoFinal() {
-        if (selloFinal <= selloInicialEntrega || selloFinal >= selloFinalEntrega) {
+        if (selloFinal < selloInicialEntrega || selloFinal > selloFinalEntrega) {
             this.dialogo(FacesMessage.SEVERITY_WARN, "El sello final se encuentra fuera del rango seleccionado");
             rangosValidos = false;
         } else {
             if (rangoInicialValido) {
                 rangosValidos = true;
                 if (detalleEntregaRecepcion.size() > 0) {
+                    detallesTerminalSelloERJSON = new ArrayList<>();
+                    LocalDateTime fechaActual = LocalDateTime.now().withHour(12);
+                    long timestamp = fechaActual.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+                    int numeroSellos = (selloFinal - selloInicial) + 1;
+                    int conteoSellos = 0;
+                    int sellosValidos = 0;
                     for (Detalleterminalsello element : detalleEntregaRecepcion) {
                         int selloEncontrado = element.getDetalleterminalselloPK().getSello().intValue();
                         if (selloEncontrado >= selloInicial && selloEncontrado <= selloFinal) {
-                            List<JSONObject> detallesTerminalSelloERJSON = new ArrayList<>();
-                            LocalDate fechaActual = LocalDate.now();
-                            long timestamp = fechaActual.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+                            sellosValidos = element.getActivo() ? sellosValidos + 1 : sellosValidos;
                             JSONObject detallesTerminalSelloER = new JSONObject();
                             detallesTerminalSelloER.put("codigocomercializadora", element.getDetalleterminalselloPK().getCodigocomercializadora());
                             detallesTerminalSelloER.put("codigoterminalentrega", element.getDetalleterminalselloPK().getCodigoterminalentrega());
-                            detallesTerminalSelloER.put("codigoterminalrecibe", element.getDetalleterminalselloPK().getCodigoterminalrecibe());
-                            detallesTerminalSelloER.put("selloinicial", element.getDetalleterminalselloPK().getSelloinicial());
-                            detallesTerminalSelloER.put("sellofinal", element.getDetalleterminalselloPK().getSellofinal());
+                            detallesTerminalSelloER.put("codigoterminalrecibe", codTerminalRecibe);
+                            detallesTerminalSelloER.put("selloinicial", selloInicial);
+                            detallesTerminalSelloER.put("sellofinal", selloFinal);
                             detallesTerminalSelloER.put("sello", element.getDetalleterminalselloPK().getSello());
-                            detallesTerminalSelloER.put("observacion", element.getObservacion());
+                            detallesTerminalSelloER.put("observacion", "ENTREGA RECEPCION");
                             detallesTerminalSelloER.put("activo", element.getActivo());
                             detallesTerminalSelloER.put("fecha", fechaActual);
                             detallesTerminalSelloER.put("usuarioactual", dataUser.getUser().getNombrever());
                             detallesTerminalSelloERJSON.add(detallesTerminalSelloER);
-                            System.out.println("hola");
+                            conteoSellos++;
+                            if (numeroSellos == conteoSellos) {
+                                sellosEntregar = sellosValidos;
+                                break;
+                            }
                         }
                     }
+
                 }
             }
         }
+    }
+
+    public void procesarEntregaRecepcion() {
+        if (!detallesTerminalSelloERJSON.isEmpty()) {
+            if (terminalRecibe != null) {
+                boolean procedeActualizacion = sellosServicio.entregaRecpcionSellos(detallesTerminalSelloERJSON);
+                if (procedeActualizacion) {
+                    for (int i = 0; i < detallesTerminalSelloERJSON.size(); i++) {
+                        detallesTerminalSelloERJSON.get(i).put("activo", false);
+                    }
+                    sellosServicio.actualizarSellos(detallesTerminalSelloERJSON);
+                    PrimeFaces.current().executeScript("PF('entregaRecepcion').hide()");
+                }
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_WARN, "Debe seleccionar el Terminal que recibe para procesar la entrega/recepción.");
+            }
+
+        }
+    }
+
+    public void cancelarDialogoEntregaRecepcion() {
+        selloInicial = 0;
+        selloFinal = 0;
+        sellosEntregar = 0;
+        rangosValidos = false;
+        detalleEntregaRecepcion = new ArrayList<>();
+        detallesTerminalSelloERJSON = new ArrayList<>();
+        PrimeFaces.current().executeScript("PF('entregaRecepcion').hide()");
     }
 
     public ComercializadoraServicio getComerServicio() {
@@ -833,4 +910,29 @@ public class SellosBean extends ReusableBean implements Serializable {
     public void setRangosValidos(boolean rangosValidos) {
         this.rangosValidos = rangosValidos;
     }
+
+    public Terminal getTerminalRecibe() {
+        return terminalRecibe;
+    }
+
+    public void setTerminalRecibe(Terminal terminalRecibe) {
+        this.terminalRecibe = terminalRecibe;
+    }
+
+    public int getSellosEntregar() {
+        return sellosEntregar;
+    }
+
+    public void setSellosEntregar(int sellosEntregar) {
+        this.sellosEntregar = sellosEntregar;
+    }
+
+    public int getSellosExistentes() {
+        return sellosExistentes;
+    }
+
+    public void setSellosExistentes(int sellosExistentes) {
+        this.sellosExistentes = sellosExistentes;
+    }
+
 }

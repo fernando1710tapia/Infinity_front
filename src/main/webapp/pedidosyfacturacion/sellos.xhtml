@@ -65,7 +65,7 @@
                                     </div> 
                                 </div>
                                 <div class="p-field p-col-12 p-md-4">
-                                    <p:commandButton value="Buscar" icon="pi pi-search"  actionListener="#{sellosBean.obtenerSellos()}" update="form"/>
+                                    <p:commandButton value="Buscar" icon="pi pi-search"  actionListener="#{sellosBean.obtenerSellos()}" update="form:dt-products"/>
                                 </div>
                                 <div class="p-field p-col-12 p-md-4">                                  
                                     <p:outputLabel for="fechaIn" value="Fecha Inicio"/>
@@ -108,8 +108,8 @@
                                 <p:column headerText="Sello Final" sortBy="#{terms.terminalselloPK.sellofinal}" filterBy="#{terms.terminalselloPK.sellofinal}" width="10%">
                                     <h:outputText value="#{terms.terminalselloPK.sellofinal}" />
                                 </p:column>
-                                <p:column headerText="Sellos Validos" sortBy="#{terms.terminalselloPK.sellofinal}" filterBy="#{terms.terminalselloPK.sellofinal}" width="10%">
-                                    <h:outputText value="#{terms.terminalselloPK.sellofinal}" />
+                                <p:column headerText="Sellos Validos" sortBy="#{terms.sellosvalidos}" filterBy="#{terms.sellosvalidos}" width="10%">
+                                    <h:outputText value="#{terms.sellosvalidos}" />
                                 </p:column>
 <!--                                <p:column headerText="Detalle" sortBy="#{notap.notapedido.activa}" filterBy="#{notap.notapedido.activa}" width="15%">
                                     <h:outputText styleClass="product-badge status-#{estilos.tipoActivoBool(notap.notapedido.activa)}" value="#{estilos.valorBoolActivo(notap.notapedido.activa)}" />
@@ -197,7 +197,7 @@
                                         <span class="ui-inputgroup-addon">
                                             <i class="fa fa-shopping-cart"></i>
                                         </span>
-                                        <p:selectOneMenu id="terminalR" value="#{sellosBean.terminal}" title="Terminal Recibe"
+                                        <p:selectOneMenu id="terminalR" value="#{sellosBean.terminalRecibe}" title="Terminal Recibe"
                                                          panelStyle="width:175px" style="min-width: 80%;" 
                                                          autoWidth="false" converter="converterg">
             <!--                                             disabled="#{!sellosBean.habilitarTerminal}">-->
@@ -206,12 +206,12 @@
                                                            var="ter"                                               
                                                            itemLabel="#{ter.codigo}-#{ter.nombre}"
                                                            itemValue="#{ter}" />
-                                            <p:ajax event="change" listener="#{sellosBean.seleccionarTerminal(1)}" />
+                                            <p:ajax event="change" listener="#{sellosBean.seleccionarTerminal(2)}" />
                                         </p:selectOneMenu> 
                                     </div> 
                                 </div>
                                 <div class="p-field p-col-12 p-md-3">
-                                    <p:commandButton value="Buscar" icon="pi pi-search"  actionListener="#{sellosBean.obtenerSellos()}" update="formNuevo"/>
+                                    <p:commandButton value="Buscar" icon="pi pi-search"  actionListener="#{sellosBean.obtenerSellos()}" update="formNuevo:dt-products"/>
                                 </div>
                             </div>
                             <div class="p-field p-col-12 p-md-12">
@@ -243,15 +243,15 @@
                                     <p:column headerText="Sello Final" sortBy="#{terms.terminalselloPK.sellofinal}" filterBy="#{terms.terminalselloPK.sellofinal}" width="15%">
                                         <h:outputText value="#{terms.terminalselloPK.sellofinal}" />
                                     </p:column>
-                                    <p:column headerText="Sellos Validos" sortBy="#{terms.terminalselloPK.sellofinal}" filterBy="#{terms.terminalselloPK.sellofinal}" width="15%">
-                                        <h:outputText value="#{terms.terminalselloPK.sellofinal}" />
+                                    <p:column headerText="Sellos Validos" sortBy="#{terms.sellosvalidos}" filterBy="#{terms.sellosvalidos}" width="15%">
+                                        <h:outputText value="#{terms.sellosvalidos}" />
                                     </p:column>
                                     <p:column exportable="false">
                                         <p:commandButton icon="pi pi-eye" update="form :formDetalleSellos" actionListener="#{sellosBean.detalleSellos(terms, false)}"
                                                          styleClass="edit-button rounded-button ui-button-success" process="@this">
                                             <f:setPropertyActionListener value="#{terms}" target="#{terms}" />
                                         </p:commandButton>
-                                        <p:commandButton icon="pi pi-pencil" update="form :formDetalleSellos" actionListener="#{sellosBean.entregaRecepcionSellos(terms)}"
+                                        <p:commandButton icon="pi pi-pencil" update="formEntregaRecepcion:sellosExistentes formEntregaRecepcion:selloInicial formEntregaRecepcion:selloFinal" actionListener="#{sellosBean.entregaRecepcionSellos(terms)}"
                                                          styleClass="edit-button rounded-button ui-button-success" process="@this">
                                             <f:setPropertyActionListener value="#{terms}" target="#{terms}" />
                                         </p:commandButton>
@@ -261,15 +261,11 @@
                         </div>
                     </div>
                 </div>
-            </p:outputPanel>
-            <p:outputPanel rendered="#{notapedidoBean.mostarNotaPedido}"> 
-                <div class="p-grid">   
-                    <div class="p-field p-col-12 p-md-12"></div>
-                    <div class="p-field p-col-12 p-md-6">
-                        <p:commandButton value="Procesar" icon="pi pi-check"  actionListener="#{notapedidoBean.save()}" update=":form formNuevo" styleClass="p-mr-2"/>
-                        <p:commandButton value="Cancelar" icon="pi pi-times" class="ui-button-secondary"  actionListener="#{notapedidoBean.init()}" update=":form formNuevo" immediate="true"/>
-                    </div>
-                </div>
+                <p:toolbar>
+                    <p:toolbarGroup>
+                        <p:commandButton value="Regresar" icon="pi pi-times" actionListener="#{sellosBean.regresar()}" class="ui-button-secondary" update="formNuevo :form :formDetalleSellos" styleClass="p-mr-2"/>
+                    </p:toolbarGroup>
+                </p:toolbar> 
             </p:outputPanel>
         </h:form>
         <!--</p:dialog>-->
@@ -308,7 +304,7 @@
                                     <!-- Columna "Valido" Editable -->
                                     <p:column headerText="Valido" width="15%">
                                         <h:outputText value="#{detTerms.activo ? 'Sí' : 'No'}" rendered="#{!sellosBean.permitirEdicionActivo}" />
-                                        <p:selectBooleanCheckbox value="#{detTerms.activo}" rendered="#{sellosBean.permitirEdicionActivo}" disabled="#{!sellosBean.permitirEdicionActivo}">
+                                        <p:selectBooleanCheckbox value="#{detTerms.activo}" rendered="#{sellosBean.permitirEdicionActivo}" disabled="#{!detTerms.activo}">
                                             <!-- Ajax para capturar cambios -->
                                             <p:ajax event="change" listener="#{sellosBean.onRowEdit(detTerms)}"/>
                                         </p:selectBooleanCheckbox>
@@ -317,7 +313,7 @@
                                     <!-- Columna "Observación" Editable -->
                                     <p:column headerText="Observación" width="15%">
                                         <h:outputText value="#{detTerms.observacion}" rendered="#{!sellosBean.permitirEdicionObservacion}" />
-                                        <p:inputText value="#{detTerms.observacion}" rendered="#{sellosBean.permitirEdicionObservacion}">
+                                        <p:inputText value="#{detTerms.observacion}" rendered="#{sellosBean.permitirEdicionObservacion}" disabled="#{!detTerms.activo}">
                                             <!-- Ajax para capturar cambios -->
                                             <p:ajax event="change" listener="#{sellosBean.onRowEdit(detTerms)}" />
                                         </p:inputText>
@@ -363,27 +359,35 @@
             <h:form id="formEntregaRecepcion">
                 <p:outputPanel rendered = "true">                               
                     <div class="ui-fluid p-formgrid p-grid">
+                        <div class="p-field p-col-12 p-md-12">
+                            <p:outputLabel for="sellosExistentes" value="Sellos válidos existentes en esta serie:" />
+                            <h:outputText id="sellosExistentes" value="#{sellosBean.sellosExistentes}" style="margin-left: 10px; font-weight: bold;" />
+                        </div>
                         <div class="p-field p-col-12 p-md-6">
                             <p:outputLabel for="selloInicial">Sello Inicial</p:outputLabel>
                             <p:inputText id="selloInicial" 
                                          value="#{sellosBean.selloInicial}">
-                                <p:ajax event="blur" listener="#{sellosBean.validarRangoInicial}" update="form :formNuevo formEntregaRecepcion" />
+                                <p:ajax event="blur" listener="#{sellosBean.validarRangoInicial}" update="formEntregaRecepcion:botonAceptar :formNuevo" />
                             </p:inputText>
                         </div>  
                         <div class="p-field p-col-12 p-md-6">
                             <p:outputLabel for="selloFinal">Sello Final</p:outputLabel>
                             <p:inputText id="selloFinal" 
                                          value="#{sellosBean.selloFinal}"  >
-                                <p:ajax event="blur" listener="#{sellosBean.validarRangoFinal}" update="form :formNuevo formEntregaRecepcion" />
+                                <p:ajax event="blur" listener="#{sellosBean.validarRangoFinal}" update="formEntregaRecepcion:botonAceptar formEntregaRecepcion:sellosEntregar :formNuevo" />
                             </p:inputText>
                         </div>  
+                        <div class="p-field p-col-12 p-md-12">
+                            <p:outputLabel for="sellosEntregar" value="Sellos válidos a entregar:" />
+                            <h:outputText id="sellosEntregar" value="#{sellosBean.sellosEntregar}" style="margin-left: 10px; font-weight: bold;" />
+                        </div>
                         <div class="p-field p-col-12 p-md-12"></div>
                     </div>                                                                                           
                 </p:outputPanel>
                 <div class="p-grid p-justify-end">
-                    <p:commandButton value="Aceptar" icon="pi pi-check" actionListener="#{sellosBean.comprarSellos()}"
-                                     styleClass="p-mr-2" disabled="#{!sellosBean.rangosValidos}"/>
-                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('entregaRecepcion').hide()" class="ui-button-secondary" />
+                    <p:commandButton id="botonAceptar"  value="Aceptar" icon="pi pi-check" actionListener="#{sellosBean.procesarEntregaRecepcion()}"
+                                     styleClass="p-mr-2" disabled="#{!sellosBean.rangosValidos}" update=":formNuevo" />
+                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="#{sellosBean.cancelarDialogoEntregaRecepcion()}" class="ui-button-secondary" update="formEntregaRecepcion formEntregaRecepcion:selloInicial" />
                 </div>
             </h:form>
         </p:dialog>
