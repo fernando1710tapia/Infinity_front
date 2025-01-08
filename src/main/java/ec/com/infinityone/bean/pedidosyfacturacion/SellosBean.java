@@ -414,7 +414,7 @@ public class SellosBean extends ReusableBean implements Serializable {
             String fechaF = date.format(fechaFinal);
             terminalesSellos = new ArrayList<>();
 
-            JSONArray retorno = sellosServicio.buscarSellos(codComer, codTerminal, "e", fechaI, fechaF);
+            JSONArray retorno = sellosServicio.buscarSellos(codComer, codTerminal, "r", fechaI, fechaF);
             if (retorno.isEmpty()) {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "NO SE ENCONTRARON SELLOS");
             } else {
