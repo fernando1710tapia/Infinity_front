@@ -28,16 +28,17 @@
                                 </p:toolbarGroup>
                             </p:toolbar>
                             <div class="ui-fluid p-formgrid p-grid">
-                                <div class="p-field p-col-12 p-md-4">
+                                <div class="p-field p-col-12 p-md-3">
+                                    <label for="term" class="floating-label">Comercializadora</label>
                                     <div class="ui-inputgroup">
                                         <span class="ui-inputgroup-addon">
                                             <i class="fa fa-shopping-cart"></i>
-                                        </span>
+                                        </span>                                        
                                         <p:selectOneMenu id="comercializadora" value="#{sellosBean.comercializadora}" title="Comercializadora"
                                                          panelStyle="width:175px" style="min-width: 80%;" 
                                                          autoWidth="false" converter="converterg"
                                                          disabled="#{!sellosBean.habilitarComer}">
-                                            <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+                                            <f:selectItem noSelectionOption="true" itemLabel="Seleccione..." itemValue="#{null}"/>
                                             <f:selectItems value="#{sellosBean.listaComercializadora}"
                                                            var="comer"
                                                            itemLabel="#{comer.objRelacionado}"
@@ -46,16 +47,17 @@
                                         </p:selectOneMenu> 
                                     </div>                          
                                 </div>
-                                <div class="p-field p-col-12 p-md-4">
-                                    <div class="ui-inputgroup">
+                                <div class="p-field p-col-12 p-md-3">
+                                    <label for="term" class="floating-label">Terminal Recibe</label>
+                                    <div class="ui-inputgroup">                                       
                                         <span class="ui-inputgroup-addon">
                                             <i class="fa fa-shopping-cart"></i>
-                                        </span>
+                                        </span>                                     
                                         <p:selectOneMenu id="term" value="#{sellosBean.terminal}" title="Terminal"
                                                          panelStyle="width:175px" style="min-width: 80%;" 
                                                          autoWidth="false" converter="converterg">
 <!--                                                         disabled="#{!sellosBean.habilitarTerminal}">-->
-                                            <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
+                                            <f:selectItem noSelectionOption="true" itemLabel="Seleccione..." itemValue="#{null}"/>
                                             <f:selectItems value="#{sellosBean.listaTermianles}"
                                                            var="ter"
                                                            itemLabel="#{ter.codigo} - #{ter.nombre}"                                                           
@@ -64,18 +66,19 @@
                                         </p:selectOneMenu> 
                                     </div> 
                                 </div>
-                                <div class="p-field p-col-12 p-md-4">
-                                    <p:commandButton value="Buscar" icon="pi pi-search"  actionListener="#{sellosBean.obtenerSellos()}" update="form:dt-products"/>
-                                </div>
-                                <div class="p-field p-col-12 p-md-4">                                  
+                                <div class="p-field p-col-12 p-md-2">                                  
                                     <p:outputLabel for="fechaIn" value="Fecha Inicio"/>
                                     <p:datePicker id="fechaIn" value="#{sellosBean.fechaInicial}" showIcon="true" pattern="dd/MM/yyyy" >
                                         <p:ajax event="dateSelect" update="fechaFin"/>
                                     </p:datePicker>
                                 </div>
-                                <div class="p-field p-col-12 p-md-4">                                  
+                                <div class="p-field p-col-12 p-md-2">                                  
                                     <p:outputLabel for="fechaFin" value="Fecha Final"/>
                                     <p:datePicker id="fechaFin" value="#{sellosBean.fechaFinal}" showIcon="true" pattern="dd/MM/yyyy" mindate="#{sellosBean.fechaInicial}"/>                                   
+                                </div>
+                                <div class="p-field p-col-12 p-md-2">
+                                    <p:outputLabel for="btnBuscar" value="."/>
+                                    <p:commandButton id="btnBuscar" value="Buscar" icon="pi pi-search"  actionListener="#{sellosBean.obtenerSellos()}" update="form:dt-products"/>
                                 </div>
                             </div>                              
                             <p:dataTable id="dt-products" widgetVar="dtProducts" var="terms" value="#{sellosBean.terminalesSellos}" reflow="true" styleClass="products-table"
@@ -115,11 +118,11 @@
                                     <h:outputText styleClass="product-badge status-#{estilos.tipoActivoBool(notap.notapedido.activa)}" value="#{estilos.valorBoolActivo(notap.notapedido.activa)}" />
                                 </p:column>-->
                                 <p:column exportable="false">
-                                    <p:commandButton icon="pi pi-eye" update="form :formDetalleSellos" actionListener="#{sellosBean.detalleSellos(terms, false)}"
+                                    <p:commandButton icon="pi pi-eye" update="form :formDetalleSellos" actionListener="#{sellosBean.detalleSellos(terms, false, false)}"
                                                      styleClass="edit-button rounded-button ui-button-success" process="@this">
                                         <f:setPropertyActionListener value="#{terms}" target="#{terms}" />
                                     </p:commandButton>
-                                    <p:commandButton icon="pi pi-pencil" update="form :formDetalleSellos" actionListener="#{sellosBean.detalleSellos(terms, true)}"
+                                    <p:commandButton icon="pi pi-pencil" update="form :formDetalleSellos" actionListener="#{sellosBean.detalleSellos(terms, true, false)}"
                                                      styleClass="edit-button rounded-button ui-button-success" process="@this">
                                         <f:setPropertyActionListener value="#{terms}" target="#{terms}" />
                                     </p:commandButton>
@@ -140,6 +143,7 @@
                             <p:growl id="messages" showDetail="true" />
                             <div class="ui-fluid p-formgrid p-grid">
                                 <div class="p-field p-col-12 p-md-3">
+                                    <label for="term" class="floating-label">Comercializadora</label>
                                     <div class="ui-inputgroup">
                                         <span class="ui-inputgroup-addon">
                                             <i class="fa fa-shopping-cart"></i>
@@ -147,9 +151,8 @@
                                         <p:selectOneMenu id="comercializadora" value="#{sellosBean.comercializadora}" title="Comercializadora"
                                                          panelStyle="width:175px" style="min-width: 80%;" 
                                                          autoWidth="false" converter="converterg"
-                                                         required="true"
                                                          disabled="#{!sellosBean.habilitarComer}">
-                                            <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+                                            <f:selectItem noSelectionOption="true" itemLabel="Seleccione..." itemValue="#{null}"/>
                                             <f:selectItems value="#{sellosBean.listaComercializadora}"
                                                            var="comer"
                                                            itemLabel="#{comer.objRelacionado}"
@@ -160,6 +163,7 @@
                                     </div>                           
                                 </div>
                                 <div class="p-field p-col-12 p-md-3">
+                                    <label for="term" class="floating-label">Terminal Entrega</label>
                                     <div class="ui-inputgroup">
                                         <span class="ui-inputgroup-addon">
                                             <i class="fa fa-shopping-cart"></i>
@@ -168,7 +172,7 @@
                                                          panelStyle="width:175px" style="min-width: 80%;" 
                                                          autoWidth="false" converter="converterg">
             <!--                                             disabled="#{!sellosBean.habilitarTerminal}">-->
-                                            <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
+                                            <f:selectItem noSelectionOption="true" itemLabel="Seleccione..." itemValue="#{null}"/>
                                             <f:selectItems value="#{sellosBean.listaTermianles}"
                                                            var="ter"                                               
                                                            itemLabel="#{ter.codigo}-#{ter.nombre}"
@@ -177,22 +181,26 @@
                                         </p:selectOneMenu> 
                                     </div> 
                                 </div>
-                                <div class="p-field p-col-12 p-md-3">                                  
+                                <div class="p-field p-col-12 p-md-2">                                  
                                     <p:outputLabel for="efechaIn" value="Fecha Inicio"/>
                                     <p:datePicker id="efechaIn" value="#{sellosBean.fechaInicial}" showIcon="true" pattern="dd/MM/yyyy" >
                                         <p:ajax event="dateSelect" update="efechaIn"/>
                                     </p:datePicker>
                                 </div>
-                                <div class="p-field p-col-12 p-md-3">                                  
+                                <div class="p-field p-col-12 p-md-2">                                  
                                     <p:outputLabel for="efechaFin" value="Fecha Final"/>
                                     <p:datePicker id="efechaFin" value="#{sellosBean.fechaFinal}" showIcon="true" pattern="dd/MM/yyyy" mindate="#{sellosBean.fechaInicial}"/>                                   
                                 </div>
-                                <div class="p-field p-col-12 p-md-3">                                  
-                                    <p:datePicker id="efechaAc" value="#{sellosBean.fechaActual}" showIcon="true" pattern="dd/MM/yyyy" >
-                                        <p:ajax event="dateSelect"/>
-                                    </p:datePicker>
+                                <div class="p-field p-col-12 p-md-2">
+                                    <p:outputLabel for="btnBuscar1" value="."/>
+                                    <p:commandButton id="btnBuscar1" value="Buscar" icon="pi pi-search"  actionListener="#{sellosBean.obtenerSellos()}" update="formNuevo:dt-products"/>
+                                </div>
+                                <div class="p-field p-col-12 p-md-3">   
+                                    <p:outputLabel for="efechaAc" value="Fecha Actual"/>
+                                    <p:datePicker id="efechaAc" value="#{sellosBean.fechaActual}" showIcon="true" pattern="dd/MM/yyyy" disabled="true"/>
                                 </div>
                                 <div class="p-field p-col-12 p-md-3">
+                                    <label for="term" class="floating-label">Terminal Recibe</label>
                                     <div class="ui-inputgroup">
                                         <span class="ui-inputgroup-addon">
                                             <i class="fa fa-shopping-cart"></i>
@@ -201,7 +209,7 @@
                                                          panelStyle="width:175px" style="min-width: 80%;" 
                                                          autoWidth="false" converter="converterg">
             <!--                                             disabled="#{!sellosBean.habilitarTerminal}">-->
-                                            <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
+                                            <f:selectItem noSelectionOption="true" itemLabel="Seleccione..." itemValue="#{null}"/>
                                             <f:selectItems value="#{sellosBean.listaTermianles}"
                                                            var="ter"                                               
                                                            itemLabel="#{ter.codigo}-#{ter.nombre}"
@@ -210,9 +218,7 @@
                                         </p:selectOneMenu> 
                                     </div> 
                                 </div>
-                                <div class="p-field p-col-12 p-md-3">
-                                    <p:commandButton value="Buscar" icon="pi pi-search"  actionListener="#{sellosBean.obtenerSellos()}" update="formNuevo:dt-products"/>
-                                </div>
+
                             </div>
                             <div class="p-field p-col-12 p-md-12">
                                 <p:dataTable id="dt-products" widgetVar="dtProducts" var="terms" 
@@ -247,12 +253,18 @@
                                         <h:outputText value="#{terms.sellosvalidos}" />
                                     </p:column>
                                     <p:column exportable="false">
-                                        <p:commandButton icon="pi pi-eye" update="form :formDetalleSellos" actionListener="#{sellosBean.detalleSellos(terms, false)}"
-                                                         styleClass="edit-button rounded-button ui-button-success" process="@this">
+                                        <p:commandButton icon="pi pi-eye" update="formNuevo :formDetalleSellos" actionListener="#{sellosBean.detalleSellos(terms, false, true)}"
+                                                         styleClass="edit-button rounded-button ui-button-success" >
                                             <f:setPropertyActionListener value="#{terms}" target="#{terms}" />
                                         </p:commandButton>
-                                        <p:commandButton icon="pi pi-pencil" update="formEntregaRecepcion:sellosExistentes formEntregaRecepcion:selloInicial formEntregaRecepcion:selloFinal" actionListener="#{sellosBean.entregaRecepcionSellos(terms)}"
-                                                         styleClass="edit-button rounded-button ui-button-success" process="@this">
+                                        <p:commandButton icon="pi pi-pencil" 
+                                                         update="formEntregaRecepcion:sellosExistentes 
+                                                         formEntregaRecepcion:selloInicial 
+                                                         formEntregaRecepcion:selloFinal 
+                                                         formEntregaRecepcion:sellosEntregar 
+                                                         formEntregaRecepcion:botonAceptar" 
+                                                         actionListener="#{sellosBean.entregaRecepcionSellos(terms)}"
+                                                         styleClass="edit-button rounded-button ui-button-success">
                                             <f:setPropertyActionListener value="#{terms}" target="#{terms}" />
                                         </p:commandButton>
                                     </p:column>
@@ -304,7 +316,7 @@
                                     <!-- Columna "Valido" Editable -->
                                     <p:column headerText="Valido" width="15%">
                                         <h:outputText value="#{detTerms.activo ? 'Sí' : 'No'}" rendered="#{!sellosBean.permitirEdicionActivo}" />
-                                        <p:selectBooleanCheckbox value="#{detTerms.activo}" rendered="#{sellosBean.permitirEdicionActivo}" disabled="#{!detTerms.activo}">
+                                        <p:selectBooleanCheckbox value="#{detTerms.activo}" rendered="#{sellosBean.permitirEdicionActivo}" disabled="#{!detTerms.validaActivo}">
                                             <!-- Ajax para capturar cambios -->
                                             <p:ajax event="change" listener="#{sellosBean.onRowEdit(detTerms)}"/>
                                         </p:selectBooleanCheckbox>
@@ -313,7 +325,7 @@
                                     <!-- Columna "Observación" Editable -->
                                     <p:column headerText="Observación" width="15%">
                                         <h:outputText value="#{detTerms.observacion}" rendered="#{!sellosBean.permitirEdicionObservacion}" />
-                                        <p:inputText value="#{detTerms.observacion}" rendered="#{sellosBean.permitirEdicionObservacion}" disabled="#{!detTerms.activo}">
+                                        <p:inputText value="#{detTerms.observacion}" rendered="#{sellosBean.permitirEdicionObservacion}" disabled="#{!detTerms.validaActivo}">
                                             <!-- Ajax para capturar cambios -->
                                             <p:ajax event="change" listener="#{sellosBean.onRowEdit(detTerms)}" />
                                         </p:inputText>
@@ -323,7 +335,7 @@
                         </div>
                         <p:toolbar>
                             <p:toolbarGroup>
-                                <p:commandButton value="Regresar" icon="pi pi-times" actionListener="#{sellosBean.regresar()}" class="ui-button-secondary" update="form :formDetalleSellos" styleClass="p-mr-2"/>
+                                <p:commandButton value="Regresar" icon="pi pi-times" actionListener="#{sellosBean.regresar()}" class="ui-button-secondary" update=":form formDetalleSellos :formNuevo" styleClass="p-mr-2"/>
                                 <p:commandButton rendered="#{sellosBean.permitirEdicionActivo}" value="Actualizar Sellos" icon="pi pi-plus" actionListener="#{sellosBean.actualizarDetalleSellos()}" styleClass="ui-button-info" update="form :formDetalleSellos"/>
                             </p:toolbarGroup>
                         </p:toolbar> 
@@ -338,11 +350,11 @@
                     <div class="ui-fluid p-formgrid p-grid">
                         <div class="p-field p-col-12 p-md-6">
                             <p:outputLabel for="selloInicial">Sello Inicial</p:outputLabel>
-                            <p:inputNumber id="selloInicial" value="#{sellosBean.selloInicial}" maxlength="4" />
+                            <p:inputNumber id="selloInicial" value="#{sellosBean.selloInicial}" maxlength="10" />
                         </div>  
                         <div class="p-field p-col-12 p-md-6">
                             <p:outputLabel for="selloFinal">Sello Final</p:outputLabel>
-                            <p:inputNumber id="selloFinal" value="#{sellosBean.selloFinal}" maxlength="4" />
+                            <p:inputNumber id="selloFinal" value="#{sellosBean.selloFinal}" maxlength="10" />
                         </div>  
                         <div class="p-field p-col-12 p-md-12"></div>
                     </div>                                                                                           
@@ -367,14 +379,14 @@
                             <p:outputLabel for="selloInicial">Sello Inicial</p:outputLabel>
                             <p:inputText id="selloInicial" 
                                          value="#{sellosBean.selloInicial}">
-                                <p:ajax event="blur" listener="#{sellosBean.validarRangoInicial}" update="formEntregaRecepcion:botonAceptar :formNuevo" />
+                                <p:ajax event="blur" listener="#{sellosBean.validarRangoInicial}" update="formEntregaRecepcion:botonAceptar :formNuevo" process="@this" />
                             </p:inputText>
                         </div>  
                         <div class="p-field p-col-12 p-md-6">
                             <p:outputLabel for="selloFinal">Sello Final</p:outputLabel>
                             <p:inputText id="selloFinal" 
                                          value="#{sellosBean.selloFinal}"  >
-                                <p:ajax event="blur" listener="#{sellosBean.validarRangoFinal}" update="formEntregaRecepcion:botonAceptar formEntregaRecepcion:sellosEntregar :formNuevo" />
+                                <p:ajax event="blur" listener="#{sellosBean.validarRangoFinal}" update="formEntregaRecepcion:botonAceptar formEntregaRecepcion:sellosEntregar :formNuevo" process="@this" />
                             </p:inputText>
                         </div>  
                         <div class="p-field p-col-12 p-md-12">
