@@ -20,6 +20,8 @@ public class Detalleterminalsello implements Serializable {
     private String observacion;
 
     private Boolean activo;
+    
+    private Boolean validaActivo;
 
     private String fecha;
 
@@ -87,6 +89,14 @@ public class Detalleterminalsello implements Serializable {
         this.terminalsello = terminalsello;
     }
 
+    public Boolean getValidaActivo() {
+        return validaActivo;
+    }
+
+    public void setValidaActivo(Boolean validaActivo) {
+        this.validaActivo = validaActivo;
+    }
+    
     @Override
     public Detalleterminalsello clone() {
         Detalleterminalsello cloned = new Detalleterminalsello();
