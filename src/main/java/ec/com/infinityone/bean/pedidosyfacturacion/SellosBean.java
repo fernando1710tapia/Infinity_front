@@ -114,6 +114,10 @@ public class SellosBean extends ReusableBean implements Serializable {
     private List<Detalleterminalsello> detalleEntregaRecepcion = new ArrayList<>();
 
     private List<JSONObject> detallesTerminalSelloERJSON;
+    
+    private JSONObject detTerminalSelloOriginal;
+    private List<JSONObject> detallesTerminalSelloERJSONOriginal;
+ 
     /*
     Variable para almacenar los datos de detalleTerminalSello
      */
@@ -328,6 +332,7 @@ public class SellosBean extends ReusableBean implements Serializable {
         detalleTerminalSelloPK = new DetalleterminalselloPK();
         selectedItem = new TerminalSello();
         detallesTerminalSelloERJSON = new ArrayList<>();
+        detallesTerminalSelloERJSONOriginal = new ArrayList<>();
         //listaProductos = new ArrayList<>();
     }
 
@@ -532,13 +537,15 @@ public class SellosBean extends ReusableBean implements Serializable {
         if (filaSeleccionada != null) {
             DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
             detalleEntregaRecepcion = new ArrayList<>();
+            detallesTerminalSelloERJSONOriginal = new ArrayList<>();
             selloInicialEntrega = filaSeleccionada.getTerminalselloPK().getSelloinicial().intValue();
             selloFinalEntrega = filaSeleccionada.getTerminalselloPK().getSellofinal().intValue();
             sellosExistentes = 0;
             selloInicial = 0;
             selloFinal = 0;
             PrimeFaces.current().executeScript("PF('entregaRecepcion').show()");
-            JSONArray retorno = sellosServicio.entregaRecepcionConsulta(
+            
+            JSONArray retorno = sellosServicio.entregaRecepcionConsulta( 
                     filaSeleccionada.getTerminalselloPK().getCodigocomercializadora(),
                     true,
                     false,
@@ -548,13 +555,14 @@ public class SellosBean extends ReusableBean implements Serializable {
             if (retorno.isEmpty()) {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "NO SE ENCONTRARON SELLOS");
             } else {
+                 
                 for (int indice = 0; indice <= retorno.length(); indice++) {
                     if (!retorno.isNull(indice)) {
                         JSONObject detTerminalSello = retorno.getJSONObject(indice);
                         JSONObject detTerminalSelloPk = detTerminalSello.getJSONObject("detalleterminalselloPK");
                         JSONObject termSello = detTerminalSello.getJSONObject("terminalsello");
                         JSONObject termlSelloPk = termSello.getJSONObject("terminalselloPK");
-                        Long dateStrTerminal = detTerminalSello.getLong("fecha");
+                        Long dateStrTerminal = detTerminalSello.getLong("fecha"); 
                         Date dateFecha = new Date(dateStrTerminal);
                         String fecha = date.format(dateFecha);
 
@@ -579,9 +587,20 @@ public class SellosBean extends ReusableBean implements Serializable {
 
                         detalleTerminalSello.setDetalleterminalselloPK(detalleTerminalSelloPK);
                         detalleTerminalSello.setTerminalsello(terminalSello);
+                        
+                        
                         detalleTerminalSello.setActivo(detTerminalSello.getBoolean("activo"));
+
+
+//                        detalleTerminalSello.setActivo(detTerminalSelloOriginal.getBoolean("activo"));
+                        
+                        
                         detalleTerminalSello.setFecha(fecha);
-                        detalleTerminalSello.setUsuarioactual(detTerminalSello.getString("usuarioactual"));
+                        
+                         detalleTerminalSello.setUsuarioactual(detTerminalSello.getString("usuarioactual"));
+                        
+//                        detalleTerminalSello.setUsuarioactual(detTerminalSelloOriginal.getString("usuarioactual"));
+    
                         detalleEntregaRecepcion.add(detalleTerminalSello);
                         detalleTerminalSello = new Detalleterminalsello();
                         detalleTerminalSelloPK = new DetalleterminalselloPK();
@@ -604,6 +623,10 @@ public class SellosBean extends ReusableBean implements Serializable {
     }
 
     public void validarRangoFinal() {
+        
+        JSONObject detTerminalSelloOriginal;
+        detallesTerminalSelloERJSONOriginal = new ArrayList<>(); 
+        
         if (selloFinal < selloInicialEntrega || selloFinal > selloFinalEntrega) {
             this.dialogo(FacesMessage.SEVERITY_WARN, "El sello final se encuentra fuera del rango seleccionado");
             rangosValidos = false;
@@ -621,6 +644,26 @@ public class SellosBean extends ReusableBean implements Serializable {
                         int selloEncontrado = detalleEntregaRecepcion.get(element).getDetalleterminalselloPK().getSello().intValue();
                         if (selloEncontrado >= selloInicial && selloEncontrado <= selloFinal) {
                             sellosValidos = detalleEntregaRecepcion.get(element).getActivo() ? sellosValidos + 1 : sellosValidos;
+ 
+                            // arreglo original  
+                        
+                            detTerminalSelloOriginal = new JSONObject();
+                            detTerminalSelloOriginal.put("codigocomercializadora", detalleEntregaRecepcion.get(element).getDetalleterminalselloPK().getCodigocomercializadora());
+                            detTerminalSelloOriginal.put("codigoterminalentrega", detalleEntregaRecepcion.get(element).getDetalleterminalselloPK().getCodigoterminalentrega());
+                            detTerminalSelloOriginal.put("codigoterminalrecibe", detalleEntregaRecepcion.get(element).getDetalleterminalselloPK().getCodigoterminalrecibe());
+                            detTerminalSelloOriginal.put("selloinicial", detalleEntregaRecepcion.get(element).getDetalleterminalselloPK().getSelloinicial());
+                            detTerminalSelloOriginal.put("sellofinal", detalleEntregaRecepcion.get(element).getDetalleterminalselloPK().getSellofinal());
+                            detTerminalSelloOriginal.put("sello", detalleEntregaRecepcion.get(element).getDetalleterminalselloPK().getSello());
+                            detTerminalSelloOriginal.put("observacion", "SELLOS ENTREGADOS");
+                            detTerminalSelloOriginal.put("activo", false);
+                            detTerminalSelloOriginal.put("fecha", fechaActual);
+                            detTerminalSelloOriginal.put("usuarioactual", dataUser.getUser().getNombrever());
+                            detallesTerminalSelloERJSONOriginal.add(detTerminalSelloOriginal);
+                        
+                        //FIN arreglo original  
+                        
+                        // arreglo para Entrega
+                            
                             JSONObject detallesTerminalSelloER = new JSONObject();
                             detallesTerminalSelloER.put("codigocomercializadora", detalleEntregaRecepcion.get(element).getDetalleterminalselloPK().getCodigocomercializadora());
                             detallesTerminalSelloER.put("codigoterminalentrega", detalleEntregaRecepcion.get(element).getDetalleterminalselloPK().getCodigoterminalentrega());
@@ -628,7 +671,7 @@ public class SellosBean extends ReusableBean implements Serializable {
                             detallesTerminalSelloER.put("selloinicial", selloInicial);
                             detallesTerminalSelloER.put("sellofinal", selloFinal);
                             detallesTerminalSelloER.put("sello", detalleEntregaRecepcion.get(element).getDetalleterminalselloPK().getSello());
-                            detallesTerminalSelloER.put("observacion", "ENTREGA RECEPCION");
+                            detallesTerminalSelloER.put("observacion", "SELLOS RECIBIDOS");
                             detallesTerminalSelloER.put("activo", detalleEntregaRecepcion.get(element).getActivo());
                             detallesTerminalSelloER.put("fecha", fechaActual);
                             detallesTerminalSelloER.put("usuarioactual", dataUser.getUser().getNombrever());
@@ -647,14 +690,28 @@ public class SellosBean extends ReusableBean implements Serializable {
     }
 
     public void procesarEntregaRecepcion() {
+        
+        LocalDateTime fechaActual = LocalDateTime.now().withHour(12);
+        long timestamp = fechaActual.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         if (!detallesTerminalSelloERJSON.isEmpty()) {
             if (terminalRecibe != null) {
                 boolean procedeActualizacion = sellosServicio.entregaRecpcionSellos(detallesTerminalSelloERJSON);
                 if (procedeActualizacion) {
-                    for (int i = 0; i < detallesTerminalSelloERJSON.size(); i++) {
-                        detallesTerminalSelloERJSON.get(i).put("activo", false);
-                    }
-                    sellosServicio.actualizarSellos(detallesTerminalSelloERJSON);
+                    
+////                    for (int i = 0; i < detallesTerminalSelloERJSONOriginal.size(); i++) {
+//////                        System.out.println("FT-ACTUALIZAR SELLOS LUEGO DE ENTREGAR:. "+detallesTerminalSelloERJSONOriginal.get(i).);
+////                        detallesTerminalSelloERJSONOriginal.get(i).put("activo", false);
+////                        detallesTerminalSelloERJSONOriginal.get(i).put("observacion", "ENTREGA RECEPCION");
+////                        detallesTerminalSelloERJSONOriginal.get(i).put("fecha", fechaActual);
+////                    }
+                    
+                    
+                    sellosServicio.actualizarSellos(detallesTerminalSelloERJSONOriginal);
+
+////     ft               for (int i1 = 0; i1 < detallesTerminalSelloERJSON.size(); i1++) {
+////                        detallesTerminalSelloERJSON.get(i1).put("activo", false);
+////                    }
+////                    sellosServicio.actualizarSellos(detallesTerminalSelloERJSON);
                     PrimeFaces.current().executeScript("PF('entregaRecepcion').hide()");
                 }
             } else {
@@ -673,6 +730,7 @@ public class SellosBean extends ReusableBean implements Serializable {
         sellosEntregar = 0;
         detalleEntregaRecepcion = new ArrayList<>();
         detallesTerminalSelloERJSON = new ArrayList<>();
+        detallesTerminalSelloERJSONOriginal = new ArrayList<>();
         PrimeFaces.current().executeScript("PF('entregaRecepcion').hide()");
     }
 

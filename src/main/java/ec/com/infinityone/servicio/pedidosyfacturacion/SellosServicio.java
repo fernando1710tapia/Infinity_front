@@ -168,7 +168,7 @@ public class SellosServicio extends ReusableBean {
         }
     }
 
-    public void actualizarSellos(List<JSONObject> bodySello) {
+    public void actualizarSellos(List<JSONObject> bodySello) {                //(List<JSONObject> bodySello) {
         //String urlPath = "http://www.supertech.ec:8080/infinityone1/resources/ec.com.infinity.modelo.factura/cargarfacturasbancos";
 
         String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.terminalsello/actualizarlote";
