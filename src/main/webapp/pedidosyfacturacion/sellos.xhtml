@@ -96,13 +96,19 @@
 
                                 <p:ajax event="rowToggle" listener="#{crudDemoView.onRowToggle}" />
 
-                                <p:column headerText="Ter. Entrega" sortBy="#{terms.terminalselloPK.codigoterminalentrega}" filterBy="#{terms.terminalselloPK.codigoterminalentrega}" width="10%">
+                                <p:column headerText="Cod. Entrega" filterBy="#{terms.terminalselloPK.codigoterminalentrega}" width="5%">
                                     <h:outputText value="#{terms.terminalselloPK.codigoterminalentrega}" />
                                 </p:column>
-                                <p:column headerText="Ter. Recibe" sortBy="#{terms.terminalselloPK.codigoterminalrecibe}" filterBy="#{terms.terminalselloPK.codigoterminalrecibe}" width="10%">
+                                <p:column headerText="Nombre Terminal E." filterBy="#{terms.terminalselloPK.nombreTerminalEntrega}" width="10%">
+                                    <h:outputText value="#{terms.terminalselloPK.nombreTerminalEntrega}" />
+                                </p:column>
+                                <p:column headerText="Cod. Recibe" filterBy="#{terms.terminalselloPK.codigoterminalrecibe}" width="5%">
                                     <h:outputText value="#{terms.terminalselloPK.codigoterminalrecibe}" />
                                 </p:column>
-                                <p:column headerText="F. Movimiento" sortBy="#{terms.fecha}" filterBy="#{terms.fecha}" width="15%">
+                                <p:column headerText="Nombre Terminal R." filterBy="#{terms.terminalselloPK.nombreTerminalRecibe}" width="10%">
+                                    <h:outputText value="#{terms.terminalselloPK.nombreTerminalRecibe}" />
+                                </p:column>
+                                <p:column headerText="F. Movimiento" sortBy="#{terms.fecha}" filterBy="#{terms.fecha}" width="10%">
                                     <h:outputText value="#{terms.fecha}" />
                                 </p:column>
                                 <p:column headerText="Sello Inicial" sortBy="#{terms.terminalselloPK.selloinicial}" filterBy="#{terms.terminalselloPK.selloinicial}" width="10%">
@@ -111,7 +117,7 @@
                                 <p:column headerText="Sello Final" sortBy="#{terms.terminalselloPK.sellofinal}" filterBy="#{terms.terminalselloPK.sellofinal}" width="10%">
                                     <h:outputText value="#{terms.terminalselloPK.sellofinal}" />
                                 </p:column>
-                                <p:column headerText="Sellos Validos" sortBy="#{terms.sellosvalidos}" filterBy="#{terms.sellosvalidos}" width="10%">
+                                <p:column headerText="Sellos Validos" filterBy="#{terms.sellosvalidos}" width="10%">
                                     <h:outputText value="#{terms.sellosvalidos}" />
                                 </p:column>
 <!--                                <p:column headerText="Detalle" sortBy="#{notap.notapedido.activa}" filterBy="#{notap.notapedido.activa}" width="15%">
@@ -240,8 +246,11 @@
 
                                     <p:ajax event="rowToggle" listener="#{crudDemoView.onRowToggle}" />
 
-                                    <p:column headerText="Ter. Entrega" sortBy="#{terms.terminalselloPK.codigoterminalentrega}" filterBy="#{terms.terminalselloPK.codigoterminalentrega}" width="15%">
+                                    <p:column headerText="Cod. Entrega" filterBy="#{terms.terminalselloPK.codigoterminalentrega}" width="10%">
                                         <h:outputText value="#{terms.terminalselloPK.codigoterminalentrega}" />
+                                    </p:column>
+                                    <p:column headerText="Nombre Terminal E." filterBy="#{terms.terminalselloPK.nombreTerminalEntrega}" width="15%">
+                                        <h:outputText value="#{terms.terminalselloPK.nombreTerminalEntrega}" />
                                     </p:column>
                                     <p:column headerText="Sello Inicial" sortBy="#{terms.terminalselloPK.selloinicial}" filterBy="#{terms.terminalselloPK.selloinicial}" width="15%">
                                         <h:outputText value="#{terms.terminalselloPK.selloinicial}" />
@@ -249,7 +258,7 @@
                                     <p:column headerText="Sello Final" sortBy="#{terms.terminalselloPK.sellofinal}" filterBy="#{terms.terminalselloPK.sellofinal}" width="15%">
                                         <h:outputText value="#{terms.terminalselloPK.sellofinal}" />
                                     </p:column>
-                                    <p:column headerText="Sellos Validos" sortBy="#{terms.sellosvalidos}" filterBy="#{terms.sellosvalidos}" width="15%">
+                                    <p:column headerText="Sellos Validos" filterBy="#{terms.sellosvalidos}" width="15%">
                                         <h:outputText value="#{terms.sellosvalidos}" />
                                     </p:column>
                                     <p:column exportable="false">

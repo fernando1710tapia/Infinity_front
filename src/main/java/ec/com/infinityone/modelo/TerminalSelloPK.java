@@ -18,6 +18,10 @@ public class TerminalSelloPK implements Serializable {
     private String codigoterminalentrega;
 
     private String codigoterminalrecibe;
+    
+    private String nombreTerminalEntrega;
+    
+    private String nombreTerminalRecibe;
 
     private BigInteger selloinicial;
 
@@ -72,6 +76,22 @@ public class TerminalSelloPK implements Serializable {
 
     public void setSellofinal(BigInteger sellofinal) {
         this.sellofinal = sellofinal;
+    }
+
+    public String getNombreTerminalEntrega() {
+        return nombreTerminalEntrega;
+    }
+
+    public void setNombreTerminalEntrega(String nombreTerminalEntrega) {
+        this.nombreTerminalEntrega = nombreTerminalEntrega;
+    }
+
+    public String getNombreTerminalRecibe() {
+        return nombreTerminalRecibe;
+    }
+
+    public void setNombreTerminalRecibe(String nombreTerminalRecibe) {
+        this.nombreTerminalRecibe = nombreTerminalRecibe;
     }
 
     @Override
