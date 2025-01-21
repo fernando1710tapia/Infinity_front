@@ -710,20 +710,8 @@ public class SellosBean extends ReusableBean implements Serializable {
                 boolean procedeActualizacion = sellosServicio.entregaRecpcionSellos(detallesTerminalSelloERJSON);
                 if (procedeActualizacion) {
 
-                    ////                    for (int i = 0; i < detallesTerminalSelloERJSONOriginal.size(); i++) {
-//////                        System.out.println("FT-ACTUALIZAR SELLOS LUEGO DE ENTREGAR:. "+detallesTerminalSelloERJSONOriginal.get(i).);
-////                        detallesTerminalSelloERJSONOriginal.get(i).put("activo", false);
-////                        detallesTerminalSelloERJSONOriginal.get(i).put("observacion", "ENTREGA RECEPCION");
-////                        detallesTerminalSelloERJSONOriginal.get(i).put("fecha", fechaActual);
-////                    }
-                    
-                    
                     sellosServicio.actualizarSellos(detallesTerminalSelloERJSONOriginal);
 
-                    ////     ft               for (int i1 = 0; i1 < detallesTerminalSelloERJSON.size(); i1++) {
-////                        detallesTerminalSelloERJSON.get(i1).put("activo", false);
-////                    }
-////                    sellosServicio.actualizarSellos(detallesTerminalSelloERJSON);
                     PrimeFaces.current().executeScript("PF('entregaRecepcion').hide()");
                 }
             } else {
