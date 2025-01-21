@@ -223,7 +223,7 @@ public class SellosBean extends ReusableBean implements Serializable {
         nombreTerminales = new HashMap<>();
         obtenerTerminales();
         obtenerComercializadora();
-        
+
     }
 
     public void nuevosSellos() {
@@ -276,6 +276,10 @@ public class SellosBean extends ReusableBean implements Serializable {
                     detalleTerminalSelloPK.setSelloinicial(detTerminalSPK.getBigInteger("selloinicial"));
                     detalleTerminalSelloPK.setSellofinal(detTerminalSPK.getBigInteger("sellofinal"));
                     detalleTerminalSelloPK.setSello(detTerminalSPK.getBigInteger("sello"));
+
+                    if (nombreTerminales.containsKey(detTerminalSPK.getString("codigoterminalentrega"))) {
+                        detalleTerminalSelloPK.setNombreTerminalEntrega(nombreTerminales.get(detTerminalSPK.getString("codigoterminalentrega")));
+                    }
 
                     detalleTerminalSello.setObservacion(detTerminalS.getString("observacion"));
                     detalleTerminalSello.setActivo(detTerminalS.getBoolean("activo"));
@@ -447,7 +451,7 @@ public class SellosBean extends ReusableBean implements Serializable {
                         if (nombreTerminales.containsKey(terminalPk.getString("codigoterminalentrega"))) {
                             terminalSelloPk.setNombreTerminalEntrega(nombreTerminales.get(terminalPk.getString("codigoterminalentrega")));
                         }
-                        
+
                         if (nombreTerminales.containsKey(terminalPk.getString("codigoterminalrecibe"))) {
                             terminalSelloPk.setNombreTerminalRecibe(nombreTerminales.get(terminalPk.getString("codigoterminalrecibe")));
                         }
