@@ -833,7 +833,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                 np.setTramarecibidaaoe("");
                 np.setUsuarioactual(dataUser.getUser().getNombrever());
                 np.setPrefijo(prefijo);
-//                np.setObservacion("Bco: " + nomBanco + " - Cta: " + numCuenta + " - Ch: " + numCheque); 
+                np.setObservacion("Bco: " + nomBanco + " - Cta: " + numCuenta + " - Ch: " + numCheque); 
 //                np.setCodigoautotanque(autotanque.getPlaca());
 //                np.setCedulaconductor(autotanque.getCedularuc().getCedularuc());
 

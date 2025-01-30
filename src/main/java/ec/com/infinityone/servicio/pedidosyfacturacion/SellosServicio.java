@@ -168,11 +168,13 @@ public class SellosServicio extends ReusableBean {
         }
     }
 
-    public void actualizarSellos(List<JSONObject> bodySello) {                //(List<JSONObject> bodySello) {
+    public Boolean actualizarSellos(List<JSONObject> bodySello) {                //(List<JSONObject> bodySello) {
         //String urlPath = "http://www.supertech.ec:8080/infinityone1/resources/ec.com.infinity.modelo.factura/cargarfacturasbancos";
 
         String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.terminalsello/actualizarlote";
         final int SUCCESS_CODE = 200;
+        Boolean valido = false;
+        System.out.println("FT:: INICIA METODO-actualizarSellos. SERVICIO A USAR::ec.com.infinity.modelo.terminalsello/actualizarlote");
         try {
             URI uri = new URI(direcc);
             url = uri.toURL();
@@ -200,17 +202,73 @@ public class SellosServicio extends ReusableBean {
                 JSONObject jsonResponse = new JSONObject(response.toString());
                 String developerMessage = jsonResponse.optString("developerMessage", "No message provided");
                 this.dialogo(FacesMessage.SEVERITY_INFO, developerMessage);
-                System.out.println("Se ha actualizado con éxito");
+                System.out.println("FT:. METODO.actualizarSellos() Se ha actualizado con éxito");
+                valido = true;
             } else {
                 logErrorResponse(connection);
+                valido = false;
             }
 
         } catch (Throwable e) {
-            System.out.println("Error");
+            System.out.println("FT:: Error en actualizarSellos. "+e.getMessage());
             e.printStackTrace(System.out);
+            valido = false;
         }
+        return valido;
     }
 
+    // metodo para actualizar TERMINALSELLO CON LA CANTIDAD REAL DE SELLOSVALIDOS
+     
+    public void actualizarTerminalSelloNueva(JSONObject bodySello) {                //(List<JSONObject> bodySello) {
+        //String urlPath = "http://www.supertech.ec:8080/infinityone1/resources/ec.com.infinity.modelo.factura/cargarfacturasbancos";
+
+        String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.terminalsello/actualizarsellosvalidosreal";
+        final int SUCCESS_CODE = 200;
+        Boolean valido = false;
+        System.out.println("FT:: INICIA METODO-actualizarTerminalSelloNueva. SERVICIO A USAR::ec.com.infinity.modelo.terminalsello/actualizarsellosvalidosreal");
+        try {
+            URI uri = new URI(direcc);
+            url = uri.toURL();
+            String respuesta;
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-type", "application/json");
+
+            try (OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())) {
+                respuesta = bodySello.toString();
+                writer.write(respuesta);
+                writer.close();
+            }
+
+            if (connection.getResponseCode() == SUCCESS_CODE) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+                reader.close();
+                JSONObject jsonResponse = new JSONObject(response.toString());
+                String developerMessage = jsonResponse.optString("developerMessage", "No message provided");
+                this.dialogo(FacesMessage.SEVERITY_INFO, developerMessage);
+                System.out.println("FT:. METODO.actualizarTerminalSelloNueva(). Se ha actualizado con éxito");
+                valido = true;
+            } else {
+                logErrorResponse(connection);
+                valido = false;
+            }
+
+        } catch (Throwable e) {
+            System.out.println("FT:: Error en METODO.actualizarTerminalSelloNueva(). "+e.getMessage());
+            e.printStackTrace(System.out);
+            valido = false;
+        }
+//        return valido;
+    }
+    
+    // CONSULTA PARA ENCONTRAR LA SERIE DE TERMINALSELLO
     public JSONArray entregaRecepcionConsulta(String codigocomercializadora, Boolean activot, Boolean activo, int selloinicial, int sellofinal) {
         //String urlPath = "http://www.supertech.ec:8080/infinityone1/resources/ec.com.infinity.modelo.factura/cargarfacturasbancos";
 
