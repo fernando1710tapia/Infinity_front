@@ -494,7 +494,7 @@ public class SellosBean extends ReusableBean implements Serializable {
         LocalDateTime fechaActual = LocalDateTime.now().withHour(12);
         long timestamp = fechaActual.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
-        teminalSelloPK.put("codigocomercializadora", CodigoComerEnum.PETROL_RIOS.getCodigo());
+        teminalSelloPK.put("codigocomercializadora", codComer);
         teminalSelloPK.put("codigoterminalentrega", TerminalEnum.TERMINAL_ENTREGA.getCodigo());
         teminalSelloPK.put("codigoterminalrecibe", TerminalEnum.TERMINAL_RECIBE.getCodigo());
         teminalSelloPK.put("selloinicial", BigInteger.valueOf(selloInicial));

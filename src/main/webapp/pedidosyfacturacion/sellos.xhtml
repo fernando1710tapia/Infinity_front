@@ -356,15 +356,34 @@
             </p:outputPanel>
         </h:form>
 
-        <p:dialog header="Adquirir Sellos" width="30%" showEffect="fade" modal="true" widgetVar="adquirirSellos" responsive="true">
+        <p:dialog header="Adquirir Sellos" width="40%" showEffect="fade" modal="true" widgetVar="adquirirSellos" responsive="true">
             <h:form id="formAdquisicion">
                 <p:outputPanel rendered = "true">                               
                     <div class="ui-fluid p-formgrid p-grid">
                         <div class="p-field p-col-12 p-md-6">
+                                    <label for="term" class="floating-label">Comercializadora</label>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>                                        
+                                        <p:selectOneMenu id="comercializadora" value="#{sellosBean.comercializadora}" title="Comercializadora"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         disabled="#{!sellosBean.habilitarComer}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Seleccione..." itemValue="#{null}"/>
+                                            <f:selectItems value="#{sellosBean.listaComercializadora}"
+                                                           var="comer"
+                                                           itemLabel="#{comer.objRelacionado}"
+                                                           itemValue="#{comer}" />
+                                            <p:ajax event="change" listener="#{sellosBean.seleccionarComerc(1)}" update="form"/>
+                                        </p:selectOneMenu> 
+                                    </div>                          
+                                </div>
+                        <div class="p-field p-col-12 p-md-3">
                             <p:outputLabel for="selloInicial">Sello Inicial</p:outputLabel>
                             <p:inputNumber id="selloInicial" value="#{sellosBean.selloInicial}" maxlength="10" />
                         </div>  
-                        <div class="p-field p-col-12 p-md-6">
+                        <div class="p-field p-col-12 p-md-3">
                             <p:outputLabel for="selloFinal">Sello Final</p:outputLabel>
                             <p:inputNumber id="selloFinal" value="#{sellosBean.selloFinal}" maxlength="10" />
                         </div>  
