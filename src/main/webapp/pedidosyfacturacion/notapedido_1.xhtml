@@ -393,7 +393,7 @@
                     </div> 
                     <div class="p-field p-col-12 p-md-2">
                         <span class="ui-float-label">
-                            <p:inputText id="sI" value="#{notapedidoBean1.detNP.selloinicial}" maxlength="50" >
+                            <p:inputText id="sI" value="#{notapedidoBean1.detNP.selloinicial}" maxlength="50" required="true" requiredMessage="Ingrese el sello incial">
                                 <p:ajax event="change" /> 
                             </p:inputText>
                             <p:outputLabel for="sI">Sello Inicial</p:outputLabel>
@@ -401,8 +401,8 @@
                     </div>
                     <div class="p-field p-col-12 p-md-2">
                         <span class="ui-float-label">
-                            <p:inputText id="sF" value="#{notapedidoBean1.detNP.sellofinal}" maxlength="50" >
-                                <p:ajax event="change" listener="#{notapedidoBean1.calcularCantidadSellos(notapedidoBean1)}" update="cantidadSellos" />
+                            <p:inputText id="sF" value="#{notapedidoBean1.detNP.sellofinal}" maxlength="50" required="true" requiredMessage="Ingrese el sello final">
+                                <p:ajax event="change" listener="#{notapedidoBean1.calcularCantidadSellos(notapedidoBean1)}" update="formNuevo cantidadSellos" />
                             </p:inputText>
                             <p:outputLabel for="sF">Sello Final</p:outputLabel>
                         </span>

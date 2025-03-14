@@ -31,6 +31,8 @@ import ec.com.infinityone.bean.enums.CodigoComerEnum;
 import ec.com.infinityone.configuration.Fichero;
 import ec.com.infinityone.modelo.Autotanque;
 import ec.com.infinityone.modelo.Conductor;
+import ec.com.infinityone.modelo.Detalleterminalsello;
+import ec.com.infinityone.servicio.pedidosyfacturacion.SellosServicio;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -43,6 +45,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -125,6 +128,13 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
      */
     @Inject
     private ClienteProductoServicio cliProdServicio;
+    
+    /*
+    Variable para acceder a los servicios de TerminalSello
+     */
+    @Inject
+    private SellosServicio sellosServicio;
+    
     /*
     Variable Comercializadora
      */
@@ -188,7 +198,7 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
     /*
     Variable para guardar una lista de Nota y Detalle Pedido
      */
-    private List<EnvioPedido> listenvNP;
+    private List<EnvioPedido> listenvNP; 
     /*
     Variable Cliente
      */
@@ -245,6 +255,12 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
     Lista de Medidas
      */
     private List<Medida> listaMedida;
+    
+    /*
+    Lista de DetalleTerminalSellos
+     */
+    private List<Detalleterminalsello> listaDetalleTerminalSellos;
+    
     /*
     Variable Medida
      */
@@ -443,6 +459,7 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
         listaProd = new ArrayList<>();
         listaBancos = new ArrayList<>();
         listaMedida = new ArrayList<>();
+        listaDetalleTerminalSellos = new ArrayList<>();
         nomBanco = "";
         numCuenta = "";
         numCheque = "";
@@ -479,6 +496,11 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
         listaMedida = medidaServicio.obtenerMedida();
     }
 
+    public void obtenerSellosParaNP(String codigoComercializadora, String codigoTerminal, Integer selloInicial, Integer selloFinal) {
+        listaDetalleTerminalSellos = new ArrayList<>();
+        listaDetalleTerminalSellos = sellosServicio.sellosValidosParaNP(codigoComercializadora, codigoTerminal, selloInicial, selloFinal);
+    }
+    
     public void obtenerAutotanque() {
         try {
             url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.autotanque");
@@ -1570,8 +1592,33 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
     }
 
     public void calcularCantidadSellos(NotapedidoBean1 np) {
+        int contadorSellosValidos = 0;
+        int contadorSellosSolicitados = 0;
         if (np.detNP.getSelloinicial() != 0 && np.detNP.getSellofinal() != 0) {
-            this.setCantidadSellos(np.detNP.getSellofinal() - np.detNP.getSelloinicial() + 1);
+            if(np.detNP.getSelloinicial() < np.detNP.getSellofinal()){
+                obtenerSellosParaNP(codComer, codTerminal, np.detNP.getSelloinicial(), np.detNP.getSellofinal()); 
+                
+                contadorSellosSolicitados = np.detNP.getSellofinal() - np.detNP.getSelloinicial() + 1;
+                
+                for (int i = 0; i < listaDetalleTerminalSellos.size(); i++) {
+                    if (listaDetalleTerminalSellos.get(i).getActivo()) {
+                        contadorSellosValidos++;
+                    }
+                }
+                if (contadorSellosValidos != contadorSellosSolicitados) {
+                    
+                    this.dialogo(FacesMessage.SEVERITY_ERROR, "ffffffffffffffffLA FECHA DE FIN NO PUEDE SER MAYOR A 7 DÍAS A LA FECHA DE INICIO");
+                    
+                    this.dialogo(FacesMessage.SEVERITY_ERROR, " Metodo.calcularCantidadSellos: Usted ha solicitado " +contadorSellosSolicitados+" sellos para esta NP, sin embargo, se han encontrado "+contadorSellosValidos+" sellos validos"+"Esta divergecia de datos - NO PERMITIRÁ GRABAR ESTA NOTA DE PEDIDO!");
+                    System.out.println(" Metodo.calcularCantidadSellos: Usted ha solicitado " +contadorSellosSolicitados+" sellos para esta NP, sin embargo, se han encontrado "+contadorSellosValidos+" sellos validos"+"Esta divergecia de datos - NO PERMITIRÁ GRABAR ESTA NOTA DE PEDIDO!");
+                }
+                this.setCantidadSellos(contadorSellosValidos);
+                System.out.println("FT:: VERIFICACION DE CANTIDAD DE SELLOS Y VALIDOS:. "+this.getCantidadSellos() +" VALIDOS:. "+contadorSellosValidos);
+            }else{
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "EL SELLO FINAL DEBE SER MAYOR AL SELLO INICIAL - NO PODRÁ GRABAR ESTA NOTA DE PEDIDO!");
+            }
+        }else{
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "LOS SELLOS DEBEN SER NUMÉRICOS - NO PODRÁ GRABAR ESTA NOTA DE PEDIDO!");
         }
     }
 

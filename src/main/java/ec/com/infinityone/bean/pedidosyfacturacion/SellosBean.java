@@ -494,6 +494,8 @@ public class SellosBean extends ReusableBean implements Serializable {
         LocalDateTime fechaActual = LocalDateTime.now().withHour(12);
         long timestamp = fechaActual.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
+        if (codComer != null && selloInicial > 0  && selloFinal > 0){
+        
         teminalSelloPK.put("codigocomercializadora", codComer);
         teminalSelloPK.put("codigoterminalentrega", TerminalEnum.TERMINAL_ENTREGA.getCodigo());
         teminalSelloPK.put("codigoterminalrecibe", TerminalEnum.TERMINAL_RECIBE.getCodigo());
@@ -506,6 +508,9 @@ public class SellosBean extends ReusableBean implements Serializable {
 
         sellosServicio.comprarSellos(teminalSello);
         PrimeFaces.current().executeScript("PF('adquirirSellos').hide()");
+        }else{
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "Debe elegir la Comercializadora! y/o Verifique los números inicial y final de la serie ingresada!");
+        }
     }
 
     private boolean hasChanges(Detalleterminalsello original, Detalleterminalsello current) {
@@ -577,6 +582,7 @@ public class SellosBean extends ReusableBean implements Serializable {
 
             JSONArray retorno = sellosServicio.entregaRecepcionConsulta(
                     filaSeleccionada.getTerminalselloPK().getCodigocomercializadora(),
+                    filaSeleccionada.getTerminalselloPK().getCodigoterminalrecibe(),
                     true,
                     false,
                     selloInicialEntrega,
@@ -711,7 +717,7 @@ public class SellosBean extends ReusableBean implements Serializable {
                             // arreglo para Entrega
                             JSONObject detallesTerminalSelloER = new JSONObject();
                             detallesTerminalSelloER.put("codigocomercializadora", detalleEntregaRecepcion.get(element).getDetalleterminalselloPK().getCodigocomercializadora());
-                            detallesTerminalSelloER.put("codigoterminalentrega", detalleEntregaRecepcion.get(element).getDetalleterminalselloPK().getCodigoterminalentrega());
+                            detallesTerminalSelloER.put("codigoterminalentrega", detalleEntregaRecepcion.get(element).getDetalleterminalselloPK().getCodigoterminalrecibe());
                             detallesTerminalSelloER.put("codigoterminalrecibe", codTerminalRecibe);
                             detallesTerminalSelloER.put("selloinicial", selloInicial);
                             detallesTerminalSelloER.put("sellofinal", selloFinal);

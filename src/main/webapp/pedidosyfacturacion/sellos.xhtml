@@ -246,11 +246,11 @@
 
                                     <p:ajax event="rowToggle" listener="#{crudDemoView.onRowToggle}" />
 
-                                    <p:column headerText="Cod. Entrega" filterBy="#{terms.terminalselloPK.codigoterminalentrega}" width="10%">
-                                        <h:outputText value="#{terms.terminalselloPK.codigoterminalentrega}" />
+                                    <p:column headerText="Cod. Entrega" filterBy="#{terms.terminalselloPK.codigoterminalrecibe}" width="10%">
+                                        <h:outputText value="#{terms.terminalselloPK.codigoterminalrecibe}" />
                                     </p:column>
-                                    <p:column headerText="Nombre Terminal E." filterBy="#{terms.terminalselloPK.nombreTerminalEntrega}" width="15%">
-                                        <h:outputText value="#{terms.terminalselloPK.nombreTerminalEntrega}" />
+                                    <p:column headerText="Nombre Terminal E." filterBy="#{terms.terminalselloPK.nombreTerminalRecibe}" width="15%">
+                                        <h:outputText value="#{terms.terminalselloPK.nombreTerminalRecibe}" />
                                     </p:column>
                                     <p:column headerText="Sello Inicial" sortBy="#{terms.terminalselloPK.selloinicial}" filterBy="#{terms.terminalselloPK.selloinicial}" width="15%">
                                         <h:outputText value="#{terms.terminalselloPK.selloinicial}" />
