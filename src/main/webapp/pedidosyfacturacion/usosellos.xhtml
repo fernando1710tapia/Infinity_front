@@ -1,0 +1,394 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Uso de Sellos</ui:define>
+
+    <ui:define name="viewname">
+        <li>Uso de Sellos</li>        
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="form">
+            <p:outputPanel id="manage-product-content1" rendered="#{usosellosBean.mostrarPantallaInicial}">
+                <div class="p-grid crud-demo">
+                    <div class="p-col-12">
+                        <div class="card">
+                            <p:growl id="messages" showDetail="true" />
+
+                            <p:toolbar styleClass="p-mb-4">
+                                <p:toolbarGroup>
+                                    <p:commandButton value="Asignar" icon="pi pi-plus" actionListener="#{usosellosBean.asignacion()}" update="form :formNuevo"
+                                                     styleClass="ui-button-success" style="margin-right: .5rem" />
+                                </p:toolbarGroup>
+                            </p:toolbar>
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-3">
+                                    <label for="comercializadora" class="floating-label">Comercializadora</label>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>                                        
+                                        <p:selectOneMenu id="comercializadora" value="#{usosellosBean.comercializadora}" title="Comercializadora"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         disabled="#{!usosellosBean.habilitarComer}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Seleccione..." itemValue="#{null}"/>
+                                            <f:selectItems value="#{usosellosBean.listaComercializadora}"
+                                                           var="comer"
+                                                           itemLabel="#{comer.objRelacionado}"
+                                                           itemValue="#{comer}" />
+                                            <p:ajax event="change" listener="#{usosellosBean.seleccionarComerc(1)}" update="form"/>
+                                        </p:selectOneMenu> 
+                                    </div>                          
+                                </div>
+                                <div class="p-field p-col-12 p-md-3">
+                                    <label for="term" class="floating-label">Terminal</label>
+                                    <div class="ui-inputgroup">                                       
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>                                     
+                                        <p:selectOneMenu id="term" value="#{usosellosBean.terminal}" title="Terminal"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg">
+<!--                                                         disabled="#{!usosellosBean.habilitarTerminal}">-->
+                                            <f:selectItem noSelectionOption="true" itemLabel="Seleccione..." itemValue="#{null}"/>
+                                            <f:selectItems value="#{usosellosBean.listaTermianles}"
+                                                           var="ter"
+                                                           itemLabel="#{ter.codigo} - #{ter.nombre}"                                                           
+                                                           itemValue="#{ter}" />
+                                            <p:ajax event="change" listener="#{usosellosBean.seleccionarTerminal(1)}" />
+                                        </p:selectOneMenu> 
+                                    </div> 
+                                </div>
+                                <div class="p-field p-col-12 p-md-2">                                  
+                                    <p:outputLabel for="fechaIn" value="Fecha Inicio"/>
+                                    <p:datePicker id="fechaIn" value="#{usosellosBean.fechaInicial}" showIcon="true" pattern="dd/MM/yyyy" >
+                                        <p:ajax event="dateSelect" update="fechaFin"/>
+                                    </p:datePicker>
+                                </div>
+                                <div class="p-field p-col-12 p-md-2">                                  
+                                    <p:outputLabel for="fechaFin" value="Fecha Final"/>
+                                    <p:datePicker id="fechaFin" value="#{usosellosBean.fechaFinal}" showIcon="true" pattern="dd/MM/yyyy" mindate="#{sellosBean.fechaInicial}"/>                                   
+                                </div>
+                                <div class="p-field p-col-12 p-md-2">
+                                    <p:outputLabel for="btnBuscar" value="."/>
+                                    <p:commandButton id="btnBuscar" value="Buscar" icon="pi pi-search"  actionListener="#{usosellosBean.consultarUsoSellos()}" update="form:dt-products"/>
+                                </div>
+                            </div>                              
+                            <p:dataTable id="dt-products" widgetVar="dtProducts" var="usoSello" value="#{usosellosBean.listaEnvioUsoSellos}" reflow="true" styleClass="products-table"
+                                         paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
+                                <f:facet name="header">
+                                    <div class="products-table-header">
+                                        <span style="font-weight: bold">Sellos</span>
+
+                                        <span class="filter-container ui-input-icon-left">
+                                            <i class="pi pi-search"></i>
+                                            <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar" />
+                                        </span>
+                                    </div>
+                                </f:facet>
+
+                                <p:ajax event="rowToggle" listener="#{crudDemoView.onRowToggle}" />
+
+                                <p:column headerText="Fecha" filterBy="#{usoSello.fecha}" width="10%">
+                                    <h:outputText value="#{usoSello.fecha}" />
+                                </p:column>
+                                <p:column headerText="Nota Pedido" filterBy="#{usoSello.npconcatenada}" width="20%">
+                                    <h:outputText value="#{usoSello.npconcatenada}" />
+                                </p:column>
+                                <p:column headerText="Sello Usado" filterBy="#{usoSello.selloconcatenado}" width="15%">
+                                    <h:outputText value="#{usoSello.selloconcatenado}" />
+                                </p:column>
+                                <p:column headerText="Autotanque" filterBy="#{usoSello.placa}" width="15%">
+                                    <h:outputText value="#{usoSello.placa}" />
+                                </p:column>
+                                <p:column headerText="Conductor"  filterBy="#{usoSello.nombreconductor}" width="15%">
+                                    <h:outputText value="#{usoSello.nombreconductor}" />
+                                </p:column>
+                                <p:column headerText="Nombre Cliente" filterBy="#{usoSello.nombrecliente}" width="15%">
+                                    <h:outputText value="#{usoSello.nombrecliente}" />
+                                </p:column>
+                                <p:column exportable="false">
+                                    <p:commandButton icon="pi pi-eye" update="form " actionListener="#{sellosBean.detalleSellos(terms, false, false)}"
+                                                     styleClass="edit-button rounded-button ui-button-success" process="@this">
+                                        <f:setPropertyActionListener value="#{terms}" target="#{terms}" />
+                                    </p:commandButton>
+                                    <p:commandButton icon="pi pi-pencil" update="form " actionListener="#{sellosBean.detalleSellos(terms, true, false)}"
+                                                     styleClass="edit-button rounded-button ui-button-success" process="@this">
+                                        <f:setPropertyActionListener value="#{terms}" target="#{terms}" />
+                                    </p:commandButton>
+                                </p:column>
+                                <p:column style="width: 3.5rem">
+                                    <p:commandButton icon="pi pi-print" actionListener="#{usosellosBean.generarReporteAux(notap)}" ajax="false"
+                                                     onstart="PF('blockUIWidget').block()" 
+                                                     oncomplete="PF('blockUIWidget').unblock()"
+                                                     onclick="PrimeFaces.monitorDownload(start, stop);"
+                                                     update="@form" styleClass="edit-button rounded-button ui-button-success">
+                                        <p:fileDownload value="#{usosellosBean.pdfStream}"/>
+                                    </p:commandButton>
+                                </p:column>
+                            </p:dataTable>
+                        </div>
+                    </div>
+                </div>
+            </p:outputPanel>
+        </h:form>
+
+        <!--        <p:dialog header="Nota Pedido" width="50%" showEffect="fade" modal="true" widgetVar="manageProductDialog" responsive="true">-->
+        <h:form id="formNuevo">
+            <p:outputPanel id="manage-product-content" rendered="#{usosellosBean.mostrarPantallaAsignar}"> 
+                <div class="p-grid crud-demo">
+                    <div class="p-col-12">
+                        <div class="card">
+                            <p:growl id="messages" showDetail="true" />
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-3">
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>
+                                        <p:selectOneMenu id="comercializadora" value="#{usosellosBean.comercializadora}" title="Comercializadora"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         disabled="#{!usosellosBean.habilitarComer}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+                                            <f:selectItems value="#{usosellosBean.listaComercializadora}"
+                                                           var="comer"
+                                                           itemLabel="#{comer.objRelacionado}"
+                                                           itemValue="#{comer}" />
+                                            <p:ajax event="change" listener="#{usosellosBean.seleccionarComerc(1)}"
+                                                    update="formNuevo" />
+                                        </p:selectOneMenu> 
+                                    </div>                           
+                                </div>
+                                <div class="p-field p-col-12 p-md-3">
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>
+                                        <p:selectOneMenu id="term" value="#{usosellosBean.terminal}" title="Terminal Entrega"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg">
+            <!--                                             disabled="#{!usosellosBean.habilitarTerminal}">-->
+                                            <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
+                                            <f:selectItems value="#{usosellosBean.listaTermianles}"
+                                                           var="ter"                                               
+                                                           itemLabel="#{ter.codigo}-#{ter.nombre}"
+                                                           itemValue="#{ter}" />
+                                            <p:ajax event="change" listener="#{usosellosBean.seleccionarTerminal(1)}" update="cliente"/>
+                                        </p:selectOneMenu> 
+                                    </div> 
+                                </div>
+
+                                <div class="p-field p-col-12 p-md-3">
+                                    <span class="ui-float-label">
+                                        <p:inputText id="ultimoSello" value="#{usosellosBean.ultimoSello}" readonly="true" />
+                                        <p:outputLabel for="cond">Último Sello</p:outputLabel>
+                                    </span>
+                                </div>
+                                <div class="p-field p-col-12 p-md-3">
+                                    <p:commandButton id="btnBuscar2" value="Buscar" icon="pi pi-search"  actionListener="#{usosellosBean.obtenerUltimoUsoSello()}" process="@this" update="messages ultimoSello"/>
+                                </div>
+                                <div class="p-field p-col-12 p-md-12"> </div>
+                                <div class="p-field p-col-12 p-md-3">
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>
+                                        <p:selectOneMenu id="cliente" value="#{usosellosBean.cliente}" title="Cliente"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         filter="true" filterMatchMode="contains">>
+                                            <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
+                                            <f:selectItems value="#{usosellosBean.listaClientes}"
+                                                           var="cliente"
+                                                           itemLabel="#{cliente.codigo} - #{cliente.nombrecomercial}"
+                                                           itemValue="#{cliente}" />
+                                            <p:ajax event="change" listener="#{usosellosBean.seleccionarCliente(1)}"
+                                                    update="term"/>
+                                        </p:selectOneMenu> 
+                                    </div>
+                                </div>
+                                <div class="p-field p-col-12 p-md-3">
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-money"></i>
+                                        </span>
+                                        <p:selectOneMenu id="ci" value="#{usosellosBean.autotanque}" title="Placa"
+                                                         panelStyle="width:175px" style="min-width: 60%;" 
+                                                         autoWidth="false" 
+                                                         filter="true" filterMatchMode="startsWith"
+                                                         converter="converterg" 
+                                                         required="true" requiredMessage="Seleccione placa">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Placa" itemValue="#{null}" />                                            
+                                            <f:selectItems value="#{usosellosBean.listaAutotanque}"
+                                                           var="autot"
+                                                           itemLabel="#{autot.placa}"
+                                                           itemValue="#{autot}" />
+                                            <p:ajax event="change" update="cond sellosU" listener="#{usosellosBean.inicializarValTanques}"/>
+                                        </p:selectOneMenu>
+                                    </div>                            
+                                </div>
+
+                                <div class="p-field p-col-12 p-md-3">
+                                    <span class="ui-float-label">
+                                        <p:inputText id="cond" value="#{usosellosBean.autotanque.cedularuc.cedularuc} - #{usosellosBean.autotanque.cedularuc.nombre}" readonly="true" />
+                                        <p:outputLabel for="cond">Conductor</p:outputLabel>
+                                    </span>
+                                </div>
+
+                                <!--                                <div class="p-field p-col-12 p-md-3">
+                                                                    <span class="ui-float-label">
+                                                                        <p:inputText id="ultimaNP" value="{}" maxlength="50" readonly="true" />
+                                                                        <p:outputLabel for="cond">Última NP</p:outputLabel>
+                                                                    </span>
+                                                                </div>-->
+
+                            </div>
+
+
+                            <div class="p-field p-col-12 p-md-12">
+                                <p:outputLabel id="np" >Notas Pedido: </p:outputLabel>  
+                                <h:panelGrid id="nps" columns="6" style="margin-left: 0; margin-right: auto; text-align: left;" >
+                                    <p:outputLabel for="np1" value="Pedido 1" />
+                                    <p:outputLabel for="np2" value="Pedido 2" />
+                                    <p:outputLabel for="np3" value="Pedido 3" />
+                                    <p:outputLabel for="np4" value="Pedido 4" />
+                                    <p:outputLabel for="np5" value="Pedido 5" />
+                                    <p:outputLabel for="np6" value="Pedido 6" />
+
+
+                                    <p:inputText id="np1" value="#{usosellosBean.usoSello.np1}" maxlength="8" >
+                                        <p:ajax event="blur" listener="#{notapedidoBean1.calcularVol()}" />
+                                    </p:inputText>
+                                    <p:inputText id="np2" value="#{usosellosBean.usoSello.np2}" maxlength="8" >
+                                        <p:ajax event="blur" listener="#{notapedidoBean1.calcularVol()}" />
+                                    </p:inputText>
+                                    <p:inputText id="np3" value="#{usosellosBean.usoSello.np3}" maxlength="8" >
+                                        <p:ajax event="blur" listener="#{notapedidoBean1.calcularVol()}" />
+                                    </p:inputText>
+                                    <p:inputText id="np4" value="#{usosellosBean.usoSello.np4}" maxlength="8" >
+                                        <p:ajax event="blur" listener="#{notapedidoBean1.calcularVol()}" />
+                                    </p:inputText>
+                                    <p:inputText id="np5" value="#{usosellosBean.usoSello.np5}" maxlength="8" >
+                                        <p:ajax event="blur" listener="#{notapedidoBean1.calcularVol()}" />
+                                    </p:inputText>
+                                    <p:inputText id="np6" value="#{usosellosBean.usoSello.np6}" maxlength="8" >
+                                        <p:ajax event="blur" listener="#{notapedidoBean1.calcularVol()}" />
+                                    </p:inputText>    
+
+                                </h:panelGrid>
+                            </div>
+
+
+                            <div class="p-field p-col-12 p-md-12">
+                                <p:outputLabel id="sello" >Sellos Usados: </p:outputLabel> 
+                                <h:panelGrid id="sellosU" columns="8" style="margin-left: 0; margin-right: auto; text-align: left;" >
+                                    <p:outputLabel for="selloU1" value="1: #{usosellosBean.autotanque.compartimento1}" />
+                                    <p:outputLabel for="selloU2" value="2: #{usosellosBean.autotanque.compartimento2}" />
+                                    <p:outputLabel for="selloU3" value="3: #{usosellosBean.autotanque.compartimento3}" />
+                                    <p:outputLabel for="selloU4" value="4: #{usosellosBean.autotanque.compartimento4}" />
+                                    <p:outputLabel for="selloU5" value="5: #{usosellosBean.autotanque.compartimento5}" />
+                                    <p:outputLabel for="selloU6" value="6: #{usosellosBean.autotanque.compartimento6}" />
+                                    <p:outputLabel for="selloU7" value="7: #{usosellosBean.autotanque.compartimento7}" />
+                                    <p:outputLabel for="selloU8" value="8: #{usosellosBean.autotanque.compartimento8}" />
+
+                                    <p:inputText id="selloU1" value="#{usosellosBean.usoSello.sello1}" maxlength="20" >
+                                        <p:ajax event="blur" listener="#{notapedidoBean1.calcularVol()}" />
+                                    </p:inputText>
+                                    <p:inputText id="selloU2" value="#{usosellosBean.usoSello.sello2}" maxlength="20" >
+                                        <p:ajax event="blur" listener="#{notapedidoBean1.calcularVol()}" />
+                                    </p:inputText>
+                                    <p:inputText id="selloU3" value="#{usosellosBean.usoSello.sello3}" maxlength="20" >
+                                        <p:ajax event="blur" listener="#{notapedidoBean1.calcularVol()}" />
+                                    </p:inputText>
+                                    <p:inputText id="selloU4" value="#{usosellosBean.usoSello.sello4}" maxlength="20" >
+                                        <p:ajax event="blur" listener="#{notapedidoBean1.calcularVol()}" />
+                                    </p:inputText>
+                                    <p:inputText id="selloU5" value="#{usosellosBean.usoSello.sello5}" maxlength="20" >
+                                        <p:ajax event="blur" listener="#{notapedidoBean1.calcularVol()}" />
+                                    </p:inputText>
+                                    <p:inputText id="selloU6" value="#{usosellosBean.usoSello.sello6}" maxlength="20" >
+                                        <p:ajax event="blur" listener="#{notapedidoBean1.calcularVol()}" />
+                                    </p:inputText>      
+                                    <p:inputText id="selloU7" value="#{usosellosBean.usoSello.sello7}" maxlength="20" >
+                                        <p:ajax event="blur" listener="#{notapedidoBean1.calcularVol()}" />
+                                    </p:inputText>
+                                    <p:inputText id="selloU8" value="#{usosellosBean.usoSello.sello8}" maxlength="20" >
+                                        <p:ajax event="blur" listener="#{notapedidoBean1.calcularVol()}" />
+                                    </p:inputText>
+                                </h:panelGrid>
+                            </div>
+                            <div class="p-field p-col-12 p-md-12">
+                                <h:panelGrid id="sellos2U" columns="8" style="margin-left: 0; margin-right: auto; text-align: left;" >
+                                    <p:outputLabel for="sello2U1" value="9" />
+                                    <p:outputLabel for="sello2U2" value="10" />
+                                    <p:outputLabel for="sello2U3" value="11" />
+                                    <p:outputLabel for="sello2U4" value="12" />
+                                    <p:outputLabel for="sello2U5" value="13" />
+                                    <p:outputLabel for="sello2U6" value="14" />
+                                    <p:outputLabel for="sello2U7" value="15" />
+                                    <p:outputLabel for="sello2U8" value="16" />
+
+                                    <p:inputText id="sello2U1" value="#{usosellosBean.usoSello.sello9}" maxlength="20" >
+                                        <p:ajax event="blur" listener="#{notapedidoBean1.calcularVol()}" />
+                                    </p:inputText>
+                                    <p:inputText id="sello2U2" value="#{usosellosBean.usoSello.sello10}" maxlength="20" >
+                                        <p:ajax event="blur" listener="#{notapedidoBean1.calcularVol()}" />
+                                    </p:inputText>
+                                    <p:inputText id="sello2U3" value="#{usosellosBean.usoSello.sello11}" maxlength="20" >
+                                        <p:ajax event="blur" listener="#{notapedidoBean1.calcularVol()}" />
+                                    </p:inputText>
+                                    <p:inputText id="sello2U4" value="#{usosellosBean.usoSello.sello12}" maxlength="20" >
+                                        <p:ajax event="blur" listener="#{notapedidoBean1.calcularVol()}" />
+                                    </p:inputText>
+                                    <p:inputText id="sello2U5" value="#{usosellosBean.usoSello.sello13}" maxlength="20" >
+                                        <p:ajax event="blur" listener="#{notapedidoBean1.calcularVol()}" />
+                                    </p:inputText>
+                                    <p:inputText id="sello2U6" value="#{usosellosBean.usoSello.sello14}" maxlength="20" >
+                                        <p:ajax event="blur" listener="#{notapedidoBean1.calcularVol()}" />
+                                    </p:inputText>      
+                                    <p:inputText id="sello2U7" value="#{usosellosBean.usoSello.sello15}" maxlength="20" >
+                                        <p:ajax event="blur" listener="#{notapedidoBean1.calcularVol()}" />
+                                    </p:inputText>
+                                    <p:inputText id="sello2U8" value="#{usosellosBean.usoSello.sello16}" maxlength="20" >
+                                        <p:ajax event="blur" listener="#{notapedidoBean1.calcularVol()}" />
+                                    </p:inputText>
+                                </h:panelGrid>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--                <p:toolbar>
+                                    <p:toolbarGroup>
+                                        <p:commandButton value="Regresar" icon="pi pi-times" actionListener="{sellosBean.regresar()}" class="ui-button-secondary" update="formNuevo :form" styleClass="p-mr-2"/>
+                                    </p:toolbarGroup>
+                                </p:toolbar> -->
+            </p:outputPanel>  
+            <p:outputPanel rendered="#{usosellosBean.mostrarPantallaAsignar}"> 
+                <div class="p-grid">
+                    <div class="p-field p-col-12 p-md-12"></div>
+                    <div class="p-field p-col-12 p-md-6">
+                        <p:commandButton value="Procesar" icon="pi pi-check"  actionListener="#{usosellosBean.adquirirUsoSello()}" update="messages" styleClass="p-mr-2" process="@this"/>
+                        <p:commandButton value="Cancelar" icon="pi pi-times" class="ui-button-secondary"  actionListener="#{usosellosBean.init()}" update=":form formNuevo" immediate="true"/>
+                    </div>
+                </div>
+            </p:outputPanel>
+        </h:form>
+        <!--</p:dialog>-->
+
+        <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300" message="Anular Nota Pedido?" header="Confirm" severity="warn">
+            <p:commandButton value="Si" icon="pi pi-check" actionListener="#{notapedidoBean.anularNotaPedido()}" process="@this" oncomplete="PF('deleteProductDialog').hide()" update=":form"/>
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('deleteProductDialog').hide()" />
+        </p:confirmDialog>
+
+        <p:confirmDialog global="true" showEffect="fade" width="300">
+            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+        </p:confirmDialog>                  
+    </ui:define>
+</ui:composition>

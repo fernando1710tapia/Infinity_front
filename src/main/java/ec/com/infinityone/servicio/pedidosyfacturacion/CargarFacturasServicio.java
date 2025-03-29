@@ -64,7 +64,7 @@ public class CargarFacturasServicio extends ReusableBean {
                 this.dialogo(FacesMessage.SEVERITY_INFO, developerMessage);
                 System.out.println("Se ha registrado con éxito");
             } else {
-                logErrorResponse(connection);
+                logErroresResponse(connection);
             }
 
         } catch (Throwable e) {
@@ -102,7 +102,7 @@ public class CargarFacturasServicio extends ReusableBean {
                 this.dialogo(FacesMessage.SEVERITY_INFO, developerMessage);
                 System.out.println("Se ha registrado con éxito");
             } else {
-                logErrorResponse(connection);
+                logErroresResponse(connection);
             }
 
         } catch (Throwable e) {
@@ -111,7 +111,7 @@ public class CargarFacturasServicio extends ReusableBean {
         }
     }
 
-    private void logErrorResponse(HttpURLConnection connection) throws IOException {
+    private void logErroresResponse(HttpURLConnection connection) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
         StringBuilder response = new StringBuilder();
         String line;

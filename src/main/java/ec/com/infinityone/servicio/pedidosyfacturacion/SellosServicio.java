@@ -306,11 +306,6 @@ public class SellosServicio extends ReusableBean {
         return valido;
     }
 
-    private void logErrorResponse(HttpURLConnection connection) throws IOException {
-        System.out.println("Error al añadir: " + connection.getResponseCode());
-        System.out.println("Error: " + connection.getErrorStream());
-        System.out.println(connection.getResponseMessage());
-        this.dialogo(FacesMessage.SEVERITY_ERROR, connection.getResponseMessage());
-    }
+
 
 }

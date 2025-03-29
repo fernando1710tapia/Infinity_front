@@ -12,6 +12,8 @@ import ec.com.infinityone.bean.login.DatosUsuario;
 import ec.com.infinityone.modelo.Cliente;
 import ec.com.infinityone.modelo.ObjetoNivel1;
 import ec.com.infinityone.modelo.Usuario;
+import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -26,8 +28,8 @@ import org.primefaces.PrimeFaces;
  *
  * @author David
  */
-public class ReusableBean extends ObjetoNivel1{
-    
+public class ReusableBean extends ObjetoNivel1 {
+
     @Inject
     protected DatosUsuario dataUser;
     /*
@@ -42,42 +44,48 @@ public class ReusableBean extends ObjetoNivel1{
     Variable de la dirección url
      */
     protected String direccion;
-    
-    protected Usuario x;    
+
+    protected Usuario x;
     /*
     Variable que permite solo leer los datos de las tablas
-    */
+     */
     protected boolean soloLectura;
     /*
     Variable que habilita el uso de la comercializadora dependiendo del perfil
-    */
+     */
     protected boolean habilitarComer;
     /*
     Variable que habilita el uso del cliente dependiendo del perfil
-    */
+     */
     protected boolean habilitarCli;
     /*
     Variable que habilita el uso del terminal dependiendo del perfil
-    */
+     */
     protected boolean habilitarTerminal;
 
-           
     protected void dialogo(FacesMessage.Severity severityMessage,
             String mensaje) {
         FacesContext context = FacesContext.getCurrentInstance();
         context.addMessage(null, new FacesMessage(severityMessage,
                 "Información: " + mensaje, ""));
         PrimeFaces.current().ajax().update("form:messages");
-    }        
-    
+    }
+
+    protected void logErrorResponse(HttpURLConnection connection) throws IOException {
+        System.out.println("Error al añadir: " + connection.getResponseCode());
+        System.out.println("Error: " + connection.getErrorStream());
+        System.out.println(connection.getResponseMessage());
+        this.dialogo(FacesMessage.SEVERITY_ERROR, connection.getResponseMessage());
+    }
+
     public Connection conexionJasperBD() {
 
         Connection conexion = null;
-        
+
         try {
             Class.forName("org.postgresql.Driver");
 //            conexion = DriverManager.getConnection("jdbc:postgresql://200.93.248.121/infinity_one", "postgres", "1nf1n1ty");
-            conexion = DriverManager.getConnection("jdbc:postgresql://"+ Fichero.getRUTACONEXIONBD() +"/infinity_one", "postgres", "1nf1n1ty");
+            conexion = DriverManager.getConnection("jdbc:postgresql://" + Fichero.getRUTACONEXIONBD() + "/infinity_one", "postgres", "1nf1n1ty");
             System.out.println("Conexion exitosa");
         } catch (Exception ex) {
             System.out.println("Excepcion: " + ex);
@@ -85,7 +93,7 @@ public class ReusableBean extends ObjetoNivel1{
 
         return conexion;
     }
-    
+
     public URL getUrl() {
         return url;
     }
@@ -141,6 +149,5 @@ public class ReusableBean extends ObjetoNivel1{
     public void setHabilitarTerminal(boolean habilitarTerminal) {
         this.habilitarTerminal = habilitarTerminal;
     }
-    
-    
+
 }
