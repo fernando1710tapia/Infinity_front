@@ -431,12 +431,7 @@ public class SellosServicio extends ReusableBean {
         return valido;
     }
 
-    private void logErrorResponse(HttpURLConnection connection) throws IOException {
-        System.out.println("Error al añadir: " + connection.getResponseCode());
-        System.out.println("Error: " + connection.getErrorStream());
-        System.out.println(connection.getResponseMessage());
-        this.dialogo(FacesMessage.SEVERITY_ERROR, connection.getResponseMessage());
-    }
+
 
     // CONSULTA PARA ENCONTRAR LA SERIE DE TERMINALSELLO A USARSE EN LA GENERACIÓN DE UNA NOTA DE PEDIDO
     public List<Detalleterminalsello> sellosValidosParaNP(String codigocomercializadora, String codigoterminal, Integer selloinicial, Integer sellofinal) {
