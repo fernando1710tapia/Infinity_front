@@ -204,6 +204,12 @@ public class SellosBean extends ReusableBean implements Serializable {
     private boolean rangosValidos = false;
     private boolean isEntregaRecpcion = false;
 
+    // variable para campo terminal.observacion
+    private String observacion;
+    
+    // variable para campo terminal.observacion en el proceso de ENTREGA RECEPCION
+    private String observacionentregarecepcion;
+    
     private TerminalSello selectedItem;
     private HashMap<String, String> nombreTerminales;
 
@@ -322,6 +328,8 @@ public class SellosBean extends ReusableBean implements Serializable {
     public void reestablecer() {
         selloInicial = 0;
         selloFinal = 0;
+        observacion = "";
+        observacionentregarecepcion = "";
         selloInicialEntrega = 0;
         selloFinalEntrega = 0;
         sellosEntregar = 0;
@@ -505,6 +513,7 @@ public class SellosBean extends ReusableBean implements Serializable {
         teminalSello.put("terminalselloPK", teminalSelloPK);
         teminalSello.put("fecha", timestamp);
         teminalSello.put("usuarioactual", dataUser.getUser().getNombrever());
+        teminalSello.put("observacion",observacion);
 
         sellosServicio.comprarSellos(teminalSello);
         PrimeFaces.current().executeScript("PF('adquirirSellos').hide()");
@@ -722,10 +731,11 @@ public class SellosBean extends ReusableBean implements Serializable {
                             detallesTerminalSelloER.put("selloinicial", selloInicial);
                             detallesTerminalSelloER.put("sellofinal", selloFinal);
                             detallesTerminalSelloER.put("sello", detalleEntregaRecepcion.get(element).getDetalleterminalselloPK().getSello());
-                            detallesTerminalSelloER.put("observacion", "SELLOS RECIBIDOS");
+                            detallesTerminalSelloER.put("observacion", "SELLOS RECIBIDOS: "+observacionentregarecepcion);
                             detallesTerminalSelloER.put("activo", detalleEntregaRecepcion.get(element).getActivo());
                             detallesTerminalSelloER.put("fecha", fechaActual);
                             detallesTerminalSelloER.put("usuarioactual", dataUser.getUser().getNombrever());
+//                            detallesTerminalSelloER.put("observacion", observacionentregarecepcion);
                             detallesTerminalSelloERJSON.add(detallesTerminalSelloER);
                             conteoSellos++;
                             if (numeroSellos == conteoSellos) {
@@ -746,6 +756,7 @@ public class SellosBean extends ReusableBean implements Serializable {
         long timestamp = fechaActual.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         if (!detallesTerminalSelloERJSON.isEmpty()) {
             if (terminalRecibe != null) {
+                detallesTerminalSelloERJSON.get(0).put("observacion", "SELLOS RECIBIDOS: "+observacionentregarecepcion);
                 boolean procedeActualizacion = sellosServicio.entregaRecpcionSellos(detallesTerminalSelloERJSON);
                 if (procedeActualizacion) {
                     boolean procedeActualizacionTerminalSelloNueva = sellosServicio.actualizarSellos(detallesTerminalSelloERJSONOriginal);
@@ -1048,4 +1059,21 @@ public class SellosBean extends ReusableBean implements Serializable {
         this.sellosExistentes = sellosExistentes;
     }
 
+    public String getObservacion() {
+        return observacion;
+    }
+
+    public void setObservacion(String observacion) {
+        this.observacion = observacion;
+    }
+
+    public String getObservacionentregarecepcion() {
+        return observacionentregarecepcion;
+    }
+
+    public void setObservacionentregarecepcion(String observacionentregarecepcion) {
+        this.observacionentregarecepcion = observacionentregarecepcion;
+    }
+
+    
 }

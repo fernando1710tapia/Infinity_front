@@ -26,6 +26,8 @@ public class TerminalSello implements Serializable {
     private List<Detalleterminalsello> detalleterminalselloList;
     
     private BigInteger sellosvalidos;
+    
+    private String observacion;
 
     public TerminalSello() {
     }
@@ -97,4 +99,13 @@ public class TerminalSello implements Serializable {
         return terminalselloPK != null && terminalselloPK.equals(other.terminalselloPK);
     }
 
+    public String getObservacion() {
+        return observacion;
+    }
+
+    public void setObservacion(String observacion) {
+        this.observacion = observacion;
+    }
+
+    
 }

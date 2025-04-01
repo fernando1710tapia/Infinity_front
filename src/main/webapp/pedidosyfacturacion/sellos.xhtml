@@ -388,6 +388,13 @@
                             <p:inputNumber id="selloFinal" value="#{sellosBean.selloFinal}" maxlength="10" />
                         </div>  
                         <div class="p-field p-col-12 p-md-12"></div>
+                        <div class="p-field p-col-12 p-md-12">
+                        <span class="ui-float-label"> 
+                            <p:inputText id="observacion" value="#{sellosBean.observacion}" maxlength="200" />
+                            <p:outputLabel for="observacion">Observación</p:outputLabel>
+                        </span>
+                    </div>
+                        <div class="p-field p-col-12 p-md-12"></div>
                     </div>                                                                                           
                 </p:outputPanel>
                 <div class="p-grid p-justify-end">
@@ -424,6 +431,12 @@
                             <p:outputLabel for="sellosEntregar" value="Sellos válidos a entregar:" />
                             <h:outputText id="sellosEntregar" value="#{sellosBean.sellosEntregar}" style="margin-left: 10px; font-weight: bold;" />
                         </div>
+                        <div class="p-field p-col-12 p-md-12">
+                        <span class="ui-float-label"> 
+                            <p:inputText id="observacionentregarecepcion" value="#{sellosBean.observacionentregarecepcion}" maxlength="200" />
+                            <p:outputLabel for="observacionentregarecepcion">Observación</p:outputLabel>
+                        </span>
+                    </div>
                         <div class="p-field p-col-12 p-md-12"></div>
                     </div>                                                                                           
                 </p:outputPanel>
