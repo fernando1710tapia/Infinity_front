@@ -123,7 +123,7 @@
                                     </p:commandButton>
                                 </p:column>
                                 <p:column style="width: 3.5rem">
-                                    <p:commandButton icon="pi pi-print" actionListener="#{usosellosBean.generarReporteAux(notap)}" ajax="false"
+                                    <p:commandButton icon="pi pi-print" actionListener="#{usosellosBean.generarReporteAux(usoSello)}" ajax="false"
                                                      onstart="PF('blockUIWidget').block()" 
                                                      oncomplete="PF('blockUIWidget').unblock()"
                                                      onclick="PrimeFaces.monitorDownload(start, stop);"
@@ -373,7 +373,14 @@
                 <div class="p-grid">
                     <div class="p-field p-col-12 p-md-12"></div>
                     <div class="p-field p-col-12 p-md-6">
-                        <p:commandButton value="Procesar" icon="pi pi-check"  actionListener="#{usosellosBean.adquirirUsoSello()}" update="messages" styleClass="p-mr-2" process="@this"/>
+                        
+                        <p:commandButton value="Procesar" icon="pi pi-check"  actionListener="#{usosellosBean.adquirirUsoSello()}" update="messages" styleClass="p-mr-2" process="@this"
+                                         onstart="PF('blockUIWidget').block()" 
+                                                     oncomplete="PF('blockUIWidget').unblock()"
+                                                     onclick="PrimeFaces.monitorDownload(start, stop);" >
+                                        <p:fileDownload value="#{usosellosBean.pdfStream}"/>
+                                         
+                        </p:commandButton>
                         <p:commandButton value="Cancelar" icon="pi pi-times" class="ui-button-secondary"  actionListener="#{usosellosBean.init()}" update=":form formNuevo" immediate="true"/>
                     </div>
                 </div>

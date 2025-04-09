@@ -49,6 +49,8 @@ import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 import javax.imageio.ImageIO;
+import net.sf.jasperreports.engine.JRDataSource;
+import net.sf.jasperreports.engine.JREmptyDataSource;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
@@ -533,9 +535,97 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
         if (!codComer.isEmpty() && !codTerminal.isEmpty() && !codCliente.isEmpty() && !autotanque.getPlaca().isEmpty()) {
             JSONObject usoSelloPost = new JSONObject();
             JSONObject usoSelloPK = new JSONObject();
+            EnvioUsoSello usoSelloImpresion = new EnvioUsoSello();  
+            usoSelloImpresion.setSelloconcatenado("");
             LocalDateTime fechaActual = LocalDateTime.now().withHour(12);
             long timestamp = fechaActual.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
+            // ft completar objeto usoSello para impresion
+            usoSelloImpresion.setCodigocomercializadora(codComer);
+            usoSelloImpresion.setNombrecliente(cliente.getNombre());
+            usoSelloImpresion.setPlaca(autotanque.getPlaca());
+            usoSelloImpresion.setNombreconductor(autotanque.getCedularuc().getNombre());
+            
+            if (usoSello.getSello1()!= null){
+        
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello1().toString()+";");
+                
+            }
+            
+            if (usoSello.getSello2()!= null){
+        
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello2().toString()+";");
+                
+            }
+            if (usoSello.getSello3()!= null){
+        
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello3().toString()+";");
+                
+            }
+            if (usoSello.getSello4()!= null){
+        
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello4().toString()+";");
+                
+            }
+            if (usoSello.getSello5()!= null){
+        
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello5().toString()+";");
+                
+            }
+            if (usoSello.getSello6()!= null){
+        
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello6().toString()+";");
+                
+            }
+            if (usoSello.getSello7()!= null){
+        
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello8().toString()+";");
+                
+            }
+            if (usoSello.getSello9()!= null){
+        
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello9().toString()+";");
+                
+            }
+            
+            if (usoSello.getSello10()!= null){
+        
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello10().toString()+";");
+                
+            }
+            
+            if (usoSello.getSello11()!= null){
+        
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello11().toString()+";");
+                
+            }
+            
+            if (usoSello.getSello12()!= null){
+        
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello12().toString()+";");
+                
+            }
+            if (usoSello.getSello13()!= null){
+        
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello13().toString()+";");
+                
+            }
+            if (usoSello.getSello14()!= null){
+        
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello14().toString()+";");
+                
+            }
+            if (usoSello.getSello15()!= null){
+        
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello15().toString()+";");
+                
+            }
+            if (usoSello.getSello16()!= null){
+        
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello16().toString()+";");
+                
+            }
+            
             usoSelloPK.put("codigocomercializadora", codComer);
             usoSelloPK.put("codigoterminal", codTerminal);
             usoSelloPK.put("codigocliente", codCliente);
@@ -570,12 +660,14 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
             usoSelloPost.put("usuarioactual", dataUser.getUser().getNombrever());
 
             usoSellosServicio.adquirirUsoSellos(usoSelloPost);
+            generarReporteAux(usoSelloImpresion);
+            
         } else {
             this.dialogo(FacesMessage.SEVERITY_WARN, "Los campos comercializadora, terminal, cliente y autotanque son requeridos, por favor complete la información solicitada");
         }
     }
 
-    public void generarReporteAux(EnvioPedido envP) {
+    public void generarReporteAuxEJEMPLO(EnvioPedido envP) {
 //        String path = "C:\\archivos\\Template\\FormatoNotaPedido.jrxml";
 //        String subreport = "C:\\archivos\\Template\\notapedido.jrxml";
         String rutaGuardar = Fichero.getCARPETAREPORTES();
@@ -622,6 +714,78 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
         }
     }
 
+        // CODIGO PARA LA IMPRESION DE USOSELLOS EN JASPER
+    
+        public void generarReporteAux(EnvioUsoSello unUsoSello) {
+//        String path = "C:\\archivos\\Template\\notapedido.jrxml";
+        String rutaGuardar = Fichero.getCARPETAREPORTES();
+        String path = Fichero.getCARPETAREPORTES() + "/usosellosinbdd.jrxml";
+        String prefijo ="";
+        System.out.println("FT:: metodo.generarReporte PATH:" + path);
+        String sellosConcatenadosParaImpresion="";
+        String[] sellosSeparados = unUsoSello.getSelloconcatenado().split(";");
+        
+            switch (unUsoSello.getCodigocomercializadora()) {
+                case "0095":
+                    prefijo = "PR";
+                    break;
+                case "0008":
+                    prefijo = "PR";
+                    break;
+                default:
+                    prefijo = "";
+            }
+            System.out.println("FT::. sellosSeparados"+sellosSeparados);
+            for (String sello : sellosSeparados) {
+                sellosConcatenadosParaImpresion = sellosConcatenadosParaImpresion+prefijo+sello.trim()+"\n";
+            }
+   
+        InputStream file = null;
+        try {
+            file = new FileInputStream(new File(path));
+
+            JasperReport reporte = JasperCompileManager.compileReport(file);
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+//            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
+            Map parametro = new HashMap();
+
+            parametro.put("sellos", sellosConcatenadosParaImpresion);
+            parametro.put("actorcomercial", unUsoSello.getNombrecliente()+"\n"+unUsoSello.getPlaca()+"\n"+unUsoSello.getNombreconductor());
+            parametro.put("logo", image);
+
+            //System.out.println("PARAMETROS: " + parametro);
+
+//////////  ftftftft          Connection conexion = conexionJasperBD();
+
+            JRDataSource conexion = new JREmptyDataSource();
+
+            //System.out.println("CONEXIÓN: " + conexion);
+            JasperPrint print = JasperFillManager.fillReport(reporte, parametro, conexion);
+
+//            File directory = new File("C:\\Archivos");
+            File directory = new File(rutaGuardar);
+            String nombreDocumento = "SellosUsados";
+            String fechaArchivo = (new Date().toString());
+
+            File pdf = File.createTempFile(nombreDocumento + "_"+fechaArchivo, ".pdf", directory);
+            JasperExportManager.exportReportToPdfStream(print, new FileOutputStream(pdf));
+            File initialFile = new File(pdf.getAbsolutePath());
+            InputStream targetStream = new FileInputStream(initialFile);
+            //pdfStream = new DefaultStreamedContent();
+            pdfStream = new DefaultStreamedContent(targetStream, "application/pdf", nombreDocumento + (new Date()).toString() + ".pdf");
+            //DefaultStreamedContent.builder().contentType("application/pdf").name(nombreDocumento + ".pdf").stream(() -> new FileInputStream(targetStream)).build();
+            System.out.println("FT::. CREANDO ARCHIVO. "+pdf.getAbsolutePath());
+                        
+        } catch (Exception ex) {
+            //ex.printStackTrace();
+            System.out.println("Excepcion: " + ex);
+        }
+    }
+    
+    
+    // FINFINFIN CODIGO PARA LA IMPRESION DE USOSELLOS EN JASPER
+
+    
     public ComercializadoraBean getComercializadora() {
         return comercializadora;
     }

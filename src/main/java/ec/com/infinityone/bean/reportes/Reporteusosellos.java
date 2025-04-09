@@ -565,11 +565,11 @@ public class Reporteusosellos extends ReusableBean implements Serializable {
             outputStream.close();
         }
         
-        System.out.println("FT:: JUSTO ANTES DE GENERAR FORMATO DE USO DE SELLOS");
-                /// solo temporal para probar la impresion del formato de uso de sellos
-                    generarReporte(clienteTransporteConcatenados,sellosConcatenados);
-                /// solo temporal para probar la impresion del formato de uso de sellos
-                System.out.println("FT:: JUSTO DESPUES DE GENERAR FORMATO DE USO DE SELLOS");
+//////        System.out.println("FT:: JUSTO ANTES DE GENERAR FORMATO DE USO DE SELLOS");
+//////                /// solo temporal para probar la impresion del formato de uso de sellos
+//////                    generarReporte(clienteTransporteConcatenados,sellosConcatenados);
+//////                /// solo temporal para probar la impresion del formato de uso de sellos
+//////                System.out.println("FT:: JUSTO DESPUES DE GENERAR FORMATO DE USO DE SELLOS");
     }
 
     // metodo para crear columnas en excel bajo demanda de la cantidad de datos
@@ -833,58 +833,6 @@ public void habilitarBusqueda() {
     public void setTerminal(Terminal terminal) {
         this.terminal = terminal;
     }
-
-    // CODIGO PARA LA IMPRESION DE USOSELLOS EN JASPER
-    
-        public void generarReporte(String actor, String sellosUsados) {
-//        String path = "C:\\archivos\\Template\\notapedido.jrxml";
-        String rutaGuardar = Fichero.getCARPETAREPORTES();
-        String path = Fichero.getCARPETAREPORTES() + "/usosellosinbdd.jrxml";
-        System.out.println("FT:: metodo.generarReporte PATH:" + path);
-        InputStream file = null;
-        try {
-            file = new FileInputStream(new File(path));
-
-            JasperReport reporte = JasperCompileManager.compileReport(file);
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
-//            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
-            Map parametro = new HashMap();
-
-            parametro.put("sellos", sellosUsados);
-            parametro.put("actorcomercial", actor);
-            parametro.put("logo", image);
-
-            //System.out.println("PARAMETROS: " + parametro);
-
-//////////  ftftftft          Connection conexion = conexionJasperBD();
-
-            JRDataSource conexion = new JREmptyDataSource();
-
-            //System.out.println("CONEXIÓN: " + conexion);
-            JasperPrint print = JasperFillManager.fillReport(reporte, parametro, conexion);
-
-//            File directory = new File("C:\\Archivos");
-            File directory = new File(rutaGuardar);
-            String nombreDocumento = "SellosUsados";
-            String fechaArchivo = (new Date().toString());
-
-            File pdf = File.createTempFile(nombreDocumento + "_"+fechaArchivo, ".pdf", directory);
-            JasperExportManager.exportReportToPdfStream(print, new FileOutputStream(pdf));
-            File initialFile = new File(pdf.getAbsolutePath());
-            InputStream targetStream = new FileInputStream(initialFile);
-            //pdfStream = new DefaultStreamedContent();
-            pdfStream = new DefaultStreamedContent(targetStream, "application/pdf", nombreDocumento + (new Date()).toString() + ".pdf");
-            //DefaultStreamedContent.builder().contentType("application/pdf").name(nombreDocumento + ".pdf").stream(() -> new FileInputStream(targetStream)).build();
-            System.out.println("FT::. CREANDO ARCHIVO. "+pdf.getAbsolutePath());
-        } catch (Exception ex) {
-            //ex.printStackTrace();
-            System.out.println("Excepcion: " + ex);
-        }
-    }
-    
-    
-        
-    // FINFINFIN CODIGO PARA LA IMPRESION DE USOSELLOS EN JASPER
 
     public StreamedContent getPdfStream() {
         return pdfStream;

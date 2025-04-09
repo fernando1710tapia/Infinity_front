@@ -977,15 +977,19 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
         String ruta_temporal = Fichero.getCARPETAREPORTES();
         String hora = "";
         SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+        String path = "";
+        try{
         if (contadorArchivosOk > 0 && contadorArchivosMal == 0) {
-            FacesMessage message = new FacesMessage("Se Muestran " + contadorArchivosOk + " archivos. Validados correctamente");
+            FacesMessage message = new FacesMessage("Se Intentará cargar a InfinityOne " + contadorArchivosOk + " archivos. con información");
             FacesContext.getCurrentInstance().addMessage(null, message);
             if (codigoComer != null || codTerminal != null) {
-                for (int i = 0; i < list.size(); i++) {
+                for (int i = 0; i < list.size(); i++) { 
                     String fileName = list.get(i).getFileName();
                     OutputStream outputStream = null;
-                    String path = ruta_temporal + ("/") + fileName.replace(" ", "");
+                    path = ruta_temporal + ("/") + fileName.replace(" ", "");
 
+                    System.out.println("FT::.PROCESANDO ARCHIVOS DE GUIAS DE REMISION. Terminal: "+codTerminal + "Archivo a leer:. "+path);
+                    
                     File file = new File(path);
 
                     outputStream = new FileOutputStream(file);
@@ -1003,7 +1007,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
                     Document doc = null;
                     Document docF = null;
                     document.getDocumentElement().normalize();
-                    System.out.println("Root Element :" + document.getDocumentElement().getNodeName());
+//                    System.out.println("Root Element :" + document.getDocumentElement().getNodeName());
                     NodeList nListF = document.getElementsByTagName("fechaAutorizacion");
                     for (int temp = 0; temp < nListF.getLength(); temp++) {
                         Node nNode = nListF.item(temp);
@@ -1013,10 +1017,10 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
                     consulGuia.setFechaautorizacion(hora);
                     consulGuia.setHoraautorizacion((hora).substring(11));
                     NodeList nList = document.getElementsByTagName("comprobante");
-                    System.out.println("----------------------------");
+//                    System.out.println("----------------------------");
                     for (int temp = 0; temp < nList.getLength(); temp++) {
                         Node nNode = nList.item(temp);
-                        System.out.println("\nCurrent Element :" + nNode.getNodeName());
+//                        System.out.println("\nCurrent Element :" + nNode.getNodeName());
                         if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                             Element eElement = (Element) nNode;
                             doc = convertStringToXMLDocument(eElement.getFirstChild().getTextContent());
@@ -1025,10 +1029,13 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
                     NodeList nList1 = doc.getChildNodes();
                     for (int temp = 0; temp < nList1.getLength(); temp++) {
                         Node nNode = nList1.item(temp);
-                        System.out.println("\nCurrent Element :" + nNode.getNodeName());
+//                        System.out.println("\nCurrent Element :" + nNode.getNodeName());
                         if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                             Element eElement = (Element) nNode;
                             consulGuiaPK.setCodigocomercializadora(codigoComer);
+                            if ((eElement.getElementsByTagName("fechaIniTransporte").item(0)== null)){
+                            throw new Throwable("FT::. ERROR GENERADO AL PROCESAR AL ARCHIVO. "+path+" BUSCANDO EL TAG fechaIniTransporte:. AL PARECER NO EXISTE EN ESTE ARCHIVO. NO SE PUEDE PROCESAR ESTE ARCHIVO! ");
+                            }
                             String dia = (eElement.getElementsByTagName("fechaIniTransporte").item(0).getTextContent()).replace("/", "").substring(0, 2);
                             String mes = (eElement.getElementsByTagName("fechaIniTransporte").item(0).getTextContent()).replace("/", "").substring(2, 4);
                             String anio = (eElement.getElementsByTagName("fechaIniTransporte").item(0).getTextContent()).replace("/", "").substring(4);
@@ -1092,7 +1099,11 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
                 }
 //                list = new ArrayList<>();
 //                inputStream = new ArrayList<>();
+ 
                 iniciarVariables();
+                FacesMessage message1 = new FacesMessage("HA CONCLUIDO la carga de archivos a InfinityOne CORRECTAMENTE!");
+                FacesContext.getCurrentInstance().addMessage(null, message1);
+
             } else {
                 this.dialogo(FacesMessage.SEVERITY_WARN, "Seleccione una comercializadora y un terminal para poder cargar el archivo");
             }// aqui
@@ -1103,6 +1114,15 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
             FacesMessage message = new FacesMessage("¡ERROR!", "UN archivo Está vácio! NINGÚN ARCHIVO SERÁ SUBIDO, Elimine este archivo del grupo y repita el proceso");
             FacesContext.getCurrentInstance().addMessage(null, message);
 //            this.dialogo(FacesMessage.SEVERITY_WARN, "El proceso debe ser re iniciado. Uno de los archivos estuvo vacío!");
+        }
+        }catch (Throwable t){
+            
+            System.out.println("FT::.INICIO DE CAPTURA ERROR AL ESTAR PROCESANDO ARCHIVOS DE GUIAS DE REMISION. Terminal: "+codTerminal + "ARCHIVO CON ERROR:. "+path+ "EXCEPCION CAPTURADA:. " + t);
+            t.printStackTrace(System.out);
+            System.out.println("FT::.FIN DE CAPTURA ERROR AL ESTAR PROCESANDO ARCHIVOS DE GUIAS DE REMISION. Terminal: "+codTerminal + "ARCHIVO CON ERROR:. "+path+ "EXCEPCION CAPTURADA:. " + t);
+            FacesMessage message2 = new FacesMessage("ERROR AL ESTAR PROCESANDO ARCHIVOS DE GUIAS DE REMISION. Terminal: "+codTerminal + "ARCHIVO CON ERROR:. "+path+ "EXCEPCION CAPTURADA:. " + t);
+            FacesContext.getCurrentInstance().addMessage(null, message2);
+         //   regresar();
         }
     }
 
