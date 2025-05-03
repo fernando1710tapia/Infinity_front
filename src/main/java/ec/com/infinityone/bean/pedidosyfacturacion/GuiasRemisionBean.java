@@ -1122,7 +1122,9 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
             System.out.println("FT::.FIN DE CAPTURA ERROR AL ESTAR PROCESANDO ARCHIVOS DE GUIAS DE REMISION. Terminal: "+codTerminal + "ARCHIVO CON ERROR:. "+path+ "EXCEPCION CAPTURADA:. " + t);
             FacesMessage message2 = new FacesMessage("ERROR AL ESTAR PROCESANDO ARCHIVOS DE GUIAS DE REMISION. Terminal: "+codTerminal + "ARCHIVO CON ERROR:. "+path+ "EXCEPCION CAPTURADA:. " + t);
             FacesContext.getCurrentInstance().addMessage(null, message2);
-         //   regresar();
+            dialogoAdquision();
+            
+//init();
         }
     }
 
@@ -1725,4 +1727,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
         this.pdfStream = pdfStream;
     }
 
+    public void dialogoAdquision() {
+        PrimeFaces.current().executeScript("PF('errorarchivo').show();");
+    }
 }

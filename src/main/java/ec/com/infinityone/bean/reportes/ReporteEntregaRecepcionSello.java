@@ -212,7 +212,13 @@ public class ReporteEntregaRecepcionSello extends ReusableBean implements Serial
         listTerminalSelloDto = new JSONArray();;
         /*fechas para comparar entre las dos y establecer un rango de 30 dias*/
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
-          
+        String codigoTerminalReporte = codTerminal;
+        String tipoTerminalER = "R";
+        if (codTerminal == null){
+            codigoTerminalReporte = "00";
+            tipoTerminalER = "E";
+        }
+        
         String dateI = sdf.format(fechaI);
         String dateF = sdf.format(fechaf);
         
@@ -225,7 +231,7 @@ public class ReporteEntregaRecepcionSello extends ReusableBean implements Serial
         if (diffrence > 365) {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "LA FECHA DE FIN NO PUEDE SER MAYOR A UN AÑO A LA FECHA DE INICIO");
         } else {
-            listTerminalSelloDto = selloServicio.buscarSellos(codComer, "00","E",dateI, dateF);
+            listTerminalSelloDto = selloServicio.buscarSellos(2, codComer, codigoTerminalReporte,tipoTerminalER,dateI, dateF);
             if (!listTerminalSelloDto.isEmpty()) {
                 crearArchivo(dateI, dateF, listTerminalSelloDto); 
             } else {
@@ -481,6 +487,22 @@ public class ReporteEntregaRecepcionSello extends ReusableBean implements Serial
 
     public void setCodTerminal(String codTerminal) {
         this.codTerminal = codTerminal;
+    }
+
+    public Terminal getTerminal() {
+        return terminal;
+    }
+
+    public void setTerminal(Terminal terminal) {
+        this.terminal = terminal;
+    }
+
+    public List<Terminal> getListaTerminal() {
+        return listaTerminal;
+    }
+
+    public void setListaTerminal(List<Terminal> listaTerminal) {
+        this.listaTerminal = listaTerminal;
     }
 
 }

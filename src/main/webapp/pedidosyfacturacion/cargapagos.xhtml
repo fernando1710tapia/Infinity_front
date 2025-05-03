@@ -62,7 +62,7 @@
                                     <p:outputLabel for="archivo" value="Subir Archivo"/>
                                     <p:fileUpload id="archivo" listener="#{cargaPagoBean.handleFileUploadDoc}"                                              
                                                   mode="advanced" multiple="false"
-                                                  auto="true"                                              
+                                                  auto="true" update="messages, :cargapago"                                             
                                                   sizeLimit="502400" allowTypes="/(\.|\/)(txt|TXT)$/"
                                                   invalidSizeMessage="Maximum file size allowed is 100 KB"
                                                   invalidFileMessage="only txt is allowed"/>  

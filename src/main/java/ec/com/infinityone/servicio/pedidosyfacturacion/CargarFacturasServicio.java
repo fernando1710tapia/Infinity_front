@@ -64,10 +64,14 @@ public class CargarFacturasServicio extends ReusableBean {
                 this.dialogo(FacesMessage.SEVERITY_INFO, developerMessage);
                 System.out.println("Se ha registrado con éxito");
             } else {
-                logErroresResponse(connection);
+                System.out.println("FT::. Error en la ejecución de la grabación de facturas."+connection 
+                        +"ERROR AL EJECUTAR:."+connection.getResponseMessage()+" - "+connection.getResponseCode());
+                this.dialogo(FacesMessage.SEVERITY_FATAL, "NO SE HAN GRABADO NINGUNA FACTURA, DEBE REVISAR SI EXISTEN CLIENTES NUEVOS O PRODUCTOS NUEVOS. Comuniquese con Sistemas para esta verificación. "
+                        +connection.getResponseMessage()+" - "+connection.getResponseCode());
             }
 
         } catch (Throwable e) {
+            this.dialogo(FacesMessage.SEVERITY_FATAL, "NO SE HAN GRABADO NINGUNA FACTURA, DEBE REVISAR SI EXISTEN CLIENTES NUEVOS O PRODUCTOS NUEVOS. Comuniquese con Sistemas para esta verificación. "+e.getMessage());
             System.out.println("Se ha registrado con éxito");
             e.printStackTrace(System.out);
         }

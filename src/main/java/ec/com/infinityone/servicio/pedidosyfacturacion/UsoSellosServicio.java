@@ -117,11 +117,12 @@ public class UsoSellosServicio extends ReusableBean {
         return developerMessage;
     }
 
-    public void adquirirUsoSellos(JSONObject bodyCompra) {
+    public int adquirirUsoSellos(JSONObject bodyCompra) {
         //String urlPath = "http://www.supertech.ec:8080/infinityone1/resources/ec.com.infinity.modelo.usosello";
 
         String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.usosello";
         final int SUCCESS_CODE = 200;
+        int respuestaServicioPersistencia = 200;
         try {
             URI uri = new URI(direcc);
             url = uri.toURL();
@@ -150,14 +151,72 @@ public class UsoSellosServicio extends ReusableBean {
                 String developerMessage = jsonResponse.optString("developerMessage", "No message provided");
                 this.dialogo(FacesMessage.SEVERITY_INFO, developerMessage);
                 System.out.println("Se ha registrado con éxito");
+                respuestaServicioPersistencia = connection.getResponseCode();
             } else {
-                logErrorResponse(connection);
+                respuestaServicioPersistencia = connection.getResponseCode();
+                JSONObject jsonResponse = new JSONObject(connection.getResponseCode());
+                String developerMessage = jsonResponse.optString("developerMessage", "No se ha podido asignar los sellos a los pedidos, Verifique si se está duplicando la primera NP");
+                this.dialogo(FacesMessage.SEVERITY_ERROR, developerMessage);
+
+                System.out.println("FT:. ERRO AL GRABAR LA RELACION PEDIDOS-SELLOS "+connection.getResponseCode());
             }
 
         } catch (Throwable e) {
-            System.out.println("Error");
+            System.out.println("FT:. ERRO AL GRABAR LA RELACION PEDIDOS-SELLOS ");
             e.printStackTrace(System.out);
         }
+        return respuestaServicioPersistencia;
+    }
+    
+    public int actualizarUsoSellos(JSONObject bodyCompra) {
+        //String urlPath = "http://www.supertech.ec:8080/infinityone1/resources/ec.com.infinity.modelo.usosello";
+         
+        String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.usosello/porId";
+        final int SUCCESS_CODE = 200;
+        int respuestaServicioPersistencia = 200;
+        try {
+            URI uri = new URI(direcc);
+            url = uri.toURL();
+            String respuesta;
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("PUT");
+            connection.setRequestProperty("Content-type", "application/json");
+
+            try (OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())) {
+                respuesta = bodyCompra.toString();
+                writer.write(respuesta);
+                writer.close();
+            }
+
+            if (connection.getResponseCode() == SUCCESS_CODE) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+                reader.close();
+                JSONObject jsonResponse = new JSONObject(response.toString());
+                String developerMessage = jsonResponse.optString("developerMessage", "No message provided");
+                this.dialogo(FacesMessage.SEVERITY_INFO, developerMessage);
+                System.out.println("Se ha registrado con éxito");
+                respuestaServicioPersistencia = connection.getResponseCode();
+            } else {
+                respuestaServicioPersistencia = connection.getResponseCode();
+                JSONObject jsonResponse = new JSONObject(connection.getResponseCode());
+                String developerMessage = jsonResponse.optString("developerMessage", "No se ha podido asignar los sellos a los pedidos, Verifique si se está duplicando la primera NP");
+                this.dialogo(FacesMessage.SEVERITY_ERROR, developerMessage);
+
+                System.out.println("FT:. ERRO AL GRABAR LA RELACION PEDIDOS-SELLOS "+connection.getResponseCode());
+            }
+
+        } catch (Throwable e) {
+            System.out.println("FT:. ERRO AL GRABAR LA RELACION PEDIDOS-SELLOS ");
+            e.printStackTrace(System.out);
+        }
+        return respuestaServicioPersistencia;
     }
 
 }

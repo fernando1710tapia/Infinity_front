@@ -5,7 +5,7 @@
                 xmlns:p="http://primefaces.org/ui"
                 template="/WEB-INF/template.xhtml">
 
-    <ui:define name="title">Sellos</ui:define>
+    <ui:define name="title">Administración de Sellos</ui:define>
 
     <ui:define name="viewname">
         <li>Sellos</li>        
@@ -78,14 +78,14 @@
                                 </div>
                                 <div class="p-field p-col-12 p-md-2">
                                     <p:outputLabel for="btnBuscar" value="."/>
-                                    <p:commandButton id="btnBuscar" value="Buscar" icon="pi pi-search"  actionListener="#{sellosBean.obtenerSellos()}" update="form:dt-products"/>
+                                    <p:commandButton id="btnBuscar" value="Buscar" icon="pi pi-search"  actionListener="#{sellosBean.obtenerSellos(1)}" update="form:dt-products"/>
                                 </div>
                             </div>                              
                             <p:dataTable id="dt-products" widgetVar="dtProducts" var="terms" value="#{sellosBean.terminalesSellos}" reflow="true" styleClass="products-table"
                                          paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
                                 <f:facet name="header">
                                     <div class="products-table-header">
-                                        <span style="font-weight: bold">Sellos</span>
+                                        <span style="font-weight: bold">Sellos administrados</span>
 
                                         <span class="filter-container ui-input-icon-left">
                                             <i class="pi pi-search"></i>
@@ -199,7 +199,7 @@
                                 </div>
                                 <div class="p-field p-col-12 p-md-2">
                                     <p:outputLabel for="btnBuscar1" value="."/>
-                                    <p:commandButton id="btnBuscar1" value="Buscar" icon="pi pi-search"  actionListener="#{sellosBean.obtenerSellos()}" update="formNuevo:dt-products"/>
+                                    <p:commandButton id="btnBuscar1" value="Buscar" icon="pi pi-search"  actionListener="#{sellosBean.obtenerSellos(1)}" update="formNuevo:dt-products"/>
                                 </div>
                                 <div class="p-field p-col-12 p-md-3">   
                                     <p:outputLabel for="efechaAc" value="Fecha Actual"/>

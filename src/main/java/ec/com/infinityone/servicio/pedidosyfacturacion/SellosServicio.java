@@ -42,10 +42,14 @@ public class SellosServicio extends ReusableBean {
      */
     private List<Detalleterminalsello> listaDetalleTerminalSello;    
 
-    public JSONArray buscarSellos(String codComer, String codTerminal, String tipoTerminal, String fechaInicio, String fechaFin) {
+    public JSONArray buscarSellos(int tipoConsulta, String codComer, String codTerminal, String tipoTerminal, String fechaInicio, String fechaFin) {
         //String urlPath = "http://www.supertech.ec:8080/infinityone1/resources/ec.com.infinity.modelo.factura/cargarfacturasbancos";
-
-        String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.terminalsello/paraconsultaprincipal?";
+        String nombreConsulta = "ec.com.infinity.modelo.terminalsello/paraconsultaprincipal?";
+        if(2 == tipoConsulta){
+        nombreConsulta = "ec.com.infinity.modelo.terminalsello/paraentregarsolovalidos?";
+        }
+        
+        String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + nombreConsulta;
         final int SUCCESS_CODE = 200;
         JSONArray retorno = new JSONArray();
 

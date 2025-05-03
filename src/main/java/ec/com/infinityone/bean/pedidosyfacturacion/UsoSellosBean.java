@@ -56,6 +56,7 @@ import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
+import org.primefaces.PrimeFaces;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
 
@@ -163,14 +164,20 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
     private EnvioUsoSello envioUsoSello;
 
     private List<EnvioUsoSello> listaEnvioUsoSellos;
+    
+    private String[] sellosConcatenados;
 
+    private String[] pedidosConcatenados;
+    
     private UsoSello usoSello;
 
     private String ultimoSello;
-        /*
+    /*
     Vairbale para almacenar el pdf generado
      */
     private StreamedContent pdfStream;
+    
+    private boolean esEdicionGlobal = false;
 
     /**
      * Constructor por defecto
@@ -379,7 +386,7 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
         }
     }
 
-    public void habilitarBusqueda() {
+    public void habilitarBusquedaAnterior() {
         if (dataUser.getUser() != null) {
             if (dataUser.getUser().getNiveloperacion().equals("cero")) {
                 habilitarComer = true;
@@ -397,6 +404,7 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
             }
             if (dataUser.getUser().getNiveloperacion().equals("usac")) {
                 habilitarComer = false;
+                habilitarTerminal = false;
                 for (int i = 0; i < listaComercializadora.size(); i++) {
                     if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
                         this.comercializadora = listaComercializadora.get(i);
@@ -404,12 +412,92 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
                             codComer = comercializadora.getCodigo();
                         }
                     }
+
                 }
+                 
+            }
+        }
+    }
+    
+    
+    public void habilitarBusqueda() {
+        if (dataUser.getUser() != null) {
+            switch (dataUser.getUser().getNiveloperacion()) {
+                case "cero":
+                    habilitarComer = true;
+                    habilitarTerminal = true;
+                    break;
+                case "adco":
+                    habilitarComer = false; 
+                    habilitarTerminal = true;
+                    for (int i = 0; i < listaComercializadora.size(); i++) {
+                        if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
+                            this.comercializadora = listaComercializadora.get(i);
+                        }
+                    }
+                    seleccionarComerc();
+                    //listaClientes = clienteServicio.obtenerClientesPorComercializadora(comercializadora.getCodigo());
+                    break;
+                case "usac":
+                    habilitarComer = false; 
+                    habilitarTerminal = false;
+                    for (int i = 0; i < listaComercializadora.size(); i++) {
+                        if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
+                            this.comercializadora = listaComercializadora.get(i);
+                        }
+
+                    }
+                    if (comercializadora.getCodigo() != null) {
+                        seleccionarComerc();
+                    } else {
+                        this.dialogo(FacesMessage.SEVERITY_FATAL, "La comercializadora se encuentra deshabilitada");
+                    }
+                    break;
+                case "agco":
+                    habilitarComer = false; 
+                    habilitarTerminal = false;
+                    for (int i = 0; i < listaComercializadora.size(); i++) {
+                        if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
+                            comercializadora = listaComercializadora.get(i);
+                            break;
+                        }
+                    }
+                    seleccionarComerc(); 
+                    for (int i = 0; i < listaTermianles.size(); i++) {
+                        if (listaTermianles.get(i).getCodigo().equals(dataUser.getUser().getCodigoterminal())) {
+                            terminal = listaTermianles.get(i);
+                            break;
+                        }
+                    }
+                    seleccionarTerminal(1);
+                    break;
+                default:
+                    break;
             }
         }
     }
 
+    public void seleccionarComerc() {
+        if (comercializadora != null) {
+            codComer = comercializadora.getCodigo();
+//            codAbas = comercializadora.getCodigoAbas();
+//            nombComer = comercializadora.getNombre();
+        }
+    }
+    
+    
     public void asignacion() {
+        
+        reestablecer();
+        habilitarBusqueda();
+        mostrarPantallaAsignar = true;
+        mostrarPantallaInicial = false;
+    }
+
+    
+    
+    
+    public void asignacionAntes() {
         reestablecer();
         mostrarPantallaAsignar = true;
         mostrarPantallaInicial = false;
@@ -491,6 +579,12 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
             if (!autotanque.getCompartimento8().equals(menosUno)) {
                 contador++;
             }
+            if (!autotanque.getCompartimento8().equals(menosUno)) {
+                contador++;
+            }
+            if (!autotanque.getCompartimento8().equals(menosUno)) {
+                contador++;
+            }
             numeroSellos = contador * 2;
             for (int i = 0; i < numeroSellos; i++) {
                 sello += 1;
@@ -531,101 +625,102 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
         }
     }
 
-    public void adquirirUsoSello() {
+    public void adquirirUsoSello(boolean esInsert) {
+        int SUCCESS_CODE = -1;
         if (!codComer.isEmpty() && !codTerminal.isEmpty() && !codCliente.isEmpty() && !autotanque.getPlaca().isEmpty()) {
             JSONObject usoSelloPost = new JSONObject();
             JSONObject usoSelloPK = new JSONObject();
-            EnvioUsoSello usoSelloImpresion = new EnvioUsoSello();  
+            EnvioUsoSello usoSelloImpresion = new EnvioUsoSello();
             usoSelloImpresion.setSelloconcatenado("");
             LocalDateTime fechaActual = LocalDateTime.now().withHour(12);
             long timestamp = fechaActual.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
             // ft completar objeto usoSello para impresion
             usoSelloImpresion.setCodigocomercializadora(codComer);
-            usoSelloImpresion.setNombrecliente(cliente.getNombre());
+            usoSelloImpresion.setNombrecliente(cliente.getNombrecomercial());
             usoSelloImpresion.setPlaca(autotanque.getPlaca());
             usoSelloImpresion.setNombreconductor(autotanque.getCedularuc().getNombre());
-            
-            if (usoSello.getSello1()!= null){
-        
-                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello1().toString()+";");
-                
+
+            if (usoSello.getSello1() != null) {
+
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim() + usoSello.getSello1().toString() + ";");
+
             }
-            
-            if (usoSello.getSello2()!= null){
-        
-                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello2().toString()+";");
-                
+
+            if (usoSello.getSello2() != null) {
+
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim() + usoSello.getSello2().toString() + ";");
+
             }
-            if (usoSello.getSello3()!= null){
-        
-                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello3().toString()+";");
-                
+            if (usoSello.getSello3() != null) {
+
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim() + usoSello.getSello3().toString() + ";");
+
             }
-            if (usoSello.getSello4()!= null){
-        
-                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello4().toString()+";");
-                
+            if (usoSello.getSello4() != null) {
+
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim() + usoSello.getSello4().toString() + ";");
+
             }
-            if (usoSello.getSello5()!= null){
-        
-                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello5().toString()+";");
-                
+            if (usoSello.getSello5() != null) {
+
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim() + usoSello.getSello5().toString() + ";");
+
             }
-            if (usoSello.getSello6()!= null){
-        
-                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello6().toString()+";");
-                
+            if (usoSello.getSello6() != null) {
+
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim() + usoSello.getSello6().toString() + ";");
+
             }
-            if (usoSello.getSello7()!= null){
-        
-                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello8().toString()+";");
-                
+            if (usoSello.getSello7() != null) {
+
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim() + usoSello.getSello8().toString() + ";");
+
             }
-            if (usoSello.getSello9()!= null){
-        
-                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello9().toString()+";");
-                
+            if (usoSello.getSello9() != null) {
+
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim() + usoSello.getSello9().toString() + ";");
+
             }
-            
-            if (usoSello.getSello10()!= null){
-        
-                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello10().toString()+";");
-                
+
+            if (usoSello.getSello10() != null) {
+
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim() + usoSello.getSello10().toString() + ";");
+
             }
-            
-            if (usoSello.getSello11()!= null){
-        
-                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello11().toString()+";");
-                
+
+            if (usoSello.getSello11() != null) {
+
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim() + usoSello.getSello11().toString() + ";");
+
             }
-            
-            if (usoSello.getSello12()!= null){
-        
-                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello12().toString()+";");
-                
+
+            if (usoSello.getSello12() != null) {
+
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim() + usoSello.getSello12().toString() + ";");
+
             }
-            if (usoSello.getSello13()!= null){
-        
-                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello13().toString()+";");
-                
+            if (usoSello.getSello13() != null) {
+
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim() + usoSello.getSello13().toString() + ";");
+
             }
-            if (usoSello.getSello14()!= null){
-        
-                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello14().toString()+";");
-                
+            if (usoSello.getSello14() != null) {
+
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim() + usoSello.getSello14().toString() + ";");
+
             }
-            if (usoSello.getSello15()!= null){
-        
-                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello15().toString()+";");
-                
+            if (usoSello.getSello15() != null) {
+
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim() + usoSello.getSello15().toString() + ";");
+
             }
-            if (usoSello.getSello16()!= null){
-        
-                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim()+usoSello.getSello16().toString()+";");
-                
+            if (usoSello.getSello16() != null) {
+
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim() + usoSello.getSello16().toString() + ";");
+
             }
-            
+
             usoSelloPK.put("codigocomercializadora", codComer);
             usoSelloPK.put("codigoterminal", codTerminal);
             usoSelloPK.put("codigocliente", codCliente);
@@ -635,7 +730,7 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
             usoSelloPost.put("usoselloPK", usoSelloPK);
             usoSelloPost.put("fecha", timestamp);
             usoSelloPost.put("nombreconductor", autotanque.getCedularuc().getNombre());
-            usoSelloPost.put("nombrecliente", cliente.getNombre());
+            usoSelloPost.put("nombrecliente", cliente.getNombrecomercial());
             usoSelloPost.put("np6", usoSello.getNp6());
             usoSelloPost.put("np5", usoSello.getNp5());
             usoSelloPost.put("np4", usoSello.getNp4());
@@ -658,10 +753,20 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
             usoSelloPost.put("sello2", usoSello.getSello2());
             usoSelloPost.put("sello1", usoSello.getSello1());
             usoSelloPost.put("usuarioactual", dataUser.getUser().getNombrever());
-
-            usoSellosServicio.adquirirUsoSellos(usoSelloPost);
-            generarReporteAux(usoSelloImpresion);
             
+            if (esInsert && !esEdicionGlobal) {
+                SUCCESS_CODE = usoSellosServicio.adquirirUsoSellos(usoSelloPost);
+            }else{
+               SUCCESS_CODE = usoSellosServicio.actualizarUsoSellos(usoSelloPost);
+            }
+            
+            
+            if (SUCCESS_CODE == 200) {
+                generarReporteAux(usoSelloImpresion);
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_FATAL, SUCCESS_CODE + "- No se ha podido asignar los sellos a los pedidos, Verifique si se está duplicando la primera NP");
+            }
+
         } else {
             this.dialogo(FacesMessage.SEVERITY_WARN, "Los campos comercializadora, terminal, cliente y autotanque son requeridos, por favor complete la información solicitada");
         }
@@ -714,32 +819,31 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
         }
     }
 
-        // CODIGO PARA LA IMPRESION DE USOSELLOS EN JASPER
-    
-        public void generarReporteAux(EnvioUsoSello unUsoSello) {
+    // CODIGO PARA LA IMPRESION DE USOSELLOS EN JASPER
+    public void generarReporteAux(EnvioUsoSello unUsoSello) {
 //        String path = "C:\\archivos\\Template\\notapedido.jrxml";
         String rutaGuardar = Fichero.getCARPETAREPORTES();
         String path = Fichero.getCARPETAREPORTES() + "/usosellosinbdd.jrxml";
-        String prefijo ="";
+        String prefijo = "";
         System.out.println("FT:: metodo.generarReporte PATH:" + path);
-        String sellosConcatenadosParaImpresion="";
+        String sellosConcatenadosParaImpresion = "";
         String[] sellosSeparados = unUsoSello.getSelloconcatenado().split(";");
-        
-            switch (unUsoSello.getCodigocomercializadora()) {
-                case "0095":
-                    prefijo = "PR";
-                    break;
-                case "0008":
-                    prefijo = "PR";
-                    break;
-                default:
-                    prefijo = "";
-            }
-            System.out.println("FT::. sellosSeparados"+sellosSeparados);
-            for (String sello : sellosSeparados) {
-                sellosConcatenadosParaImpresion = sellosConcatenadosParaImpresion+prefijo+sello.trim()+"\n";
-            }
-   
+
+        switch (unUsoSello.getCodigocomercializadora()) {
+            case "0095":
+                prefijo = "PR";
+                break;
+            case "0008":
+                prefijo = "PR";
+                break;
+            default:
+                prefijo = "";
+        }
+        System.out.println("FT::. sellosSeparados" + sellosSeparados);
+        for (String sello : sellosSeparados) {
+            sellosConcatenadosParaImpresion = sellosConcatenadosParaImpresion + prefijo + sello.trim() + "\n";
+        }
+
         InputStream file = null;
         try {
             file = new FileInputStream(new File(path));
@@ -750,13 +854,11 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
             Map parametro = new HashMap();
 
             parametro.put("sellos", sellosConcatenadosParaImpresion);
-            parametro.put("actorcomercial", unUsoSello.getNombrecliente()+"\n"+unUsoSello.getPlaca()+"\n"+unUsoSello.getNombreconductor());
+            parametro.put("actorcomercial", unUsoSello.getNombrecliente() + "\n" + unUsoSello.getPlaca() + "\n" + unUsoSello.getNombreconductor());
             parametro.put("logo", image);
 
             //System.out.println("PARAMETROS: " + parametro);
-
 //////////  ftftftft          Connection conexion = conexionJasperBD();
-
             JRDataSource conexion = new JREmptyDataSource();
 
             //System.out.println("CONEXIÓN: " + conexion);
@@ -767,25 +869,22 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
             String nombreDocumento = "SellosUsados";
             String fechaArchivo = (new Date().toString());
 
-            File pdf = File.createTempFile(nombreDocumento + "_"+fechaArchivo, ".pdf", directory);
+            File pdf = File.createTempFile(nombreDocumento + "_" + fechaArchivo, ".pdf", directory);
             JasperExportManager.exportReportToPdfStream(print, new FileOutputStream(pdf));
             File initialFile = new File(pdf.getAbsolutePath());
             InputStream targetStream = new FileInputStream(initialFile);
             //pdfStream = new DefaultStreamedContent();
             pdfStream = new DefaultStreamedContent(targetStream, "application/pdf", nombreDocumento + (new Date()).toString() + ".pdf");
             //DefaultStreamedContent.builder().contentType("application/pdf").name(nombreDocumento + ".pdf").stream(() -> new FileInputStream(targetStream)).build();
-            System.out.println("FT::. CREANDO ARCHIVO. "+pdf.getAbsolutePath());
-                        
+            System.out.println("FT::. CREANDO ARCHIVO. " + pdf.getAbsolutePath());
+
         } catch (Exception ex) {
             //ex.printStackTrace();
             System.out.println("Excepcion: " + ex);
         }
     }
-    
-    
-    // FINFINFIN CODIGO PARA LA IMPRESION DE USOSELLOS EN JASPER
 
-    
+    // FINFINFIN CODIGO PARA LA IMPRESION DE USOSELLOS EN JASPER
     public ComercializadoraBean getComercializadora() {
         return comercializadora;
     }
@@ -971,5 +1070,135 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
     }
     
     
+    public EnvioUsoSello editarUsoSello(EnvioUsoSello obj, boolean esEdicion) {
+             
+        habilitarComer = false;
+        esEdicionGlobal = esEdicion;
+
+        // variables de la pantalla
+        envioUsoSello = obj;
+        codComer = envioUsoSello.getCodigocomercializadora();
+        codTerminal = envioUsoSello.getCodigoterminal();
+        codCliente = envioUsoSello.getCodigocliente();
+        ultimoSello = ""; 
+        listaEnvioUsoSellos = new ArrayList<>(); 
+        mostrarPantallaAsignar = true;
+        mostrarPantallaInicial = false;
+        
+        usoSello = new UsoSello();
+        
+        if (!listaTermianles.isEmpty()) {
+                for (int i = 0; i < listaTermianles.size(); i++) {
+                    if (listaTermianles.get(i).getCodigo().equals(envioUsoSello.getCodigoterminal())) {
+                        this.terminal = listaTermianles.get(i);
+                        break;
+                    }
+                }
+            }
+        
+        if (!listaClientes.isEmpty()) {
+                for (int i = 0; i < listaClientes.size(); i++) {
+                    if (listaClientes.get(i).getCodigo().equals(envioUsoSello.getCodigocliente())) {
+                        this.cliente = listaClientes.get(i);
+                        break;
+                    }
+                }
+            }
+        
+        if (!listaAutotanque.isEmpty()) {
+                for (int i = 0; i < listaAutotanque.size(); i++) {
+                    if (listaAutotanque.get(i).getPlaca().equals(envioUsoSello.getPlaca())) {
+                        this.autotanque = listaAutotanque.get(i);
+                        break;
+                    }
+                }
+            }
+//        
+            sellosConcatenados = envioUsoSello.getSelloconcatenado().split(";");
+            pedidosConcatenados = envioUsoSello.getNpconcatenada().split(";"); 
+            for (int i = 0; i < pedidosConcatenados.length; i++) { 
+                switch (i) {
+                    case 0:
+                        usoSello.setNp1(pedidosConcatenados[0].trim());
+                        break;
+                    case 1:
+                        usoSello.setNp2(pedidosConcatenados[1].trim());
+                        break; 
+                    case 2:
+                        usoSello.setNp3(pedidosConcatenados[2].trim());
+                        break;
+                    case 3:
+                        usoSello.setNp4(pedidosConcatenados[3].trim());
+                        break;
+                    case 4:
+                        usoSello.setNp5(pedidosConcatenados[4].trim());
+                        break;
+                    case 5:
+                        usoSello.setNp6(pedidosConcatenados[5].trim());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }               
+        }
+            
+        for (int i = 0; i < sellosConcatenados.length; i++) { 
+                switch (i) {
+                    case 0:
+                        usoSello.setSello1(new BigInteger(sellosConcatenados[0].trim()));
+                        break;
+                    case 1:
+                        usoSello.setSello2(new BigInteger(sellosConcatenados[1].trim()));
+                        break; 
+                    case 2:
+                        usoSello.setSello3(new BigInteger(sellosConcatenados[2].trim()));
+                        break;
+                    case 3:
+                        usoSello.setSello4(new BigInteger(sellosConcatenados[3].trim()));
+                        break;
+                    case 4:
+                        usoSello.setSello5(new BigInteger(sellosConcatenados[4].trim()));
+                        break;
+                    case 5:
+                        usoSello.setSello6(new BigInteger(sellosConcatenados[5].trim()));
+                        break;
+                    case 6:
+                        usoSello.setSello7(new BigInteger(sellosConcatenados[6].trim()));
+                        break;
+                    case 7:
+                        usoSello.setSello8(new BigInteger(sellosConcatenados[7].trim()));
+                        break;
+                    case 8:
+                        usoSello.setSello9(new BigInteger(sellosConcatenados[8].trim()));
+                        break;
+                    case 9:
+                        usoSello.setSello10(new BigInteger(sellosConcatenados[9].trim()));
+                        break;
+                    case 10:
+                        usoSello.setSello11(new BigInteger(sellosConcatenados[10].trim()));
+                        break;
+                    case 11:
+                        usoSello.setSello12(new BigInteger(sellosConcatenados[11].trim()));
+                        break;
+                    case 12:
+                        usoSello.setSello13(new BigInteger(sellosConcatenados[12].trim()));
+                        break; 
+                    case 13:
+                        usoSello.setSello14(new BigInteger(sellosConcatenados[13].trim()));
+                        break;
+                    case 14:
+                        usoSello.setSello15(new BigInteger(sellosConcatenados[14].trim()));
+                        break;
+                    case 15:
+                        usoSello.setSello16(new BigInteger(sellosConcatenados[15].trim()));
+                        break;  
+                    default:
+                        throw new AssertionError();
+                }               
+        }
+        
+        //adquirirUsoSello(!esEdicion);
+             
+        return envioUsoSello;
+    }
 
 }

@@ -39,13 +39,33 @@
                                         </p:selectOneMenu> 
                                     </div>                          
                                 </div>
-                                <div class="p-field p-col-12 p-md-3">                                  
+                                <div class="p-field p-col-12 p-md-3">
+                                    <p:outputLabel for="term" value="Terminal"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>
+                                        <p:selectOneMenu id="term" value="#{reporteEntregaRecepcionSello.terminal}" title="Terminal"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         disabled="#{!reporteEntregaRecepcionSello.habilitarTerminal}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
+                                            <f:selectItems value="#{reporteEntregaRecepcionSello.listaTerminal}"
+                                                           var="ter"
+                                                           itemLabel="#{ter.codigo} - #{ter.nombre}"                                                           
+                                                           itemValue="#{ter}" />
+                                            <p:ajax event="change" listener="#{reporteEntregaRecepcionSello.seleccionarTerminal()}"/>
+                                        </p:selectOneMenu> 
+                                    </div> 
+                                </div>
+
+                                <div class="p-field p-col-12 p-md-2">                                  
                                     <p:outputLabel for="fechaI" value="Fecha Inicio"/>
                                     <p:datePicker id="fechaI" value="#{reporteEntregaRecepcionSello.fechaI}" showIcon="true" pattern="dd/MM/yyyy">
                                         <p:ajax event="dateSelect" update="fechaF"/>
                                     </p:datePicker>
                                 </div>
-                                <div class="p-field p-col-12 p-md-3">                                  
+                                <div class="p-field p-col-12 p-md-2">                                  
                                     <p:outputLabel for="fechaF" value="Fecha Fin"/>
                                     <p:datePicker id="fechaF" value="#{reporteEntregaRecepcionSello.fechaf}" showIcon="true" pattern="dd/MM/yyyy" mindate="#{reporteEntregaRecepcionSello.fechaI}"/>                                   
                                 </div>

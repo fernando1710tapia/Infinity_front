@@ -192,8 +192,8 @@ public class Reporteusosellos extends ReusableBean implements Serializable {
      * Funcion para inicializar variables
      */
     public void init() {
-        obtenerTerminal();
-        obtenerComercializadora();
+        obtenerTerminal(); 
+        obtenerComercializadora(); 
         nombreTerminales = new HashMap<>();
         //    obtenerTerminales();
         contadorCeldaCabecera = 0;
@@ -226,9 +226,9 @@ public class Reporteusosellos extends ReusableBean implements Serializable {
     public void obtenerTerminal() {
         listaTerminal = new ArrayList<>();
         listaTerminal = termServicio.obtenerTerminalesActivos();
-        if (!listaTerminal.isEmpty()) {
-            habilitarBusqueda();
-        }
+//        if (!listaTerminal.isEmpty()) {
+//            habilitarBusqueda();
+//        }
     }
 
     public void seleccionarComerc() {
@@ -264,6 +264,7 @@ public class Reporteusosellos extends ReusableBean implements Serializable {
         if (diffrence > 365) {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "LA FECHA DE FIN NO PUEDE SER MAYOR A UN AÑO A LA FECHA DE INICIO");
         } else {
+            System.out.println("FT:: Reporteusosellos.generarArchivo() Parametros de pantalla:.Comer"+ codComer +" Term. "+ codTerminal +" Fechas I - F. "+ dateI + " - "+dateF);
             listTerminalSelloDto = selloServicio.buscarUsoSellosTerminal(codComer, codTerminal, dateI, dateF);
             if (!listTerminalSelloDto.isEmpty()) {
                 crearArchivoNuevo(dateI, dateF, listTerminalSelloDto);
@@ -435,7 +436,7 @@ public class Reporteusosellos extends ReusableBean implements Serializable {
         String[] headers = new String[]{
             "Fecha uso",
             "Cliente-Transporte",
-            "Pedidos",
+            "Pedidos relacionados",
             "Sellos utilizados"
         };
 
@@ -497,7 +498,7 @@ public class Reporteusosellos extends ReusableBean implements Serializable {
 ////                dateFechaMovimiento = new Date(dateStrFV);
 ////                dataRow.createCell(1).setCellValue(dateFechaMovimiento);
 ////                dataRow.getCell(1).setCellStyle(fechacortaStyle);
-                    dataRow.createCell(0).setCellValue(unUsoSello.getString("fecha"));
+                    dataRow.createCell(0).setCellValue(unUsoSello.getString("ufecha"));
 
                 clienteTransporteConcatenados = (unUsoSello.getString("nombrecliente"))+concatenador
                         +(unUsoSello.getString("placa"))+concatenador
@@ -712,7 +713,7 @@ public void habilitarBusqueda() {
                     habilitarTerminal = true;
                     break;
                 case "adco":
-                    habilitarComer = false; 
+                    habilitarComer = true; 
                     habilitarTerminal = true;
                     for (int i = 0; i < listaComercializadora.size(); i++) {
                         if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
@@ -739,7 +740,7 @@ public void habilitarBusqueda() {
                     break;
                 case "agco":
                     habilitarComer = false; 
-                    habilitarTerminal = false;
+                    habilitarTerminal = true;
                     for (int i = 0; i < listaComercializadora.size(); i++) {
                         if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
                             comercializadora = listaComercializadora.get(i);

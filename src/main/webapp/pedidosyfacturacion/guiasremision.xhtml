@@ -552,6 +552,22 @@
         <p:confirmDialog global="true" showEffect="fade" width="300">
             <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
             <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
-        </p:confirmDialog>                    
+        </p:confirmDialog>  
+    <p:dialog header="Error espacial detectado" width="40%" showEffect="fade" modal="true" widgetVar="errorarchivo" responsive="true">
+            <h:form id="formErrorArchivo">
+                <p:outputPanel rendered = "true">                               
+                    <div class="ui-fluid p-formgrid p-grid">
+                        <div class="p-field p-col-12 p-md-6">
+                            <label for="term" class="floating-label">Uno de los archivos procesados han causado un inconveniente y la aplicación debe reiniciarse</label>                                          
+                        </div>
+                    </div>
+                        <div class="p-field p-col-12 p-md-12"></div>                                                                                         
+                </p:outputPanel>
+                <div class="p-grid p-justify-end"> 
+                    <p:commandButton value="Cancelar" icon="pi pi-times" actionListener="#{sellosBean.comprarSellos()}" onclick="PF('adquirirSellos').hide()" class="ui-button-secondary" />
+                </div>
+            </h:form>
+        </p:dialog>    
     </ui:define>
+        
 </ui:composition>

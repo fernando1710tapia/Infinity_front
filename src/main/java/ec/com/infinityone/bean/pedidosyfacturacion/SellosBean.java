@@ -369,6 +369,9 @@ public class SellosBean extends ReusableBean implements Serializable {
             mostrarNuevosSellos = false;
         }
         reestablecer();
+        nombreTerminales = new HashMap<>();
+        obtenerTerminales();
+        obtenerComercializadora();
     }
 
     public void obtenerComercializadora() {
@@ -418,7 +421,7 @@ public class SellosBean extends ReusableBean implements Serializable {
                 habilitarComer = true;
             }
             if (dataUser.getUser().getNiveloperacion().equals("adco")) {
-                habilitarComer = false;
+                habilitarComer = true;
                 for (int i = 0; i < listaComercializadora.size(); i++) {
                     if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
                         this.comercializadora = listaComercializadora.get(i);
@@ -429,7 +432,7 @@ public class SellosBean extends ReusableBean implements Serializable {
                 }
             }
             if (dataUser.getUser().getNiveloperacion().equals("usac")) {
-                habilitarComer = false;
+                habilitarComer = true;
                 for (int i = 0; i < listaComercializadora.size(); i++) {
                     if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
                         this.comercializadora = listaComercializadora.get(i);
@@ -442,14 +445,14 @@ public class SellosBean extends ReusableBean implements Serializable {
         }
     }
 
-    public void obtenerSellos() {
+    public void obtenerSellos(int tipoconsulta) {
         if (comercializadora != null && terminal != null && fechaInicial != null && fechaFinal != null) {
             DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
             /*fechas para hacer la consulta*/
             String fechaI = date.format(fechaInicial);
             String fechaF = date.format(fechaFinal);
             terminalesSellos = new ArrayList<>();
-            JSONArray retorno = sellosServicio.buscarSellos(codComer, codTerminal, "r", fechaI, fechaF);
+            JSONArray retorno = sellosServicio.buscarSellos(tipoconsulta, codComer, codTerminal, "r", fechaI, fechaF);
             if (retorno.isEmpty()) {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "NO SE ENCONTRARON SELLOS");
             } else {
@@ -491,6 +494,8 @@ public class SellosBean extends ReusableBean implements Serializable {
         }
 
     }
+    
+    
 
     public void dialogoAdquision() {
         PrimeFaces.current().executeScript("PF('adquirirSellos').show()");
@@ -587,13 +592,15 @@ public class SellosBean extends ReusableBean implements Serializable {
             sellosExistentes = 0;
             selloInicial = 0;
             selloFinal = 0;
+            Boolean activoT = Boolean.TRUE;
+            Boolean activoF = Boolean.TRUE;
             PrimeFaces.current().executeScript("PF('entregaRecepcion').show()");
 
             JSONArray retorno = sellosServicio.entregaRecepcionConsulta(
                     filaSeleccionada.getTerminalselloPK().getCodigocomercializadora(),
                     filaSeleccionada.getTerminalselloPK().getCodigoterminalrecibe(),
-                    true,
-                    false,
+                    activoT,
+                    activoF,
                     selloInicialEntrega,
                     selloFinalEntrega
             );
@@ -770,7 +777,9 @@ public class SellosBean extends ReusableBean implements Serializable {
                 this.dialogo(FacesMessage.SEVERITY_WARN, "Debe seleccionar el Terminal que recibe para procesar la entrega/recepción.");
             }
 
-        }
+        }else {
+                this.dialogo(FacesMessage.SEVERITY_WARN, "NO SE ENCONTRARON SELLOS PARA ENTREGAR!. Esta Serie debió ser usada anteriormente");
+            }
     }
 
     public void cancelarDialogoEntregaRecepcion() {

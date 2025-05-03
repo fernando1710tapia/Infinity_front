@@ -83,7 +83,7 @@
                                          paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
                                 <f:facet name="header">
                                     <div class="products-table-header">
-                                        <span style="font-weight: bold">Sellos</span>
+                                        <span style="font-weight: bold">Sellos utilizados en pedidos</span>
 
                                         <span class="filter-container ui-input-icon-left">
                                             <i class="pi pi-search"></i>
@@ -97,32 +97,28 @@
                                 <p:column headerText="Fecha" filterBy="#{usoSello.fecha}" width="10%">
                                     <h:outputText value="#{usoSello.fecha}" />
                                 </p:column>
-                                <p:column headerText="Nota Pedido" filterBy="#{usoSello.npconcatenada}" width="20%">
+                                <p:column headerText="Nota Pedido" filterBy="#{usoSello.npconcatenada}" width="15%">
                                     <h:outputText value="#{usoSello.npconcatenada}" />
                                 </p:column>
                                 <p:column headerText="Sello Usado" filterBy="#{usoSello.selloconcatenado}" width="15%">
                                     <h:outputText value="#{usoSello.selloconcatenado}" />
                                 </p:column>
-                                <p:column headerText="Autotanque" filterBy="#{usoSello.placa}" width="15%">
+                                <p:column headerText="Autotanque" filterBy="#{usoSello.placa}" width="10%">
                                     <h:outputText value="#{usoSello.placa}" />
                                 </p:column>
-                                <p:column headerText="Conductor"  filterBy="#{usoSello.nombreconductor}" width="15%">
+                                <p:column headerText="Conductor"  filterBy="#{usoSello.nombreconductor}" width="10%">
                                     <h:outputText value="#{usoSello.nombreconductor}" />
                                 </p:column>
                                 <p:column headerText="Nombre Cliente" filterBy="#{usoSello.nombrecliente}" width="15%">
                                     <h:outputText value="#{usoSello.nombrecliente}" />
                                 </p:column>
                                 <p:column exportable="false">
-                                    <p:commandButton icon="pi pi-eye" update="form " actionListener="#{sellosBean.detalleSellos(terms, false, false)}"
+                                    <p:commandButton icon="pi pi-pencil" update="form :formNuevo" actionListener="#{usosellosBean.editarUsoSello(usoSello,true)}"
                                                      styleClass="edit-button rounded-button ui-button-success" process="@this">
-                                        <f:setPropertyActionListener value="#{terms}" target="#{terms}" />
-                                    </p:commandButton>
-                                    <p:commandButton icon="pi pi-pencil" update="form " actionListener="#{sellosBean.detalleSellos(terms, true, false)}"
-                                                     styleClass="edit-button rounded-button ui-button-success" process="@this">
-                                        <f:setPropertyActionListener value="#{terms}" target="#{terms}" />
+                                        <f:setPropertyActionListener value="#{usoSello}" target="#{usosellosBean.usoSello}" /> 
                                     </p:commandButton>
                                 </p:column>
-                                <p:column style="width: 3.5rem">
+                                <p:column style="width: 3.5rem">usosellosBean
                                     <p:commandButton icon="pi pi-print" actionListener="#{usosellosBean.generarReporteAux(usoSello)}" ajax="false"
                                                      onstart="PF('blockUIWidget').block()" 
                                                      oncomplete="PF('blockUIWidget').unblock()"
@@ -229,7 +225,7 @@
                                                            var="autot"
                                                            itemLabel="#{autot.placa}"
                                                            itemValue="#{autot}" />
-                                            <p:ajax event="change" update="cond sellosU" listener="#{usosellosBean.inicializarValTanques}"/>
+                                            <p:ajax event="change" update="cond sellosU sellos2U" listener="#{usosellosBean.inicializarValTanques}"/>
                                         </p:selectOneMenu>
                                     </div>                            
                                 </div>
@@ -284,18 +280,19 @@
                                 </h:panelGrid>
                             </div>
 
-
+                            <!-- #{usosellosBean.autotanque.compartimento1} -->
+                                        
                             <div class="p-field p-col-12 p-md-12">
                                 <p:outputLabel id="sello" >Sellos Usados: </p:outputLabel> 
                                 <h:panelGrid id="sellosU" columns="8" style="margin-left: 0; margin-right: auto; text-align: left;" >
-                                    <p:outputLabel for="selloU1" value="1: #{usosellosBean.autotanque.compartimento1}" />
-                                    <p:outputLabel for="selloU2" value="2: #{usosellosBean.autotanque.compartimento2}" />
-                                    <p:outputLabel for="selloU3" value="3: #{usosellosBean.autotanque.compartimento3}" />
-                                    <p:outputLabel for="selloU4" value="4: #{usosellosBean.autotanque.compartimento4}" />
-                                    <p:outputLabel for="selloU5" value="5: #{usosellosBean.autotanque.compartimento5}" />
-                                    <p:outputLabel for="selloU6" value="6: #{usosellosBean.autotanque.compartimento6}" />
-                                    <p:outputLabel for="selloU7" value="7: #{usosellosBean.autotanque.compartimento7}" />
-                                    <p:outputLabel for="selloU8" value="8: #{usosellosBean.autotanque.compartimento8}" />
+                                    <p:outputLabel for="selloU1" value="1" />
+                                    <p:outputLabel for="selloU2" value="2" />
+                                    <p:outputLabel for="selloU3" value="3" />
+                                    <p:outputLabel for="selloU4" value="4" />
+                                    <p:outputLabel for="selloU5" value="5" />
+                                    <p:outputLabel for="selloU6" value="6" />
+                                    <p:outputLabel for="selloU7" value="7" />
+                                    <p:outputLabel for="selloU8" value="8" /> 
 
                                     <p:inputText id="selloU1" value="#{usosellosBean.usoSello.sello1}" maxlength="20" >
                                         <p:ajax event="blur" listener="#{notapedidoBean1.calcularVol()}" />
@@ -374,7 +371,7 @@
                     <div class="p-field p-col-12 p-md-12"></div>
                     <div class="p-field p-col-12 p-md-6">
                         
-                        <p:commandButton value="Procesar" icon="pi pi-check"  actionListener="#{usosellosBean.adquirirUsoSello()}" update="messages" styleClass="p-mr-2" process="@this"
+                        <p:commandButton value="Procesar" icon="pi pi-check"  actionListener="#{usosellosBean.adquirirUsoSello(true)}" update="messages" styleClass="p-mr-2" process="@this"
                                          onstart="PF('blockUIWidget').block()" 
                                                      oncomplete="PF('blockUIWidget').unblock()"
                                                      onclick="PrimeFaces.monitorDownload(start, stop);" >

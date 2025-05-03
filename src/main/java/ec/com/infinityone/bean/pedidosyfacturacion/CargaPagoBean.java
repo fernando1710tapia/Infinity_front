@@ -791,9 +791,10 @@ public class CargaPagoBean extends ReusableBean implements Serializable {
         List<JSONObject> arregloJSON = new ArrayList<>();
         System.out.println("FT::. INICIA guardarPagosLoteJSON List<JSONObject> listaEnvF1 TAMAÑO" + listaEnvF1.size());
 //        arregloJSON.addAll(addItemsArregloJSON(listaEnvF1));
-        if (addItemsFacturaAux(listaEnvF1)) {
-            PrimeFaces.current().executeScript("PF('subirPrecios').hide()");
-        }
+        addItemsFacturaAux(listaEnvF1);
+//        if (addItemsFacturaAux(listaEnvF1)) {
+//            PrimeFaces.current().executeScript("PF('subirPrecios').hide()");
+//        }
     }
 
     public boolean addItemsFacturaAux(List<JSONObject> arregloJSON) {
@@ -819,18 +820,54 @@ public class CargaPagoBean extends ReusableBean implements Serializable {
             writer.close();
 
             if (connection.getResponseCode() == 200) {
-                this.dialogo(FacesMessage.SEVERITY_INFO, connection.getResponseMessage());
-                System.out.println("Se ha registrado con exito");
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+                reader.close();
+                JSONObject jsonResponse = new JSONObject(response.toString());
+                String developerMessage = jsonResponse.optString("developerMessage", "No message provided");
+                this.dialogo(FacesMessage.SEVERITY_INFO, developerMessage);
+                System.out.println("Los pagos Se han registrado con éxito");
                 return true;
             } else {
-                this.dialogo(FacesMessage.SEVERITY_ERROR, connection.getResponseMessage());
-                System.out.println("Error al añadir:" + connection.getResponseCode());
-                System.out.println("Error:" + connection.getErrorStream());
-                System.out.println(connection.getResponseMessage());
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+                reader.close();
+                JSONObject jsonResponse = new JSONObject(response.toString());
+                String developerMessage = jsonResponse.optString("developerMessage", "No message provided");
+                this.dialogo(FacesMessage.SEVERITY_FATAL, "NO SE HAN GRABADO NINGUN PAGO, DEBE REVISAR SI EXISTEN PAGOS DE FACTURAS QUE AUN NO SE HAN CARGADO!. "
+                        + "Comuniquese con Sistemas para esta verificación. Código de retorno:. "+connection.getResponseCode()+" - "+developerMessage);
+                System.out.println("FT::. Error en la ejecución de la grabación de Pagos."+connection 
+                        +"ERROR AL EJECUTAR:."+connection.getResponseMessage()+" - "+connection.getResponseCode());
                 return false;
             }
+            
+            
+            
+            
+            
+//            if (connection.getResponseCode() == 200) {
+//                this.dialogo(FacesMessage.SEVERITY_INFO, connection.getResponseMessage());
+//                System.out.println("Se ha registrado con exito");
+//                return true;
+//            } else {
+//                this.dialogo(FacesMessage.SEVERITY_ERROR, "Respuesta desde el proceso de Persistencia:."+
+//                        connection.getResponseCode()+" - "+connection.getResponseMessage());
+//                System.out.println("Error al añadir:" + connection.getResponseCode());
+//                System.out.println("Error:" + connection.getErrorStream());
+//                System.out.println(connection.getResponseMessage());
+//                return false;
+//            }
 
-        } catch (IOException e) {
+        } catch (Throwable e) {
+            System.out.println("FT::. ERROR EN addItemsFacturaAux:. "+e.getMessage());
             e.printStackTrace();
             return false;
         }

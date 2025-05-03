@@ -40,6 +40,7 @@
                                     </div>                          
                                 </div>
                                 <div class="p-field p-col-12 p-md-3">
+                                    <p:outputLabel for="term" value="Terminal"/>
                                     <div class="ui-inputgroup">
                                         <span class="ui-inputgroup-addon">
                                             <i class="fa fa-shopping-cart"></i>
@@ -57,13 +58,13 @@
                                         </p:selectOneMenu> 
                                     </div> 
                                 </div>
-                                <div class="p-field p-col-12 p-md-3">                                  
+                                <div class="p-field p-col-12 p-md-2">                                  
                                     <p:outputLabel for="fechaI" value="Fecha Inicio"/>
                                     <p:datePicker id="fechaI" value="#{reporteusosellos.fechaI}" showIcon="true" pattern="dd/MM/yyyy">
                                         <p:ajax event="dateSelect" update="fechaF"/>
                                     </p:datePicker>
                                 </div>
-                                <div class="p-field p-col-12 p-md-3">                                  
+                                <div class="p-field p-col-12 p-md-2">                                  
                                     <p:outputLabel for="fechaF" value="Fecha Fin"/>
                                     <p:datePicker id="fechaF" value="#{reporteusosellos.fechaf}" showIcon="true" pattern="dd/MM/yyyy" mindate="#{reporteusosellos.fechaI}"/>                                   
                                 </div>
@@ -78,8 +79,7 @@
                                         <p:fileDownload value="#{reporteusosellos.docStream}"/>
                                     </p:commandButton>                                   
                                 </div>                                
-                                <div class="p-field p-col-12 p-md-4">
-                                </div>
+                                <div class="p-field p-col-12 p-md-12"> </div>
                             </div>                              
                         </div>
                     </div>
