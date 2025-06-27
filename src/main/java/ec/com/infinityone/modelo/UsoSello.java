@@ -6,6 +6,7 @@ package ec.com.infinityone.modelo;
 
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.util.Date;
 
 /**
@@ -69,6 +70,8 @@ public class UsoSello implements Serializable{
     private BigInteger sello2;
 
     private String usuarioactual;
+    
+    private Timestamp fechahoraregistro;
 
     public UsoSello() {
     }
@@ -317,6 +320,14 @@ public class UsoSello implements Serializable{
 
     public void setNp1(String np1) {
         this.np1 = np1;
+    }
+
+    public Timestamp getFechahoraregistro() {
+        return fechahoraregistro;
+    }
+
+    public void setFechahoraregistro(Timestamp fechahoraregistro) {
+        this.fechahoraregistro = fechahoraregistro;
     }
 
     

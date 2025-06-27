@@ -81,6 +81,8 @@ public class MenuBean extends LoginBean implements Serializable {
     private String fechaC;
 
     private String rutaEConsulta;
+    
+    private String menuXeliminar;
 
     @PostConstruct
     public void init() {
@@ -88,6 +90,7 @@ public class MenuBean extends LoginBean implements Serializable {
         listaMenuPAux = new ArrayList<>();
         fechaC = Fichero.getFECHACERTIFICADOSSL();
         rutaEConsulta = Fichero.getRUTAECONSULTAS();
+        menuXeliminar = Fichero.getPERMISOSXUSUARIO();
         obtenerMenuPadre();
         obtenerMenuHijo();
         cargarMenu();        
@@ -395,9 +398,11 @@ public class MenuBean extends LoginBean implements Serializable {
                             .icon(menuP.getUrlAccion())
                             .build();
                     //Carga el árbol de opciones
-                    for (int i = 0; i < listaMenuPermisoHi.size(); i++) {
+                    for (int i = 0; i < listaMenuPermisoHi.size(); i++) { 
+                        if (!Fichero.getPERMISOSXUSUARIO().contains(dataUser.getUser().getCodigo()+"_"+listaMenuPermisoHi.get(i).getCodigo().trim()) ) {
                         if (menuP.getCodigo().equals(listaMenuPermisoHi.get(i).getMenuPadre())) {
                             listaMenuHijoAux.add(listaMenuPermisoHi.get(i));
+                        }
                         }
                     }
                     for (MenuBean menuH : listaMenuHijoAux) {
@@ -429,8 +434,11 @@ public class MenuBean extends LoginBean implements Serializable {
                             .build();
                     //Carga el árbol de opciones
                     for (int i = 0; i < listaMenuPermisoHi.size(); i++) {
+                        if (!Fichero.getPERMISOSXUSUARIO().contains(dataUser.getUser().getCodigo()+"_"+listaMenuPermisoHi.get(i).getCodigo().trim()) ) {                        
                         if (menuP.getCodigo().equals(listaMenuPermisoHi.get(i).getMenuPadre())) {
                             listaMenuHijoAux.add(listaMenuPermisoHi.get(i));
+                        }
+                        
                         }
                     }
                     for (MenuBean menuH : listaMenuHijoAux) {
@@ -462,9 +470,12 @@ public class MenuBean extends LoginBean implements Serializable {
                             .build();
                     //Carga el árbol de opciones
                     for (int i = 0; i < listaMenuPermisoHi.size(); i++) {
+                    if (!Fichero.getPERMISOSXUSUARIO().contains(dataUser.getUser().getCodigo()+"_"+listaMenuPermisoHi.get(i).getCodigo().trim()) ) {
+                 
                         if (menuP.getCodigo().equals(listaMenuPermisoHi.get(i).getMenuPadre())) {
                             listaMenuHijoAux.add(listaMenuPermisoHi.get(i));
                         }
+                    }
                     }
                     for (MenuBean menuH : listaMenuHijoAux) {
                         item2 = DefaultMenuItem.builder()

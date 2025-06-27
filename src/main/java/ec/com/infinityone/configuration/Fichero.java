@@ -42,6 +42,7 @@ public class Fichero {
     private static String TASAINTERES;
     private static String FECHACERTIFICADOSSL;
     private static String RUTAECONSULTAS;
+    private static String PERMISOSXUSUARIO;
 
     public static void propiedades() {
         InputStream in = null;
@@ -73,10 +74,12 @@ public class Fichero {
             PRODUCTOSINFE = (String) propiedades.get("PRODUCTOSINFE");
             RUTACONEXIONBD = (String) propiedades.get("CONEXIONBD");
             PREGUNTAS = (String) propiedades.get("PREGUNTAS");
-            COLORESPRODUCTOS = (String) propiedades.get("COLORESPRODUCTOS");
+            COLORESPRODUCTOS=  (String) propiedades.get("COLORESPRODUCTOS");
             TASAINTERES = (String) propiedades.get("TASAINTERES");
             FECHACERTIFICADOSSL = (String) propiedades.get("FECHACERTIFICADOSSL");
-            RUTAECONSULTAS = (String) propiedades.get("RUTAECONSULTAS");            
+            RUTAECONSULTAS = (String) propiedades.get("RUTAECONSULTAS");
+            PERMISOSXUSUARIO = (String) propiedades.get("PERMISOSXUSUARIO");
+            
 
             //LOG.log(Level.INFO, "Ruta Reporte", RUTAREPORTE);
             //LOG.log(Level.INFO, "Ruta Servicios", RUTASERVICIOSPERSISTENCIA);
@@ -223,4 +226,12 @@ public class Fichero {
         Fichero.RUTAECONSULTAS = RUTAECONSULTAS;
     }
 
+    public static String getPERMISOSXUSUARIO() {
+        return PERMISOSXUSUARIO;
+    }
+
+    public static void setPERMISOSXUSUARIO(String PERMISOSXUSUARIO) {
+        Fichero.PERMISOSXUSUARIO = PERMISOSXUSUARIO;
+    }
+    
 }

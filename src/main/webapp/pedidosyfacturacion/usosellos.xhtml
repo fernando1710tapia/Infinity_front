@@ -79,7 +79,7 @@
                                     <p:commandButton id="btnBuscar" value="Buscar" icon="pi pi-search"  actionListener="#{usosellosBean.consultarUsoSellos()}" update="form:dt-products"/>
                                 </div>
                             </div>                              
-                            <p:dataTable id="dt-products" widgetVar="dtProducts" var="usoSello" value="#{usosellosBean.listaEnvioUsoSellos}" reflow="true" styleClass="products-table"
+                            <p:dataTable id="dt-products" widgetVar="dtProducts" var="unenviousoSello" value="#{usosellosBean.listaEnvioUsoSellos}" reflow="true" styleClass="products-table"
                                          paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
                                 <f:facet name="header">
                                     <div class="products-table-header">
@@ -94,32 +94,31 @@
 
                                 <p:ajax event="rowToggle" listener="#{crudDemoView.onRowToggle}" />
 
-                                <p:column headerText="Fecha" filterBy="#{usoSello.fecha}" width="10%">
-                                    <h:outputText value="#{usoSello.fecha}" />
+                                <p:column headerText="Fecha" filterBy="#{unenviousoSello.fecha}" width="10%">
+                                    <h:outputText value="#{unenviousoSello.fecha}" />
                                 </p:column>
-                                <p:column headerText="Nota Pedido" filterBy="#{usoSello.npconcatenada}" width="15%">
-                                    <h:outputText value="#{usoSello.npconcatenada}" />
+                                <p:column headerText="Nota Pedido" filterBy="#{unenviousoSello.npconcatenada}" width="15%">
+                                    <h:outputText value="#{unenviousoSello.npconcatenada}" />
                                 </p:column>
-                                <p:column headerText="Sello Usado" filterBy="#{usoSello.selloconcatenado}" width="15%">
-                                    <h:outputText value="#{usoSello.selloconcatenado}" />
+                                <p:column headerText="Sello Usado" filterBy="#{unenviousoSello.selloconcatenado}" width="15%">
+                                    <h:outputText value="#{unenviousoSello.selloconcatenado}" />
                                 </p:column>
-                                <p:column headerText="Autotanque" filterBy="#{usoSello.placa}" width="10%">
-                                    <h:outputText value="#{usoSello.placa}" />
+                                <p:column headerText="Autotanque" filterBy="#{unenviousoSello.placa}" width="10%">
+                                    <h:outputText value="#{unenviousoSello.placa}" />
                                 </p:column>
-                                <p:column headerText="Conductor"  filterBy="#{usoSello.nombreconductor}" width="10%">
-                                    <h:outputText value="#{usoSello.nombreconductor}" />
+                                <p:column headerText="Conductor"  filterBy="#{unenviousoSello.nombreconductor}" width="10%">
+                                    <h:outputText value="#{unenviousoSello.nombreconductor}" />
                                 </p:column>
-                                <p:column headerText="Nombre Cliente" filterBy="#{usoSello.nombrecliente}" width="15%">
-                                    <h:outputText value="#{usoSello.nombrecliente}" />
+                                <p:column headerText="Nombre Cliente" filterBy="#{unenviousoSello.nombrecliente}" width="15%">
+                                    <h:outputText value="#{unenviousoSello.nombrecliente}" />
                                 </p:column>
                                 <p:column exportable="false">
-                                    <p:commandButton icon="pi pi-pencil" update="form :formNuevo" actionListener="#{usosellosBean.editarUsoSello(usoSello,true)}"
-                                                     styleClass="edit-button rounded-button ui-button-success" process="@this">
-                                        <f:setPropertyActionListener value="#{usoSello}" target="#{usosellosBean.usoSello}" /> 
+                                    <p:commandButton icon="pi pi-pencil" update="form :formNuevo" actionListener="#{usosellosBean.editarUsoSello(unenviousoSello,true)}"
+                                                     styleClass="edit-button rounded-button ui-button-success" process="@this"> 
                                     </p:commandButton>
                                 </p:column>
-                                <p:column style="width: 3.5rem">usosellosBean
-                                    <p:commandButton icon="pi pi-print" actionListener="#{usosellosBean.generarReporteAux(usoSello)}" ajax="false"
+                                <p:column style="width: 3.5rem">
+                                    <p:commandButton icon="pi pi-print" actionListener="#{usosellosBean.generarReporteAux(unenviousoSello)}" ajax="false"
                                                      onstart="PF('blockUIWidget').block()" 
                                                      oncomplete="PF('blockUIWidget').unblock()"
                                                      onclick="PrimeFaces.monitorDownload(start, stop);"
@@ -182,8 +181,17 @@
 
                                 <div class="p-field p-col-12 p-md-3">
                                     <span class="ui-float-label">
-                                        <p:inputText id="ultimoSello" value="#{usosellosBean.ultimoSello}" readonly="true" />
-                                        <p:outputLabel for="cond">Último Sello</p:outputLabel>
+                                        
+                                        <p:inputText id="ultimoSello" value="#{usosellosBean.ultimoSello}" maxlength="8" >
+                                        <p:ajax event="blur" listener="#{notapedidoBean1.calcularVol()}" />
+                                    </p:inputText>
+                                        
+                                        
+<!--                                        <p:inputText id="ultimoSello" value="#{usosellosBean.ultimoSello}">
+                                            <p:ajax event="blur" update="@none" process="@this" />
+                                        </p:inputText>-->
+                                         
+                                        <p:outputLabel for="ultimoSello">Último Sello</p:outputLabel>
                                     </span>
                                 </div>
                                 <div class="p-field p-col-12 p-md-3">

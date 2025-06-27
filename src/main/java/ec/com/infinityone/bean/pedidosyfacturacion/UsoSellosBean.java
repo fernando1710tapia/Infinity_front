@@ -48,6 +48,7 @@ import org.primefaces.shaded.json.JSONObject;
 import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
+import javax.faces.context.FacesContext;
 import javax.imageio.ImageIO;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JREmptyDataSource;
@@ -178,6 +179,8 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
     private StreamedContent pdfStream;
     
     private boolean esEdicionGlobal = false;
+    
+    private String fechaUsoSelloString;
 
     /**
      * Constructor por defecto
@@ -190,6 +193,7 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
      * Funcion para inicializar variables
      */
     public void init() {
+         
         reestablecer();
         mostrarPantallaInicial = true;
         mostrarPantallaAsignar = false;
@@ -230,6 +234,7 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
         listaEnvioUsoSellos = new ArrayList<>();
         envioUsoSello = new EnvioUsoSello();
         usoSello = new UsoSello();
+        esEdicionGlobal = false;
     }
 
     public void obtenerComercializadora() {
@@ -627,6 +632,8 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
 
     public void adquirirUsoSello(boolean esInsert) {
         int SUCCESS_CODE = -1;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        String dateI = sdf.format(new Date());
         if (!codComer.isEmpty() && !codTerminal.isEmpty() && !codCliente.isEmpty() && !autotanque.getPlaca().isEmpty()) {
             JSONObject usoSelloPost = new JSONObject();
             JSONObject usoSelloPK = new JSONObject();
@@ -674,9 +681,15 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
             }
             if (usoSello.getSello7() != null) {
 
+                usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim() + usoSello.getSello7().toString() + ";");
+
+            }
+            if (usoSello.getSello8() != null) {
+
                 usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim() + usoSello.getSello8().toString() + ";");
 
             }
+            
             if (usoSello.getSello9() != null) {
 
                 usoSelloImpresion.setSelloconcatenado(usoSelloImpresion.getSelloconcatenado().trim() + usoSello.getSello9().toString() + ";");
@@ -728,7 +741,15 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
             usoSelloPK.put("np1", usoSello.getNp1());
 
             usoSelloPost.put("usoselloPK", usoSelloPK);
+            
+            if (esEdicionGlobal) {
+                String f = fechaUsoSelloString.replace("/", "-")+"T12:08:58.299-0500";
+                usoSelloPost.put("fecha", f);
+            }else{
             usoSelloPost.put("fecha", timestamp);
+            }
+            
+            
             usoSelloPost.put("nombreconductor", autotanque.getCedularuc().getNombre());
             usoSelloPost.put("nombrecliente", cliente.getNombrecomercial());
             usoSelloPost.put("np6", usoSello.getNp6());
@@ -753,6 +774,7 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
             usoSelloPost.put("sello2", usoSello.getSello2());
             usoSelloPost.put("sello1", usoSello.getSello1());
             usoSelloPost.put("usuarioactual", dataUser.getUser().getNombrever());
+            usoSelloPost.put("fechahoraregistro", dateI);
             
             if (esInsert && !esEdicionGlobal) {
                 SUCCESS_CODE = usoSellosServicio.adquirirUsoSellos(usoSelloPost);
@@ -1070,11 +1092,17 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
     }
     
     
+    
     public EnvioUsoSello editarUsoSello(EnvioUsoSello obj, boolean esEdicion) {
-             
+        
         habilitarComer = false;
         esEdicionGlobal = esEdicion;
-
+        
+        // variable para convertir fecha string en fecha date
+//        String fechaTxt = "2025-05-12T21:08:58.299-0500";
+        Date fechaVenta;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        
         // variables de la pantalla
         envioUsoSello = obj;
         codComer = envioUsoSello.getCodigocomercializadora();
@@ -1082,11 +1110,11 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
         codCliente = envioUsoSello.getCodigocliente();
         ultimoSello = ""; 
         listaEnvioUsoSellos = new ArrayList<>(); 
-        mostrarPantallaAsignar = true;
-        mostrarPantallaInicial = false;
-        
+        fechaUsoSelloString = envioUsoSello.getFecha();
         usoSello = new UsoSello();
-        
+        try{
+//        fechaVenta = sdf.parse(envioUsoSello.getFecha().replace("/", "-"));
+//        usoSello.setFecha(fechaVenta);
         if (!listaTermianles.isEmpty()) {
                 for (int i = 0; i < listaTermianles.size(); i++) {
                     if (listaTermianles.get(i).getCodigo().equals(envioUsoSello.getCodigoterminal())) {
@@ -1197,8 +1225,20 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
         }
         
         //adquirirUsoSello(!esEdicion);
-             
+        mostrarPantallaAsignar = true;
+        mostrarPantallaInicial = false;
+        }catch(Throwable t){
+            System.out.println("FT::. editarUsoSello(EnvioUsoSello obj, boolean esEdicion)-ERROR CAPTURADO. "+t.getMessage());        
+        }
         return envioUsoSello;
     }
-
+    
+    
+ public void cambiarUltimosello(String ultimoSelloEscrito) {
+ 
+ this.ultimoSello = ultimoSelloEscrito;
+ 
+ }
+ 
+    
 }

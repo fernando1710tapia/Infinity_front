@@ -563,8 +563,8 @@
                     </div>
                         <div class="p-field p-col-12 p-md-12"></div>                                                                                         
                 </p:outputPanel>
-                <div class="p-grid p-justify-end"> 
-                    <p:commandButton value="Cancelar" icon="pi pi-times" actionListener="#{sellosBean.comprarSellos()}" onclick="PF('adquirirSellos').hide()" class="ui-button-secondary" />
+                <div class="p-grid p-justify-center"> 
+                    <p:commandButton value="Cerrar" icon="pi pi-times" actionListener="#{guiasRemisionBean.init()}" onclick="PF('errorarchivo').hide()"  class="ui-button-secondary" update=":form formNuevoGuia formNuevo" immediate="true" />
                 </div>
             </h:form>
         </p:dialog>    

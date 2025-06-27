@@ -150,4 +150,16 @@ public class ReusableBean extends ObjetoNivel1 {
         this.habilitarTerminal = habilitarTerminal;
     }
 
+    public void verInfo(){
+        System.out.println("FT::. usuario "+dataUser.getUser().getCodigo());
+        System.out.println("FT::. url:. "+FacesContext.getCurrentInstance().getViewRoot().getViewId());
+        System.out.println("FT::. productos:. "+dataUser.getProductoSinFe());
+        try{
+        if (!Fichero.getPRODUCTOSINFE().contains(FacesContext.getCurrentInstance().getViewRoot().getViewId().trim())) {
+            FacesContext.getCurrentInstance().getExternalContext().redirect(Fichero.getRUTADASHBOARD());
+        }
+        }catch(Throwable t){
+            System.out.println("FT::. ERROR EN verInfo()."+t.getMessage());
+        }
+    }
 }

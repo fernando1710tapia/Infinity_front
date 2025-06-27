@@ -201,6 +201,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
      * Funcion para inicializar variables
      */
     public void init() {
+        System.out.println("FT::. PASA POR INIT()");
         soloVigente = false;
         procesoNuevo = true;
         direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.consultaguiaremision";
@@ -784,7 +785,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
             writer.close();
             if (connection.getResponseCode() == 200) {
                 this.dialogo(FacesMessage.SEVERITY_INFO, "GUIA ACUTALIZADA EXITOSAMENTE");
-                PrimeFaces.current().executeScript("PF('nuevo').hide()");
+                PrimeFaces.current().executeScript("PF('nuevo').hide()"); 
                 obtenerGuia();
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ACTUALIZAR");
