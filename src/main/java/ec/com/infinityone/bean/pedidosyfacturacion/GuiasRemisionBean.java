@@ -66,6 +66,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 /**
  *
@@ -785,7 +786,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
             writer.close();
             if (connection.getResponseCode() == 200) {
                 this.dialogo(FacesMessage.SEVERITY_INFO, "GUIA ACUTALIZADA EXITOSAMENTE");
-                PrimeFaces.current().executeScript("PF('nuevo').hide()"); 
+                PrimeFaces.current().executeScript("PF('nuevo').hide()");
                 obtenerGuia();
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ACTUALIZAR");
@@ -979,20 +980,21 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
         String hora = "";
         SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
         String path = "";
-        try{
-        if (contadorArchivosOk > 0 && contadorArchivosMal == 0) {
-            FacesMessage message = new FacesMessage("Se Intentará cargar a InfinityOne " + contadorArchivosOk + " archivos. con información");
-            FacesContext.getCurrentInstance().addMessage(null, message);
-            if (codigoComer != null || codTerminal != null) {
-                for (int i = 0; i < list.size(); i++) { 
-                    String fileName = list.get(i).getFileName();
-                    OutputStream outputStream = null;
-                    path = ruta_temporal + ("/") + fileName.replace(" ", "");
+        try {
+            if (contadorArchivosOk > 0 && contadorArchivosMal == 0) {
+                FacesMessage message = new FacesMessage("Se Intentará cargar a InfinityOne " + contadorArchivosOk + " archivos. con información");
+                FacesContext.getCurrentInstance().addMessage(null, message);
+                if (codigoComer != null || codTerminal != null) {
+                    for (int i = 0; i < list.size(); i++) {
+                        String fileName = list.get(i).getFileName();
+                        // OutputStream outputStream = null;
+                        path = ruta_temporal + ("/") + fileName.replace(" ", "");
 
-                    System.out.println("FT::.PROCESANDO ARCHIVOS DE GUIAS DE REMISION. Terminal: "+codTerminal + "Archivo a leer:. "+path);
-                    
-                    File file = new File(path);
+                        File file = new File(path);
 
+                        System.out.println("FT::.PROCESANDO ARCHIVOS DE GUIAS DE REMISION. Terminal: " + codTerminal + "Archivo a leer:. " + path + " Tamaño:. " + file.length());
+
+                        /* C1 cambiar por A1
                     outputStream = new FileOutputStream(file);
 
                     int read = 0;
@@ -1001,130 +1003,160 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
                     while ((read = inputStream.get(i).read(bytes)) != -1) {
                         outputStream.write(bytes, 0, read);
                     }
+                    HASTA AQUI  C1*/
+                        // seccion  A1
+                        try (OutputStream outputStream = new FileOutputStream(file)) {
+                            int read;
+                            byte[] bytes = new byte[1024];
+                            while ((read = inputStream.get(i).read(bytes)) != -1) {
+                                outputStream.write(bytes, 0, read);
+                            }
+                        }
+                        // FIN SECCION A1
+                        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                        DocumentBuilder db = dbf.newDocumentBuilder();
+                        
+                        // agregar el siguiente control
 
-                    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                    DocumentBuilder db = dbf.newDocumentBuilder();
-                    Document document = db.parse(file);
-                    Document doc = null;
-                    Document docF = null;
-                    document.getDocumentElement().normalize();
+                        if (file.length() == 0) {
+                            throw new IOException("El archivo XML está vacío: " + file.getName());
+                        }
+
+                        // FT REEMPLAZAR POR SECCION A2
+                        /*
+                        Document document = db.parse(file);
+                        Document docF = null;
+                        document.getDocumentElement().normalize();
+                        */
+                        // FT HASTA AQUI REEMPLAZAR POR SECCION A2
+
+                        Document document;
+                        try {
+                            document = db.parse(file);
+                            document.getDocumentElement().normalize();
+                        } catch (SAXParseException e) {
+                            throw new IOException("El archivo XML está mal formado: " + file.getName(), e);
+                        }
+
 //                    System.out.println("Root Element :" + document.getDocumentElement().getNodeName());
-                    NodeList nListF = document.getElementsByTagName("fechaAutorizacion");
-                    for (int temp = 0; temp < nListF.getLength(); temp++) {
-                        Node nNode = nListF.item(temp);
-                        System.out.println("\nCurrent Element :" + nNode.getFirstChild().getTextContent());
-                        hora = nNode.getFirstChild().getTextContent();
-                    }
-                    consulGuia.setFechaautorizacion(hora);
-                    consulGuia.setHoraautorizacion((hora).substring(11));
-                    NodeList nList = document.getElementsByTagName("comprobante");
+                        NodeList nListF = document.getElementsByTagName("fechaAutorizacion");
+                        for (int temp = 0; temp < nListF.getLength(); temp++) {
+                            Node nNode = nListF.item(temp);
+                            System.out.println("\nCurrent Element :" + nNode.getFirstChild().getTextContent());
+                            hora = nNode.getFirstChild().getTextContent();
+                        }
+                        consulGuia.setFechaautorizacion(hora);
+                        consulGuia.setHoraautorizacion((hora).substring(11));
+                        NodeList nList = document.getElementsByTagName("comprobante");
 //                    System.out.println("----------------------------");
-                    for (int temp = 0; temp < nList.getLength(); temp++) {
-                        Node nNode = nList.item(temp);
+                        Document doc = null;
+                        for (int temp = 0; temp < nList.getLength(); temp++) {
+                            Node nNode = nList.item(temp);
 //                        System.out.println("\nCurrent Element :" + nNode.getNodeName());
-                        if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-                            Element eElement = (Element) nNode;
-                            doc = convertStringToXMLDocument(eElement.getFirstChild().getTextContent());
-                        }
-                    }
-                    NodeList nList1 = doc.getChildNodes();
-                    for (int temp = 0; temp < nList1.getLength(); temp++) {
-                        Node nNode = nList1.item(temp);
-//                        System.out.println("\nCurrent Element :" + nNode.getNodeName());
-                        if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-                            Element eElement = (Element) nNode;
-                            consulGuiaPK.setCodigocomercializadora(codigoComer);
-                            if ((eElement.getElementsByTagName("fechaIniTransporte").item(0)== null)){
-                            throw new Throwable("FT::. ERROR GENERADO AL PROCESAR AL ARCHIVO. "+path+" BUSCANDO EL TAG fechaIniTransporte:. AL PARECER NO EXISTE EN ESTE ARCHIVO. NO SE PUEDE PROCESAR ESTE ARCHIVO! ");
+                            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                                Element eElement = (Element) nNode;
+                                doc = convertStringToXMLDocument(eElement.getFirstChild().getTextContent());
                             }
-                            String dia = (eElement.getElementsByTagName("fechaIniTransporte").item(0).getTextContent()).replace("/", "").substring(0, 2);
-                            String mes = (eElement.getElementsByTagName("fechaIniTransporte").item(0).getTextContent()).replace("/", "").substring(2, 4);
-                            String anio = (eElement.getElementsByTagName("fechaIniTransporte").item(0).getTextContent()).replace("/", "").substring(4);
-                            consulGuiaPK.setFecha(anio + mes + dia);
-                            //<campoAdicional nombre="CodigoControlDeposito">0208164802-TERMINAL EL BEATERIO</campoAdicional> -- 8 caracteres
-                            consulGuiaPK.setNumero((eElement.getElementsByTagName("campoAdicional").item(5).getTextContent()).substring(0, 8));
-
-                            consulGuia.setConsultaguiaremisionPK(consulGuiaPK);
-                            consulGuia.setNumeroautorizacion(eElement.getElementsByTagName("claveAcceso").item(0).getTextContent());
-                            //consulGuia.setFechaautorizacion(eElement.getElementsByTagName("fechaAutorizacion").item(0).getTextContent());
-                            consulGuia.setDirestablecimiento(eElement.getElementsByTagName("dirEstablecimiento").item(0).getTextContent());
-
-                            //<campoAdicional nombre="PedidoFacturaFecha">0200011200102000000009610/07/2022</campoAdicional> -- 8 caracteres
-                            consulGuia.setNumerooe((eElement.getElementsByTagName("campoAdicional").item(4).getTextContent()).substring(0, 8));
-                            //dos primeros digitos codigoInterno                
-                            consulGuia.setCodigoareamercadeo((eElement.getElementsByTagName("codigoInterno").item(0).getTextContent()).substring(0, 2));
-                            consulGuia.setCodigoproducto(eElement.getElementsByTagName("codigoInterno").item(0).getTextContent());
-                            //<detAdicional nombre="Unidad de Medida" valor="GALS"/> valor                                                    
-                            int j;
-                            for (j = 0; j < eElement.getElementsByTagName("campoAdicional").item(6).getTextContent().length(); j++) {
-                                if (eElement.getElementsByTagName("campoAdicional").item(6).getTextContent().charAt(j) == '-') {
-                                    break;
+                        }
+                        NodeList nList1 = doc.getChildNodes();
+                        for (int temp = 0; temp < nList1.getLength(); temp++) {
+                            Node nNode = nList1.item(temp);
+//                        System.out.println("\nCurrent Element :" + nNode.getNodeName());
+                        
+                            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                                Element eElement = (Element) nNode;
+                                consulGuiaPK.setCodigocomercializadora(codigoComer);
+                                if ((eElement.getElementsByTagName("fechaIniTransporte").item(0) == null)) {
+                                    throw new Throwable("FT::. ERROR GENERADO AL PROCESAR AL ARCHIVO. " + path + " BUSCANDO EL TAG fechaIniTransporte:. AL PARECER NO EXISTE EN ESTE ARCHIVO. NO SE PUEDE PROCESAR ESTE ARCHIVO! ");
                                 }
+                                String dia = (eElement.getElementsByTagName("fechaIniTransporte").item(0).getTextContent()).replace("/", "").substring(0, 2);
+                                String mes = (eElement.getElementsByTagName("fechaIniTransporte").item(0).getTextContent()).replace("/", "").substring(2, 4);
+                                String anio = (eElement.getElementsByTagName("fechaIniTransporte").item(0).getTextContent()).replace("/", "").substring(4);
+                                consulGuiaPK.setFecha(anio + mes + dia);
+                                //<campoAdicional nombre="CodigoControlDeposito">0208164802-TERMINAL EL BEATERIO</campoAdicional> -- 8 caracteres
+                                consulGuiaPK.setNumero((eElement.getElementsByTagName("campoAdicional").item(5).getTextContent()).substring(0, 8));
+
+                                consulGuia.setConsultaguiaremisionPK(consulGuiaPK);
+                                consulGuia.setNumeroautorizacion(eElement.getElementsByTagName("claveAcceso").item(0).getTextContent());
+                                //consulGuia.setFechaautorizacion(eElement.getElementsByTagName("fechaAutorizacion").item(0).getTextContent());
+                                consulGuia.setDirestablecimiento(eElement.getElementsByTagName("dirEstablecimiento").item(0).getTextContent());
+
+                                //<campoAdicional nombre="PedidoFacturaFecha">0200011200102000000009610/07/2022</campoAdicional> -- 8 caracteres
+                                consulGuia.setNumerooe((eElement.getElementsByTagName("campoAdicional").item(4).getTextContent()).substring(0, 8));
+                                //dos primeros digitos codigoInterno                
+                                consulGuia.setCodigoareamercadeo((eElement.getElementsByTagName("codigoInterno").item(0).getTextContent()).substring(0, 2));
+                                consulGuia.setCodigoproducto(eElement.getElementsByTagName("codigoInterno").item(0).getTextContent());
+                                //<detAdicional nombre="Unidad de Medida" valor="GALS"/> valor                                                    
+                                int j;
+                                for (j = 0; j < eElement.getElementsByTagName("campoAdicional").item(6).getTextContent().length(); j++) {
+                                    if (eElement.getElementsByTagName("campoAdicional").item(6).getTextContent().charAt(j) == '-') {
+                                        break;
+                                    }
+                                }
+                                consulGuia.setCodigomedida((eElement.getElementsByTagName("campoAdicional").item(6).getTextContent()).substring(j + 1));
+                                consulGuia.setMedida(consulGuia.getCodigomedida());
+                                //<campoAdicional nombre="CodigoControlDeposito">0208164802-TERMINAL EL BEATERIO</campoAdicional> -- 2 caracteres despues de numero
+                                consulGuia.setCodigoterminal((eElement.getElementsByTagName("campoAdicional").item(5).getTextContent()).substring(0, 2));
+                                //<detAdicional nombre="Unidad de Medida" valor="GALS"/> valor
+
+                                consulGuia.setProducto(eElement.getElementsByTagName("descripcion").item(0).getTextContent());
+                                consulGuia.setVolumenentregado(new BigDecimal(eElement.getElementsByTagName("cantidad").item(0).getTextContent()));
+                                consulGuia.setAutotanque(eElement.getElementsByTagName("placa").item(0).getTextContent());
+                                consulGuia.setEstado("ACT");
+                                consulGuia.setActivo(true);
+                                consulGuia.setNumerosri(eElement.getElementsByTagName("estab").item(0).getTextContent()
+                                        + eElement.getElementsByTagName("ptoEmi").item(0).getTextContent()
+                                        + eElement.getElementsByTagName("secuencial").item(0).getTextContent());
+                                //Pedidofacturafecha
+                                String fechaFact = (eElement.getElementsByTagName("campoAdicional").item(4).getTextContent()).substring(23);
+                                consulGuia.setFechafactura(formato.parse(fechaFact));
+                                //codigocliente <campoAdicional nombre="Codigo Cliente">02010677  ESTACION DE SERVICIO SANTA ANA</campoAdicional> -- 8primeros
+                                consulGuia.setCodigocliente((eElement.getElementsByTagName("campoAdicional").item(1).getTextContent()).substring(0, 8));
+                                consulGuia.setCompartimento1(Integer.valueOf(eElement.getElementsByTagName("campoAdicional").item(7).getTextContent()));
+                                consulGuia.setCompartimento2(Integer.valueOf(eElement.getElementsByTagName("campoAdicional").item(8).getTextContent()));
+                                consulGuia.setCompartimento3(Integer.valueOf(eElement.getElementsByTagName("campoAdicional").item(9).getTextContent()));
+                                consulGuia.setCompartimento4(Integer.valueOf(eElement.getElementsByTagName("campoAdicional").item(10).getTextContent()));
+                                consulGuia.setCompartimento5(Integer.valueOf(eElement.getElementsByTagName("campoAdicional").item(11).getTextContent()));
+                                consulGuia.setCompartimento6(Integer.valueOf(eElement.getElementsByTagName("campoAdicional").item(12).getTextContent()));
+                                //numero factura <campoAdicional nombre="PedidoFacturaFecha">0200011200102000000009610/07/2022</campoAdicional> -- 15 caracteres despues de numero oe
+                                consulGuia.setNumerofactura(eElement.getElementsByTagName("campoAdicional").item(4).getTextContent().substring(8, 23));
+                                consulGuia.setCedulaconductor(eElement.getElementsByTagName("campoAdicional").item(0).getTextContent().substring(0, 10));
+                                consulGuia.setNombreconductor((eElement.getElementsByTagName("campoAdicional").item(0).getTextContent().trim()).substring(11));
+                                consulGuia.setUsuarioactual(dataUser.getUser().getNombrever());
+
+                                listaConsultaGuiaArchivoSubida.add(consulGuia);
+                                consulGuia = new Consultaguiaremision();
+                                consulGuiaPK = new ConsultaguiaremisionPK();
                             }
-                            consulGuia.setCodigomedida((eElement.getElementsByTagName("campoAdicional").item(6).getTextContent()).substring(j + 1));
-                            consulGuia.setMedida(consulGuia.getCodigomedida());
-                            //<campoAdicional nombre="CodigoControlDeposito">0208164802-TERMINAL EL BEATERIO</campoAdicional> -- 2 caracteres despues de numero
-                            consulGuia.setCodigoterminal((eElement.getElementsByTagName("campoAdicional").item(5).getTextContent()).substring(0, 2));
-                            //<detAdicional nombre="Unidad de Medida" valor="GALS"/> valor
-
-                            consulGuia.setProducto(eElement.getElementsByTagName("descripcion").item(0).getTextContent());
-                            consulGuia.setVolumenentregado(new BigDecimal(eElement.getElementsByTagName("cantidad").item(0).getTextContent()));
-                            consulGuia.setAutotanque(eElement.getElementsByTagName("placa").item(0).getTextContent());
-                            consulGuia.setEstado("ACT");
-                            consulGuia.setActivo(true);
-                            consulGuia.setNumerosri(eElement.getElementsByTagName("estab").item(0).getTextContent()
-                                    + eElement.getElementsByTagName("ptoEmi").item(0).getTextContent()
-                                    + eElement.getElementsByTagName("secuencial").item(0).getTextContent());
-                            //Pedidofacturafecha
-                            String fechaFact = (eElement.getElementsByTagName("campoAdicional").item(4).getTextContent()).substring(23);
-                            consulGuia.setFechafactura(formato.parse(fechaFact));
-                            //codigocliente <campoAdicional nombre="Codigo Cliente">02010677  ESTACION DE SERVICIO SANTA ANA</campoAdicional> -- 8primeros
-                            consulGuia.setCodigocliente((eElement.getElementsByTagName("campoAdicional").item(1).getTextContent()).substring(0, 8));
-                            consulGuia.setCompartimento1(Integer.valueOf(eElement.getElementsByTagName("campoAdicional").item(7).getTextContent()));
-                            consulGuia.setCompartimento2(Integer.valueOf(eElement.getElementsByTagName("campoAdicional").item(8).getTextContent()));
-                            consulGuia.setCompartimento3(Integer.valueOf(eElement.getElementsByTagName("campoAdicional").item(9).getTextContent()));
-                            consulGuia.setCompartimento4(Integer.valueOf(eElement.getElementsByTagName("campoAdicional").item(10).getTextContent()));
-                            consulGuia.setCompartimento5(Integer.valueOf(eElement.getElementsByTagName("campoAdicional").item(11).getTextContent()));
-                            consulGuia.setCompartimento6(Integer.valueOf(eElement.getElementsByTagName("campoAdicional").item(12).getTextContent()));
-                            //numero factura <campoAdicional nombre="PedidoFacturaFecha">0200011200102000000009610/07/2022</campoAdicional> -- 15 caracteres despues de numero oe
-                            consulGuia.setNumerofactura(eElement.getElementsByTagName("campoAdicional").item(4).getTextContent().substring(8, 23));
-                            consulGuia.setCedulaconductor(eElement.getElementsByTagName("campoAdicional").item(0).getTextContent().substring(0, 10));
-                            consulGuia.setNombreconductor((eElement.getElementsByTagName("campoAdicional").item(0).getTextContent().trim()).substring(11));
-                            consulGuia.setUsuarioactual(dataUser.getUser().getNombrever());
-
-                            listaConsultaGuiaArchivoSubida.add(consulGuia);
-                            consulGuia = new Consultaguiaremision();
-                            consulGuiaPK = new ConsultaguiaremisionPK();
                         }
                     }
-                }
 //                list = new ArrayList<>();
 //                inputStream = new ArrayList<>();
- 
-                iniciarVariables();
-                FacesMessage message1 = new FacesMessage("HA CONCLUIDO la carga de archivos a InfinityOne CORRECTAMENTE!");
-                FacesContext.getCurrentInstance().addMessage(null, message1);
 
+                    iniciarVariables();
+                    FacesMessage message1 = new FacesMessage("HA CONCLUIDO la carga de archivos a InfinityOne CORRECTAMENTE!");
+                    FacesContext.getCurrentInstance().addMessage(null, message1);
+
+                } else {
+                    this.dialogo(FacesMessage.SEVERITY_WARN, "Seleccione una comercializadora y un terminal para poder cargar el archivo");
+                }// aqui
             } else {
-                this.dialogo(FacesMessage.SEVERITY_WARN, "Seleccione una comercializadora y un terminal para poder cargar el archivo");
-            }// aqui
-        } else {
 //            inputStream = new ArrayList<>();
 //            list = new ArrayList<>();
-            iniciarVariables();
-            FacesMessage message = new FacesMessage("¡ERROR!", "UN archivo Está vácio! NINGÚN ARCHIVO SERÁ SUBIDO, Elimine este archivo del grupo y repita el proceso");
-            FacesContext.getCurrentInstance().addMessage(null, message);
+                iniciarVariables();
+                FacesMessage message = new FacesMessage("¡ERROR!", "UN archivo Está vácio! NINGÚN ARCHIVO SERÁ SUBIDO, Elimine este archivo del grupo y repita el proceso");
+                FacesContext.getCurrentInstance().addMessage(null, message);
 //            this.dialogo(FacesMessage.SEVERITY_WARN, "El proceso debe ser re iniciado. Uno de los archivos estuvo vacío!");
-        }
-        }catch (Throwable t){
-            
-            System.out.println("FT::.INICIO DE CAPTURA ERROR AL ESTAR PROCESANDO ARCHIVOS DE GUIAS DE REMISION. Terminal: "+codTerminal + "ARCHIVO CON ERROR:. "+path+ "EXCEPCION CAPTURADA:. " + t);
+            }
+        } catch (Throwable t) {
+
+            System.out.println("FT::.INICIO DE CAPTURA ERROR AL ESTAR PROCESANDO ARCHIVOS DE GUIAS DE REMISION. Terminal: " + codTerminal + "ARCHIVO CON ERROR:. " + path + "EXCEPCION CAPTURADA:. " + t);
             t.printStackTrace(System.out);
-            System.out.println("FT::.FIN DE CAPTURA ERROR AL ESTAR PROCESANDO ARCHIVOS DE GUIAS DE REMISION. Terminal: "+codTerminal + "ARCHIVO CON ERROR:. "+path+ "EXCEPCION CAPTURADA:. " + t);
-            FacesMessage message2 = new FacesMessage("ERROR AL ESTAR PROCESANDO ARCHIVOS DE GUIAS DE REMISION. Terminal: "+codTerminal + "ARCHIVO CON ERROR:. "+path+ "EXCEPCION CAPTURADA:. " + t);
+            System.out.println("FT::.FIN DE CAPTURA ERROR AL ESTAR PROCESANDO ARCHIVOS DE GUIAS DE REMISION. Terminal: " + codTerminal + "ARCHIVO CON ERROR:. " + path + "EXCEPCION CAPTURADA:. " + t);
+            FacesMessage message2 = new FacesMessage("ERROR AL ESTAR PROCESANDO ARCHIVOS DE GUIAS DE REMISION. Terminal: " + codTerminal + "ARCHIVO CON ERROR:. " + path + "EXCEPCION CAPTURADA:. " + t);
             FacesContext.getCurrentInstance().addMessage(null, message2);
             dialogoAdquision();
-            
+
 //init();
         }
     }
@@ -1505,7 +1537,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
 //            
 //        }
     }
-    
+
     public void calcularCantidadSellos(Consultaguiaremision guia) {
         if (guia.getSelloinicial() != 0 && guia.getSellofinal() != 0) {
             guia.setCantidadsellos(guia.getSellofinal() - guia.getSelloinicial() + 1);

@@ -388,38 +388,31 @@
                     <div class="p-field p-col-12 p-md-12"></div>
                     <div class="p-field p-col-12 p-md-6">
 
-                        <p:commandButton value="Procesar" icon="pi pi-check"  actionListener="#{usosellosBean.adquirirUsoSello(true)}" update="messages" styleClass="p-mr-2" process="@this"
+                        <p:commandButton value="Procesar" 
+                                         icon="pi pi-check"  
+                                         actionListener="#{usosellosBean.adquirirUsoSello(true)}" 
+                                         update="messages" 
+                                         styleClass="p-mr-2" 
+                                         process="@this"
                                          onstart="PF('blockUIWidget').block()" 
-                                         oncomplete="PF('blockUIWidget').unblock()"
-                                         onclick="PrimeFaces.monitorDownload(start, stop);" >
-                            <p:fileDownload value="#{usosellosBean.pdfStream}"/>
-
-                        </p:commandButton>                  
-
+                                         oncomplete="PF('blockUIWidget').unblock()"/>
+                                         
+                            
                         <p:commandButton value="Cancelar" icon="pi pi-times" class="ui-button-secondary"  actionListener="#{usosellosBean.init()}" update=":form formNuevo" immediate="true"/>
                     </div>
                 </div>
             </p:outputPanel>
+            <p:remoteCommand name="descargarPDF" 
+                                             action="#{usosellosBean.prepararDescarga}" 
+                                             oncomplete="PrimeFaces.monitorDownload(start, stop);" />
 
+            <p:fileDownload value="#{usosellosBean.pdfStream}" />
         </h:form>
         <!--</p:dialog>-->
 
         <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300" message="Anular Nota Pedido?" header="Confirm" severity="warn">
             <p:commandButton value="Si" icon="pi pi-check" actionListener="#{notapedidoBean.anularNotaPedido()}" process="@this" oncomplete="PF('deleteProductDialog').hide()" update=":form"/>
             <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('deleteProductDialog').hide()" />
-        </p:confirmDialog>
-
-        <p:confirmDialog widgetVar="errorDialog" showEffect="fade" width="300" message="#{usosellosBean.usosellosBeanMensajeError}" header="Confirm" severity="FATAL">
-            <h:form id="formErrorDialog">
-                <p:commandButton value="Informe del error" icon="pi pi-check" actionListener="#{usosellosBean.generarReporteAuxFalla(usosellosBean.usosellosBeanMensajeError)}" 
-                                 ajax="false"
-                                 process="@this" 
-                                 onclick="PF('errorDialog').hide(); PrimeFaces.monitorDownload(start, stop);"
-                                 update="@form" 
-                                 styleClass="edit-button rounded-button ui-button-success">
-                    <p:fileDownload value="#{usosellosBean.pdfStream}"/>
-                </p:commandButton>
-            </h:form>
         </p:confirmDialog>
 
         <p:confirmDialog global="true" showEffect="fade" width="300">

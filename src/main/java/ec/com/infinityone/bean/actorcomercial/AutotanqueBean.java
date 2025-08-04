@@ -206,16 +206,16 @@ public class AutotanqueBean extends ReusableBean implements Serializable {
             JSONObject objCond = new JSONObject();
             obj.put("placa", autotanque.getPlaca());
             obj.put("volumentotal", volTotal);
-            obj.put("compartimento1", autotanque.getCompartimento1());
-            obj.put("compartimento2", autotanque.getCompartimento2());
-            obj.put("compartimento3", autotanque.getCompartimento3());
-            obj.put("compartimento4", autotanque.getCompartimento4());
-            obj.put("compartimento5", autotanque.getCompartimento5());
-            obj.put("compartimento6", autotanque.getCompartimento6());
-            obj.put("compartimento7", autotanque.getCompartimento7());
-            obj.put("compartimento8", autotanque.getCompartimento8());
-            obj.put("compartimento9", autotanque.getCompartimento9());
-            obj.put("compartimento10", autotanque.getCompartimento10());
+            obj.put("compartimento1", autotanque.getCompartimento1()!= null? autotanque.getCompartimento1():new BigDecimal("-1"));
+            obj.put("compartimento2", autotanque.getCompartimento2()!= null? autotanque.getCompartimento2():new BigDecimal("-1"));
+            obj.put("compartimento3", autotanque.getCompartimento3()!= null? autotanque.getCompartimento3():new BigDecimal("-1"));
+            obj.put("compartimento4", autotanque.getCompartimento4()!= null? autotanque.getCompartimento4():new BigDecimal("-1"));
+            obj.put("compartimento5", autotanque.getCompartimento5()!= null? autotanque.getCompartimento5():new BigDecimal("-1"));
+            obj.put("compartimento6", autotanque.getCompartimento6()!= null? autotanque.getCompartimento6():new BigDecimal("-1"));
+            obj.put("compartimento7", autotanque.getCompartimento7()!= null? autotanque.getCompartimento7():new BigDecimal("-1"));
+            obj.put("compartimento8", autotanque.getCompartimento8()!= null? autotanque.getCompartimento8():new BigDecimal("-1"));
+            obj.put("compartimento9", autotanque.getCompartimento9()!= null? autotanque.getCompartimento9():new BigDecimal("-1"));
+            obj.put("compartimento10", autotanque.getCompartimento10()!= null? autotanque.getCompartimento10():new BigDecimal("-1"));
             obj.put("activo", estadoAutotanque);
             obj.put("usuarioactual", dataUser.getUser().getNombrever());
             objCond.put("cedularuc", conductor.getCedularuc());
@@ -251,16 +251,16 @@ public class AutotanqueBean extends ReusableBean implements Serializable {
             JSONObject objCond = new JSONObject();
             obj.put("placa", autotanque.getPlaca());
             obj.put("volumentotal", volTotal);
-            obj.put("compartimento1", autotanque.getCompartimento1());
-            obj.put("compartimento2", autotanque.getCompartimento2());
-            obj.put("compartimento3", autotanque.getCompartimento3());
-            obj.put("compartimento4", autotanque.getCompartimento4());
-            obj.put("compartimento5", autotanque.getCompartimento5());
-            obj.put("compartimento6", autotanque.getCompartimento6());
-            obj.put("compartimento7", autotanque.getCompartimento7());
-            obj.put("compartimento8", autotanque.getCompartimento8());
-            obj.put("compartimento9", autotanque.getCompartimento9());
-            obj.put("compartimento10", autotanque.getCompartimento10());
+            obj.put("compartimento1", autotanque.getCompartimento1()!= null? autotanque.getCompartimento1():new BigDecimal("-1"));
+            obj.put("compartimento2", autotanque.getCompartimento2()!= null? autotanque.getCompartimento2():new BigDecimal("-1"));
+            obj.put("compartimento3", autotanque.getCompartimento3()!= null? autotanque.getCompartimento3():new BigDecimal("-1"));
+            obj.put("compartimento4", autotanque.getCompartimento4()!= null? autotanque.getCompartimento4():new BigDecimal("-1"));
+            obj.put("compartimento5", autotanque.getCompartimento5()!= null? autotanque.getCompartimento5():new BigDecimal("-1"));
+            obj.put("compartimento6", autotanque.getCompartimento6()!= null? autotanque.getCompartimento6():new BigDecimal("-1"));
+            obj.put("compartimento7", autotanque.getCompartimento7()!= null? autotanque.getCompartimento7():new BigDecimal("-1"));
+            obj.put("compartimento8", autotanque.getCompartimento8()!= null? autotanque.getCompartimento8():new BigDecimal("-1"));
+            obj.put("compartimento9", autotanque.getCompartimento9()!= null? autotanque.getCompartimento9():new BigDecimal("-1"));
+            obj.put("compartimento10", autotanque.getCompartimento10()!= null? autotanque.getCompartimento10():new BigDecimal("-1"));
             obj.put("activo", estadoAutotanque);
             obj.put("usuarioactual", dataUser.getUser().getNombrever());
             objCond.put("cedularuc", conductor.getCedularuc());
@@ -340,42 +340,72 @@ public class AutotanqueBean extends ReusableBean implements Serializable {
 
     public void calcularVol() {
         volTotal = new BigDecimal("0.00");
-        if (autotanque.getCompartimento1() != null) {
+        if (autotanque.getCompartimento1() == null){
+            autotanque.setCompartimento1(new BigDecimal("-1"));
+            }
+        if (autotanque.getCompartimento1() != null) { 
             if (!autotanque.getCompartimento1().equals(new BigDecimal("-1.0")) && !autotanque.getCompartimento1().equals(new BigDecimal("-1")) && !autotanque.getCompartimento1().equals(new BigDecimal("-1.00"))) {
                 volTotal = volTotal.add(autotanque.getCompartimento1());
                 comp++;
+            }
+            if (autotanque.getCompartimento2() == null){
+            autotanque.setCompartimento2(new BigDecimal("-1"));
             }
             if (!autotanque.getCompartimento2().equals(new BigDecimal("-1.0")) && !autotanque.getCompartimento2().equals(new BigDecimal("-1")) && !autotanque.getCompartimento2().equals(new BigDecimal("-1.00"))) {
                 volTotal = volTotal.add(autotanque.getCompartimento2());
                 comp++;
             }
+            if (autotanque.getCompartimento3() == null){
+            autotanque.setCompartimento3(new BigDecimal("-1"));
+            }
             if (!autotanque.getCompartimento3().equals(new BigDecimal("-1.0")) && !autotanque.getCompartimento3().equals(new BigDecimal("-1")) && !autotanque.getCompartimento3().equals(new BigDecimal("-1.00"))) {
                 volTotal = volTotal.add(autotanque.getCompartimento3());
                 comp++;
+            }
+            if (autotanque.getCompartimento4() == null){
+            autotanque.setCompartimento4(new BigDecimal("-1"));
             }
             if (!autotanque.getCompartimento4().equals(new BigDecimal("-1.0")) && !autotanque.getCompartimento4().equals(new BigDecimal("-1")) && !autotanque.getCompartimento4().equals(new BigDecimal("-1.00"))) {
                 volTotal = volTotal.add(autotanque.getCompartimento4());
                 comp++;
             }
+            if (autotanque.getCompartimento5() == null){
+            autotanque.setCompartimento5(new BigDecimal("-1"));
+            }
             if (!autotanque.getCompartimento5().equals(new BigDecimal("-1.0")) && !autotanque.getCompartimento5().equals(new BigDecimal("-1")) && !autotanque.getCompartimento5().equals(new BigDecimal("-1.00"))) {
                 volTotal = volTotal.add(autotanque.getCompartimento5());
                 comp++;
+            }
+            if (autotanque.getCompartimento6() == null){
+            autotanque.setCompartimento6(new BigDecimal("-1"));
             }
             if (!autotanque.getCompartimento6().equals(new BigDecimal("-1.0")) && !autotanque.getCompartimento6().equals(new BigDecimal("-1")) && !autotanque.getCompartimento6().equals(new BigDecimal("-1.00"))) {
                 volTotal = volTotal.add(autotanque.getCompartimento6());
                 comp++;
             }
+            if (autotanque.getCompartimento7() == null){
+            autotanque.setCompartimento7(new BigDecimal("-1"));
+            }
             if (!autotanque.getCompartimento7().equals(new BigDecimal("-1.0")) && !autotanque.getCompartimento7().equals(new BigDecimal("-1")) && !autotanque.getCompartimento7().equals(new BigDecimal("-1.00"))) {
                 volTotal = volTotal.add(autotanque.getCompartimento7());
                 comp++;
+            }
+            if (autotanque.getCompartimento8() == null){
+            autotanque.setCompartimento8(new BigDecimal("-1"));
             }
             if (!autotanque.getCompartimento8().equals(new BigDecimal("-1.0")) && !autotanque.getCompartimento8().equals(new BigDecimal("-1")) && !autotanque.getCompartimento8().equals(new BigDecimal("-1.00"))) {
                 volTotal = volTotal.add(autotanque.getCompartimento8());
                 comp++;
             }
+            if (autotanque.getCompartimento9() == null){
+            autotanque.setCompartimento9(new BigDecimal("-1"));
+            }
             if (!autotanque.getCompartimento9().equals(new BigDecimal("-1.0")) && !autotanque.getCompartimento9().equals(new BigDecimal("-1")) && !autotanque.getCompartimento9().equals(new BigDecimal("-1.00"))) {
                 volTotal = volTotal.add(autotanque.getCompartimento9());
                 comp++;
+            }
+            if (autotanque.getCompartimento10() == null){
+            autotanque.setCompartimento10(new BigDecimal("-1"));
             }
             if (!autotanque.getCompartimento10().equals(new BigDecimal("-1.0")) && !autotanque.getCompartimento10().equals(new BigDecimal("-1")) && !autotanque.getCompartimento10().equals(new BigDecimal("-1.00"))) {
                 volTotal = volTotal.add(autotanque.getCompartimento10());

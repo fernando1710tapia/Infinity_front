@@ -68,9 +68,9 @@ import org.primefaces.model.StreamedContent;
  *
  * @author david
  */
-@Named("usosellosBean")
+@Named("usosellosBeancambiado")
 @ViewScoped
-public class UsoSellosBean extends ReusableBean implements Serializable {
+public class UsoSellosBeanCambiado extends ReusableBean implements Serializable {
 
     /*
     Variable para acceder a los servicios de Comercialziadora
@@ -182,9 +182,6 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
 
     private String ultimoSello;
 
-    // ft variable para enviar mensaje de error al modal 
-    private String usosellosBeanMensajeError;
-
     private boolean todosClientes;
 
     /*
@@ -202,7 +199,7 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
     /**
      * Constructor por defecto
      */
-    public UsoSellosBean() {
+    public UsoSellosBeanCambiado() {
     }
 
     @PostConstruct
@@ -806,28 +803,24 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
             }
             System.out.println("FT::METODO adquirirUsoSello():. " + SUCCESS_CODE);
             if (SUCCESS_CODE == 200) {
-//////////                archivoListo = true;
+                archivoListo = true;
                 System.out.println("FT::METODO adquirirUsoSello():. " + SUCCESS_CODE + " DENTRO DEL if (SUCCESS_CODE == 200) {");
                 generarReporteAux(usoSelloImpresion);
 //                rutaPdfGenerado=
                 //RequestContext.getCurrentInstance().execute("descargarPDF()");
-//////////                PrimeFaces.current().executeScript("descargarPDF()");
+                PrimeFaces.current().executeScript("descargarPDF()");
 
             } else {
                 archivoListo = false;
                 System.out.println("FT::METODO adquirirUsoSello():. " + SUCCESS_CODE + " EN EL ELSE DEL if (SUCCESS_CODE == 200) {");
-                this.dialogo(FacesMessage.SEVERITY_FATAL, SUCCESS_CODE + "- No se ha podido asignar los sellos a los pedidos, Verifique si se está duplicando la primera Nota de Pedido");
-                respuestavalidarExistenciaSelloUsado = "- No se ha podido asignar los sellos a los pedidos, Verifique si se está duplicando la primera Nota de Pedido";
-                generarReporteAuxFalla(respuestavalidarExistenciaSelloUsado);
+                this.dialogo(FacesMessage.SEVERITY_FATAL, SUCCESS_CODE + "- No se ha podido asignar los sellos a los pedidos, Verifique si se está duplicando la primera NP");
             }
 
         } else {
             if (!respuestavalidarExistenciaSelloUsado.isEmpty()) {
-                System.out.println("FT::METODO adquirirUsoSello():. FALLA X CONTROL DE EXISTENCIA SELLOS NO EXISTEN EN INVENTARIO" + respuestavalidarExistenciaSelloUsado);
-                this.usosellosBeanMensajeError = "Los sellos (" + respuestavalidarExistenciaSelloUsado + ") No existen en el inventario de sellos recibidos en su terminal. REVISE POR FAVOR! ";
-                //this.dialogo(FacesMessage.SEVERITY_FATAL, "Los sellos (" + respuestavalidarExistenciaSelloUsado + ") No existen en el inventario de sellos recibidos en su terminal. REVISE POR FAVOR! ");
-                //PrimeFaces.current().executeScript("PF('errorDialog').show()");
-                generarReporteAuxFalla(respuestavalidarExistenciaSelloUsado);
+
+                this.dialogo(FacesMessage.SEVERITY_FATAL, "Los sellos (" + respuestavalidarExistenciaSelloUsado + ") No existen en el inventario de sellos recibidos en su terminal. REVISE POR FAVOR! ");
+
             } else {
                 this.dialogo(FacesMessage.SEVERITY_WARN, "Los campos comercializadora, terminal, cliente y autotanque son requeridos, por favor complete la información solicitada");
             }
@@ -1043,76 +1036,6 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
         }
     }
 
-    // CODIGO PARA LA IMPRESION DE USOSELLOS EN JASPER
-    public void generarReporteAuxFalla(String sellosInvalidos) {
-//        String path = "C:\\archivos\\Template\\notapedido.jrxml";
-        String rutaGuardar = Fichero.getCARPETAREPORTES();
-        String path = Fichero.getCARPETAREPORTES() + "/usosellosinbdd.jrxml";
-        String prefijo = "";
-        System.out.println("FT:: metodo.generarReporte PATH:" + path);
-        String sellosConcatenadosParaImpresion = "";
-
-        switch (codComer) {
-            case "0095":
-                prefijo = "PR";
-                break;
-            case "0008":
-                prefijo = "PR";
-                break;
-            default:
-                prefijo = "";
-        }
-        System.out.println("FT::. METODO generarReporteAuxFalla(String sellosInvalidos)::. sellosInvalidos" + sellosInvalidos);
-
-        InputStream file = null;
-        try {
-            file = new FileInputStream(new File(path));
-
-            JasperReport reporte = JasperCompileManager.compileReport(file);
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
-//            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
-            Map parametro = new HashMap();
-
-            parametro.put("sellos", sellosInvalidos);
-            parametro.put("actorcomercial", "REGISTRO NO GRABADO!\nLos sellos de este formulario NO existen en su inventario"
-                    + "\nPOR FAVOR, CORRIJA LA INFORMACIÓN");
-            
-            if (sellosInvalidos.equalsIgnoreCase("- No se ha podido asignar los sellos a los pedidos, Verifique si se está duplicando la primera Nota de Pedido")) {
-
-                parametro.put("sellos", sellosInvalidos);
-                parametro.put("actorcomercial", "REGISTRO NO GRABADO!\n" + sellosInvalidos);
-            }
-
-            parametro.put("logo", image);
-
-            //System.out.println("PARAMETROS: " + parametro);
-//////////  ftftftft          Connection conexion = conexionJasperBD();
-            JRDataSource conexion = new JREmptyDataSource();
-
-            //System.out.println("CONEXIÓN: " + conexion);
-            JasperPrint print = JasperFillManager.fillReport(reporte, parametro, conexion);
-
-//            File directory = new File("C:\\Archivos");
-            File directory = new File(rutaGuardar);
-            String nombreDocumento = "SellosUsados";
-            String fechaArchivo = (new Date().toString());
-
-            File pdf = File.createTempFile(nombreDocumento + "_" + fechaArchivo, ".pdf", directory);
-            JasperExportManager.exportReportToPdfStream(print, new FileOutputStream(pdf));
-            File initialFile = new File(pdf.getAbsolutePath());
-            InputStream targetStream = new FileInputStream(initialFile);
-            this.rutaPdfGenerado = pdf.getAbsolutePath();
-            //pdfStream = new DefaultStreamedContent();
-            pdfStream = new DefaultStreamedContent(targetStream, "application/pdf", nombreDocumento + (new Date()).toString() + ".pdf");
-            //DefaultStreamedContent.builder().contentType("application/pdf").name(nombreDocumento + ".pdf").stream(() -> new FileInputStream(targetStream)).build();
-            System.out.println("FT::. CREANDO ARCHIVO. " + pdf.getAbsolutePath());
-
-        } catch (Exception ex) {
-            //ex.printStackTrace();
-            System.out.println("Excepcion: " + ex);
-        }
-    }
-
     // FINFINFIN CODIGO PARA LA IMPRESION DE USOSELLOS EN JASPER
     public ComercializadoraBean getComercializadora() {
         return comercializadora;
@@ -1290,10 +1213,9 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
         this.usoSello = usoSello;
     }
 
-    public StreamedContent getPdfStream() {
-        return pdfStream;
-    }
-
+//////  ftftft  public StreamedContent getPdfStream() {
+//////        return pdfStream;
+//////    }
     public void setPdfStream(StreamedContent pdfStream) {
         this.pdfStream = pdfStream;
     }
@@ -1477,15 +1399,12 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
         this.archivoListo = archivoListo;
     }
 
-    public StreamedContent getPdfStream1() {
-        System.out.println("FT:: ENTRA EN METODO StreamedContent getPdfStream()");
+    public StreamedContent getPdfStream() {
         if (!archivoListo || rutaPdfGenerado == null) {
-            System.out.println("FT:: DENTRO DEL METODO StreamedContent getPdfStream() DENTRO DEL NULL NO HAY ARCHIVO ( if (!archivoListo || rutaPdfGenerado == null) )");
             return null;
         }
 
         try {
-            System.out.println("FT:: DENTRO DEL METODO StreamedContent getPdfStream();." + rutaPdfGenerado);
             InputStream stream = new FileInputStream(rutaPdfGenerado);
             return DefaultStreamedContent.builder()
                     .name("SellosUsados.pdf")
@@ -1493,7 +1412,6 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
                     .stream(() -> stream)
                     .build();
         } catch (FileNotFoundException e) {
-            System.out.println("FT:: DENTRO DEL METODO ERROR CAPTURADO;." + e.getMessage());
             e.printStackTrace();
             return null;
         }
@@ -1502,13 +1420,4 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
     public void prepararDescarga() {
         // Este método solo sirve para que p:fileDownload se dispare con remoteCommand
     }
-
-    public String getUsosellosBeanMensajeError() {
-        return usosellosBeanMensajeError;
-    }
-
-    public void setUsosellosBeanMensajeError(String usosellosBeanMensajeError) {
-        this.usosellosBeanMensajeError = usosellosBeanMensajeError;
-    }
-
 }

@@ -218,5 +218,51 @@ public class UsoSellosServicio extends ReusableBean {
         }
         return respuestaServicioPersistencia;
     }
+    
+        public String verficarExistenciaSelloEnInventario(String codComer, String codTerminal, String sellosConcatenados) {
+        
+        String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.detalleterminalsello/validarexistencia?";
+        final int SUCCESS_CODE = 200;
+        JSONArray retorno = new JSONArray();
+        String developerMessage = "";
+
+        try {
+
+            // Primero crea un URI y luego lo convierte a URL
+            URI uri = new URI(direcc + "codigocomercializadora=" + codComer
+                    + "&codigoterminal=" + codTerminal
+                    + "&sellosconcatenados=" + sellosConcatenados
+            );
+            url = uri.toURL();
+
+            String respuesta = "";
+            String tmp = null;
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Content-type", "application/json");
+
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+
+            BufferedReader br = new BufferedReader(reader);
+            while ((tmp = br.readLine()) != null) {
+                respuesta += tmp;
+            }
+            JSONObject objetoJson = new JSONObject(respuesta);
+            developerMessage = objetoJson.optString("developerMessage", "No message provided");
+            //retorno = objetoJson.getJSONArray("retorno");
+
+            if (connection.getResponseCode() != 200) {
+                logErrorResponse(connection);
+            }
+
+        } catch (Throwable e) {
+            System.out.println("FT:: ERROR EN verficarExistenciaSelloEnInventario::."+e.getMessage());
+            e.printStackTrace(System.out);
+        }
+
+        return developerMessage;
+    }
 
 }
