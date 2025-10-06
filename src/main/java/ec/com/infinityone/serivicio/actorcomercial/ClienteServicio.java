@@ -8,6 +8,7 @@ package ec.com.infinityone.serivicio.actorcomercial;
 import ec.com.infinityone.configuration.Fichero;
 import ec.com.infinityone.modelo.Banco;
 import ec.com.infinityone.modelo.Cliente;
+import ec.com.infinityone.modelo.ClientePK;
 import ec.com.infinityone.modelo.Direccioninen;
 import ec.com.infinityone.modelo.Formapago;
 import ec.com.infinityone.modelo.Terminal;
@@ -64,7 +65,9 @@ public class ClienteServicio {
             connection.setRequestProperty("Accept", "application/json");
 
             listaClientes = new ArrayList<>();
-            cli = new Cliente();
+            cli = new Cliente(); 
+            
+//            uncliPK = new ClientePK();
             termi = new Terminal();
             fpago = new Formapago();
             banco = new Banco();
@@ -81,6 +84,7 @@ public class ClienteServicio {
             JSONArray retorno = objetoJson.getJSONArray("retorno");
             for (int indice = 0; indice < retorno.length(); indice++) {
                 JSONObject cliente = retorno.getJSONObject(indice);
+                JSONObject unclientePK = cliente.getJSONObject("clientePK");
                 JSONObject terminal = cliente.getJSONObject("codigoterminaldefecto");
                 JSONObject fp = cliente.getJSONObject("codigoformapago");
                 JSONObject bn = cliente.getJSONObject("codigobancodebito");
@@ -90,7 +94,11 @@ public class ClienteServicio {
                 termi.setCodigo(terminal.getString("codigo"));
                 termi.setNombre(terminal.getString("nombre"));
                 cli.setCodigoterminaldefecto(termi);
-                cli.setCodigo(cliente.getString("codigo"));
+                
+//////  ftftft              cli.setCodigo(cliente.getString("codigo"));
+                cli.setClientePK(new ClientePK());
+                cli.getClientePK().setCodigo(unclientePK.getString("codigo"));
+                
                 cli.setNombre(cliente.getString("nombre"));
                 if (!cliente.isNull("nombrecomercial")) {
                     cli.setNombrecomercial(cliente.getString("nombrecomercial"));
@@ -98,7 +106,11 @@ public class ClienteServicio {
                 cli.setCodigoarch(cliente.getString("codigoarch"));
                 cli.setCodigostc(cliente.getString("codigostc"));
                 cli.setClavestc(cliente.getString("clavestc"));
-                cli.setCodigocomercializadora(cliente.getString("codigocomercializadora"));
+                
+                
+//////ftftft                cli.setCodigocomercializadora(cliente.getString("codigocomercializadora"));
+                                cli.getClientePK().setCodigocomercializadora(unclientePK.getString("codigocomercializadora"));
+                
                 cli.setRuc(cliente.getString("ruc"));
                 cli.setDireccion(cliente.getString("direccion"));
                 cli.setEstado(cliente.getBoolean("estado"));
@@ -255,6 +267,9 @@ public class ClienteServicio {
             for (int indice = 0; indice < retorno.length(); indice++) {
                 JSONObject cliente = retorno.getJSONObject(indice);
                 JSONObject terminal = cliente.getJSONObject("codigoterminaldefecto");
+                
+                JSONObject unClientePK = cliente.getJSONObject("clientePK");
+                
                 JSONObject fp = cliente.getJSONObject("codigoformapago");
                 JSONObject bn = cliente.getJSONObject("codigobancodebito");
                 JSONObject di = cliente.getJSONObject("codigodireccioninen");
@@ -264,7 +279,11 @@ public class ClienteServicio {
                 termi.setNombre(terminal.getString("nombre"));
                 cli.setCodigoterminaldefecto(termi);
 
-                cli.setCodigo(cliente.getString("codigo"));
+            ///////FtFTFT    cli.setCodigo(cliente.getString("codigo"));
+                
+                cli.setClientePK(new ClientePK());
+                cli.getClientePK().setCodigo(unClientePK.getString("codigo"));
+                
                 cli.setNombre(cliente.getString("nombre"));
                 if (!cliente.isNull("nombrecomercial")) {
                     cli.setNombrecomercial(cliente.getString("nombrecomercial"));
@@ -272,7 +291,12 @@ public class ClienteServicio {
                 cli.setCodigoarch(cliente.getString("codigoarch"));
                 cli.setCodigostc(cliente.getString("codigostc"));
                 cli.setClavestc(cliente.getString("clavestc"));
-                cli.setCodigocomercializadora(cliente.getString("codigocomercializadora"));
+                
+///////FTFT                cli.setCodigocomercializadora(cliente.getString("codigocomercializadora"));
+
+                cli.getClientePK().setCodigocomercializadora(unClientePK.getString("codigocomercializadora"));
+                
+                
                 cli.setRuc(cliente.getString("ruc"));
                 cli.setDireccion(cliente.getString("direccion"));
                 cli.setEstado(cliente.getBoolean("estado"));
@@ -432,6 +456,7 @@ public class ClienteServicio {
             JSONArray retorno = objetoJson.getJSONArray("retorno");
             for (int indice = 0; indice < retorno.length(); indice++) {
                 JSONObject cliente = retorno.getJSONObject(indice);
+                JSONObject unclientePK = cliente.getJSONObject("clientePK");
                 JSONObject terminal = cliente.getJSONObject("codigoterminaldefecto");
                 JSONObject fp = cliente.getJSONObject("codigoformapago");
                 JSONObject bn = cliente.getJSONObject("codigobancodebito");
@@ -442,7 +467,11 @@ public class ClienteServicio {
                 termi.setNombre(terminal.getString("nombre"));
                 cli.setCodigoterminaldefecto(termi);
 
-                cli.setCodigo(cliente.getString("codigo"));
+//////                cli.setCodigo(cliente.getString("codigo"));
+                
+                cli.setClientePK(new ClientePK());
+                cli.getClientePK().setCodigo(unclientePK.getString("codigo"));
+                
                 cli.setNombre(cliente.getString("nombre"));
                 if (!cliente.isNull("nombrecomercial")) {
                     cli.setNombrecomercial(cliente.getString("nombrecomercial"));
@@ -450,7 +479,11 @@ public class ClienteServicio {
                 cli.setCodigoarch(cliente.getString("codigoarch"));
                 cli.setCodigostc(cliente.getString("codigostc"));
                 cli.setClavestc(cliente.getString("clavestc"));
-                cli.setCodigocomercializadora(cliente.getString("codigocomercializadora"));
+                
+                
+//////ftft                cli.setCodigocomercializadora(cliente.getString("codigocomercializadora"));
+                cli.getClientePK().setCodigocomercializadora(unclientePK.getString("codigocomercializadora"));
+                
                 cli.setRuc(cliente.getString("ruc"));
                 cli.setDireccion(cliente.getString("direccion"));
                 cli.setEstado(cliente.getBoolean("estado"));
@@ -609,7 +642,8 @@ public class ClienteServicio {
             JSONObject objetoJson = new JSONObject(respuesta);
             JSONArray retorno = objetoJson.getJSONArray("retorno");
             for (int indice = 0; indice < retorno.length(); indice++) {
-                JSONObject cliente = retorno.getJSONObject(indice);
+                JSONObject cliente = retorno.getJSONObject(indice); 
+                JSONObject unclientePK = cliente.getJSONObject("clientePK");
                 JSONObject terminal = cliente.getJSONObject("codigoterminaldefecto");
                 JSONObject fp = cliente.getJSONObject("codigoformapago");
                 JSONObject bn = cliente.getJSONObject("codigobancodebito");
@@ -620,7 +654,11 @@ public class ClienteServicio {
                 termi.setNombre(terminal.getString("nombre"));
                 cli.setCodigoterminaldefecto(termi);
 
-                cli.setCodigo(cliente.getString("codigo"));
+//////ftftft                cli.setCodigo(cliente.getString("codigo")); 
+                
+                cli.setClientePK(new ClientePK());
+                cli.getClientePK().setCodigo(unclientePK.getString("codigo"));
+                
                 cli.setNombre(cliente.getString("nombre"));
                 if (!cliente.isNull("nombrecomercial")) {
                     cli.setNombrecomercial(cliente.getString("nombrecomercial"));
@@ -628,7 +666,11 @@ public class ClienteServicio {
                 cli.setCodigoarch(cliente.getString("codigoarch"));
                 cli.setCodigostc(cliente.getString("codigostc"));
                 cli.setClavestc(cliente.getString("clavestc"));
-                cli.setCodigocomercializadora(cliente.getString("codigocomercializadora"));
+                
+//////ftftft                cli.setCodigocomercializadora(cliente.getString("codigocomercializadora"));
+            
+                cli.getClientePK().setCodigocomercializadora(unclientePK.getString("codigocomercializadora"));
+                
                 cli.setRuc(cliente.getString("ruc"));
                 cli.setDireccion(cliente.getString("direccion"));
                 cli.setEstado(cliente.getBoolean("estado"));
@@ -785,13 +827,18 @@ public class ClienteServicio {
             JSONArray retorno = objetoJson.getJSONArray("retorno");
             for (int indice = 0; indice < retorno.length(); indice++) {
                 JSONObject cliente = retorno.getJSONObject(indice);
-
-                cli.setCodigo(cliente.getString("codigo"));
+                JSONObject unclientePK = cliente.getJSONObject("clientePK");
+                
+//////FTFT                cli.setCodigo(cliente.getString("codigo"));
+                
+                cli.setClientePK(new ClientePK());
+                cli.getClientePK().setCodigo(unclientePK.getString("codigo"));
+                
                 cli.setNombre(cliente.getString("nombre"));
                 cli.setEstado(cliente.getBoolean("estado"));
                 if (cli.isEstado() == true) {
                     esActivo++;
-                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Información: ", "El cliente " + cli.getNombre() + " con código: " + cli.getCodigo()
+                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Información: ", "El cliente " + cli.getNombre() + " con código: " + cli.getClientePK().getCodigo()
                             + " se encuentra activo, por favor desactivar el cliente para continuar con la actualización personalizada"));
                 } else {
                     esActivo = 0;
@@ -835,8 +882,15 @@ public class ClienteServicio {
             JSONArray retorno = objetoJson.getJSONArray("retorno");
             for (int indice = 0; indice < retorno.length(); indice++) {
                 JSONObject cliente = retorno.getJSONObject(indice);
-
-                cli.setCodigo(cliente.getString("codigo"));
+                
+                JSONObject unclientePK = cliente.getJSONObject("clientePK");
+                
+                cli.setClientePK(new ClientePK());
+                cli.getClientePK().setCodigo(unclientePK.getString("codigo"));
+                
+//////ftftft                cli.setCodigo(cliente.getString("codigo"));
+                
+                
                 cli.setNombre(cliente.getString("nombre"));
                 cli.setEstado(cliente.getBoolean("estado"));
                 if (cli.isEstado() == true) {
@@ -863,7 +917,7 @@ public class ClienteServicio {
         try {
             //URL url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.cliente/porComercializadora?codigocomercializadora="+codComer);
             //URL url = new URL("http://200.93.248.121:8080/infinityone1/resources/ec.com.infinity.modelo.cliente/porComercializadora?codigocomercializadora=" + codComer);
-            URL url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.cliente/porComercializadora?codigocomercializadora=" + codComer);
+                URL url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.cliente/porComercializadora?codigocomercializadora=" + codComer);
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
@@ -889,6 +943,9 @@ public class ClienteServicio {
             for (int indice = 0; indice < retorno.length(); indice++) {
                 JSONObject cliente = retorno.getJSONObject(indice);
                 JSONObject terminal = cliente.getJSONObject("codigoterminaldefecto");
+                
+                JSONObject unclientePK = cliente.getJSONObject("clientePK");
+                
                 JSONObject fp = cliente.getJSONObject("codigoformapago");
                 JSONObject bn = cliente.getJSONObject("codigobancodebito");
                 JSONObject di = cliente.getJSONObject("codigodireccioninen");
@@ -897,7 +954,11 @@ public class ClienteServicio {
                 termi.setNombre(terminal.getString("nombre"));
                 cli.setCodigoterminaldefecto(termi);
 
-                cli.setCodigo(cliente.getString("codigo"));
+//////FTFTFT                cli.setCodigo(cliente.getString("codigo"));
+                
+                cli.setClientePK(new ClientePK());
+                cli.getClientePK().setCodigo(unclientePK.getString("codigo"));
+                
                 cli.setNombre(cliente.getString("nombre"));
                 if (!cliente.isNull("nombrecomercial")) {
                     cli.setNombrecomercial(cliente.getString("nombrecomercial"));
@@ -905,7 +966,11 @@ public class ClienteServicio {
                 cli.setCodigoarch(cliente.getString("codigoarch"));
                 cli.setCodigostc(cliente.getString("codigostc"));
                 cli.setClavestc(cliente.getString("clavestc"));
-                cli.setCodigocomercializadora(cliente.getString("codigocomercializadora"));
+                
+//////ftftft                cli.setCodigocomercializadora(cliente.getString("codigocomercializadora"));
+            
+                cli.getClientePK().setCodigocomercializadora(unclientePK.getString("codigocomercializadora"));
+            
                 cli.setRuc(cliente.getString("ruc"));
                 cli.setDireccion(cliente.getString("direccion"));
                 cli.setEstado(cliente.getBoolean("estado"));

@@ -16,6 +16,7 @@ import ec.com.infinityone.servicio.catalogo.TerminalService;
 import ec.com.infinityone.configuration.Fichero;
 import ec.com.infinityone.modelo.Banco;
 import ec.com.infinityone.modelo.Cliente;
+import ec.com.infinityone.modelo.ClientePK;
 import ec.com.infinityone.modelo.Direccioninen;
 import ec.com.infinityone.modelo.Formapago;
 import ec.com.infinityone.modelo.Listaprecio;
@@ -153,6 +154,7 @@ public class ClienteBean extends ReusableBean implements Serializable {
         aplicaSubsidio = false;
         soloLectura = false;
         cliente = new Cliente();
+        cliente.setClientePK(new ClientePK());
         formapago = new Formapago();
         banco = new Banco();
         terminal = new Terminal();
@@ -166,6 +168,7 @@ public class ClienteBean extends ReusableBean implements Serializable {
         obtenerBanco();
         obtenerTerminal();
         obtenerTipocliente();
+        habilitarBusqueda();
         //obtenerPrecio();
         //getURL();
     }
@@ -212,9 +215,10 @@ public class ClienteBean extends ReusableBean implements Serializable {
     public void seleccionarComercializadora() {
         if (comercializadora != null) {
             codComer = comercializadora.getCodigo();
-            cliente.setCodigocomercializadora(codComer);
+            cliente.getClientePK().setCodigocomercializadora(codComer);
             listaListaprecios = new ArrayList<>();
             listaListaprecios = this.listaPrecioServicio.getListaprecioPorComer(codComer);
+            habilitarBusqueda();
         }
     }
 
@@ -374,7 +378,7 @@ public class ClienteBean extends ReusableBean implements Serializable {
     public void deleteItems() {
         try {
             String respuesta;
-            url = new URL(direccion + "/porId?codigo=" + cliente.getCodigo());
+            url = new URL(direccion + "/porId?codigo=" + cliente.getClientePK().getCodigo());
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
             connection.setRequestMethod("DELETE");
@@ -397,31 +401,38 @@ public class ClienteBean extends ReusableBean implements Serializable {
     }
 
     public void habilitarBusqueda() {
-        if (dataUser.getUser() != null) {
+            if (dataUser.getUser() != null) {
             if (dataUser.getUser().getNiveloperacion().equals("cero")) {
                 habilitarComer = true;
             } else if (dataUser.getUser().getNiveloperacion().equals("adco")) {
                 habilitarComer = false;
+               // editarCliente = false;
                 for (int i = 0; i < listaComercializadora.size(); i++) {
                     if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
-                        cliente.setCodigocomercializadora(listaComercializadora.get(i).getCodigo());
+                        this.comercializadora = listaComercializadora.get(i);
+                        cliente.getClientePK().setCodigocomercializadora(listaComercializadora.get(i).getCodigo());
                         listaListaprecios = new ArrayList<>();
-                        listaListaprecios = this.listaPrecioServicio.obtenerListaprecioEstado(cliente.getCodigocomercializadora(), true);
+                        listaListaprecios = this.listaPrecioServicio.obtenerListaprecioEstado(cliente.getClientePK().getCodigocomercializadora(), true);
                     }
                 }
             } else if (dataUser.getUser().getNiveloperacion().equals("usac")) {
                 habilitarComer = false;
                 for (int i = 0; i < listaComercializadora.size(); i++) {
                     if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
-                        cliente.setCodigocomercializadora(listaComercializadora.get(i).getCodigo());
+                        cliente.getClientePK().setCodigocomercializadora(listaComercializadora.get(i).getCodigo());
                         listaListaprecios = new ArrayList<>();
-                        listaListaprecios = this.listaPrecioServicio.obtenerListaprecioEstado(cliente.getCodigocomercializadora(), true);
+                        listaListaprecios = this.listaPrecioServicio.obtenerListaprecioEstado(cliente.getClientePK().getCodigocomercializadora(), true);
                     }
                 }
             }
         }
     }
 
+    public void seleccionarComer() {
+        if (comercializadora != null) {
+            codComer = comercializadora.getCodigo();
+        }
+    }
     public void nuevoCliente() {
         estadoCliente = true;
         editarCliente = false;
@@ -440,7 +451,7 @@ public class ClienteBean extends ReusableBean implements Serializable {
 
     public Cliente editarCliente(Cliente obj) {
         listaListaprecios = new ArrayList<>();
-        listaListaprecios = this.listaPrecioServicio.obtenerListaprecioEstado(obj.getCodigocomercializadora(), true);
+        listaListaprecios = this.listaPrecioServicio.obtenerListaprecioEstado(obj.getClientePK().getCodigocomercializadora(), true);
         soloLectura = false;
         editarCliente = true;
         cliente = obj;
@@ -480,7 +491,7 @@ public class ClienteBean extends ReusableBean implements Serializable {
 
     public Cliente lecturaDatos(Cliente obj) {
         listaListaprecios = new ArrayList<>();
-        listaListaprecios = this.listaPrecioServicio.getListaprecioPorComer(obj.getCodigocomercializadora());
+        listaListaprecios = this.listaPrecioServicio.getListaprecioPorComer(obj.getClientePK().getCodigocomercializadora());
         soloLectura = true;
         cliente = obj;
         estadoCliente = cliente.isEstado();

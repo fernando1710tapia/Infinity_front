@@ -534,7 +534,7 @@ public class ConsultaFacturasClienteBean extends ReusableBean implements Seriali
 
     public void seleccionarCliente() {
         if (cliente != null) {
-            codCliente = cliente.getCodigo();
+            codCliente = cliente.getClientePK().getCodigo();
             for (int i = 0; i < listaTermianles.size(); i++) {
                 if (listaTermianles.get(i).getCodigo().equals(cliente.getCodigoterminaldefecto().getCodigo())) {
                     terminal = listaTermianles.get(i);
@@ -578,7 +578,7 @@ public class ConsultaFacturasClienteBean extends ReusableBean implements Seriali
                         seleccionarComer();
                         listaClientes = clienteServicio.obtenerClientesActivosPorComercializadora(comercializadora.getCodigo());
                         for (int i = 0; i < listaClientes.size(); i++) {
-                            if (listaClientes.get(i).getCodigo().equals(dataUser.getUser().getCodigocliente())) {
+                            if (listaClientes.get(i).getClientePK().getCodigo().equals(dataUser.getUser().getCodigocliente())) {
                                 this.cliente = listaClientes.get(i);
                                 break;
                             }
@@ -1344,7 +1344,7 @@ public class ConsultaFacturasClienteBean extends ReusableBean implements Seriali
         fac.setObservacion("Generación Automática con NP: " + envNP.getNotapedido().getNotapedidoPK().getNumero());
         fac.setPagada(false);
         fac.setOeenpetro(false);
-        fac.setCodigocliente(envNP.getNotapedido().getCodigocliente().getCodigo());
+        fac.setCodigocliente(envNP.getNotapedido().getCodigocliente().getClientePK().getCodigo());
         fac.setCodigoterminal(envNP.getNotapedido().getCodigoterminal().getCodigo());
         fac.setCodigobanco(envNP.getNotapedido().getCodigobanco().getCodigo());
         fac.setAdelantar(envNP.getNotapedido().isAdelantar());
@@ -2497,7 +2497,10 @@ public class ConsultaFacturasClienteBean extends ReusableBean implements Seriali
             JasperReport subreporte = JasperCompileManager.compileReport(subreport);
 
             Map parametro = new HashMap();
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+//// FTFT 20251001-CAMBIAR EL NOMBRE DEL LOGO x RUCCOMERCIALIZADORA.JPEG              BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/"+env.getFactura().getRuccomercializadora().trim()+".jpeg"));  
+            
+          BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo"+env.getFactura().getFacturaPK().getCodigocomercializadora()+".jpeg"));
+            
             BufferedImage imageBar = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/barras.jpeg"));
 
 //            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));

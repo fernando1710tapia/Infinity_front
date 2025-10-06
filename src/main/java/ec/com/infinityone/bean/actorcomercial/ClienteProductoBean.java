@@ -16,6 +16,7 @@ import ec.com.infinityone.modelo.Cliente;
 import ec.com.infinityone.modelo.Clienteproducto;
 import ec.com.infinityone.modelo.ClienteproductoPK;
 import ec.com.infinityone.modelo.Producto;
+import ec.com.infinityone.modelo.Usuario;
 import ec.com.infinityone.reusable.ReusableBean;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -79,6 +81,8 @@ public class ClienteProductoBean extends ReusableBean implements Serializable {
     private boolean estadoClienteProducto;
 
     private boolean editarPago;
+    
+    private String xcodigoComer;
 
     /**
      * Constructor por defecto
@@ -91,8 +95,16 @@ public class ClienteProductoBean extends ReusableBean implements Serializable {
      * Funcion para inicializar variables
      */
     public void init() {
-        //x = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
-
+        
+//        try{
+         x = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
+         xcodigoComer=x.getCodigocomercializadora();
+//         if (xcodigoComer == null) {
+//             throw new Throwable("El Usuario conectado NO tiene asignada una Comercializadora"
+//                     + " Por favor utilice un usuario tipo Adm. de Comercializadora para este módulo");
+//            
+//        }
+        
         //direccion = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.clienteproducto";
         direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.clienteproducto";
         listaClientes = new ArrayList<>();
@@ -109,6 +121,10 @@ public class ClienteProductoBean extends ReusableBean implements Serializable {
         listaProductoFinal = new ArrayList<>();
         obtenerComercializadora();
         obtenerProductos();
+//        }catch(Throwable t){
+//            System.out.println("FT:: ERROR AL GRABAR CLIENTE PRODUCTO. "+t.getMessage());
+//        this.dialogo(FacesMessage.SEVERITY_INFO, t.getMessage());
+//        }
     }
 
     public void obtenerClientes() {
@@ -125,7 +141,12 @@ public class ClienteProductoBean extends ReusableBean implements Serializable {
 
     public void obtenerComercializadora() {
         listaComercializadoras = new ArrayList<>();
-        listaComercializadoras = this.comercializadoraServicio.obtenerComercializadorasActivas();
+        if (xcodigoComer == null) {
+            listaComercializadoras = this.comercializadoraServicio.obtenerComercializadorasActivas();
+        } else {
+            listaComercializadoras = this.comercializadoraServicio.obtenerComercializadoraId(xcodigoComer);
+        }
+ 
         if (!listaComercializadoras.isEmpty()) {
             habilitarBusqueda();
         }
@@ -133,9 +154,10 @@ public class ClienteProductoBean extends ReusableBean implements Serializable {
 
     public void actualizarLista() {
         if (cliente != null) {
-            codCliente = cliente.getCodigo();
+            codCliente = cliente.getClientePK().getCodigo();
+            codComer = cliente.getClientePK().getCodigocomercializadora();
             listaCliProductos = new ArrayList<>();
-            listaCliProductos = cliProdServicio.obtenerClienteProductos(codCliente);
+            listaCliProductos = cliProdServicio.obtenerClienteProductos(codComer, codCliente);
         }
     }
 
@@ -152,10 +174,11 @@ public class ClienteProductoBean extends ReusableBean implements Serializable {
     public void seleccionarCliente() {
         obtenerProductos();
         if (cliente != null) {
-            codCliente = cliente.getCodigo();
+            codCliente = cliente.getClientePK().getCodigo();
+            codComer   = cliente.getClientePK().getCodigocomercializadora();
             if (!listaProducto.isEmpty()) {
                 listaProductoCliente = new ArrayList<>();
-                listaProductoCliente = cliProdServicio.obtenerProductos(codCliente);
+                listaProductoCliente = cliProdServicio.obtenerProductos(codComer, codCliente);
                 for (int i = 0; i < listaProducto.size(); i++) {
                     for (int j = 0; j < listaProductoCliente.size(); j++) {
                         if (listaProducto.get(i).getCodigo().equals(listaProductoCliente.get(j).getCodigo())) {
@@ -190,7 +213,8 @@ public class ClienteProductoBean extends ReusableBean implements Serializable {
             JSONObject obj = new JSONObject();
             JSONObject objPK = new JSONObject();
             objPK.put("codigo", clienteproducto.getProducto().getCodigo());
-            objPK.put("codigocliente", cliente.getCodigo());
+            objPK.put("codigocliente", cliente.getClientePK().getCodigo());
+            objPK.put("codigocomercializadora", cliente.getClientePK().getCodigocomercializadora());
             obj.put("clienteproductoPK", objPK);
             obj.put("activo", estadoClienteProducto);
             obj.put("usuarioactual", dataUser.getUser().getNombrever());
@@ -281,6 +305,7 @@ public class ClienteProductoBean extends ReusableBean implements Serializable {
             cliente = new Cliente();
             listaClientes = new ArrayList<>();
             clienteproducto = new Clienteproducto();
+            habilitarBusqueda();
         } else {
             seleccionarCliente();
         }
@@ -293,7 +318,7 @@ public class ClienteProductoBean extends ReusableBean implements Serializable {
         clienteproducto = obj;
         estadoClienteProducto = clienteproducto.getActivo();
         for (int i = 0; i < listaClientes.size(); i++) {
-            if (listaClientes.get(i).getCodigo().equals(clienteproducto.getClienteproductoPK().getCodigocliente())) {
+            if (listaClientes.get(i).getClientePK().getCodigo().equals(clienteproducto.getClienteproductoPK().getCodigocliente())) {
                 this.clienteproducto.setCliente(listaClientes.get(i));
             }
         }
@@ -334,7 +359,7 @@ public class ClienteProductoBean extends ReusableBean implements Serializable {
                 }
                 listaClientes = clienteServicio.obtenerClientesPorComercializadora(comercializadora.getCodigo());
                 for (int i = 0; i < listaClientes.size(); i++) {
-                    if (listaClientes.get(i).getCodigo().equals(dataUser.getUser().getCodigocliente())) {
+                    if (listaClientes.get(i).getClientePK().getCodigo().equals(dataUser.getUser().getCodigocliente())) {
                         this.cliente = listaClientes.get(i);
                     }
                 }

@@ -1489,7 +1489,7 @@ public class ListaPrecioBean extends ReusableBean implements Serializable {
             JasperReport reporte = JasperCompileManager.compileReport(file);
 
             Map parametro = new HashMap();
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo"+envLP.getListaprecioPK().getCodigocomercializadora()+".jpeg"));
             //BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
 
             parametro.put("codComer", envLP.getListaprecioPK().getCodigocomercializadora());

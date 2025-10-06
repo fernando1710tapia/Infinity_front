@@ -210,7 +210,7 @@
                                             <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
                                             <f:selectItems value="#{clienterubroterceroBean.listaCliente}"
                                                            var="cliente"
-                                                           itemLabel="#{cliente.codigo} - #{cliente.nombrecomercial}"
+                                                           itemLabel="#{cliente.clientePK.codigo} - #{cliente.nombrecomercial}"
                                                            itemValue="#{cliente}" /> 
                                         </p:selectOneMenu>
                                     </div>                            
@@ -404,7 +404,7 @@
                                             <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
                                             <f:selectItems value="#{clienterubroterceroBean.listaCliente}"
                                                            var="cliente"
-                                                           itemLabel="#{cliente.codigo} - #{cliente.nombrecomercial}"
+                                                           itemLabel="#{cliente.clientePK.codigo} - #{cliente.nombrecomercial}"
                                                            itemValue="#{cliente}" /> 
                                         </p:selectOneMenu>
                                     </div>                            

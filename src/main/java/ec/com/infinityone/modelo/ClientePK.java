@@ -11,30 +11,23 @@ import java.io.Serializable;
  *
  * @author HP
  */
-public class ClienteproductoPK implements Serializable {
+public class ClientePK implements Serializable {
 
     private String codigocomercializadora;
     
-    private String codigocliente;
-
     private String codigo;
+
+   
     
-     public ClienteproductoPK() {
+     public ClientePK() {
     }
 
-    public ClienteproductoPK(String codigocomercializadora, String codigocliente, String codigo) {
+    public ClientePK(String codigocomercializadora, String codigo) {
         this.codigocomercializadora = codigocomercializadora;
-        this.codigocliente = codigocliente;
         this.codigo = codigo;
     }
 
-    public String getCodigocliente() {
-        return codigocliente;
-    }
-
-    public void setCodigocliente(String codigocliente) {
-        this.codigocliente = codigocliente;
-    }
+    
 
     public String getCodigo() {
         return codigo;
@@ -58,7 +51,6 @@ public class ClienteproductoPK implements Serializable {
     public int hashCode() {
         int hash = 0;
         hash += (codigocomercializadora != null ? codigocomercializadora.hashCode() : 0);
-        hash += (codigocliente != null ? codigocliente.hashCode() : 0);
         hash += (codigo != null ? codigo.hashCode() : 0);
         return hash;
     }
@@ -66,15 +58,12 @@ public class ClienteproductoPK implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof ClienteproductoPK)) {
+        if (!(object instanceof ClientePK)) {
             return false;
         }
-        ClienteproductoPK other = (ClienteproductoPK) object;
+        ClientePK other = (ClientePK) object;
         if ((this.codigocomercializadora == null && other.codigocomercializadora != null) 
                 || (this.codigocomercializadora != null && !this.codigocomercializadora.equals(other.codigocomercializadora))) {
-            return false;
-        }
-        if ((this.codigocliente == null && other.codigocliente != null) || (this.codigocliente != null && !this.codigocliente.equals(other.codigocliente))) {
             return false;
         }
         if ((this.codigo == null && other.codigo != null) || (this.codigo != null && !this.codigo.equals(other.codigo))) {

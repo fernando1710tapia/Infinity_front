@@ -54,7 +54,7 @@
                                             <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
                                             <f:selectItems value="#{guiasRemisionBean.listaClientes}"
                                                            var="cliente"
-                                                           itemLabel="#{cliente.codigo} - #{cliente.nombrecomercial}"
+                                                           itemLabel="#{cliente.clientePK.codigo} - #{cliente.nombrecomercial}"
                                                            itemValue="#{cliente}" />    
                                             <p:ajax event="change" listener="#{guiasRemisionBean.seleccionarCliente()}"/>
                                         </p:selectOneMenu> 

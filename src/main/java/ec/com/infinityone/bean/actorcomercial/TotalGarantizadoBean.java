@@ -173,9 +173,9 @@ public class TotalGarantizadoBean extends ReusableBean implements Serializable {
                 }
                 listaClientes = clienteServicio.obtenerClientesActivosPorComercializadora(comercializadora.getCodigo());
                 for (int i = 0; i < listaClientes.size(); i++) {
-                    if (listaClientes.get(i).getCodigo().equals(dataUser.getUser().getCodigocliente())) {
+                    if (listaClientes.get(i).getClientePK().getCodigo().equals(dataUser.getUser().getCodigocliente())) {
                         this.cliente = listaClientes.get(i);
-                        codCli = cliente.getCodigo();
+                        codCli = cliente.getClientePK().getCodigo();
                     }
                 }
             }
@@ -189,8 +189,8 @@ public class TotalGarantizadoBean extends ReusableBean implements Serializable {
 
     public void seleccionarCliente() {
         if (cliente != null) {
-            codCli = cliente.getCodigo();
-            totalGaranPK.setCodigocliente(cliente.getCodigo());
+            codCli = cliente.getClientePK().getCodigo();
+            totalGaranPK.setCodigocliente(cliente.getClientePK().getCodigo());
             totalGaran.setTotalgarantizadoPK(totalGaranPK);
             totalGaran.setCliente(cliente);
         }
@@ -334,7 +334,7 @@ public class TotalGarantizadoBean extends ReusableBean implements Serializable {
                 }
                 if (!listaClientes.isEmpty()) {
                     for (int j = 0; j < listaClientes.size(); j++) {
-                        if (listaClientes.get(j).getCodigo().equals(totalGaran.getTotalgarantizadoPK().getCodigocliente())) {
+                        if (listaClientes.get(j).getClientePK().getCodigo().equals(totalGaran.getTotalgarantizadoPK().getCodigocliente())) {
                             cliente = listaClientes.get(j);
                             if (cliente != null) {
                                 totalGaran.setCliente(cliente);

@@ -64,8 +64,8 @@
                                             <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
                                             <f:selectItems value="#{clienteGarantiaBean.listaClientes}"
                                                            var="cli"
-                                                           itemLabel="#{cli.codigo} - #{cli.nombrecomercial}"
-                                                           itemValue="#{cli.codigo}" />                                            
+                                                           itemLabel="#{cli.clientePK.codigo} - #{cli.nombrecomercial}"
+                                                           itemValue="#{cli.clientePK.codigo}" />                                            
                                         </p:selectOneMenu>
                                     </div>                                                
                                 </div>                                
@@ -169,7 +169,7 @@
                                     <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
                                     <f:selectItems value="#{clienteGarantiaBean.listaClientes}"
                                                    var="cli"
-                                                   itemLabel="#{cli.codigo} - #{cli.nombrecomercial}"
+                                                   itemLabel="#{cli.clientePK.codigo} - #{cli.nombrecomercial}"
                                                    itemValue="#{cli}" />   
                                     <p:ajax event="change" listener="#{clienteGarantiaBean.seleccionarCliente()}"
                                             update="formNuevo guardar" />

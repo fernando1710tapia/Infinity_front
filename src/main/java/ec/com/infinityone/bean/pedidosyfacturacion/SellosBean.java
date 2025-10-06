@@ -242,6 +242,7 @@ public class SellosBean extends ReusableBean implements Serializable {
             comercializadora = new ComercializadoraBean();
         } else {
             seleccionarComerc(1);
+            habilitarBusqueda();
         }
         mostrarNuevosSellos = true;
         mostrarPantallaInicial = false;
@@ -421,7 +422,7 @@ public class SellosBean extends ReusableBean implements Serializable {
                 habilitarComer = true;
             }
             if (dataUser.getUser().getNiveloperacion().equals("adco")) {
-                habilitarComer = true;
+                habilitarComer = false;
                 for (int i = 0; i < listaComercializadora.size(); i++) {
                     if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
                         this.comercializadora = listaComercializadora.get(i);
@@ -432,7 +433,7 @@ public class SellosBean extends ReusableBean implements Serializable {
                 }
             }
             if (dataUser.getUser().getNiveloperacion().equals("usac")) {
-                habilitarComer = true;
+                habilitarComer = false;
                 for (int i = 0; i < listaComercializadora.size(); i++) {
                     if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
                         this.comercializadora = listaComercializadora.get(i);

@@ -21,7 +21,7 @@
 
                             <p:toolbar styleClass="p-mb-4">
                                 <p:toolbarGroup>
-                                    <p:commandButton value="Nuevo" icon="pi pi-plus" actionListener="#{clienteProductoBean.nuevoClienteProducto()}" update=":formNuevo"
+                                    <p:commandButton value="Nuevo" icon="pi pi-plus" actionListener="#{clienteProductoBean.nuevoClienteProducto()}" update="form formNuevo"
                                                      styleClass="ui-button-success" style="margin-right: .5rem" />
                                 </p:toolbarGroup>
                                 <p:toolbarGroup>
@@ -64,8 +64,9 @@
                                             <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
                                             <f:selectItems value="#{clienteProductoBean.listaClientes}"
                                                            var="cli"
-                                                           itemLabel="#{cli.codigo} - #{cli.nombrecomercial}"
-                                                           itemValue="#{cli}" />                                            
+                                                           itemLabel="#{cli.clientePK.codigo} - #{cli.nombrecomercial}"
+                                                           itemValue="#{cli}" />
+                                            <p:ajax event="change" listener="#{clienteProductoBean.seleccionarComercializdora()}" update="form"/>
                                         </p:selectOneMenu>
                                     </div>                                                
                                 </div>                                
@@ -110,7 +111,7 @@
             </p:outputPanel>
         </h:form>
 
-        <p:dialog header="Cliente Producto" width="40%" showEffect="fade" modal="true" widgetVar="nuevo" responsive="true">
+        <p:dialog header="Crear un Producto para un Cliente" width="40%" showEffect="fade" modal="true" widgetVar="nuevo" responsive="true">
             <h:form id="formNuevo">
                 <p:outputPanel rendered="true">                                
                     <div class="ui-fluid p-formgrid p-grid">
@@ -124,14 +125,14 @@
                                                  autoWidth="false" converter="converterg"
                                                  filter="true" filterMatchMode="startsWith"
                                                  required="true" requiredMessage="Seleccione Comercializadora"
-                                                 disabled="#{clienteProductoBean.soloLectura}">
+                                                 disabled="#{!clienteProductoBean.habilitarComer}">
                                     <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
                                     <f:selectItems value="#{clienteProductoBean.listaComercializadoras}"
                                                    var="comer"
                                                    itemLabel="#{comer.codigo} - #{comer.nombre}"
                                                    itemValue="#{comer}" /> 
-                                    <p:ajax event="change" listener="#{clienteProductoBean.seleccionarComercializdora}"
-                                                    update="cliente" />
+                                    <p:ajax event="change" listener="#{clienteProductoBean.seleccionarComercializdora()}"
+                                                    update="formNuevo" />
                                 </p:selectOneMenu>
                             </div>                            
                         </div>
@@ -151,7 +152,7 @@
                                     <f:selectItem noSelectionOption="true" itemLabel="Selecciona" itemValue="#{null}"/>
                                     <f:selectItems value="#{clienteProductoBean.listaClientes}"
                                                    var="cli"
-                                                   itemLabel="#{cli.codigo} - #{cli.nombrecomercial}"
+                                                   itemLabel="#{cli.clientePK.codigo} - #{cli.nombrecomercial}"
                                                    itemValue="#{cli}" />
                                     <p:ajax event="change" listener="#{clienteProductoBean.seleccionarCliente()}"
                                         update="producto"/>

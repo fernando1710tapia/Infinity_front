@@ -44,10 +44,10 @@ public class ClienteProductoServicio {
     
     private List<Clienteproducto> listacliProd;
     
-    public List<Producto> obtenerProductos(String codigoCliente) {
+    public List<Producto> obtenerProductos(String codigoComercializadora, String codigoCliente) {
         try {
             //URL url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.clienteproducto/porCliente?codigocliente=" + codigoCliente);
-            URL url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.clienteproducto/porCliente?codigocliente=" + codigoCliente);
+            URL url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.clienteproducto/porCliente?codigocomercializadora="+codigoComercializadora+"&codigocliente=" + codigoCliente);
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
@@ -81,10 +81,10 @@ public class ClienteProductoServicio {
         return listaProductos;
     }
     
-    public List<Clienteproducto> obtenerClienteProductos(String codigoCliente) {
+    public List<Clienteproducto> obtenerClienteProductos(String codigoComercializadora, String codigoCliente) {
         try {
             //URL url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.clienteproducto/porCliente?codigocliente=" + codigoCliente);
-            URL url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.clienteproducto/porCliente?codigocliente=" + codigoCliente);
+            URL url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.clienteproducto/porCliente?codigocomercializadora="+codigoComercializadora+"&codigocliente=" + codigoCliente);
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
@@ -116,6 +116,7 @@ public class ClienteProductoServicio {
                 producto.setCodigostc(prod.getString("codigostc"));
                 clienteproductoPK.setCodigo(prodPK.getString("codigo"));
                 clienteproductoPK.setCodigocliente(prodPK.getString("codigocliente"));
+                clienteproductoPK.setCodigocomercializadora(prodPK.getString("codigocomercializadora"));
                 cliProd.setProducto(producto);
                 cliProd.setClienteproductoPK(clienteproductoPK);
                 cliProd.setActivo(clienteProd.getBoolean("activo"));

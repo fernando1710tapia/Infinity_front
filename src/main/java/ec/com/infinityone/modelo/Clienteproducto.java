@@ -33,8 +33,8 @@ public class Clienteproducto {
         this.usuarioactual = usuarioactual;
     }
 
-    public Clienteproducto(String codigocliente, String codigo) {
-        this.clienteproductoPK = new ClienteproductoPK(codigocliente, codigo);
+    public Clienteproducto(String codigocomercializadora, String codigocliente, String codigo) {
+        this.clienteproductoPK = new ClienteproductoPK(codigocomercializadora, codigocliente, codigo);
     }
 
     public ClienteproductoPK getClienteproductoPK() {

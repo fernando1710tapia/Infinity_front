@@ -56,7 +56,7 @@
                                             <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
                                             <f:selectItems value="#{totalGarantizadoBean.listaClientes}"
                                                            var="cli"
-                                                           itemLabel="#{cli.codigo} - #{cli.nombrecomercial}"
+                                                           itemLabel="#{cli.clientePK.codigo} - #{cli.nombrecomercial}"
                                                            itemValue="#{cli}" />
                                             <p:ajax event="change" listener="#{totalGarantizadoBean.seleccionarCliente()}"/>
                                         </p:selectOneMenu> 
@@ -152,7 +152,7 @@
                                     <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
                                     <f:selectItems value="#{totalGarantizadoBean.listaClientes}"
                                                    var="cliente"
-                                                   itemLabel="#{cliente.codigo} - #{cliente.nombrecomercial}"  
+                                                   itemLabel="#{cliente.clientePK.codigo} - #{cliente.nombrecomercial}"  
                                                    itemValue="#{cliente}" />
                                     <p:ajax event="change" listener="#{totalGarantizadoBean.seleccionarCliente()}"/>
                                 </p:selectOneMenu> 

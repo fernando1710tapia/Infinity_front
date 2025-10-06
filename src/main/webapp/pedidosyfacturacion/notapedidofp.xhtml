@@ -80,7 +80,7 @@
                                             <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
                                             <f:selectItems value="#{notapedidoBean.listaClientes}"
                                                            var="cliente"
-                                                           itemLabel="#{cliente.codigo} - #{cliente.nombrecomercial}"
+                                                           itemLabel="#{cliente.clientePK.codigo} - #{cliente.nombrecomercial}"
                                                            itemValue="#{cliente}" />
                                             <p:ajax event="change" listener="#{notapedidoBean.seleccCliente(1)}"
                                                     update="term"/>
@@ -123,8 +123,8 @@
 
                                 <p:ajax event="rowToggle" listener="#{crudDemoView.onRowToggle}" />
 
-                                <p:column headerText="Cliente" sortBy="#{notap.notapedido.codigocliente.codigo}" filterBy="#{notap.notapedido.codigocliente.codigo}" width="30%">
-                                    <h:outputText value="#{notap.notapedido.codigocliente.codigo} - #{notap.notapedido.codigocliente.nombrecomercial}" />
+                                <p:column headerText="Cliente" sortBy="#{notap.notapedido.codigocliente.clientePK.codigo}" filterBy="#{notap.notapedido.codigocliente.clientePK.codigo}" width="30%">
+                                    <h:outputText value="#{notap.notapedido.codigocliente.clientePK.codigo} - #{notap.notapedido.codigocliente.nombrecomercial}" />
                                 </p:column>
                                 <p:column headerText="Número Factura" sortBy="#{notap.notapedido.numerofacturasri}" filterBy="#{notap.notapedido.numerofacturasri}" width="15%">
                                     <h:outputText value="#{notap.notapedido.numerofacturasri}" />
@@ -213,7 +213,7 @@
                                 <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
                                 <f:selectItems value="#{notapedidoBean.listaClientes}"
                                                var="cli"
-                                               itemLabel="#{cli.codigo}-#{cli.nombrecomercial}"
+                                               itemLabel="#{cli.clientePK.codigo}-#{cli.nombrecomercial}"
                                                itemValue="#{cli}" />
                                 <p:ajax event="change" listener="#{notapedidoBean.seleccionarCliente()}"
                                         update="clienteProd banco"/>

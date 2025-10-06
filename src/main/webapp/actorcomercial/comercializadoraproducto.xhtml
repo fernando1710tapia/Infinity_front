@@ -103,7 +103,7 @@
                                                  autoWidth="false" converter="converterg"
                                                  filter="true" filterMatchMode="startsWith"
                                                  required="true" requiredMessage="Seleccione Comercializadora"
-                                                 disabled="#{comercializadoraProductoBean.soloLectura}">
+                                                 disabled="#{!comercializadoraProductoBean.habilitarComer}">
                                     <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
                                     <f:selectItems value="#{comercializadoraProductoBean.listaComercializadoras}"
                                                    var="comer"

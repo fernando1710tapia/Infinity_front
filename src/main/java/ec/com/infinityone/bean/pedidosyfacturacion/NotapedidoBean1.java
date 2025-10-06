@@ -30,6 +30,7 @@ import ec.com.infinityone.bean.actorcomercial.ComercializadoraBean;
 import ec.com.infinityone.bean.enums.CodigoComerEnum;
 import ec.com.infinityone.configuration.Fichero;
 import ec.com.infinityone.modelo.Autotanque;
+import ec.com.infinityone.modelo.ClientePK;
 import ec.com.infinityone.modelo.Conductor;
 import ec.com.infinityone.modelo.Detalleterminalsello;
 import ec.com.infinityone.servicio.pedidosyfacturacion.SellosServicio;
@@ -680,7 +681,7 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
 
     public void seleccCliente(int busqueda) {
         if (cliente != null) {
-            codCliente = cliente.getCodigo();
+            codCliente = cliente.getClientePK().getCodigo();
             for (int i = 0; i < listaTermianles.size(); i++) {
                 if (listaTermianles.get(i).getCodigo().equals(cliente.getCodigoterminaldefecto().getCodigo())) {
                     terminal = listaTermianles.get(i);
@@ -694,9 +695,9 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
 
     public void seleccionarCliente() {
         if (cliente != null) {
-            codCliente = cliente.getCodigo();
+            codCliente = cliente.getClientePK().getCodigo();
             listaProductos = new ArrayList<>();
-            listaProductos = cliProdServicio.obtenerProductos(codCliente);
+            listaProductos = cliProdServicio.obtenerProductos(codComer, codCliente);
             np.setCodigocliente(cliente);
             if (cliente.getCodigoterminaldefecto() != null) {
 //                for (int i = 0; i < listaTermianles.size(); i++) {
@@ -776,7 +777,7 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
                         seleccionarComerc(busqueda);
                         listaClientes = clienteServicio.obtenerClientesPorComercializadoraActiva(comercializadora.getCodigo());
                         for (int i = 0; i < listaClientes.size(); i++) {
-                            if (listaClientes.get(i).getCodigo().equals(dataUser.getUser().getCodigocliente())) {
+                            if (listaClientes.get(i).getClientePK().getCodigo().equals(dataUser.getUser().getCodigocliente())) {
                                 this.cliente = listaClientes.get(i);
                                 break;
                             }
@@ -887,6 +888,9 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
                             JSONObject nt = retorno.getJSONObject(indice);
                             JSONObject ntPK = nt.getJSONObject("notapedidoPK");
                             JSONObject cli = nt.getJSONObject("codigocliente");
+                            
+                            JSONObject cliPK = cli.getJSONObject("clientePK");
+                            
                             JSONObject term = nt.getJSONObject("codigoterminal");
                             JSONObject ban = nt.getJSONObject("codigobanco");
                             JSONObject formPago = cli.getJSONObject("codigoformapago");
@@ -921,7 +925,14 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
                             formap.setCodigo(formPago.getString("codigo"));
 
                             /*----Objeto Cliente----*/
-                            cliente.setCodigo(cli.getString("codigo"));
+                            
+                            
+//////FTFTF                            cliente.setCodigo(cli.getString("codigo"));
+                            
+                            cliente.setClientePK(new ClientePK());
+                            cliente.getClientePK().setCodigo(cliPK.getString("codigo"));
+                            
+                            
                             cliente.setNombre(cli.getString("nombre"));
                             cliente.setNombrecomercial(cli.getString("nombrecomercial"));
                             cliente.setRuc(cli.getString("ruc"));
@@ -1189,6 +1200,9 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
                         JSONObject nt = retorno.getJSONObject(indice);
                         JSONObject ntPK = nt.getJSONObject("notapedidoPK");
                         JSONObject cli = nt.getJSONObject("codigocliente");
+                        
+                        JSONObject cliPK = cli.getJSONObject("clientePK");
+                        
                         JSONObject term = nt.getJSONObject("codigoterminal");
                         JSONObject ban = nt.getJSONObject("codigobanco");
                         JSONObject formPago = cli.getJSONObject("codigoformapago");
@@ -1215,8 +1229,13 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
                         /*----Objeto Fromapago----*/
                         formap.setCodigo(formPago.getString("codigo"));
 
-                        /*----Objeto Cliente----*/
-                        cliente.setCodigo(cli.getString("codigo"));
+                        /*----Objeto Cliente----*/ 
+                        
+//////FTFTFT                        cliente.setCodigo(cli.getString("codigo"));
+                        
+                        cliente.setClientePK(new ClientePK());
+                        cliente.getClientePK().setCodigo(cliPK.getString("codigo"));
+                        
                         cliente.setNombre(cli.getString("nombre"));
                         cliente.setRuc(cli.getString("ruc"));
                         cliente.setCorreo1(cli.getString("correo1"));
@@ -1372,7 +1391,7 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
             file = new FileInputStream(new File(path));
 
             JasperReport reporte = JasperCompileManager.compileReport(file);
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo"+envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora()+".jpeg"));
 //            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
             Map parametro = new HashMap();
 
@@ -1418,7 +1437,7 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
 
             JasperReport reporte = JasperCompileManager.compileReport(file);
             JasperReport subreporte = JasperCompileManager.compileReport(subreport);
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo"+envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora()+".jpeg"));
 //            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
             Map parametro = new HashMap();
 

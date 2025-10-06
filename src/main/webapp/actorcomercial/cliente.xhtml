@@ -37,17 +37,18 @@
                                         <span class="ui-inputgroup-addon">
                                             <i class="fa fa-money"></i>
                                         </span>
+                                        
                                         <p:selectOneMenu id="comercializadora" value="#{clienteBean.comercializadora}" title="Comercializadora"
                                                          panelStyle="width:175px" style="min-width: 80%;" 
-                                                         autoWidth="false" 
+                                                         autoWidth="false" converter="converterg"
                                                          filter="true" filterMatchMode="startsWith"
-                                                         converter="converterg">
+                                                         disabled="#{!clienteBean.habilitarComer}">     
                                             <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}" />                                            
                                             <f:selectItems value="#{clienteBean.listaComercializadora}"
                                                            var="comer"
                                                            itemLabel="#{comer.objRelacionado}"
                                                            itemValue="#{comer}" />  
-
+                                            <p:ajax event="change" listener="#{clienteBean.seleccionarComercializadora()}"/>
                                         </p:selectOneMenu>
                                     </div>                            
                                 </div>
@@ -72,8 +73,8 @@
 
                                 <p:ajax event="rowToggle" listener="#{crudDemoView.onRowToggle}" />                                
 
-                                <p:column headerText="Código" sortBy="#{cliente.codigo}" filterBy="#{cliente.codigo}" width="15%">
-                                    <h:outputText value="#{cliente.codigo}" />
+                                <p:column headerText="Código" sortBy="#{cliente.clientePK.codigo}" filterBy="#{cliente.clientePK.codigo}" width="15%">
+                                    <h:outputText value="#{cliente.clientePK.codigo}" />
                                 </p:column>
                                 <p:column headerText="Nombre Comercial" sortBy="#{cliente.nombrecomercial}" filterBy="#{cliente.nombrecomercial}" width="30%">
                                     <h:outputText value="#{cliente.nombrecomercial}" />
@@ -116,24 +117,25 @@
                                             <span class="ui-inputgroup-addon">
                                                 <i class="fa fa-money"></i>
                                             </span>
+                                            
                                             <p:selectOneMenu id="comercializadora" value="#{clienteBean.comercializadora}" title="Comercializadora"
                                                              panelStyle="width:175px" style="min-width: 80%;" 
                                                              autoWidth="false" 
                                                              filter="true" filterMatchMode="startsWith"
-                                                             converter="converterg" disabled="#{clienteBean.editarCliente}"
+                                                             converter="converterg" disabled="#{!clienteBean.habilitarComer}"
                                                              required="true" requiredMessage="Seleccione una comercializadora">
                                                 <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}" />                                            
                                                 <f:selectItems value="#{clienteBean.listaComercializadora}"
                                                                var="comer"
                                                                itemLabel="#{comer.objRelacionado}"
                                                                itemValue="#{comer}" />  
-                                                <p:ajax event="change" listener="#{clienteBean.seleccionarComercializadora()}" update="codListaPrecio" />
+                                                <p:ajax event="change" listener="#{clienteBean.seleccionarComercializadora()}" update="formNuevo" />
                                             </p:selectOneMenu>
                                         </div>                            
                                     </div>  
                                     <div class="p-field p-col-12 p-md-4">
                                         <span class="ui-float-label">
-                                            <p:inputMask id="codigo" value="#{clienteBean.cliente.codigo}" required="true" maxlength="8" mask="99999999" disabled="#{clienteBean.editarCliente}"/>
+                                            <p:inputMask id="codigo" value="#{clienteBean.cliente.clientePK.codigo}" required="true" maxlength="8" mask="99999999" disabled="#{clienteBean.editarCliente}"/>
                                             <p:outputLabel for="codigo">Código</p:outputLabel>
                                         </span>
                                     </div>

@@ -53,6 +53,8 @@ public class Notapedido implements Serializable{
 
     private Cliente codigocliente;
     
+    private String codigoclienteId;
+    
     private Terminal codigoterminal;
     
     private Banco codigobanco;
@@ -289,5 +291,14 @@ public class Notapedido implements Serializable{
     public void setProcesar(boolean procesar) {
         this.procesar = procesar;
     }    
+
+    public String getCodigoclienteId() {
+        return codigoclienteId;
+    }
+
+    public void setCodigoclienteId(String codigoclienteId) {
+        this.codigoclienteId = codigoclienteId;
+    }
+    
     
 }

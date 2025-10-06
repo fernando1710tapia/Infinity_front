@@ -948,7 +948,7 @@ public class RefacturacionBean extends FacturacionBean implements Serializable {
             JasperReport subreporte1 = JasperCompileManager.compileReport(subreport1);
 
             Map parametro = new HashMap();
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo"+env.getFactura().getFacturaPK().getCodigocomercializadora()+".jpeg"));
             BufferedImage imageBar = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/barras.jpeg"));
 
 //            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));

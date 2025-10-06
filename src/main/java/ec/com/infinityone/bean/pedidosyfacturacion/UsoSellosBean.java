@@ -401,7 +401,7 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
 
     public void seleccionarCliente(int busqueda) {
         if (cliente != null) {
-            codCliente = cliente.getCodigo();
+            codCliente = cliente.getClientePK().getCodigo();
             clienteAux = cliente;
 //            for (int i = 0; i < listaTermianles.size(); i++) {
 //                if (listaTermianles.get(i).getCodigo().equals(cliente.getCodigoterminaldefecto().getCodigo())) {
@@ -943,7 +943,7 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
 
             JasperReport reporte = JasperCompileManager.compileReport(file);
             JasperReport subreporte = JasperCompileManager.compileReport(subreport);
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo"+envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora()+".jpeg"));
 //            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
             Map parametro = new HashMap();
 
@@ -1007,7 +1007,7 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
             file = new FileInputStream(new File(path));
 
             JasperReport reporte = JasperCompileManager.compileReport(file);
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo"+unUsoSello.getCodigocomercializadora()+".jpeg"));
 //            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
             Map parametro = new HashMap();
 
@@ -1069,7 +1069,7 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
             file = new FileInputStream(new File(path));
 
             JasperReport reporte = JasperCompileManager.compileReport(file);
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo"+codComer+".jpeg"));
 //            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
             Map parametro = new HashMap();
 
@@ -1332,7 +1332,7 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
             listaClientes = clienteServicio.obtenerClientesPorComercializadoraActiva(codComer);
             if (!listaClientes.isEmpty()) {
                 for (int i = 0; i < listaClientes.size(); i++) {
-                    if (listaClientes.get(i).getCodigo().equals(envioUsoSello.getCodigocliente())) {
+                    if (listaClientes.get(i).getClientePK().getCodigo().equals(envioUsoSello.getCodigocliente())) {
                         this.cliente = listaClientes.get(i);
                         this.clienteAux = this.cliente;
                         break;

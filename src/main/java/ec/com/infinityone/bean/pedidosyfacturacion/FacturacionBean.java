@@ -38,6 +38,7 @@ import ec.com.infinityone.bean.actorcomercial.ComercializadoraBean;
 import ec.com.infinityone.servicio.catalogo.BancoServicio;
 import ec.com.infinityone.servicio.catalogo.FormapagoServicio;
 import ec.com.infinityone.configuration.Fichero;
+import ec.com.infinityone.modelo.ClientePK;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -626,7 +627,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
 
     public void seleccionarCliente(int busqueda) {
         if (cliente != null) {
-            codCliente = cliente.getCodigo();
+            codCliente = cliente.getClientePK().getCodigo();
             for (int i = 0; i < listaTermianles.size(); i++) {
                 if (listaTermianles.get(i).getCodigo().equals(cliente.getCodigoterminaldefecto().getCodigo())) {
                     terminal = listaTermianles.get(i);
@@ -687,7 +688,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         seleccionarComer(busqueda);
                         listaClientes = clienteServicio.obtenerClientesPorComercializadoraActiva(comercializadora.getCodigo());
                         for (int i = 0; i < listaClientes.size(); i++) {
-                            if (listaClientes.get(i).getCodigo().equals(dataUser.getUser().getCodigocliente())) {
+                            if (listaClientes.get(i).getClientePK().getCodigo().equals(dataUser.getUser().getCodigocliente())) {
                                 this.cliente = listaClientes.get(i);
                                 break;
                             }
@@ -1426,6 +1427,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         JSONObject nt = retorno.getJSONObject(indice);
                         JSONObject ntPK = nt.getJSONObject("notapedidoPK");
                         JSONObject cli = nt.getJSONObject("codigocliente");
+                        JSONObject cliPK = cli.getJSONObject("clientePK");
                         JSONObject term = nt.getJSONObject("codigoterminal");
                         JSONObject ban = nt.getJSONObject("codigobanco");
                         JSONObject formPago = cli.getJSONObject("codigoformapago");
@@ -1460,7 +1462,12 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         formap.setCodigo(formPago.getString("codigo"));
 
                         /*----Objeto Cliente----*/
-                        clienteNP.setCodigo(cli.getString("codigo"));
+//////ftftf                        clienteNP.setCodigo(cli.getString("codigo"));
+                        
+                        clienteNP.setClientePK(new ClientePK());
+                        clienteNP.getClientePK().setCodigo(cliPK.getString("codigo"));
+                        clienteNP.getClientePK().setCodigocomercializadora(cliPK.getString("codigocomercializadora"));
+
                         clienteNP.setNombrecomercial(cli.getString("nombrecomercial"));
                         clienteNP.setNombre(cli.getString("nombre"));
                         clienteNP.setRuc(cli.getString("ruc"));
@@ -1962,7 +1969,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         fac.setObservacion("Generación Automática con NP: " + envNP.getNotapedido().getNotapedidoPK().getNumero());
         fac.setPagada(false);
         fac.setOeenpetro(false);
-        fac.setCodigocliente(envNP.getNotapedido().getCodigocliente().getCodigo());
+        fac.setCodigocliente(envNP.getNotapedido().getCodigocliente().getClientePK().getCodigo());
         fac.setCodigoterminal(envNP.getNotapedido().getCodigoterminal().getCodigo());
         fac.setCodigobanco(envNP.getNotapedido().getCodigobanco().getCodigo());
         fac.setAdelantar(envNP.getNotapedido().isAdelantar());
@@ -2317,6 +2324,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         notaPedidoPK.setCodigocomercializadora(envNP.getNotapedido().getComercializadora().getCodigo());
         notaPedidoPK.setNumero(envNP.getNotapedido().getNotapedidoPK().getNumero());
         notaPedido.setNotapedidoPK(notaPedidoPK);
+        notaPedido.setCodigoclienteId(envNP.getNotapedido().getCodigocliente().getClientePK().getCodigo());
         notaPedido.setFechaventa(feachaVenta);
         notaPedido.setFechadespacho(feachaDespacho);
         notaPedido.setActiva(envNP.getNotapedido().isActiva());
@@ -2449,7 +2457,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                 
                 System.out.println("FT:. ENVIANDO ORIGINALMENTE getTrama:. envioPedido.getNotapedido().getCodigocliente().getControlaprorroga(). "+envioPedido.getNotapedido().getCodigocliente().getControlaprorroga());
                 if (envioPedido.getNotapedido().getCodigocliente().getControlaprorroga()) {
-                    facturasProrrogadasCaidas = controlarProrroga(envioPedido.getNotapedido().getNotapedidoPK().getCodigocomercializadora(), envioPedido.getNotapedido().getCodigocliente().getCodigo());
+                    facturasProrrogadasCaidas = controlarProrroga(envioPedido.getNotapedido().getNotapedidoPK().getCodigocomercializadora(), envioPedido.getNotapedido().getCodigocliente().getClientePK().getCodigo());
                 } else {
                     facturasProrrogadasCaidas = 0;
                 }
@@ -2687,6 +2695,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         JSONObject com = nt.getJSONObject("comercializadora");
                         JSONObject abastecedora = nt.getJSONObject("abastecedora");
                         JSONObject cliente = nt.getJSONObject("codigocliente");
+                        JSONObject clientePK = cliente.getJSONObject("clientePK");
                         System.out.println("FT:. dialogoReenvioOrdenPetro:. JSONObject cliente "+cliente.toString());
                         /*----Objeto Abastecedora----*/
                         abas.setCodigo(abastecedora.getString("codigo"));
@@ -2702,9 +2711,10 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                             np.setTramaenviadagoe(nt.getString("tramaenviadagoe"));
                         }
                         /*---------------Objeto Cliente--------------------------------------*/
-                        unCliente.setCodigo(cliente.getString("codigo"));
+                        unCliente.setClientePK(new ClientePK());
+                        unCliente.getClientePK().setCodigo(clientePK.getString("codigo"));
                         unCliente.setControlaprorroga(cliente.getBoolean("controlaprorroga"));
-                        System.out.println("FT:. dialogoReenvioOrdenPetro:. unCliente.setControlaprorroga "+unCliente.getCodigo() +" - "+unCliente.getControlaprorroga());
+                        System.out.println("FT:. dialogoReenvioOrdenPetro:. unCliente.setControlaprorroga "+unCliente.getClientePK().getCodigo() +" - "+unCliente.getControlaprorroga());
                         
                         np.setNumerofacturasri(nt.getString("numerofacturasri"));
                         np.setActiva(nt.getBoolean("activa"));
@@ -2740,7 +2750,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             try {
                 System.out.println("FT:. reenvioOrdenPetro:. envioPedidoAuxiliar.getNotapedido().getCodigocliente().getControlaprorroga() "+envioPedidoAuxiliar.getNotapedido().getCodigocliente().getControlaprorroga());
                 if (envioPedidoAuxiliar.getNotapedido().getCodigocliente().getControlaprorroga()) {
-                    facturasProrrogadasCaidas = controlarProrroga(envioPedidoAuxiliar.getNotapedido().getNotapedidoPK().getCodigocomercializadora(), envioPedidoAuxiliar.getNotapedido().getCodigocliente().getCodigo());
+                    facturasProrrogadasCaidas = controlarProrroga(envioPedidoAuxiliar.getNotapedido().getNotapedidoPK().getCodigocomercializadora(), envioPedidoAuxiliar.getNotapedido().getCodigocliente().getClientePK().getCodigo());
                 } else {
                     facturasProrrogadasCaidas = 0;
                 }
@@ -3536,7 +3546,10 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             JasperReport subreporte1 = JasperCompileManager.compileReport(subreport1);
 
             Map parametro = new HashMap();
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+/// ftftf 20251001 cambiar el nombre del logo por el ruc de la comer.jpeg   BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/"+env.getFactura().getRuccomercializadora().trim()+".jpeg"));  
+            
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo"+env.getFactura().getFacturaPK().getCodigocomercializadora()+".jpeg"));
+            
             BufferedImage imageBar = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/barras.jpeg"));
 
 //            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
@@ -3587,7 +3600,11 @@ public class FacturacionBean extends ReusableBean implements Serializable {
 
             JasperReport reporte = JasperCompileManager.compileReport(file);
             JasperReport subreporte = JasperCompileManager.compileReport(subreport);
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+            
+////ftftft 20251001 cambio de nombre de ruc por el ruc de la comer            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo"+envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora()+".jpeg"));
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo"+envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora()+".jpeg"));
+
+
 //            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
             Map parametro = new HashMap();
 
@@ -3903,7 +3920,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         if (envP != null) {
             int control = envP.getNotapedido().getCodigocliente().getControldespacho();
             if (control > -1) {
-                String codClienteNP = envP.getNotapedido().getCodigocliente().getCodigo();
+                String codClienteNP = envP.getNotapedido().getCodigocliente().getClientePK().getCodigo();
                 int value = controlDespacho(codClienteNP);
                 if (control < value) {
                     envP.getNotapedido().setProcesar(false);

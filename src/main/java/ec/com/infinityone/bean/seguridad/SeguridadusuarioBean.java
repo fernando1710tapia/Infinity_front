@@ -14,6 +14,7 @@ import ec.com.infinityone.reusable.ReusableBean;
 import ec.com.infinityone.bean.actorcomercial.ComercializadoraBean;
 import ec.com.infinityone.servicio.catalogo.TerminalServicio;
 import ec.com.infinityone.configuration.Fichero;
+import ec.com.infinityone.modelo.ClientePK;
 import ec.com.infinityone.modelo.Terminal;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -125,6 +126,7 @@ public class SeguridadusuarioBean extends ReusableBean implements Serializable {
         objeto = new ObjetoNivel1();
         usuarioS = new Usuario();
         cliente = new Cliente();
+        cliente.setClientePK(new ClientePK());
         terminal = new Terminal();
         permiteEdit = false;
         activarComer = false;
@@ -264,7 +266,7 @@ public class SeguridadusuarioBean extends ReusableBean implements Serializable {
                 obj.put("codigocomercializadora", codComer);
             } else if (usuarioS.getNiveloperacion().equals("usac")) {
                 obj.put("codigocomercializadora", codComer);
-                obj.put("codigocliente", cliente.getCodigo());
+                obj.put("codigocliente", cliente.getClientePK().getCodigo());
             } else if (usuarioS.getNiveloperacion().equals("agco")) {
                 obj.put("codigocomercializadora", codComer);
                 obj.put("codigoterminal", terminal.getCodigo());
@@ -312,14 +314,14 @@ public class SeguridadusuarioBean extends ReusableBean implements Serializable {
             obj.put("cedula", usuarioS.getCedula());
             obj.put("nombre", usuarioS.getNombre());
             obj.put("nombrever", usuarioS.getNombrever());
-            obj.put("codigocliente", cliente.getCodigo());
+            obj.put("codigocliente", cliente.getClientePK().getCodigo());
             obj.put("activo", estadoUsuario);
             obj.put("niveloperacion", usuarioS.getNiveloperacion());
             if (usuarioS.getNiveloperacion().equals("adco")) {
                 obj.put("codigocomercializadora", codComer);
             } else if (usuarioS.getNiveloperacion().equals("usac")) {
                 obj.put("codigocomercializadora", codComer);
-                obj.put("codigocliente", cliente.getCodigo());
+                obj.put("codigocliente", cliente.getClientePK().getCodigo());
             } else if (usuarioS.getNiveloperacion().equals("agco")) {
                 obj.put("codigocomercializadora", codComer);
                 obj.put("codigoterminal", terminal.getCodigo());
@@ -388,6 +390,7 @@ public class SeguridadusuarioBean extends ReusableBean implements Serializable {
         listaPreguntas = new ArrayList<>();
         codComer = "";
         cliente = new Cliente();
+        cliente.setClientePK(new ClientePK());
         terminal = new Terminal();
         Set<Integer> generados = new HashSet<>();
         for (int i = 0; i < 3; i++) {
@@ -426,6 +429,7 @@ public class SeguridadusuarioBean extends ReusableBean implements Serializable {
         clave = usuarioS.getClave();
         codComer = "";
         cliente = new Cliente();
+        cliente.setClientePK(new ClientePK());
         terminal = new Terminal();
         seleccionarOperacion();
         if (usuarioS.getNiveloperacion().equals("adco")) {
@@ -445,7 +449,7 @@ public class SeguridadusuarioBean extends ReusableBean implements Serializable {
                 }
             }
             for (int i = 0; i < listaCliente.size(); i++) {
-                if (listaCliente.get(i).getCodigo().equals(usuarioS.getCodigocliente())) {
+                if (listaCliente.get(i).getClientePK().getCodigo().equals(usuarioS.getCodigocliente())) {
                     this.cliente = listaCliente.get(i);
                     break;
                 }

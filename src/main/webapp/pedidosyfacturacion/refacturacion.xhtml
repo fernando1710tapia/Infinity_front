@@ -75,7 +75,7 @@
                                         <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
                                         <f:selectItems value="#{refacturacionBean.listaClientes}"
                                                        var="cliente"
-                                                       itemLabel="#{cliente.codigo} - #{cliente.nombrecomercial}"
+                                                       itemLabel="#{cliente.clientePK.codigo} - #{cliente.nombrecomercial}"
                                                        itemValue="#{cliente}" />
                                     </p:selectOneMenu> 
                                 </div>
@@ -339,7 +339,7 @@
                                 <p:column headerText="Cliente"  width="15%">
                                     <h:outputText value="#{fact.factura.codigocliente} - #{fact.factura.nombrecliente}" />
                                 </p:column>     
-                                <p:column headerText="Cli. a Facrurar"  width="15%">
+                                <p:column headerText="Cli. a Facturar"  width="15%">
                                     <div class="ui-inputgroup">                                        
                                         <p:selectOneMenu id="cli" value="#{refacturacionBean.cliente}" title="Cliente"
                                                          style="min-width: 100%;" 
@@ -348,7 +348,7 @@
                                             <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
                                             <f:selectItems value="#{refacturacionBean.listaClientes}"
                                                            var="cliente"
-                                                           itemLabel="#{cliente.codigo} - #{cliente.nombrecomercial}"
+                                                           itemLabel="#{cliente.clientePK.codigo} - #{cliente.nombrecomercial}"
                                                            itemValue="#{cliente}" />
                                             <p:ajax event="change" listener="#{refacturacionBean.seleccionarCliRefactura(fact.factura.facturaPK.numero)}"/>
                                         </p:selectOneMenu> 

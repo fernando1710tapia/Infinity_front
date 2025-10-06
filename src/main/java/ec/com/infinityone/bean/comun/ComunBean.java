@@ -82,7 +82,7 @@ public class ComunBean extends ReusableBean implements Serializable{
                 }
                 listaClientes = clienteServicio.obtenerClientesPorComercializadora(comercializadora.getCodigo());
                 for (int i = 0; i < listaClientes.size(); i++) {
-                    if (listaClientes.get(i).getCodigo().equals(x.getCodigocliente())) {
+                    if (listaClientes.get(i).getClientePK().getCodigo().equals(x.getCodigocliente())) {
                         this.cliente = listaClientes.get(i);
                     }
                 }

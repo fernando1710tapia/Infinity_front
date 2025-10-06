@@ -259,7 +259,7 @@ public class ClienterubroterceroBean extends ReusableBean implements Serializabl
                 obtenerRubros(comercializadora.getCodigo());
                 listaCliente = clienteServicio.obtenerClientesPorComercializadora(comercializadora.getCodigo());
                 for (int i = 0; i < listaCliente.size(); i++) {
-                    if (listaCliente.get(i).getCodigo().equals(dataUser.getUser().getCodigocliente())) {
+                    if (listaCliente.get(i).getClientePK().getCodigo().equals(dataUser.getUser().getCodigocliente())) {
                         this.cliente = listaCliente.get(i);
                     }
                 }
@@ -419,7 +419,7 @@ public class ClienterubroterceroBean extends ReusableBean implements Serializabl
             JSONObject objPK = new JSONObject();
             objPK.put("codigorubrotercero", rubrotercero.getRubroterceroPK().getCodigo());
             objPK.put("codigocomercializadora", comercializadora.getCodigo());
-            objPK.put("codigocliente", cliente.getCodigo());
+            objPK.put("codigocliente", cliente.getClientePK().getCodigo());
             obj.put("clienterubroterceroPK", objPK);
             obj.put("valor", clienterubrotercero.getValor());
             obj.put("tipocobro", clienterubrotercero.getTipocobro());
@@ -460,7 +460,7 @@ public class ClienterubroterceroBean extends ReusableBean implements Serializabl
             String fechaS = date.format(clienterubrotercero.getFechainiciocobro());
             clienterubroterceroPK.setCodigocomercializadora(comercializadora.getCodigo());
             clienterubroterceroPK.setCodigo(rubrotercero.getRubroterceroPK().getCodigo());
-            clienterubroterceroPK.setCodigocliente(cliente.getCodigo());
+            clienterubroterceroPK.setCodigocliente(cliente.getClientePK().getCodigo());
 
             url = new URL(direccion + "/porId");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -575,7 +575,7 @@ public class ClienterubroterceroBean extends ReusableBean implements Serializabl
                 }
             }
             for (int i = 0; i < listaCliente.size(); i++) {
-                if (listaCliente.get(i).getCodigo().equals(clienterubrotercero.getClienterubroterceroPK().getCodigocliente())) {
+                if (listaCliente.get(i).getClientePK().getCodigo().equals(clienterubrotercero.getClienterubroterceroPK().getCodigocliente())) {
                     this.cliente = listaCliente.get(i);
                 }
             }
@@ -650,7 +650,7 @@ public class ClienterubroterceroBean extends ReusableBean implements Serializabl
                 obtenerClientes(comercializadora.getCodigo());
                 for (int i = 0; i < listaCliente.size(); i++) {
                     for (int j = 0; j < listaCliAux.size(); j++) {
-                        if (listaCliente.get(i).getCodigo().equals(listaCliAux.get(j).getClienterubroterceroPK().getCodigocliente())) {
+                        if (listaCliente.get(i).getClientePK().getCodigo().equals(listaCliAux.get(j).getClienterubroterceroPK().getCodigocliente())) {
                             listaClienteAux.add(listaCliente.get(i));
                         }
                     }
@@ -677,7 +677,7 @@ public class ClienterubroterceroBean extends ReusableBean implements Serializabl
         for (int i = 1; i <= cliRubTer.getCuotas(); i++) {
             cuotarubrotercerosPK.setCodigocomercializadora(comercializadora.getCodigo());
             cuotarubrotercerosPK.setCodigorubrotercero(rubrotercero.getRubroterceroPK().getCodigo());
-            cuotarubrotercerosPK.setCodigocliente(cliente.getCodigo());
+            cuotarubrotercerosPK.setCodigocliente(cliente.getClientePK().getCodigo());
             cuotarubrotercerosPK.setCuota(i);
             cuotarubroterceros.setCuotarubrotercerosPK(cuotarubrotercerosPK);
             cuotarubroterceros.setPagada(false);
@@ -941,7 +941,7 @@ public class ClienterubroterceroBean extends ReusableBean implements Serializabl
         listaCliente = clienteServicio.obtenerClientes();
         if (codcli != null) {
             for (int i = 0; i < listaCliente.size(); i++) {
-                if (listaCliente.get(i).getCodigo().equals(codcli)) {
+                if (listaCliente.get(i).getClientePK().getCodigo().equals(codcli)) {
                     nombre = listaCliente.get(i).getNombrecomercial();
                     break;
                 }

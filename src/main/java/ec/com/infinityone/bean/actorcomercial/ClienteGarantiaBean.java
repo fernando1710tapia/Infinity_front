@@ -273,7 +273,7 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
             String fechaIni = date.format(fechaInicioVigencia);
             String fechaFin = date.format(clientegarantia.getFechafinvigencia());
             String respuesta;
-            int sec = this.cliGarantiaServicio.obtenerUltimaSec(codComer, cliente.getCodigo(), banco.getCodigo(), clientegarantiaPK.getNumero());
+            int sec = this.cliGarantiaServicio.obtenerUltimaSec(codComer, cliente.getClientePK().getCodigo(), banco.getCodigo(), clientegarantiaPK.getNumero());
             clientegarantiaPK.setSecuencial(sec);
             url = new URL(direccion);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -285,7 +285,7 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
             JSONObject obj = new JSONObject();
             JSONObject objPK = new JSONObject();
             objPK.put("codigocomercializadora", codComer);
-            objPK.put("codigocliente", cliente.getCodigo());
+            objPK.put("codigocliente", cliente.getClientePK().getCodigo());
             objPK.put("codigobanco", banco.getCodigo());
             objPK.put("numero", clientegarantiaPK.getNumero());
             objPK.put("secuencial", clientegarantiaPK.getSecuencial());
@@ -375,7 +375,7 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
             JSONObject obj = new JSONObject();
             JSONObject objPK = new JSONObject();
             objPK.put("codigocomercializadora", codComer);
-            objPK.put("codigocliente", cliente.getCodigo());
+            objPK.put("codigocliente", cliente.getClientePK().getCodigo());
             objPK.put("codigobanco", banco.getCodigo());
             objPK.put("numero", clientegarantiaPK.getNumero());
             objPK.put("secuencial", clientegarantiaPK.getSecuencial());
@@ -419,7 +419,7 @@ public class ClienteGarantiaBean extends ReusableBean implements Serializable {
             }
         }
         for (int i = 0; i < listaClientes.size(); i++) {
-            if (listaClientes.get(i).getCodigo().equals(clientegarantia.getClientegarantiaPK().getCodigocliente())) {
+            if (listaClientes.get(i).getClientePK().getCodigo().equals(clientegarantia.getClientegarantiaPK().getCodigocliente())) {
                 this.cliente = listaClientes.get(i);
             }
         }

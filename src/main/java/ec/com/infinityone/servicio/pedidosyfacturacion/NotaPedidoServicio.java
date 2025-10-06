@@ -9,6 +9,7 @@ import ec.com.infinityone.configuration.Fichero;
 import ec.com.infinityone.modelo.Abastecedora;
 import ec.com.infinityone.modelo.Banco;
 import ec.com.infinityone.modelo.Cliente;
+import ec.com.infinityone.modelo.ClientePK;
 import ec.com.infinityone.modelo.Comercializadora;
 import ec.com.infinityone.modelo.Formapago;
 import ec.com.infinityone.modelo.Notapedido;
@@ -90,6 +91,7 @@ public class NotaPedidoServicio {
                         JSONObject nt = retorno.getJSONObject(indice);
                         JSONObject ntPK = nt.getJSONObject("notapedidoPK");
                         JSONObject cli = nt.getJSONObject("codigocliente");
+                        JSONObject cliPK = cli.getJSONObject("clientePK");
                         JSONObject term = nt.getJSONObject("codigoterminal");
                         JSONObject ban = nt.getJSONObject("codigobanco");
                         JSONObject formPago = cli.getJSONObject("codigoformapago");
@@ -117,7 +119,12 @@ public class NotaPedidoServicio {
                         formap.setCodigo(formPago.getString("codigo"));
 
                         /*----Objeto Cliente----*/
-                        cliente.setCodigo(cli.getString("codigo"));
+                        
+                        cliente.setClientePK(new ClientePK());
+                        cliente.getClientePK().setCodigo(cliPK.getString("codigo"));
+                         
+//////FTFTFT                        cliente.setCodigo(cli.getString("codigo"));
+                        
                         cliente.setNombre(cli.getString("nombre"));
                         cliente.setRuc(cli.getString("ruc"));
                         cliente.setCorreo1(cli.getString("correo1"));

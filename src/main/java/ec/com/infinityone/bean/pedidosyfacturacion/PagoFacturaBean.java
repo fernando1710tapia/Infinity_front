@@ -480,7 +480,7 @@ public class PagoFacturaBean extends ReusableBean implements Serializable {
 
     public void seleccionarCliente() {
         if (cliente != null) {
-            codCliente = cliente.getCodigo();
+            codCliente = cliente.getClientePK().getCodigo();
             for (int i = 0; i < listaTermianles.size(); i++) {
                 if (listaTermianles.get(i).getCodigo().equals(cliente.getCodigoterminaldefecto().getCodigo())) {
                     terminal = listaTermianles.get(i);
@@ -1109,7 +1109,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             for (Factura factura : listaFactura) {
                 listaClientesAux = clienteServicio.obtenerClientesPorID(factura.getCodigocliente());
                 for (int i = 0; i < listaClientesAux.size(); i++) {
-                    if (listaClientesAux.get(i).getCodigo().equals(factura.getCodigocliente())) {
+                    if (listaClientesAux.get(i).getClientePK().getCodigo().equals(factura.getCodigocliente())) {
                         cliAux = listaClientesAux.get(i);
                         break;
                     }
@@ -1394,7 +1394,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             BufferedWriter bfwriter = new BufferedWriter(flwriter);
             for (Factura factura : listaFactura) {
                 for (int i = 0; i < listaClientesAux.size(); i++) {
-                    if (listaClientesAux.get(i).getCodigo().equals(factura.getCodigocliente())) {
+                    if (listaClientesAux.get(i).getClientePK().getCodigo().equals(factura.getCodigocliente())) {
                         cliAux = listaClientesAux.get(i);
                         break;
                     }
@@ -1410,7 +1410,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                         //4. COMPROBANTE DE COBRO
                         + String.format("%20s", factura.getFacturaPK().getNumero().trim()).replace(' ', '0') + separador
                         //5. CONTRAPARTIDA
-                        + String.format("%-20s", cliAux.getCodigo()).replace(' ', '0') + separador
+                        + String.format("%-20s", cliAux.getClientePK().getCodigo()).replace(' ', '0') + separador
                         //6. MONEDA
                         + "USD" + separador
                         //7. VALOR
@@ -1501,7 +1501,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             for (Factura factura : listaFactura) {
                 listaClientesAux = clienteServicio.obtenerClientesPorID(factura.getCodigocliente());
                 for (int i = 0; i < listaClientesAux.size(); i++) {
-                    if (listaClientesAux.get(i).getCodigo().equals(factura.getCodigocliente())) {
+                    if (listaClientesAux.get(i).getClientePK().getCodigo().equals(factura.getCodigocliente())) {
                         cliAux = listaClientesAux.get(i);
                         break;
                     }
@@ -1517,7 +1517,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                         //4. COMPROBANTE DE COBRO
                         + String.format("%20s", factura.getFacturaPK().getNumero().trim()).replace(' ', '0') + separador
                         //5. CONTRAPARTIDA
-                        + String.format("%-20s", cliAux.getCodigo()).replace(' ', '0') + separador
+                        + String.format("%-20s", cliAux.getClientePK().getCodigo()).replace(' ', '0') + separador
                         //6. MONEDA
                         + "USD" + separador
                         //7. VALOR
@@ -1606,7 +1606,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             BufferedWriter bfwriter = new BufferedWriter(flwriter);
             for (Factura factura : listaFactura) {
                 for (int i = 0; i < listaClientesAux.size(); i++) {
-                    if (listaClientesAux.get(i).getCodigo().equals(factura.getCodigocliente())) {
+                    if (listaClientesAux.get(i).getClientePK().getCodigo().equals(factura.getCodigocliente())) {
                         cliAux = listaClientesAux.get(i);
                         break;
                     }
@@ -1622,7 +1622,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
                         //4. COMPROBANTE DE COBRO
                         + String.format("%20s", factura.getFacturaPK().getNumero().trim()).replace(' ', '0') + separador
                         //5. CONTRAPARTIDA
-                        + String.format("%-20s", cliAux.getCodigo()).replace(' ', '0') + separador
+                        + String.format("%-20s", cliAux.getClientePK().getCodigo()).replace(' ', '0') + separador
                         //6. MONEDA
                         + "USD" + separador
                         //7. VALOR

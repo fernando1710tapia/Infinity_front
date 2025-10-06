@@ -140,7 +140,7 @@
                                                  autoWidth="false" converter="converterg"
                                                  filter="true" filterMatchMode="startsWith"
                                                  required="true" requiredMessage="Seleccione Comercializadora"
-                                                 disabled="#{rubroterceroBean.editarRubro}">                                                 
+                                                 disabled="#{!rubroterceroBean.habilitarComer}">                                                 
                                     <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
                                     <f:selectItems value="#{rubroterceroBean.listaComercializadora}"
                                                    var="comer"

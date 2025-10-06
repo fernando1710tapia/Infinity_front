@@ -85,7 +85,7 @@
                                         <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
                                         <f:selectItems value="#{facturacionBean.listaClientes}"
                                                        var="cliente"
-                                                       itemLabel="#{cliente.codigo} - #{cliente.nombrecomercial}"
+                                                       itemLabel="#{cliente.clientePK.codigo} - #{cliente.nombrecomercial}"
                                                        itemValue="#{cliente}" />
                                         <p:ajax event="change" listener="#{facturacionBean.seleccionarCliente(1)}"
                                                 update="terminal"/>
@@ -275,7 +275,7 @@
                                         <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
                                         <f:selectItems value="#{facturacionBean.listaClientes}"
                                                        var="cliente"
-                                                       itemLabel="#{cliente.codigo} - #{cliente.nombrecomercial}"
+                                                       itemLabel="#{cliente.clientePK.codigo} - #{cliente.nombrecomercial}"
                                                        itemValue="#{cliente}" />
                                         <p:ajax event="change" listener="#{facturacionBean.seleccionarCliente(2)}"
                                                 update="formNuevo terminal2"/>
@@ -321,8 +321,8 @@
                                 </div>
                             </f:facet>
 
-                            <p:column headerText="Cliente" filterBy="#{notaP.notapedido.codigocliente.codigo}" width="20%">
-                                <h:outputText value="#{notaP.notapedido.codigocliente.codigo} #{notaP.notapedido.codigocliente.nombrecomercial}" />
+                            <p:column headerText="Cliente" filterBy="#{notaP.notapedido.codigocliente.clientePK.codigo}" width="20%">
+                                <h:outputText value="#{notaP.notapedido.codigocliente.clientePK.codigo} #{notaP.notapedido.codigocliente.nombrecomercial}" />
                             </p:column>                                    
                             <p:column headerText="Factura" filterBy="#{notaP.notapedido.numerofacturasri}" width="18%">
                                 <h:outputText value="#{notaP.notapedido.numerofacturasri}" />
@@ -429,7 +429,7 @@
                                 <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
                                 <f:selectItems value="#{facturacionBean.listaClientes}"
                                                var="cliente"
-                                               itemLabel="#{cliente.codigo} - #{cliente.nombrecomercial}"
+                                               itemLabel="#{cliente.clientePK.codigo} - #{cliente.nombrecomercial}"
                                                itemValue="#{cliente}" />
                             </p:selectOneMenu> 
                         </div>
@@ -467,7 +467,7 @@
                     </f:facet>
 
                     <p:column headerText="Cliente"  width="10%">
-                        <h:outputText value="#{notaP.notapedido.codigocliente.codigo}" />
+                        <h:outputText value="#{notaP.notapedido.codigocliente.clientePK.codigo}" />
                     </p:column>                                    
                     <p:column headerText="Factura"  width="18%">
                         <h:outputText value="#{notaP.notapedido.numerofacturasri}" />

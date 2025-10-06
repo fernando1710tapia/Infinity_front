@@ -210,7 +210,7 @@
                                             <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
                                             <f:selectItems value="#{usosellosBean.listaClientes}"
                                                            var="cli"
-                                                           itemLabel="#{cli.codigo} - #{cli.nombrecomercial}"
+                                                           itemLabel="#{cli.clientePK.codigo} - #{cli.nombrecomercial}"
                                                            itemValue="#{cli}" />
                                             <p:ajax event="change" listener="#{usosellosBean.seleccionarCliente(1)}"
                                                     update="term"/>

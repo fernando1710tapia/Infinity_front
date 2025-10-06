@@ -190,7 +190,7 @@ public class AnulacionEspecialBean extends ReusableBean implements Serializable 
 
     public void seleccionarCliente(int busqueda) {
         if (cliente != null) {
-            codCliente = cliente.getCodigo();            
+            codCliente = cliente.getClientePK().getCodigo();            
         } else {
             codCliente = "-1";
         }
@@ -229,7 +229,7 @@ public class AnulacionEspecialBean extends ReusableBean implements Serializable 
                         seleccionarComer(busqueda);
                         listaClientes = clienteServicio.obtenerClientesPorComercializadoraActiva(comercializadora.getCodigo());
                         for (int i = 0; i < listaClientes.size(); i++) {
-                            if (listaClientes.get(i).getCodigo().equals(dataUser.getUser().getCodigocliente())) {
+                            if (listaClientes.get(i).getClientePK().getCodigo().equals(dataUser.getUser().getCodigocliente())) {
                                 this.cliente = listaClientes.get(i);
                                 break;
                             }

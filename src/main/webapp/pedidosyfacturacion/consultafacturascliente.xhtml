@@ -81,7 +81,7 @@
                                         <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
                                         <f:selectItems value="#{consultaFacturasClienteBean.listaClientes}"
                                                        var="cliente"
-                                                       itemLabel="#{cliente.codigo} - #{cliente.nombrecomercial}"
+                                                       itemLabel="#{cliente.clientePK.codigo} - #{cliente.nombrecomercial}"
                                                        itemValue="#{cliente}" />
                                         <p:ajax event="change" listener="#{consultaFacturasClienteBean.seleccionarCliente()}"
                                                 update="terminal"/>
@@ -358,7 +358,7 @@
                     </f:facet>
 
                     <p:column headerText="Cliente"  width="10%">
-                        <h:outputText value="#{notaP.notapedido.codigocliente.codigo}" />
+                        <h:outputText value="#{notaP.notapedido.codigocliente.clientePK.codigo}" />
                     </p:column>                                    
                     <p:column headerText="Factura"  width="18%">
                         <h:outputText value="#{notaP.notapedido.numerofacturasri}" />
@@ -439,7 +439,7 @@
                                 <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
                                 <f:selectItems value="#{consultaFacturasClienteBean.listaClientes}"
                                                var="cliente"
-                                               itemLabel="#{cliente.codigo} - #{cliente.nombrecomercial}"
+                                               itemLabel="#{cliente.clientePK.codigo} - #{cliente.nombrecomercial}"
                                                itemValue="#{cliente}" />
                             </p:selectOneMenu> 
                         </div>
@@ -477,7 +477,7 @@
                     </f:facet>
 
                     <p:column headerText="Cliente"  width="10%">
-                        <h:outputText value="#{notaP.notapedido.codigocliente.codigo}" />
+                        <h:outputText value="#{notaP.notapedido.codigocliente.clientePK.codigo}" />
                     </p:column>                                    
                     <p:column headerText="Factura"  width="18%">
                         <h:outputText value="#{notaP.notapedido.numerofacturasri}" />

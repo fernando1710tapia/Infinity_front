@@ -17,7 +17,9 @@ import java.util.List;
  */
 public class Cliente implements Serializable {
 
-    private String codigo;
+    protected ClientePK clientePK;
+    
+//////// ftftft   private String codigo;
 
     private String nombre;
 
@@ -29,7 +31,7 @@ public class Cliente implements Serializable {
 
     private String clavestc;
 
-    private String codigocomercializadora;
+//////ftft    private String codigocomercializadora;
 
     private String ruc;
     
@@ -100,32 +102,56 @@ public class Cliente implements Serializable {
     private Boolean controlaprorroga;
 
     public Cliente() {
+        this.clientePK = new ClientePK();
     }
 
-    public Cliente(String codigo) {
-        this.codigo = codigo;
-    }
+//////FTFTFT    public Cliente(String codigo) {
+//////        this.codigo = codigo;
+//////    }
 
-    public Cliente(String codigo, String nombre, boolean estado, String codigoarch, String codigostc, String codigocomercializadora, String ruc, String direccion, long codigolistaprecio, String usuarioactual) {
-        this.codigo = codigo;
+    public Cliente(ClientePK clientePK) {
+        this.clientePK = clientePK;
+    }
+    
+//////FTFTFT    public Cliente(String codigo, String nombre, boolean estado, String codigoarch, String codigostc, String codigocomercializadora, String ruc, String direccion, long codigolistaprecio, String usuarioactual) {
+//////        this.codigo = codigo;
+//////        this.nombre = nombre;
+//////        this.estado = estado;
+//////        this.codigoarch = codigoarch;
+//////        this.codigostc = codigostc;
+//////        this.codigocomercializadora = codigocomercializadora;
+//////        this.ruc = ruc;
+//////        this.direccion = direccion;
+//////        this.codigolistaprecio = codigolistaprecio;
+//////        this.usuarioactual = usuarioactual;
+//////    }
+    
+    
+    public Cliente(ClientePK clientePK, boolean estado, String codigoarch, String codigostc, String codigocomercializadora, String ruc, String direccion, long codigolistaprecio, String usuarioactual) {
+        this.clientePK = clientePK;
+//        this.codigo = codigo;
         this.nombre = nombre;
         this.estado = estado;
         this.codigoarch = codigoarch;
         this.codigostc = codigostc;
-        this.codigocomercializadora = codigocomercializadora;
+//        this.codigocomercializadora = codigocomercializadora;
         this.ruc = ruc;
         this.direccion = direccion;
         this.codigolistaprecio = codigolistaprecio;
         this.usuarioactual = usuarioactual;
     }
 
-    public String getCodigo() {
-        return codigo;
+    public Cliente(String codigocomercializadora, String codigo) {
+        this.clientePK = new ClientePK(codigocomercializadora,  codigo);
     }
-
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
-    }
+//    
+//    public String getCodigo() {
+//        return codigo;
+//    }
+//
+//    public void setCodigo(String codigo) {
+//        this.codigo = codigo;
+//    }
 
     public String getNombre() {
         return nombre;
@@ -167,13 +193,13 @@ public class Cliente implements Serializable {
         this.clavestc = clavestc;
     }
 
-    public String getCodigocomercializadora() {
-        return codigocomercializadora;
-    }
-
-    public void setCodigocomercializadora(String codigocomercializadora) {
-        this.codigocomercializadora = codigocomercializadora;
-    }
+//    public String getCodigocomercializadora() {
+//        return codigocomercializadora;
+//    }
+//
+//    public void setCodigocomercializadora(String codigocomercializadora) {
+//        this.codigocomercializadora = codigocomercializadora;
+//    }
 
     public String getRuc() {
         return ruc;
@@ -439,13 +465,34 @@ public class Cliente implements Serializable {
         this.controldespacho = controldespacho;
     }   
 
-    @Override
+    public ClientePK getClientePK() {
+        return clientePK;
+    }
+
+    public void setClientePK(ClientePK clientePK) {
+        this.clientePK = clientePK;
+    }
+
+    
+    
+    
+    
+////// ftftft   @Override
+//////    public int hashCode() {
+//////        int hash = 0;
+//////        hash += (codigo != null ? codigo.hashCode() : 0);
+//////        return hash;
+//////    }
+
+       @Override
     public int hashCode() {
         int hash = 0;
-        hash += (codigo != null ? codigo.hashCode() : 0);
+        hash += (clientePK != null ? clientePK.hashCode() : 0);
         return hash;
     }
 
+    
+    
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
@@ -453,7 +500,7 @@ public class Cliente implements Serializable {
             return false;
         }
         Cliente other = (Cliente) object;
-        if ((this.codigo == null && other.codigo != null) || (this.codigo != null && !this.codigo.equals(other.codigo))) {
+        if ((this.clientePK == null && other.clientePK != null) || (this.clientePK != null && !this.clientePK.equals(other.clientePK))) {
             return false;
         }
         return true;

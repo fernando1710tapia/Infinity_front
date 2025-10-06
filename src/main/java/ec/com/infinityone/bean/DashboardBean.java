@@ -79,6 +79,7 @@ public class DashboardBean extends ReusableBean implements Serializable {
     private Integer facturas;
 
     private Usuario x;
+    private String xcodigoComer;
     private String direccionVentaVsDespacho_Venta;
     private String direccionVentaVsDespacho_Despacho;
 
@@ -101,6 +102,9 @@ public class DashboardBean extends ReusableBean implements Serializable {
         
         System.out.println("FT::pasa por init()");
         
+        x = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
+        
+        xcodigoComer=x.getCodigocomercializadora();
         
         //direccion = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura/mejorCliente?activo=true";        
         direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim();
@@ -118,7 +122,7 @@ public class DashboardBean extends ReusableBean implements Serializable {
         obtenerprimerCliente();
         actualizarGrafico();
 
-        x = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
+        
     }
 
     public void obtenerTerminales() {
@@ -146,7 +150,7 @@ public class DashboardBean extends ReusableBean implements Serializable {
 
     public void obtenerListamejorCliente() {
         try {
-            url = new URL(direccion + "ec.com.infinity.modelo.factura/mejorCliente?activo=true");
+            url = new URL(direccion + "ec.com.infinity.modelo.factura/mejorCliente?activo=true&codigocomercializadora="+xcodigoComer);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
@@ -184,7 +188,7 @@ public class DashboardBean extends ReusableBean implements Serializable {
             String pfecha;
             DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
             pfecha = dateFormat.format(this.date);
-            url = new URL(direccion + "ec.com.infinity.modelo.factura/ventatotal1?pfecha=" + pfecha);
+            url = new URL(direccion + "ec.com.infinity.modelo.factura/ventatotal1?pfecha=" + pfecha+"&codigocomercializadora="+xcodigoComer);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.setRequestMethod("GET");

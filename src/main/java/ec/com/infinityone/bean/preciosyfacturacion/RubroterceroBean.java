@@ -357,13 +357,14 @@ public class RubroterceroBean extends ReusableBean implements Serializable {
         if (habilitarComer) {
             comercializadora = new ComercializadoraBean();
         }
+        habilitarBusqueda();
         rubrotercero = new Rubrotercero();        
         PrimeFaces.current().executeScript("PF('nuevo').show()");
     }
 
     public Rubrotercero editarRubro(Rubrotercero obj) {
         editarRubro = true;
-        rubrotercero = obj;
+        rubrotercero = obj; 
         if (clienterubroterceroServicio.obtenerClienteRubroterceroPorRubro(comercializadora.getCodigo(), rubrotercero.getRubroterceroPK().getCodigo()).isEmpty()) {
             soloLectura = false;
         } else {
@@ -375,6 +376,7 @@ public class RubroterceroBean extends ReusableBean implements Serializable {
                 this.comercializadora = listaComercializadora.get(i);
             }
         }
+        habilitarBusqueda();
         estadoRubro = rubrotercero.getActivo();
         PrimeFaces.current().executeScript("PF('nuevo').show()");
         return rubrotercero;

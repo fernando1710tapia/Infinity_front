@@ -36,6 +36,7 @@ import ec.com.infinityone.modelo.Terminal;
 import ec.com.infinityone.reusable.ReusableBean;
 import ec.com.infinityone.bean.actorcomercial.ComercializadoraBean;
 import ec.com.infinityone.configuration.Fichero;
+import ec.com.infinityone.modelo.ClientePK;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -530,7 +531,7 @@ public class FacturacionCelBean extends ReusableBean implements Serializable {
 
     public void seleccionarCliente() {
         if (cliente != null) {
-            codCliente = cliente.getCodigo();
+            codCliente = cliente.getClientePK().getCodigo();
             for (int i = 0; i < listaTermianles.size(); i++) {
                 if (listaTermianles.get(i).getCodigo().equals(cliente.getCodigoterminaldefecto().getCodigo())) {
                     terminal = listaTermianles.get(i);
@@ -574,7 +575,7 @@ public class FacturacionCelBean extends ReusableBean implements Serializable {
                         seleccionarComer();
                         listaClientes = clienteServicio.obtenerClientesActivosPorComercializadora(comercializadora.getCodigo());
                         for (int i = 0; i < listaClientes.size(); i++) {
-                            if (listaClientes.get(i).getCodigo().equals(dataUser.getUser().getCodigocliente())) {
+                            if (listaClientes.get(i).getClientePK().getCodigo().equals(dataUser.getUser().getCodigocliente())) {
                                 this.cliente = listaClientes.get(i);
                                 break;
                             }
@@ -797,6 +798,9 @@ public class FacturacionCelBean extends ReusableBean implements Serializable {
                         JSONObject nt = retorno.getJSONObject(indice);
                         JSONObject ntPK = nt.getJSONObject("notapedidoPK");
                         JSONObject cli = nt.getJSONObject("codigocliente");
+                        
+                        JSONObject cliPK = cli.getJSONObject("clientePK");
+                        
                         JSONObject term = nt.getJSONObject("codigoterminal");
                         JSONObject ban = nt.getJSONObject("codigobanco");
                         JSONObject formPago = cli.getJSONObject("codigoformapago");
@@ -831,7 +835,11 @@ public class FacturacionCelBean extends ReusableBean implements Serializable {
                         formap.setCodigo(formPago.getString("codigo"));
 
                         /*----Objeto Cliente----*/
-                        cliente.setCodigo(cli.getString("codigo"));
+                        
+//////                        cliente.setCodigo(cli.getString("codigo"));
+                        cliente.setClientePK(new ClientePK());
+                        cliente.getClientePK().setCodigo(cliPK.getString("codigo"));
+                        
                         cliente.setNombre(cli.getString("nombre"));
                         cliente.setRuc(cli.getString("ruc"));
                         cliente.setCorreo1(cli.getString("correo1"));
@@ -1233,7 +1241,7 @@ public class FacturacionCelBean extends ReusableBean implements Serializable {
         fac.setObservacion("Generación Automática con NP: " + envNP.getNotapedido().getNotapedidoPK().getNumero());
         fac.setPagada(false);
         fac.setOeenpetro(false);
-        fac.setCodigocliente(envNP.getNotapedido().getCodigocliente().getCodigo());
+        fac.setCodigocliente(envNP.getNotapedido().getCodigocliente().getClientePK().getCodigo());
         fac.setCodigoterminal(envNP.getNotapedido().getCodigoterminal().getCodigo());
         fac.setCodigobanco(envNP.getNotapedido().getCodigobanco().getCodigo());
         fac.setAdelantar(envNP.getNotapedido().isAdelantar());
@@ -2390,7 +2398,7 @@ public class FacturacionCelBean extends ReusableBean implements Serializable {
             JasperReport subreporte = JasperCompileManager.compileReport(subreport);
 
             Map parametro = new HashMap();
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo"+env.getFactura().getFacturaPK().getCodigocomercializadora()+".jpeg"));
             BufferedImage imageBar = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/barras.jpeg"));
 
 //            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
@@ -2437,7 +2445,7 @@ public class FacturacionCelBean extends ReusableBean implements Serializable {
             file = new FileInputStream(new File(path));
 
             JasperReport reporte = JasperCompileManager.compileReport(file);
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo.jpeg"));
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo"+envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora()+".jpeg"));
 //            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
             Map parametro = new HashMap();
 

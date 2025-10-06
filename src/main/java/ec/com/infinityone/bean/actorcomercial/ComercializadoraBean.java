@@ -211,6 +211,8 @@ public class ComercializadoraBean extends ReusableBean implements Serializable {
     Variable para validar si es guardar o editar
      */
     private boolean editarComercializadora;
+    
+    private String xcodigoComer;
 
     public ComercializadoraBean() {
     }
@@ -222,6 +224,7 @@ public class ComercializadoraBean extends ReusableBean implements Serializable {
     public void init() {
 
         x = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
+        xcodigoComer=x.getCodigocomercializadora();
 
         //direccion = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.comercializadora";
         direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.comercializadora";
@@ -235,7 +238,12 @@ public class ComercializadoraBean extends ReusableBean implements Serializable {
 
     public void obtenerListaComercializadora() {
         listaComercializadora = new ArrayList<>();
-        listaComercializadora = this.comercializadoraServicio.obtenerComercializadoras();
+        if (xcodigoComer == null) {
+            listaComercializadora = this.comercializadoraServicio.obtenerComercializadoras();
+        } else {
+            listaComercializadora = this.comercializadoraServicio.obtenerComercializadoraId(xcodigoComer);
+        }
+        
         comercializadora = this.comercializadoraServicio.getComercializadora();
     }
 

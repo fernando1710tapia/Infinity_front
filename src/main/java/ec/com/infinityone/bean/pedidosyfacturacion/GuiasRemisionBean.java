@@ -275,7 +275,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
                     if (comercializadora.getCodigo() != null) {
                         seleccionarComer();
                         for (int i = 0; i < listaClientes.size(); i++) {
-                            if (listaClientes.get(i).getCodigo().equals(dataUser.getUser().getCodigocliente())) {
+                            if (listaClientes.get(i).getClientePK().getCodigo().equals(dataUser.getUser().getCodigocliente())) {
                                 this.cliente = listaClientes.get(i);
                                 break;
                             }
@@ -335,7 +335,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
 
     public void seleccionarCliente() {
         if (cliente != null) {
-            codCliente = cliente.getCodigo();
+            codCliente = cliente.getClientePK().getCodigo();
         }
     }
 
@@ -512,7 +512,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
                 }
                 if (cliente != null) {
                     url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.consultaguiaremision/paracliente?codigocomercializadora=" + codigoComer
-                            + "&tipoconsulta=" + tipoConsulta + "&codigocliente=" + cliente.getCodigo() + "&numero=" + numGuia + "&fecha=" + fechaD);
+                            + "&tipoconsulta=" + tipoConsulta + "&codigocliente=" + cliente.getClientePK().getCodigo() + "&numero=" + numGuia + "&fecha=" + fechaD);
 
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setDoInput(true);
@@ -1093,7 +1093,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
                                         break;
                                     }
                                 }
-                                consulGuia.setCodigomedida((eElement.getElementsByTagName("campoAdicional").item(6).getTextContent()).substring(j + 1));
+                                consulGuia.setCodigomedida((eElement.getElementsByTagName("campoAdicional").item(6).getTextContent()).substring(j+1,j+5));
                                 consulGuia.setMedida(consulGuia.getCodigomedida());
                                 //<campoAdicional nombre="CodigoControlDeposito">0208164802-TERMINAL EL BEATERIO</campoAdicional> -- 2 caracteres despues de numero
                                 consulGuia.setCodigoterminal((eElement.getElementsByTagName("campoAdicional").item(5).getTextContent()).substring(0, 2));
@@ -1513,7 +1513,7 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
         listaClientes = cliServicio.obtenerClientes();
         if (codcli != null) {
             for (int i = 0; i < listaClientes.size(); i++) {
-                if (listaClientes.get(i).getCodigo().equals(codcli)) {
+                if (listaClientes.get(i).getClientePK().getCodigo().equals(codcli)) {
                     nombre = listaClientes.get(i).getNombre();
                     break;
                 }
