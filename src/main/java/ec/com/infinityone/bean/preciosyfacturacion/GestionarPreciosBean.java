@@ -963,7 +963,7 @@ public class GestionarPreciosBean extends ReusableBean implements Serializable {
                             if (listaPrecio.get(i).getPrecio().getListaprecio().getTipo().equals("MCO")) {
                                 
                                 BigDecimal mcsiva = (listaPrecio.get(i).getPrecio().getComercializadoraproducto().getMargencomercializacion().divide(valorIvaDividir, 6, RoundingMode.HALF_UP)).setScale(6, RoundingMode.HALF_UP);
-                                dpcg4 = (mcsiva.multiply((listaPrecio.get(i).getMargenvalorcomercializadora().divide(new BigDecimal(100))))).setScale(6, RoundingMode.HALF_UP);
+                                    dpcg4 = (mcsiva.multiply((listaPrecio.get(i).getMargenvalorcomercializadora().divide(new BigDecimal(100))))).setScale(6, RoundingMode.HALF_UP);
  
                                 if (listaPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora().equalsIgnoreCase("0008")) {
                                     System.out.println("FT::. CALCULO DE MARGEN DE CLIENTE PARA PETROLRIOS CAMBIO DE FORMULA PVP - PRETER * % ACORDADO");

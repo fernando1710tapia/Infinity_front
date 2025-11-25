@@ -104,7 +104,12 @@ public class DashboardBean extends ReusableBean implements Serializable {
         
         x = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
         
-        xcodigoComer=x.getCodigocomercializadora();
+        if (x.getCodigocomercializadora()==null){
+            xcodigoComer=null;
+        }else{
+            xcodigoComer=x.getCodigocomercializadora();
+        }
+        
         
         //direccion = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura/mejorCliente?activo=true";        
         direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim();

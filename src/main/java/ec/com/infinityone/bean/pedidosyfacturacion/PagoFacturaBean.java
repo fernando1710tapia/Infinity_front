@@ -1107,7 +1107,7 @@ Campo	Nombre                 Tipo             Contenido	Longitud	Pos ini	Pos fin
             System.out.println("FT:: grabando lineacabecera.. " + nombreArchivo);
             //bfwriter.write(lineaCabecera + "\n");
             for (Factura factura : listaFactura) {
-                listaClientesAux = clienteServicio.obtenerClientesPorID(factura.getCodigocliente());
+                listaClientesAux = clienteServicio.obtenerClientesPorID(factura.getFacturaPK().getCodigocomercializadora(), factura.getCodigocliente());
                 for (int i = 0; i < listaClientesAux.size(); i++) {
                     if (listaClientesAux.get(i).getClientePK().getCodigo().equals(factura.getCodigocliente())) {
                         cliAux = listaClientesAux.get(i);

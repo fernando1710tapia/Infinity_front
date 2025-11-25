@@ -639,15 +639,22 @@ public class ActualizarPrecioBean extends ReusableBean implements Serializable {
         BigDecimal dpcg5 = new BigDecimal(0);
         BigDecimal dpcg6 = new BigDecimal(0);
         BigDecimal dpcg9 = new BigDecimal(0);
-        BigDecimal dpcg5F = new BigDecimal(0); 
+        BigDecimal dpcg5F = new BigDecimal(0);
+        BigDecimal valorIvaDividir = new BigDecimal(1);
         BigDecimal ivaLocalGlobal = new BigDecimal(0);
 
+         for (int i = 0; i < listaGravamen.size(); i++) {
+            if (listaGravamen.get(i).getGravamenPK().getCodigo().equals("0002")) {
+                valorIvaDividir = valorIvaDividir.add(listaGravamen.get(i).getValordefecto());
+            }
+        }
+         
         for (int i = 0; i < listaObjetoPrecio.size(); i++) {
             objDetalle.setPrecio(listaObjetoPrecio.get(i).getPrecio());
             objDetalle.setPrecioepp(listaObjetoPrecio.get(i).getPrecioepp());
             objDetalle.setPvpsugerido(listaObjetoPrecio.get(i).getPvpsugerido());
             for (int j = 0; j < listaGravamen.size(); j++) {
-                switch (listaGravamen.get(j).getGravamenPK().getCodigo()) {
+                    switch (listaGravamen.get(j).getGravamenPK().getCodigo()) {
                     //Precio Terminal EPP
                     case "0001":
                         dpcg1 = listaObjetoPrecio.get(i).getPrecioepp().divide(listaGravamen.get(j).getValordefecto(), 6, RoundingMode.HALF_UP);
@@ -666,12 +673,21 @@ public class ActualizarPrecioBean extends ReusableBean implements Serializable {
                         detallePrecio = new Detalleprecio();
                         detallePrecioPK = new DetalleprecioPK();
                         objDetalle.setPrecioTerminalEpp(dpcg1);
-                        break;
+                        break; 
+                    // FT:: 2025-07-31 Cambio de formula de margen tipo MCO para PETROLRIOS 
                     //Margen X cliente
                     case "0005":
                         if (listaObjetoPrecio.get(i).getPrecio().getListaprecio().getTipo().equals("MCO")) {
-                            BigDecimal mcsiva = (listaObjetoPrecio.get(i).getPrecio().getComercializadoraproducto().getMargencomercializacion().divide(new BigDecimal(1.12), 6, RoundingMode.HALF_UP)).setScale(6, RoundingMode.HALF_UP);
+                            BigDecimal mcsiva = (listaObjetoPrecio.get(i).getPrecio().getComercializadoraproducto().getMargencomercializacion().divide(valorIvaDividir, 6, RoundingMode.HALF_UP)).setScale(6, RoundingMode.HALF_UP);
                             dpcg4 = (mcsiva.multiply((listaObjetoPrecio.get(i).getMargenvalorcomercializadora().divide(new BigDecimal(100))))).setScale(6, RoundingMode.HALF_UP);
+                            
+                            if (listaObjetoPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora().equalsIgnoreCase("0008")) {
+                                    System.out.println("FT::. CALCULO DE MARGEN DE CLIENTE PARA PETROLRIOS CAMBIO DE FORMULA PVP - PRETER * % ACORDADO");
+                                    BigDecimal pvpSinIva = (listaObjetoPrecio.get(i).getPrecio().getComercializadoraproducto().getPvpsugerido().divide(valorIvaDividir, 6, RoundingMode.HALF_UP)).setScale(6, RoundingMode.HALF_UP);
+                                    dpcg4 = (pvpSinIva.subtract(dpcg1)).multiply((listaObjetoPrecio.get(i).getMargenvalorcomercializadora().divide(new BigDecimal(100)))).setScale(6, RoundingMode.HALF_UP);
+                                 
+                                }
+
                             //dpcg4 = (listaObjetoPrecio.get(i).getPrecio().getComercializadoraproducto().getMargencomercializacion().multiply((listaObjetoPrecio.get(i).getMargenvalorcomercializadora().divide(new BigDecimal(100))))).setScale(6, RoundingMode.HALF_UP);
                             detallePrecioPK.setCodigocomercializadora(listaObjetoPrecio.get(i).getPrecio().getComercializadoraproducto().getComercializadoraproductoPK().getCodigocomercializadora());
                             detallePrecioPK.setCodigoproducto(listaObjetoPrecio.get(i).getPrecio().getPrecioPK().getCodigoproducto());
@@ -681,7 +697,7 @@ public class ActualizarPrecioBean extends ReusableBean implements Serializable {
                             detallePrecioPK.setCodigo("");
                             detallePrecioPK.setCodigogravamen(listaGravamen.get(j).getGravamenPK().getCodigo());
                             detallePrecio.setDetalleprecioPK(detallePrecioPK);
-                            detallePrecio.setValor(dpcg1);
+                            detallePrecio.setValor(dpcg4);
                             detallePrecio.setUsuarioactual(dataUser.getUser().getNombrever());
                             listaDetallePrecio.add(detallePrecio);
                             detallePrecio = new Detalleprecio();

@@ -615,6 +615,194 @@ public class ClienteServicio {
         }
         return listaClientes;
     }
+    
+    
+    public List<Cliente> obtenerClientesPorID(String codComercializadora, String codCliente) {
+        try {
+            //URL url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.cliente/porComercializadoraCliente?codigocomercializadora=0002&codigo=12010950);
+            URL url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.cliente/porComercializadoraCliente?codigocomercializadora="+ codComercializadora + "&codigo="+codCliente);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+
+            listaClientes = new ArrayList<>();
+            cli = new Cliente();
+            termi = new Terminal();
+            fpago = new Formapago();
+            banco = new Banco();
+            dinen = new Direccioninen();
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+
+            BufferedReader br = new BufferedReader(reader);
+            String tmp = null;
+            String respuesta = "";
+            while ((tmp = br.readLine()) != null) {
+                respuesta += tmp;
+            }
+            JSONObject objetoJson = new JSONObject(respuesta);
+            JSONArray retorno = objetoJson.getJSONArray("retorno");
+            for (int indice = 0; indice < retorno.length(); indice++) {
+                JSONObject cliente = retorno.getJSONObject(indice);
+                JSONObject unclientePK = cliente.getJSONObject("clientePK");
+                JSONObject terminal = cliente.getJSONObject("codigoterminaldefecto");
+                JSONObject fp = cliente.getJSONObject("codigoformapago");
+                JSONObject bn = cliente.getJSONObject("codigobancodebito");
+                JSONObject di = cliente.getJSONObject("codigodireccioninen");
+                JSONObject tc = cliente.getJSONObject("codigotipocliente");
+
+                termi.setCodigo(terminal.getString("codigo"));
+                termi.setNombre(terminal.getString("nombre"));
+                cli.setCodigoterminaldefecto(termi);
+
+//////                cli.setCodigo(cliente.getString("codigo"));
+                
+                cli.setClientePK(new ClientePK());
+                cli.getClientePK().setCodigo(unclientePK.getString("codigo"));
+                
+                cli.setNombre(cliente.getString("nombre"));
+                if (!cliente.isNull("nombrecomercial")) {
+                    cli.setNombrecomercial(cliente.getString("nombrecomercial"));
+                }
+                cli.setCodigoarch(cliente.getString("codigoarch"));
+                cli.setCodigostc(cliente.getString("codigostc"));
+                cli.setClavestc(cliente.getString("clavestc"));
+                
+                
+//////ftft                cli.setCodigocomercializadora(cliente.getString("codigocomercializadora"));
+                cli.getClientePK().setCodigocomercializadora(unclientePK.getString("codigocomercializadora"));
+                
+                cli.setRuc(cliente.getString("ruc"));
+                cli.setDireccion(cliente.getString("direccion"));
+                cli.setEstado(cliente.getBoolean("estado"));
+
+                if (!cliente.isNull("identificacionrepresentantelega")) {
+                    cli.setIdentificacionrepresentantelega(cliente.getString("identificacionrepresentantelega"));
+                }
+                if (!cliente.isNull("nombrearrendatario")) {
+                    cli.setNombrearrendatario(cliente.getString("nombrearrendatario"));
+                }
+                if (!cliente.isNull("nombrerepresentantelegal")) {
+                    cli.setNombrerepresentantelegal(cliente.getString("nombrerepresentantelegal"));
+                }
+                if (!cliente.isNull("escontribuyenteespacial")) {
+                    cli.setEscontribuyenteespacial(cliente.getString("escontribuyenteespacial"));
+                }
+                if (!cliente.isNull("telefono1")) {
+                    cli.setTelefono1(cliente.getString("telefono1"));
+                }
+                if (!cliente.isNull("telefono2")) {
+                    cli.setTelefono2(cliente.getString("telefono2"));
+                }
+                if (!cliente.isNull("correo1")) {
+                    cli.setCorreo1(cliente.getString("correo1"));
+                }
+                if (!cliente.isNull("correo2")) {
+                    cli.setCorreo2(cliente.getString("correo2"));
+                }
+                if (!cliente.isNull("tipoplazocredito")) {
+                    cli.setTipoplazocredito(cliente.getString("tipoplazocredito"));
+                }
+                if (!cliente.isNull("diasplazocredito")) {
+                    Long lDiasP = cliente.getLong("diasplazocredito");
+                    cli.setDiasplazocredito(lDiasP.shortValue());
+                }
+                if (!cliente.isNull("tasainteres")) {
+                    cli.setTasainteres(cliente.getBigDecimal("tasainteres"));
+                }
+                if (!cliente.isNull("cuentadebito")) {
+                    cli.setCuentadebito(cliente.getString("cuentadebito"));
+                }
+                if (!cliente.isNull("tipocuentadebito")) {
+                    cli.setTipocuentadebito(cliente.getString("tipocuentadebito"));
+                }
+                if (!cliente.isNull("controlagarantia")) {
+                    cli.setControlagarantia(cliente.getBoolean("controlagarantia"));
+                }
+                if (!cliente.isNull("controlaprorroga")) {
+                    cli.setControlaprorroga(cliente.getBoolean("controlaprorroga"));
+                }
+                
+                cli.setCodigolistaprecio(cliente.getLong("codigolistaprecio"));
+
+                if (!cliente.isNull("codigolistaflete")) {
+                    cli.setCodigolistaflete(cliente.getString("codigolistaflete"));
+                }
+                if (!cliente.isNull("aplicasubsidio2")) {
+                    cli.setAplicasubsidio2(cliente.getBoolean("aplicasubsidio2"));
+                }
+                if (!cliente.isNull("centrocosto")) {
+                    cli.setCentrocosto(cliente.getString("centrocosto"));
+                }
+                if (!cliente.isNull("fehainscripcion")) {
+                    Long lDateIns = cliente.getLong("fehainscripcion");
+                    Date dateIns = new Date(lDateIns);
+                    cli.setFehainscripcion(dateIns);
+                } else {
+                    cli.setFehainscripcion(new Date());
+                }
+                if (!cliente.isNull("fehainiciooperacion")) {
+                    Long lDateIniO = cliente.getLong("fehainiciooperacion");
+                    Date dateIniO = new Date(lDateIniO);
+                    cli.setFehainiciooperacion(dateIniO);
+                } else {
+                    cli.setFehainiciooperacion(new Date());
+                }
+                if (!cliente.isNull("feharegistroarch")) {
+                    Long lDateReg = cliente.getLong("feharegistroarch");
+                    Date dateReg = new Date(lDateReg);
+                    cli.setFeharegistroarch(dateReg);
+                } else {
+                    cli.setFeharegistroarch(new Date());
+                }
+                if (!cliente.isNull("fehavencimientocontrato")) {
+                    Long lDateVen = cliente.getLong("fehavencimientocontrato");
+                    Date dateVen = new Date(lDateVen);
+                    cli.setFehavencimientocontrato(dateVen);
+                } else {
+                    cli.setFehavencimientocontrato(new Date());
+                }
+                if (!cliente.isNull("codigosupervisorzonal")) {
+                    cli.setCodigosupervisorzonal(cliente.getString("codigosupervisorzonal"));
+                }
+                if (!cliente.isNull("usuarioactual")) {
+                    cli.setUsuarioactual(cliente.getString("usuarioactual"));
+                }
+                if (!cliente.isNull("codigobancodebito")) {
+                    banco.setCodigo(bn.getString("codigo"));
+                    cli.setCodigobancodebito(banco.getCodigo());
+                }
+                if (!cliente.isNull("codigodireccioninen")) {
+                    dinen.setCodigo(di.getString("codigo"));
+                    cli.setCodigodireccioninen(dinen.getCodigo());
+                }
+                if (!cliente.isNull("codigoformapago")) {
+                    fpago.setCodigo(fp.getString("codigo"));
+                    cli.setCodigoformapago(fpago);
+                }
+                if (!cliente.isNull("codigotipocliente")) {
+                    cli.setCodigotipocliente(tc.getString("codigo"));
+                }
+                cli.setControldespacho(cliente.getInt("controldespacho"));
+
+                listaClientes.add(cli);
+                cli = new Cliente();
+                termi = new Terminal();
+                fpago = new Formapago();
+                banco = new Banco();
+                dinen = new Direccioninen();
+            }
+
+            if (connection.getResponseCode() != 200) {
+                System.out.println(connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
+            }
+            return listaClientes;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return listaClientes;
+    }
 
     public List<Cliente> obtenerClientesPorComercializadoraActiva(String codComer) {
         try {

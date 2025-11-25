@@ -424,10 +424,12 @@ public class ListaprecioServicio {
             }       
             JSONObject objetoJson = new JSONObject(respuesta);
             JSONArray retorno = objetoJson.getJSONArray("retorno");
+            System.out.println("FT::. REGISTROS DEL QUERY: "+retorno.length());
             for (int indice = 0; indice < retorno.length(); indice++) {
                 JSONObject listaP = retorno.getJSONObject(indice);
                 unEnvioClientePrecio.setCliente(listaP.getString("cliente"));
                 unEnvioClientePrecio.setListaprecio(listaP.getString("listaprecio"));
+                System.out.println("FT::. REGISTRO LEIDO: "+unEnvioClientePrecio.getCliente() +"-"+unEnvioClientePrecio.getListaprecio());
                 unEnvioClientePrecio.setTerminal(listaP.getString("terminal"));
                 unEnvioClientePrecio.setProducto(listaP.getString("producto"));
                 unEnvioClientePrecio.setCodigoprecio(listaP.getString("codigoprecio"));
@@ -435,23 +437,24 @@ public class ListaprecioServicio {
                 unEnvioClientePrecio.setActivo(listaP.getString("activo"));
                 unEnvioClientePrecio.setFechainicio(listaP.getString("fechainicio")); 
                 System.out.println("FT:: listaP.getString(\"precioterminalepp\") "+listaP.getString("precioterminalepp"));
-                unEnvioClientePrecio.setPrecioterminalepp(listaP.getString("precioterminalepp").substring(0,8)); 
+                unEnvioClientePrecio.setPrecioterminalepp(listaP.getString("precioterminalepp").substring(0,listaP.getString("precioterminalepp").length())); 
                 System.out.println("FT:: listaP.getString(\"iva\") "+listaP.getString("iva"));
-                unEnvioClientePrecio.setIva(listaP.getString("iva").substring(0,8)); 
+                unEnvioClientePrecio.setIva(listaP.getString("iva").substring(0,listaP.getString("iva").length())); 
 //                unEnvioClientePrecio.setMargencomercializacion(listaP.getString("margencomercializacion")); 
                 System.out.println("FT:: listaP.getString(\"ivapresuntivo\") "+listaP.getString("ivapresuntivo"));
-                unEnvioClientePrecio.setIvapresuntivo(listaP.getString("ivapresuntivo").substring(0,8)); 
+                unEnvioClientePrecio.setIvapresuntivo(listaP.getString("ivapresuntivo").substring(0,listaP.getString("ivapresuntivo").length())); 
                 System.out.println("FT:: listaP.getString(\"margenxcliente\") "+listaP.getString("margenxcliente"));
-                unEnvioClientePrecio.setMargenxcliente(listaP.getString("margenxcliente").substring(0,8)); 
+                unEnvioClientePrecio.setMargenxcliente(listaP.getString("margenxcliente").substring(0,listaP.getString("margenxcliente").length())); 
                 System.out.println("FT:: listaP.getString(\"precioproducto\") "+listaP.getString("precioproducto"));
-                unEnvioClientePrecio.setPrecioproducto(listaP.getString("precioproducto").substring(0,8)); 
+                unEnvioClientePrecio.setPrecioproducto(listaP.getString("precioproducto").substring(0,listaP.getString("precioproducto").length())); 
                 System.out.println("FT:: listaP.getString(\"trexmil\") "+listaP.getString("trexmil"));
-                unEnvioClientePrecio.setTrexmil(listaP.getString("trexmil").substring(0,8)); 
+                unEnvioClientePrecio.setTrexmil(listaP.getString("trexmil").substring(0,listaP.getString("trexmil").length())); 
                
 //                unEnvioClientePrecio.setGravamen(listaP.getString("gravamen")); 
 //                unEnvioClientePrecio.setValor(listaP.getString("valor")); 
 //                
                 listenvCliPre.add(unEnvioClientePrecio);
+                System.out.println("FT::. REGISTRO GUARDADO PARA REPORTE: "+listenvCliPre.size()+"-Indice: "+indice+"-"+listenvCliPre.get(indice).getCliente()+"-"+listenvCliPre.get(indice).getListaprecio());
                 unEnvioClientePrecio = new EnvioClientePrecio();
             }
             if (connection.getResponseCode() != 200) {

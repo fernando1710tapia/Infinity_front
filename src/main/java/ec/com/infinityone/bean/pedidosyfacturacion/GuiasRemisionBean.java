@@ -907,8 +907,8 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
         }
     }
 
-    public void handleFileUpload(FileUploadEvent event) throws Throwable {
-//        System.out.println("FT:: handleFileUpload handleFileUpload VERIFICAR tamaño de cada archivo. " + event.getFile().getInputStream().available());
+    public void handleFileUpload(FileUploadEvent event)  {
+
 //        System.out.println("FT:: handleFileUpload handleFileUpload VERIFICAR contadorArchivos:. " + contadorArchivos + " -contadorArchivosOk:. "+contadorArchivosOk); 
 
         if (procesoNuevo) {
@@ -924,6 +924,8 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
             //iniciarVariables();
             //return;
         }
+        try{
+        System.out.println("FT:: handleFileUpload VERIFICAR tamaño de cada archivo. "+event.getFile().getFileName());
         if (contadorArchivosMal == 0) {
             if (event.getFile().getInputStream().available() > 0) {
                 inputStream.add(event.getFile().getInputStream());
@@ -969,6 +971,12 @@ public class GuiasRemisionBean extends ReusableBean implements Serializable {
 
 //            FacesMessage message = new FacesMessage("PROCESO COMPLETO! Se han subidos " + contadorArchivosOk +" archivos. Ahora puede hacer clic en el botón Cargar Archivos");
 //            FacesContext.getCurrentInstance().addMessage(null, message);
+        }catch(Throwable t) {
+        
+            FacesMessage message = new FacesMessage("Error capturado en handleFileUpload:"+t.getMessage());
+            FacesContext.getCurrentInstance().addMessage(null, message);
+            
+        }
     }
 
     public void lecturaXml1() throws ParserConfigurationException, FileNotFoundException, IOException, SAXException, ParseException {

@@ -343,7 +343,7 @@
             </h:form>
         </p:dialog>
 
-        <h:form id="formNuevoGuia">
+        <h:form id="formNuevoGuia" enctype="multipart/form-data">
             <p:outputPanel  id="manage-product-content" rendered="#{guiasRemisionBean.mostarGuia}">     
                 <p:growl id="messages" showDetail="true" />
                 <h2 style="color:#87ea2a">OBTENER GUIAS DE REMISION</h2>
@@ -396,10 +396,18 @@
                     <!-- <div class="ui-fluid p-formgrid p-grid">-->
                     <div class="p-field p-col-6 p-md-6">
                         <!-- <p:outputLabel for="archivo" value="Leer - validar Archivos"/>-->
-                        <p:fileUpload label="Leer - validar Archivos" id="archivo" listener="#{guiasRemisionBean.handleFileUpload}" 
-                                      mode="advanced" dragDropSupport="false" 
-                                      multiple="true" update="messages, :formNuevoGuia:plistaDatos, @form" sizeLimit="102400"
-                                      allowTypes="/(\.|\/)(xml)$/" auto="true" process="@all"
+                        <p:fileUpload id="archivo"
+                                      label="Leer - validar Archivos"  
+                                      listener="#{guiasRemisionBean.handleFileUpload}" 
+                                      mode="advanced" 
+                                      multiple="true"
+                                      auto="true"
+                                      dragDropSupport="false" 
+                                      sizeLimit="102400"                                   
+                                      allowTypes="/(\.|\/)(xml)$/"                                       
+                                      update="messages, :formNuevoGuia:plistaDatos" 
+                                      skinSimple="false"
+                                      fileLimit="20"                                     
                                       invalidSizeMessage="Maximum file size allowed is 100 KB"
                                       invalidFileMessage="only xml is allowed"/>                        
                     </div>                    

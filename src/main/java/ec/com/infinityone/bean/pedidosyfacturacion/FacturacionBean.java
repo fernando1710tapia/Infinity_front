@@ -2970,6 +2970,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         //360002021234560000AAAA000000000000000000
         String fl = "000000000000000000";
         Factura esAnulacionRefactura = new Factura();
+        esAnulacionRefactura.setFacturaPK(new FacturaPK());
 
         String cadena = facturaauxiliar.getCodigobanco().trim() + facturaauxiliar.getFacturaPK().getCodigocomercializadora().trim()
                 + facturaauxiliar.getFacturaPK().getNumeronotapedido().trim() + comercializadora.getClaveWsepp().trim() + fl;
