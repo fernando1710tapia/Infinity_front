@@ -100,7 +100,7 @@ public class DashboardBean extends ReusableBean implements Serializable {
     @PostConstruct
     public void init() {
         
-        System.out.println("FT::pasa por init()");
+        System.out.println("FT2025-11-25::pasa por init() cambiado!! if (x.getCodigocomercializadora()==null){ linea 107");
         
         x = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
         

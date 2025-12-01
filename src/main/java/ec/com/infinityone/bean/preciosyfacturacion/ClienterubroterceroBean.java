@@ -139,6 +139,8 @@ public class ClienterubroterceroBean extends ReusableBean implements Serializabl
     Variable para mostrar la pantalla de cuotas
      */
     private boolean pantallaCuotas;
+    
+    String direccionAuxiliar;
 
     BigDecimal valorN;
 
@@ -155,6 +157,7 @@ public class ClienterubroterceroBean extends ReusableBean implements Serializabl
     public void init() {
         //direccion = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.clienterubrotercero";
         direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.clienterubrotercero";
+        direccionAuxiliar = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.gravamen";
 
         editarCliRubro = false;
         editarCuota = false;
@@ -456,14 +459,16 @@ public class ClienterubroterceroBean extends ReusableBean implements Serializabl
     public void editItems() {
         try {
             String respuesta;
+            System.out.println("FT::clienterubroterceroBean.editItems.ANTES DE LLAMAR PERSISTENCIA");
             SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
             String fechaS = date.format(clienterubrotercero.getFechainiciocobro());
             clienterubroterceroPK.setCodigocomercializadora(comercializadora.getCodigo());
             clienterubroterceroPK.setCodigo(rubrotercero.getRubroterceroPK().getCodigo());
             clienterubroterceroPK.setCodigocliente(cliente.getClientePK().getCodigo());
 
-            url = new URL(direccion + "/porId");
+            url = new URL(direccionAuxiliar + "/actualizarobjeto");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            System.out.println("FT::clienterubroterceroBean.editItems.ANTES DE LLAMAR PERSISTENCIA: "+url.toString());
             connection.setDoOutput(true);
             connection.setRequestMethod("PUT");
             connection.setRequestProperty("Content-type", "application/json");
@@ -485,13 +490,13 @@ public class ClienterubroterceroBean extends ReusableBean implements Serializabl
             writer.write(respuesta);
             writer.close();
 
-            if (connection.getResponseCode() == 200 || connection.getResponseCode() == 204) {
+            if (connection.getResponseCode() == 200) {
                 PrimeFaces.current().executeScript("PF('nuevo').hide()");
                 this.dialogo(FacesMessage.SEVERITY_INFO, "RUBRO CLIENTE ACUTALIZADO EXITOSAMENTE");
                 if (!valorN.equals(clienterubrotercero.getValor())) {
                     this.dialogo(FacesMessage.SEVERITY_WARN, "Se debe calcular las cuotas");
                 }
-                obtenerClientesRubros(comercializadora.getCodigo());
+//                obtenerClientesRubros(comercializadora.getCodigo());
                 botonGuardar = false;
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ACTUALIZAR");
