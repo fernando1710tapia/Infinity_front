@@ -160,6 +160,10 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
      */
     private Date fechaFinal;
     /*
+    variable para establecer la fecha final para la busqueda 
+     */
+    private Date fechaUso;
+    /*
     Variable para renderizar la pantalla
      */
     private boolean mostrarPantallaInicial;
@@ -179,6 +183,7 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
     private String[] pedidosConcatenados;
 
     private UsoSello usoSello;
+    private UsoSello usoSelloOriginal;
 
     private String ultimoSello;
 
@@ -257,6 +262,7 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
         esEdicionGlobal = false;
         sellosConcatenadosEnEdicion = new String[16];
         Arrays.fill(sellosConcatenadosEnEdicion, "");
+        fechaUso = new Date();
     }
 
     public void obtenerComercializadora() {
@@ -654,11 +660,26 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         String dateI = sdf.format(new Date());
 
+            DateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
+            /*fecha para insertar*/
+            String fechaUsoStr = date.format(fechaUso);
+        
         // FT:: 2025-07-25 añadir control de existencia de cada sello usado en el inventario del terminal que lo quiere usar.
         String respuestavalidarExistenciaSelloUsado = "";
+        String respuestaEliminacionSellosEnPantalla = "";
         respuestavalidarExistenciaSelloUsado = validarExistenciaSelloUsado(codComer, codTerminal, usoSello);
 
         if (!codComer.isEmpty() && !codTerminal.isEmpty() && !codCliente.isEmpty() && !autotanque.getPlaca().isEmpty() && respuestavalidarExistenciaSelloUsado.isEmpty()) {
+
+            if (esInsert && !esEdicionGlobal) {
+                usoSelloOriginal = new UsoSello();
+            } else {
+
+                //FT:: 2026-02-16 añadir control de sellos eliminados en el pantalla, como proceso de actualizar. 
+                // SE DEBE desmarcar los sellos eliminados de la pantalla, en la tabla detalleterminalsello
+                respuestaEliminacionSellosEnPantalla = validarEliminacionSellosEnPantalla(usoSelloOriginal);
+
+            }
             JSONObject usoSelloPost = new JSONObject();
             JSONObject usoSelloPK = new JSONObject();
             EnvioUsoSello usoSelloImpresion = new EnvioUsoSello();
@@ -766,13 +787,13 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
 
             usoSelloPost.put("usoselloPK", usoSelloPK);
 
-            if (esEdicionGlobal) {
-                String f = fechaUsoSelloString.replace("/", "-") + "T12:08:58.299-0500";
-                usoSelloPost.put("fecha", f);
-            } else {
-                usoSelloPost.put("fecha", timestamp);
-            }
-
+//            if (esEdicionGlobal) {
+//                String f = fechaUsoSelloString.replace("/", "-") + "T12:08:58.299-0500";
+//                usoSelloPost.put("fecha", f);
+//            } else {
+//                usoSelloPost.put("fecha", timestamp);
+//            }
+                usoSelloPost.put("fecha", fechaUsoStr);
             usoSelloPost.put("nombreconductor", autotanque.getCedularuc().getNombre());
             usoSelloPost.put("nombrecliente", clienteAux.getNombrecomercial());
             usoSelloPost.put("np6", usoSello.getNp6());
@@ -832,6 +853,104 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
                 this.dialogo(FacesMessage.SEVERITY_WARN, "Los campos comercializadora, terminal, cliente y autotanque son requeridos, por favor complete la información solicitada");
             }
         }
+    }
+
+    // FT 2026-02-16 nuevo metodo de control de sellos eliminados de la pantalla en la actualización.
+    // los sellos aliminados de la pantalla DEBEN ser actualizados a disponibles en la tabla DetalleTerminalSello
+    public String validarEliminacionSellosEnPantalla(UsoSello usoSelloNuevo) {
+        String respuesta = "";
+        String sellos = "";
+        if (usoSelloNuevo.getSello1() != null)//&& !usoSelloNuevo .getSello1().toString().equalsIgnoreCase(sellosConcatenadosEnEdicion[0].trim())) {
+        {
+            sellos = sellos + usoSelloNuevo.getSello1().toString() + ";";
+
+        }
+
+        if (usoSelloNuevo.getSello2() != null)// && !selloconcatenado.getSello2().toString().equalsIgnoreCase(sellosConcatenadosEnEdicion[1].trim())) {
+        {
+            sellos = sellos + usoSelloNuevo.getSello2().toString() + ";";
+
+        }
+        if (usoSelloNuevo.getSello3() != null)// && !selloconcatenado.getSello3().toString().equalsIgnoreCase(sellosConcatenadosEnEdicion[2].trim())) {
+        {
+            sellos = sellos + usoSelloNuevo.getSello3().toString() + ";";
+
+        }
+        if (usoSelloNuevo.getSello4() != null)// && !selloconcatenado.getSello4().toString().equalsIgnoreCase(sellosConcatenadosEnEdicion[3].trim())) {
+        {
+            sellos = sellos + usoSelloNuevo.getSello4().toString() + ";";
+
+        }
+        if (usoSelloNuevo.getSello5() != null)// && !usoSelloNuevo .getSello5().toString().equalsIgnoreCase(sellosConcatenadosEnEdicion[4].trim())) {
+        {
+            sellos = sellos + usoSelloNuevo.getSello5().toString() + ";";
+
+        }
+        if (usoSelloNuevo.getSello6() != null)// && !usoSelloNuevo .getSello6().toString().equalsIgnoreCase(sellosConcatenadosEnEdicion[5].trim())) {
+        {
+            sellos = sellos + usoSelloNuevo.getSello6().toString() + ";";
+
+        }
+        if (usoSelloNuevo.getSello7() != null)// && !usoSelloNuevo .getSello7().toString().equalsIgnoreCase(sellosConcatenadosEnEdicion[6].trim())) {
+        {
+            sellos = sellos + usoSelloNuevo.getSello7().toString() + ";";
+
+        }
+        if (usoSelloNuevo.getSello8() != null)// && !usoSelloNuevo .getSello8().toString().equalsIgnoreCase(sellosConcatenadosEnEdicion[7].trim())) {
+        {
+            sellos = sellos + usoSelloNuevo.getSello8().toString() + ";";
+
+        }
+
+        if (usoSelloNuevo.getSello9() != null)// && !usoSelloNuevo .getSello9().toString().equalsIgnoreCase(sellosConcatenadosEnEdicion[8].trim())) {
+        {
+            sellos = sellos + usoSelloNuevo.getSello9().toString() + ";";
+
+        }
+
+        if (usoSelloNuevo.getSello10() != null)// && !usoSelloNuevo .getSello10().toString().equalsIgnoreCase(sellosConcatenadosEnEdicion[9].trim())) {
+        {
+            sellos = sellos + usoSelloNuevo.getSello10().toString() + ";";
+
+        }
+
+        if (usoSelloNuevo.getSello11() != null)// && !usoSelloNuevo .getSello11().toString().equalsIgnoreCase(sellosConcatenadosEnEdicion[10].trim())) {
+        {
+            sellos = sellos + usoSelloNuevo.getSello11().toString() + ";";
+
+        }
+
+        if (usoSelloNuevo.getSello12() != null)// && !usoSelloNuevo .getSello12().toString().equalsIgnoreCase(sellosConcatenadosEnEdicion[11].trim())) {
+        {
+            sellos = sellos + usoSelloNuevo.getSello12().toString() + ";";
+
+        }
+        if (usoSelloNuevo.getSello13() != null)// && !usoSelloNuevo .getSello13().toString().equalsIgnoreCase(sellosConcatenadosEnEdicion[12].trim())) {
+        {
+            sellos = sellos + usoSelloNuevo.getSello13().toString() + ";";
+
+        }
+        if (usoSelloNuevo.getSello14() != null)// && !usoSelloNuevo .getSello14().toString().equalsIgnoreCase(sellosConcatenadosEnEdicion[13].trim())) {
+        {
+            sellos = sellos + usoSelloNuevo.getSello14().toString() + ";";
+
+        }
+        if (usoSelloNuevo.getSello15() != null) //&& !usoSelloNuevo .getSello15().toString().equalsIgnoreCase(sellosConcatenadosEnEdicion[14].trim())) {
+        {
+            sellos = sellos + usoSelloNuevo.getSello15().toString() + ";";
+
+        }
+        if (usoSelloNuevo.getSello16() != null)//&& !usoSelloNuevo .getSello16().toString().equalsIgnoreCase(sellosConcatenadosEnEdicion[15].trim())) {
+        {
+            sellos = sellos + usoSelloNuevo.getSello16().toString() + ";";
+
+        }
+        listaEnvioUsoSellos = new ArrayList<>();
+
+        respuesta = usoSellosServicio.HabilitarSellosEnInventario(codComer, codTerminal, sellos);
+
+        return respuesta;
+
     }
 
     // FT 2025-07-25 nuevo metodo de control de existencia
@@ -943,7 +1062,7 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
 
             JasperReport reporte = JasperCompileManager.compileReport(file);
             JasperReport subreporte = JasperCompileManager.compileReport(subreport);
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo"+envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora()+".jpeg"));
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo" + envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora() + ".jpeg"));
 //            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
             Map parametro = new HashMap();
 
@@ -1007,7 +1126,7 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
             file = new FileInputStream(new File(path));
 
             JasperReport reporte = JasperCompileManager.compileReport(file);
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo"+unUsoSello.getCodigocomercializadora()+".jpeg"));
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo" + unUsoSello.getCodigocomercializadora() + ".jpeg"));
 //            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
             Map parametro = new HashMap();
 
@@ -1069,14 +1188,14 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
             file = new FileInputStream(new File(path));
 
             JasperReport reporte = JasperCompileManager.compileReport(file);
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo"+codComer+".jpeg"));
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo" + codComer + ".jpeg"));
 //            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
             Map parametro = new HashMap();
 
             parametro.put("sellos", sellosInvalidos);
             parametro.put("actorcomercial", "REGISTRO NO GRABADO!\nLos sellos de este formulario NO existen en su inventario"
                     + "\nPOR FAVOR, CORRIJA LA INFORMACIÓN");
-            
+
             if (sellosInvalidos.equalsIgnoreCase("- No se ha podido asignar los sellos a los pedidos, Verifique si se está duplicando la primera Nota de Pedido")) {
 
                 parametro.put("sellos", sellosInvalidos);
@@ -1307,18 +1426,21 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
 //        String fechaTxt = "2025-05-12T21:08:58.299-0500";
         Date fechaVenta;
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-
+        SimpleDateFormat fechaUsoFormateado = new SimpleDateFormat("yyyy/MM/dd");
+        
         // variables de la pantalla
         envioUsoSello = obj;
         codComer = envioUsoSello.getCodigocomercializadora();
         codTerminal = envioUsoSello.getCodigoterminal();
         codCliente = envioUsoSello.getCodigocliente();
-//        clienteAux = envioUsoSello.getCodigocliente();
+//        clienteAux = envioUsoSello.getCodigocliente(); 
         ultimoSello = "";
         listaEnvioUsoSellos = new ArrayList<>();
         fechaUsoSelloString = envioUsoSello.getFecha();
         usoSello = new UsoSello();
+        usoSelloOriginal = new UsoSello();
         try {
+            fechaUso = fechaUsoFormateado.parse(envioUsoSello.getFecha());
 //        fechaVenta = sdf.parse(envioUsoSello.getFecha().replace("/", "-"));
 //        usoSello.setFecha(fechaVenta);
             if (!listaTermianles.isEmpty()) {
@@ -1386,51 +1508,67 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
                 switch (i) {
                     case 0:
                         usoSello.setSello1(new BigInteger(sellosConcatenados[0].trim()));
+                        usoSelloOriginal.setSello1(new BigInteger(sellosConcatenados[0].trim()));
                         break;
                     case 1:
                         usoSello.setSello2(new BigInteger(sellosConcatenados[1].trim()));
+                        usoSelloOriginal.setSello2(new BigInteger(sellosConcatenados[1].trim()));
                         break;
                     case 2:
                         usoSello.setSello3(new BigInteger(sellosConcatenados[2].trim()));
+                        usoSelloOriginal.setSello3(new BigInteger(sellosConcatenados[2].trim()));
                         break;
                     case 3:
                         usoSello.setSello4(new BigInteger(sellosConcatenados[3].trim()));
+                        usoSelloOriginal.setSello4(new BigInteger(sellosConcatenados[3].trim()));
                         break;
                     case 4:
                         usoSello.setSello5(new BigInteger(sellosConcatenados[4].trim()));
+                        usoSelloOriginal.setSello5(new BigInteger(sellosConcatenados[4].trim()));
                         break;
                     case 5:
                         usoSello.setSello6(new BigInteger(sellosConcatenados[5].trim()));
+                        usoSelloOriginal.setSello6(new BigInteger(sellosConcatenados[5].trim()));
                         break;
                     case 6:
                         usoSello.setSello7(new BigInteger(sellosConcatenados[6].trim()));
+                        usoSelloOriginal.setSello7(new BigInteger(sellosConcatenados[6].trim()));
                         break;
                     case 7:
                         usoSello.setSello8(new BigInteger(sellosConcatenados[7].trim()));
+                        usoSelloOriginal.setSello8(new BigInteger(sellosConcatenados[7].trim()));
                         break;
                     case 8:
                         usoSello.setSello9(new BigInteger(sellosConcatenados[8].trim()));
+                        usoSelloOriginal.setSello9(new BigInteger(sellosConcatenados[8].trim()));
                         break;
                     case 9:
                         usoSello.setSello10(new BigInteger(sellosConcatenados[9].trim()));
+                        usoSelloOriginal.setSello10(new BigInteger(sellosConcatenados[9].trim()));
                         break;
                     case 10:
                         usoSello.setSello11(new BigInteger(sellosConcatenados[10].trim()));
+                        usoSelloOriginal.setSello11(new BigInteger(sellosConcatenados[10].trim()));
                         break;
                     case 11:
                         usoSello.setSello12(new BigInteger(sellosConcatenados[11].trim()));
+                        usoSelloOriginal.setSello12(new BigInteger(sellosConcatenados[11].trim()));
                         break;
                     case 12:
                         usoSello.setSello13(new BigInteger(sellosConcatenados[12].trim()));
+                        usoSelloOriginal.setSello13(new BigInteger(sellosConcatenados[12].trim()));
                         break;
                     case 13:
                         usoSello.setSello14(new BigInteger(sellosConcatenados[13].trim()));
+                        usoSelloOriginal.setSello14(new BigInteger(sellosConcatenados[13].trim()));
                         break;
                     case 14:
                         usoSello.setSello15(new BigInteger(sellosConcatenados[14].trim()));
+                        usoSelloOriginal.setSello15(new BigInteger(sellosConcatenados[14].trim()));
                         break;
                     case 15:
                         usoSello.setSello16(new BigInteger(sellosConcatenados[15].trim()));
+                        usoSelloOriginal.setSello16(new BigInteger(sellosConcatenados[15].trim()));
                         break;
                     default:
                         throw new AssertionError();
@@ -1440,6 +1578,7 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
             //adquirirUsoSello(!esEdicion);
             mostrarPantallaAsignar = true;
             mostrarPantallaInicial = false;
+            //usoSelloOriginal = usoSello;
         } catch (Throwable t) {
             System.out.println("FT::. editarUsoSello(EnvioUsoSello obj, boolean esEdicion)-ERROR CAPTURADO. " + t.getMessage());
         }
@@ -1511,4 +1650,13 @@ public class UsoSellosBean extends ReusableBean implements Serializable {
         this.usosellosBeanMensajeError = usosellosBeanMensajeError;
     }
 
+    public Date getFechaUso() {
+        return fechaUso;
+    }
+
+    public void setFechaUso(Date fechaUso) {
+        this.fechaUso = fechaUso;
+    }
+    
+    
 }

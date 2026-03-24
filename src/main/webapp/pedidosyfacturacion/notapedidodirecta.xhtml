@@ -1,0 +1,404 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Nota Pedido</ui:define>
+
+    <ui:define name="viewname">
+        <li>Nota Pedido - directas</li>        
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="form">
+            <p:outputPanel id="manage-product-content1" rendered="#{notapedidoBeanDirecto.mostarPantallaInicial}">
+                <div class="p-grid crud-demo">
+                    <div class="p-col-12">
+                        <div class="card">
+                            <p:growl id="messages" showDetail="true" />
+
+                            <p:toolbar styleClass="p-mb-4">
+                                <p:toolbarGroup>
+                                    <p:commandButton value="Generar y enviar" icon="pi pi-plus" actionListener="#{notapedidoBeanDirecto.nuevaNotaPedido()}" update="form :formNuevo"
+                                                     styleClass="ui-button-success" style="margin-right: .5rem" />
+                                </p:toolbarGroup>
+                                <p:toolbarGroup>
+                                    <p:commandButton value="Export" icon="pi pi-upload" styleClass="ui-button-help" ajax="false">
+                                        <p:dataExporter type="pdf" target="dt-products" fileName="products"/>
+                                    </p:commandButton>
+                                </p:toolbarGroup>
+                            </p:toolbar>
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-4">
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>
+                                        <p:selectOneMenu id="comercializadora" value="#{notapedidoBeanDirecto.comercializadora}" title="Comercializadora"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         disabled="#{!notapedidoBeanDirecto.habilitarComer}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+                                            <f:selectItems value="#{notapedidoBeanDirecto.listaComercializadora}"
+                                                           var="comer"
+                                                           itemLabel="#{comer.objRelacionado}"
+                                                           itemValue="#{comer}" />
+                                            <p:ajax event="change" listener="#{notapedidoBeanDirecto.seleccionarComerc(1)}" update="form cli"/>
+                                        </p:selectOneMenu> 
+                                    </div>                          
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>
+                                        <p:selectOneMenu id="term" value="#{notapedidoBeanDirecto.terminal}" title="Terminal"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         disabled="#{!notapedidoBeanDirecto.habilitarTerminal}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
+                                            <f:selectItems value="#{notapedidoBeanDirecto.listaTermianles}"
+                                                           var="ter"
+                                                           itemLabel="#{ter.codigo} - #{ter.nombre}"                                                           
+                                                           itemValue="#{ter}" />
+                                            <p:ajax event="change" listener="#{notapedidoBeanDirecto.seleccionarTerminal(1)}" update="cli"/>
+                                        </p:selectOneMenu> 
+                                    </div> 
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>
+                                        <p:selectOneMenu id="cli" value="#{notapedidoBeanDirecto.cliente}" title="Cliente"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         disabled="#{!notapedidoBeanDirecto.habilitarCli}"
+                                                         filter="true" filterMatchMode="contains">>
+                                            <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
+                                            <f:selectItems value="#{notapedidoBeanDirecto.listaClientes}"
+                                                           var="cliente"
+                                                           itemLabel="#{cliente.clientePK.codigo} - #{cliente.nombrecomercial}"
+                                                           itemValue="#{cliente}" />
+                                            <p:ajax event="change" listener="#{notapedidoBeanDirecto.seleccCliente(1)}"
+                                                    update="term"/>
+                                        </p:selectOneMenu> 
+                                    </div>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">  
+                                    <p:outputLabel for="tipoBus">Tipo de Fecha</p:outputLabel>
+                                    <p:selectOneRadio id="tipoBus" value="#{notapedidoBeanDirecto.tipoFecha}" layout="responsive" columns="2">
+                                        <f:selectItem itemLabel="Fecha Venta" itemValue="1" />
+                                        <f:selectItem itemLabel="Fecha Despacho" itemValue="2" />                                    
+                                    </p:selectOneRadio>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">                                  
+                                    <p:outputLabel for="fechaIn" value="Fecha Inicio"/>
+                                    <p:datePicker id="fechaIn" value="#{notapedidoBeanDirecto.fechaInicial}" showIcon="true" pattern="dd/MM/yyyy" >
+                                        <p:ajax event="dateSelect" update="fechaFin"/>
+                                    </p:datePicker>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">                                  
+                                    <p:outputLabel for="fechaFin" value="Fecha Fin"/>
+                                    <p:datePicker id="fechaFin" value="#{notapedidoBeanDirecto.fechaFinal}" showIcon="true" pattern="dd/MM/yyyy" mindate="#{notapedidoBeanDirecto.fechaInicial}"/>                                   
+                                </div>
+                                <div class="p-field p-col-12 p-md-2">
+                                    <p:commandButton value="Buscar" icon="pi pi-search"  actionListener="#{notapedidoBeanDirecto.obtenerNotasPedido()}" update="form"/>
+                                </div>
+                            </div>                              
+                            <p:dataTable id="dt-products" widgetVar="dtProducts" var="notap" value="#{notapedidoBeanDirecto.listenvNP}" reflow="true" styleClass="products-table"
+                                         paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
+                                <f:facet name="header">
+                                    <div class="products-table-header">
+                                        <span style="font-weight: bold">Nota Pedidos</span>
+
+                                        <span class="filter-container ui-input-icon-left">
+                                            <i class="pi pi-search"></i>
+                                            <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar" />
+                                        </span>
+                                    </div>
+                                </f:facet>
+
+                                <p:ajax event="rowToggle" listener="#{crudDemoView.onRowToggle}" />
+
+                                <p:column headerText="Cliente" sortBy="#{notap.notapedido.codigocliente.clientePK.codigo}" filterBy="#{notap.notapedido.codigocliente.clientePK.codigo}" width="30%">
+                                    <h:outputText value="#{notap.notapedido.codigocliente.clientePK.codigo} - #{notap.notapedido.codigocliente.nombrecomercial}" />
+                                </p:column>
+                                <p:column headerText="Número Factura" sortBy="#{notap.notapedido.numerofacturasri}" filterBy="#{notap.notapedido.numerofacturasri}" width="15%">
+                                    <h:outputText value="#{notap.notapedido.numerofacturasri}" />
+                                </p:column>
+                                <p:column headerText="Número NP" sortBy="#{notap.notapedido.notapedidoPK.numero}" filterBy="#{notap.notapedido.notapedidoPK.numero}" width="15%">
+                                    <h:outputText value="#{notap.notapedido.notapedidoPK.numero}" />
+                                </p:column>
+                                <p:column headerText="Estado" sortBy="#{notap.notapedido.activa}" filterBy="#{notap.notapedido.activa}" width="15%">
+                                    <h:outputText styleClass="product-badge status-#{estilos.tipoActivoBool(notap.notapedido.activa)}" value="#{estilos.valorBoolActivo(notap.notapedido.activa)}" />
+                                </p:column>
+                                <p:column exportable="false">
+                                    <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-times" process="@this" actionListener="#{notapedidoBeanDirecto.dialogoAnulacionNotaPedido(notap)}" >
+                                        <f:setPropertyActionListener value="#{notap}" target="#{notapedidoBeanDirecto.envNP}" />
+                                    </p:commandButton>
+                                </p:column>
+                                <p:column style="width: 3.5rem">
+                                    <p:commandButton icon="pi pi-print" actionListener="#{notapedidoBeanDirecto.generarReporteAux(notap)}" ajax="false"
+                                                     onstart="PF('blockUIWidget').block()" 
+                                                     oncomplete="PF('blockUIWidget').unblock()"
+                                                     onclick="PrimeFaces.monitorDownload(start, stop);"
+                                                     update="@form" styleClass="edit-button rounded-button ui-button-success">
+                                        <p:fileDownload value="#{notapedidoBeanDirecto.pdfStream}"/>
+                                    </p:commandButton>
+                                </p:column>
+                            </p:dataTable>
+                        </div>
+                    </div>
+                </div>
+            </p:outputPanel>
+        </h:form>
+
+        <!--        <p:dialog header="Nota Pedido" width="50%" showEffect="fade" modal="true" widgetVar="manageProductDialog" responsive="true">-->
+        <h:form id="formNuevo">
+            <p:outputPanel id="manage-product-content" rendered="#{notapedidoBeanDirecto.mostarNotaPedido}">    
+                <p:growl id="messages" showDetail="true" />
+                <div class="ui-fluid p-formgrid p-grid">
+                    <div class="p-field p-col-12 p-md-4">
+                        <div class="ui-inputgroup">
+                            <span class="ui-inputgroup-addon">
+                                <i class="fa fa-shopping-cart"></i>
+                            </span>
+                            <p:selectOneMenu id="comercializadora" value="#{notapedidoBeanDirecto.comercializadora}" title="Comercializadora"
+                                             panelStyle="width:175px" style="min-width: 80%;" 
+                                             autoWidth="false" converter="converterg"
+                                             required="true"
+                                             disabled="#{!notapedidoBeanDirecto.habilitarComer}">
+                                <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+                                <f:selectItems value="#{notapedidoBeanDirecto.listaComercializadora}"
+                                               var="comer"
+                                               itemLabel="#{comer.objRelacionado}"
+                                               itemValue="#{comer}" />
+                                <p:ajax event="change" listener="#{notapedidoBeanDirecto.seleccionarComercializdora}"
+                                        update="formNuevo cliente" />
+                            </p:selectOneMenu> 
+                        </div>                           
+                    </div>
+                    <div class="p-field p-col-12 p-md-3">
+                        <div class="ui-inputgroup">
+                            <span class="ui-inputgroup-addon">
+                                <i class="fa fa-shopping-cart"></i>
+                            </span>
+                            <p:selectOneMenu id="terminal" value="#{notapedidoBeanDirecto.terminal}" title="Terminal"
+                                             panelStyle="width:175px" style="min-width: 80%;" 
+                                             autoWidth="false" converter="converterg"
+                                             disabled="#{!notapedidoBeanDirecto.habilitarTerminal}">
+                                <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
+                                <f:selectItems value="#{notapedidoBeanDirecto.listaTermianles}"
+                                               var="ter"                                               
+                                               itemLabel="#{ter.codigo}-#{ter.nombre}"
+                                               itemValue="#{ter}" />
+                                <p:ajax event="change" listener="#{notapedidoBeanDirecto.seleccionarTerminal(2)}" update="cliente todos" />
+                            </p:selectOneMenu> 
+                        </div> 
+                    </div>
+                    <div class="p-field p-col-12 p-md-4">
+                        <div class="ui-inputgroup">
+                            <span class="ui-inputgroup-addon">
+                                <i class="fa fa-money"></i>
+                            </span>
+                            <p:selectOneMenu id="cliente" value="#{notapedidoBeanDirecto.cliente}" title="Cliente"
+                                             panelStyle="width:175px" style="min-width: 80%;" 
+                                             autoWidth="false" converter="converterg"
+                                             disabled="#{!notapedidoBeanDirecto.habilitarCli}"
+                                             required="true" requiredMessage="Seleccione Cliente"
+                                             filter="true" filterMatchMode="startsWith">
+                                <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
+                                <f:selectItems value="#{notapedidoBeanDirecto.listaClientes}"
+                                               var="cli"
+                                               itemLabel="#{cli.clientePK.codigo}-#{cli.nombrecomercial}"
+                                               itemValue="#{cli}" />
+                                <p:ajax event="change" listener="#{notapedidoBeanDirecto.seleccionarCliente()}"
+                                        update="clienteProd banco"/>
+                            </p:selectOneMenu>
+                        </div>
+                    </div>
+                    <div class="p-field p-col-12 p-md-1">
+                        <p:outputLabel for="todos"  value="Todos"/>
+                        <div class="ui-inputgroup">
+                            <p:toggleSwitch id="todos" value="#{notapedidoBeanDirecto.todosClientes}" > 
+                                <p:ajax event="change" listener="#{notapedidoBeanDirecto.todosCli()}"
+                                        update="cliente"/>
+                            </p:toggleSwitch>
+                        </div>
+                    </div>
+
+
+                    <!--<div class="p-field p-col-12 p-md-6">
+
+                        <div class="ui-inputgroup">
+                            <span class="ui-inputgroup-addon">
+                                <i class="fa fa-shopping-cart"></i>
+                            </span>
+                            <p:selectOneMenu id="comercializadora" value="{notapedidoBeanDirecto.comercializadora}" title="Comercializadora"
+                                             panelStyle="width:175px" style="min-width: 80%;" 
+                                             autoWidth="false" converter="converterg"
+                                             required="true"
+                                             disabled="{!notapedidoBeanDirecto.habilitarComer}">
+                                <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="{null}"/>
+                                <f:selectItems value="{notapedidoBeanDirecto.listaComercializadora}"
+                                               var="comer"
+                                               itemLabel="{comer.objRelacionado}"
+                                               itemValue="{comer}" />
+                                <p:ajax event="change" listener="{notapedidoBeanDirecto.seleccionarComercializdora}"
+                                        update="formNuevo cliente" />
+                            </p:selectOneMenu> 
+                        </div>  
+                    </div>
+                    <div class="p-field p-col-12 p-md-6">
+                        <div class="ui-inputgroup">
+                            <span class="ui-inputgroup-addon">
+                                <i class="fa fa-money"></i>
+                            </span>
+                            <p:selectOneMenu id="cliente" value="{notapedidoBeanDirecto.cliente}" title="Cliente"
+                                             panelStyle="width:175px" style="min-width: 80%;" 
+                                             autoWidth="false" converter="converterg"
+                                             disabled="{!notapedidoBeanDirecto.habilitarCli}"
+                                             required="true" requiredMessage="Seleccione Cliente"
+                                             filter="true" filterMatchMode="startsWith">
+                                <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="{null}"/>
+                                <f:selectItems value="{notapedidoBeanDirecto.listaClientes}"
+                                               var="cli"
+                                               itemLabel="{cli.clientePK.codigo}-{cli.nombrecomercial}"
+                                               itemValue="{cli}" />
+                                <p:ajax event="change" listener="{notapedidoBeanDirecto.seleccionarCliente()}"
+                                        update="terminal clienteProd banco"/>
+                            </p:selectOneMenu>
+                        </div>                                                
+                    </div>-->
+                    <div class="p-field p-col-12 p-md-12">
+
+                    </div>
+                    <div class="p-field p-col-12 p-md-12">
+                        <p:panel>                      
+                            <div class="p-m">
+                                <p:outputLabel value="Nota de Pedido Generada: " style="text-align: center !important"/>
+                                <p:outputLabel value="#{notapedidoBeanDirecto.numeroNotaPedio}" style="font-weight: bold; font-size: medium; text-align: center !important"/>                                                      
+                            </div>                                                                                                                                  
+                        </p:panel>
+                    </div>    
+
+                    <div class="p-field p-col-12 p-md-12">
+
+                    </div>
+                    <div class="p-field p-col-12 p-md-6">  
+                        <span class="ui-float-label">
+                            <p:calendar id="fechaVent" value="#{notapedidoBeanDirecto.fechaVenta}" pattern="dd/MM/yyyy" disabled="true" />
+                            <p:outputLabel for="fechaVent" value="Fecha de Venta"/>
+                        </span>
+                    </div>
+                    <div class="p-field p-col-12 p-md-6">  
+                        <span class="ui-float-label">
+                            <p:datePicker id="fechaDesp" value="#{notapedidoBeanDirecto.fechaDespacho}" showIcon="true" pattern="dd/MM/yyyy" mindate="#{notapedidoBeanDirecto.fechaMin}" required="true"/>
+                            <p:outputLabel for="fechaDesp" value="Fecha de Despacho"/>
+                        </span>
+                    </div>
+                    <div class="p-field p-col-12 p-md-12">
+
+                    </div>
+                    <div class="p-field p-col-12 p-md-6">
+                        <div class="ui-inputgroup">
+                            <span class="ui-inputgroup-addon">
+                                <i class="fa fa-money"></i>
+                            </span>
+                            <p:selectOneMenu id="banco" value="#{notapedidoBeanDirecto.banco}" title="Banco"
+                                             panelStyle="width:175px" style="min-width: 80%;" 
+                                             autoWidth="false" converter="converterg"
+                                             required="true" requiredMessage="Seleccione Banco" disabled="true">
+                                <f:selectItem noSelectionOption="true" itemLabel="Banco" itemValue="#{null}"/>
+                                <f:selectItems value="#{notapedidoBeanDirecto.listaBancos}"
+                                               var="banco"
+                                               itemLabel="#{banco.codigo}-#{banco.nombre}"
+                                               itemValue="#{banco}" />
+                                <p:ajax event="change" listener="#{notapedidoBeanDirecto.seleccionarBanco}"/>
+                            </p:selectOneMenu>
+                        </div>                            
+                    </div>                                    
+                    <div class="p-field p-col-12 p-md-6">
+                        <!--<span class="ui-float-label">
+                            <p:inputText id="terminalv" value="{notapedidoBeanDirecto.codTerminal}" maxlength="50" readonly="true" required="true"/>
+                            <p:outputLabel for="terminalv">Terminal</p:outputLabel>
+                        </span>-->
+                    </div>    
+                    <div class="p-field p-col-12 p-md-12"></div>
+                    <div class="p-field p-col-12 p-md-12">
+                        <span class="ui-float-label">
+                            <p:inputTextarea id="comentario" value="#{notapedidoBeanDirecto.np.observacion}" maxlength="50"/>
+                            <p:outputLabel for="comentario">Comentario</p:outputLabel>
+                        </span>
+                    </div>
+                    <div class="p-field p-col-12 p-md-12"></div>
+                    <div class="p-field p-col-12 p-md-4">
+                        <div class="ui-inputgroup">
+                            <span class="ui-inputgroup-addon">
+                                <i class="fa fa-money"></i>
+                            </span>
+                            <p:selectOneMenu id="clienteProd" value="#{notapedidoBeanDirecto.productoSeleccionado}" title="Producto"
+                                             panelStyle="width:175px" style="min-width: 80%;" 
+                                             autoWidth="false" converter="converterg"
+                                             required="true" requiredMessage="Seleccione Producto">
+                                <f:selectItem noSelectionOption="true" itemLabel="Producto" itemValue="#{null}"/>
+                                <f:selectItems value="#{notapedidoBeanDirecto.listaProductos}"
+                                               var="prod"
+                                               itemLabel="#{prod.codigo}-#{prod.nombre}"
+                                               itemValue="#{prod}" />
+                                <p:ajax event="change" listener="#{notapedidoBeanDirecto.seleccionarProducto()}"/>
+                            </p:selectOneMenu>
+                        </div>                            
+                    </div>  
+                    <div class="p-field p-col-12 p-md-4">                                        
+                        <div class="ui-inputgroup">
+                            <span class="ui-inputgroup-addon">
+                                <i class="fa fa-money"></i>
+                            </span>
+                            <p:selectOneMenu id="medida" value="#{notapedidoBeanDirecto.medida}" title="Medida"
+                                             panelStyle="width:175px" style="min-width: 80%;" 
+                                             autoWidth="false" converter="converterg"
+                                             required="true" requiredMessage="Seleccione Medida">
+                                <f:selectItem noSelectionOption="true" itemLabel="Medida" itemValue="#{null}"/>
+                                <f:selectItems value="#{notapedidoBeanDirecto.listaMedida}"
+                                               var="medida"
+                                               itemLabel="#{medida.codigo}-#{medida.nombre}"
+                                               itemValue="#{medida}" />
+                                <p:ajax event="change" listener="#{notapedidoBeanDirecto.seleccionarMedida()}"/>
+                            </p:selectOneMenu>
+                        </div>                            
+                    </div>                                      
+                    <div class="p-field p-col-12 p-md-4">                                        
+                        <span class="ui-float-label">
+                            <p:inputText id="volNatural" value="#{notapedidoBeanDirecto.detNP.volumennaturalrequerido}" maxlength="13" required="true" requiredMessage="Ingrese Volumen"/>
+                            <p:outputLabel for="volNatural">Vol. Natural</p:outputLabel>
+                        </span>
+                    </div>                                                                                 
+                </div>                                                                                           
+            </p:outputPanel>
+            <p:outputPanel rendered="#{notapedidoBeanDirecto.mostarNotaPedido}"> 
+                <div class="p-grid">   
+                    <div class="p-field p-col-12 p-md-12"></div>
+                    <div class="p-field p-col-12 p-md-6">
+                        <p:commandButton value="Procesar" icon="pi pi-check"  actionListener="#{notapedidoBeanDirecto.save()}" update=":form formNuevo" styleClass="p-mr-2"/>
+                        <p:commandButton value="Cancelar" icon="pi pi-times" class="ui-button-secondary"  actionListener="#{notapedidoBeanDirecto.init()}" update=":form formNuevo" immediate="true"/>
+                    </div>
+                </div>
+            </p:outputPanel>
+        </h:form>
+        <!--</p:dialog>-->
+
+        <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300" message="Anular Nota Pedido?" header="Confirm" severity="warn">
+            <p:commandButton value="Si" icon="pi pi-check" actionListener="#{notapedidoBeanDirecto.anularNotaPedido()}" process="@this" oncomplete="PF('deleteProductDialog').hide()" update=":form"/>
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('deleteProductDialog').hide()" />
+        </p:confirmDialog>
+
+        <p:confirmDialog global="true" showEffect="fade" width="300">
+            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+        </p:confirmDialog>                  
+    </ui:define>
+</ui:composition>

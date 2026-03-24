@@ -264,5 +264,51 @@ public class UsoSellosServicio extends ReusableBean {
 
         return developerMessage;
     }
+        
+    public String HabilitarSellosEnInventario(String codComer, String codTerminal, String sellosConcatenados) {
+        
+        String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.detalleterminalsello/habilitarsellos?";
+        final int SUCCESS_CODE = 200;
+        JSONArray retorno = new JSONArray();
+        String developerMessage = "";
+
+        try {
+
+            // Primero crea un URI y luego lo convierte a URL
+            URI uri = new URI(direcc + "codigocomercializadora=" + codComer
+                    + "&codigoterminal=" + codTerminal
+                    + "&sellosconcatenados=" + sellosConcatenados
+            );
+            url = uri.toURL();
+
+            String respuesta = "";
+            String tmp = null;
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("PUT");
+            connection.setRequestProperty("Content-type", "application/json");
+
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+
+            BufferedReader br = new BufferedReader(reader);
+            while ((tmp = br.readLine()) != null) {
+                respuesta += tmp;
+            }
+            JSONObject objetoJson = new JSONObject(respuesta);
+            developerMessage = objetoJson.optString("developerMessage", "No message provided");
+            //retorno = objetoJson.getJSONArray("retorno");
+
+            if (connection.getResponseCode() != 200) {
+                logErrorResponse(connection);
+            }
+
+        } catch (Throwable e) {
+            System.out.println("FT:: ERROR EN HabilitarSellosEnInventario::."+e.getMessage());
+            e.printStackTrace(System.out);
+        }
+
+        return developerMessage;
+    }
 
 }
