@@ -446,6 +446,9 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
                 codAbas = comercializadora.getAbastecedora();
                 abas.setCodigo(codAbas);
                 comerc.setCodigo(codComer);
+                comerc.setClavewsepp(comercializadora.getClaveWsepp());
+                comerc.setEstablecimientofac(comercializadora.getEstabFac());
+                comerc.setPuntoventafac(comercializadora.getPvFac());
                 npPK.setCodigoabastecedora(codAbas);
                 npPK.setCodigocomercializadora(codComer);
                 np.setNotapedidoPK(npPK);

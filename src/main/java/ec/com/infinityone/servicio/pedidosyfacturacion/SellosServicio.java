@@ -135,6 +135,51 @@ public class SellosServicio extends ReusableBean {
 
         return retorno;
     }
+    
+    public JSONArray buscarUsoSellosTerminalInformados(String codComer, String codTerminal, String fechaInicio, String fechaFin) {
+        //String urlPath = "http://www.supertech.ec:8080/infinityone1/resources/ec.com.infinity.modelo.factura/cargarfacturasbancos";
+
+        String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.usosello/buscarusosellosterminalinformados?";
+        final int SUCCESS_CODE = 200;
+        JSONArray retorno = new JSONArray();
+
+        try {
+
+            // Primero crea un URI y luego lo convierte a URL
+            URI uri = new URI(direcc + "codigocomercializadora=" + codComer + "&codigoterminal=" + codTerminal
+                    + "&fechainicio=" + fechaInicio
+                    + "&fechafin=" + fechaFin
+            );
+            url = uri.toURL();
+
+            String respuesta = "";
+            String tmp = null;
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Content-type", "application/json");
+
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+
+            BufferedReader br = new BufferedReader(reader);
+            while ((tmp = br.readLine()) != null) {
+                respuesta += tmp;
+            }
+            JSONObject objetoJson = new JSONObject(respuesta);
+            retorno = objetoJson.getJSONArray("retorno");
+
+            if (connection.getResponseCode() != 200) {
+                logErrorResponse(connection);
+            }
+
+        } catch (Throwable e) {
+            System.out.println("FT::. Error en metodo buscarUsoSellosTerminal "+ e.getMessage());
+            e.printStackTrace(System.out);
+        }
+
+        return retorno;
+    }
 
     public JSONArray cargarDetalleSellos(String codigocomercializadora, String codigoterminalentrega, String codigoterminalrecibe, BigInteger selloinicial, BigInteger sellofinal) {
         //String urlPath = "http://www.supertech.ec:8080/infinityone1/resources/ec.com.infinity.modelo.factura/cargarfacturasbancos";
