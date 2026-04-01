@@ -1,0 +1,164 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Factor de Corrección</ui:define>
+
+    <ui:define name="viewname">
+        <li>Factor de Corrección</li>
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="form">
+            <p:growl id="messages" showDetail="true" />
+
+            <!-- BUSQUEDA / LISTADO PANEL -->
+            <h:panelGroup rendered="#{!factorCorreccionBean.panelNuevo}">
+                <div class="card">
+                    <p:toolbar styleClass="p-mb-4">
+                        <p:toolbarGroup>
+                            <p:commandButton value="Nuevo" icon="pi pi-plus"
+                                actionListener="#{factorCorreccionBean.nuevo()}" update="form"
+                                styleClass="ui-button-success" style="margin-right: .5rem" />
+                        </p:toolbarGroup>
+                    </p:toolbar>
+
+                    <h3 style="color: #8cc63f; font-weight: bold; margin-top: 1.5rem;">BUSCAR FACTORES</h3>
+
+                    <div class="ui-fluid p-formgrid p-grid">
+                        <div class="p-field p-col-12 p-md-3">
+                            <p:outputLabel for="comercializadora" value="Comercializadora" />
+                            <p:selectOneMenu id="comercializadora" value="#{factorCorreccionBean.comercializadora}"
+                                converter="converterg" disabled="#{!factorCorreccionBean.habilitarComer}">
+                                <f:selectItem itemLabel="Seleccione Comercializadora" itemValue="#{null}"
+                                    noSelectionOption="true" />
+                                <f:selectItems value="#{factorCorreccionBean.listaComercializadora}" var="comer"
+                                    itemLabel="#{comer.codigo}-#{comer.nombre}" itemValue="#{comer}" />
+                            </p:selectOneMenu>
+                        </div>
+                        <div class="p-field p-col-12 p-md-3">
+                            <p:outputLabel for="terminal" value="Terminal" />
+                            <p:selectOneMenu id="terminal" value="#{factorCorreccionBean.terminal}"
+                                converter="converterg" disabled="#{!factorCorreccionBean.habilitarTerminal}">
+                                <f:selectItem itemLabel="Seleccione Terminal" itemValue="#{null}"
+                                    noSelectionOption="true" />
+                                <f:selectItems value="#{factorCorreccionBean.listaTerminales}" var="term"
+                                    itemLabel="#{term.nombre}" itemValue="#{term}" />
+                            </p:selectOneMenu>
+                        </div>
+                        <div class="p-field p-col-12 p-md-2">
+                            <p:outputLabel for="fechaIni" value="Fecha Inicial" />
+                            <p:datePicker id="fechaIni" value="#{factorCorreccionBean.fechaInicial}" showIcon="true"
+                                pattern="dd/MM/yyyy" />
+                        </div>
+                        <div class="p-field p-col-12 p-md-2">
+                            <p:outputLabel for="fechaFin" value="Fecha Final" />
+                            <p:datePicker id="fechaFin" value="#{factorCorreccionBean.fechaFinal}" showIcon="true"
+                                pattern="dd/MM/yyyy" />
+                        </div>
+                        <div class="p-field p-col-12 p-md-2" style="display: flex; align-items: flex-end;">
+                            <p:commandButton value="Buscar" icon="pi pi-search"
+                                actionListener="#{factorCorreccionBean.buscar()}" update="dt-factores messages" />
+                        </div>
+                        <div class="p-field p-col-12" style="display: flex; align-items: center; margin-top: 0.5rem;">
+                            <p:toggleSwitch id="switchVigentes" value="#{factorCorreccionBean.mostrarSoloVigentes}">
+                                <p:ajax listener="#{factorCorreccionBean.aplicarFiltroVigentes}" update="dt-factores messages" />
+                            </p:toggleSwitch>
+                            <h:outputText value="Mostrar solo vigentes" style="margin-left: 0.5rem; font-weight: bold; color: white;" />
+                        </div>
+                    </div>
+
+                    <p:dataTable id="dt-factores" var="factor" value="#{factorCorreccionBean.listaFactores}"
+                        widgetVar="dtFactores" responsiveLayout="scroll" reflow="true" styleClass="products-table"
+                        paginator="true" rows="10" paginatorPosition="bottom" emptyMessage="No se encontraron registros"
+                        style="margin-top: 1.5rem;">
+
+                        <p:column headerText="Terminal" width="25%">
+                            <h:outputText value="#{factor.terminal.codigo}-#{factor.terminal.nombre}" />
+                        </p:column>
+                        <p:column headerText="Fecha" width="15%">
+                            <h:outputText value="#{factor.fecha}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Producto" width="30%">
+                            <h:outputText value="#{factor.producto.codigo}-#{factor.producto.nombre}" />
+                        </p:column>
+                        <p:column headerText="Factor Corrección" width="25%">
+                            <h:outputText value="#{factor.factor}">
+                                <f:convertNumber pattern="#,###,##0.000000" />
+                            </h:outputText>
+                        </p:column>
+                    </p:dataTable>
+                </div>
+            </h:panelGroup>
+
+            <!-- CREACION PANEL (Mockup Design) -->
+            <h:panelGroup rendered="#{factorCorreccionBean.panelNuevo}">
+                <div class="card">
+                    <p:toolbar styleClass="p-mb-4" style="background: none; border: none; padding: 0;">
+                        <p:toolbarGroup>
+                            <h:outputText value="Nuevo Factor de Corrección"
+                                style="font-size: 1.25rem; font-weight: bold;" />
+                        </p:toolbarGroup>
+                    </p:toolbar>
+
+                    <div class="ui-fluid p-formgrid p-grid" style="margin-top: 1rem;">
+                        <div class="p-field p-col-12 p-md-3">
+                            <p:outputLabel for="comerN" value="Comercializadora" />
+                            <p:selectOneMenu id="comerN" value="#{factorCorreccionBean.comerNuevo}"
+                                converter="converterg" disabled="#{!factorCorreccionBean.habilitarComer}">
+                                <f:selectItem itemLabel="Seleccione" itemValue="#{null}" noSelectionOption="true" />
+                                <f:selectItems value="#{factorCorreccionBean.listaComercializadora}" var="c"
+                                    itemLabel="#{c.codigo}-#{c.nombre}" itemValue="#{c}" />
+                            </p:selectOneMenu>
+                        </div>
+                        <div class="p-field p-col-12 p-md-3">
+                            <p:outputLabel for="termN" value="Terminal" />
+                            <p:selectOneMenu id="termN" value="#{factorCorreccionBean.termNuevo}"
+                                converter="converterg">
+                                <f:selectItem itemLabel="Seleccione" itemValue="#{null}" noSelectionOption="true" />
+                                <f:selectItems value="#{factorCorreccionBean.listaTerminales}" var="t"
+                                    itemLabel="#{t.nombre}" itemValue="#{t}" />
+                            </p:selectOneMenu>
+                        </div>
+                        <div class="p-field p-col-12 p-md-3">
+                            <p:outputLabel for="fechaA" value="Fecha" />
+                            <p:datePicker id="fechaA" value="#{factorCorreccionBean.fechaActual}" showIcon="true"
+                                pattern="dd/MM/yyyy" />
+                        </div>
+                        <div class="p-field p-col-12 p-md-3" style="display: flex; align-items: flex-end;">
+                            <p:commandButton value="Buscar Productos" icon="pi pi-search"
+                                actionListener="#{factorCorreccionBean.buscarProductos()}" update="dt-nuevos messages"
+                                style="width: 100%" />
+                        </div>
+                    </div>
+                    <p:dataTable id="dt-nuevos" var="fn" value="#{factorCorreccionBean.listaProductosNuevos}"
+                        editable="true" editMode="cell" responsiveLayout="scroll" reflow="true"
+                        styleClass="products-table" paginator="true" rows="10" paginatorPosition="bottom"
+                        emptyMessage="Presione 'Buscar Productos' para cargar el listado" style="margin-top: 1.5rem;">
+
+                        <p:column headerText="Producto" width="70%">
+                            <h:outputText value="#{fn.producto.codigo}-#{fn.producto.nombre}" />
+                        </p:column>
+
+                        <p:column headerText="Factor Corrección" width="30%">
+                            <p:inputNumber value="#{fn.factor}" decimalPlaces="6" minValue="0"
+                                inputStyle="width: 180px" />
+                        </p:column>
+                    </p:dataTable>
+
+                    <div style="margin-top: 2rem; display: flex; justify-content: flex-start;">
+                        <p:commandButton value="Guardar" icon="pi pi-save"
+                            actionListener="#{factorCorreccionBean.guardar()}" update="form"
+                            styleClass="ui-button-primary" style="margin-right: .5rem" />
+                        <p:commandButton value="Cancelar" icon="pi pi-times"
+                            actionListener="#{factorCorreccionBean.cancelar()}" update="form"
+                            styleClass="ui-button-secondary" />
+                    </div>
+                </div>
+            </h:panelGroup>
+        </h:form>
+    </ui:define>
+
+</ui:composition>
