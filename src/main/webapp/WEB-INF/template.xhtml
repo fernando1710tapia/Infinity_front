@@ -32,7 +32,7 @@
                     </div>
 
                     <div class="layout-breadcrumb-options">
-                        <p:commandButton title="Salir" icon="pi pi-sign-out" styleClass="rounded-button ui-button-flat" actionListener="#{loginBean.logout()}"/>
+                        <p:commandButton title="Salir" icon="pi pi-sign-out" styleClass="rounded-button ui-button-flat" actionListener="#{loginBean.logout()}" rendered="#{not empty dashboardBean.x}"/>
                         <!--                            <i class="pi pi-sign-out"/>-->
                         <!--                            <p:ajax event="click" listener="{loginBean.logout()}" immediate="true"/>-->
 

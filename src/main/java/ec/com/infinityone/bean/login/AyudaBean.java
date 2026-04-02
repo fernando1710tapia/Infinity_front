@@ -100,9 +100,11 @@ public class AyudaBean extends LoginBean implements Serializable {
         //cargarMenu();
         //crearAtbol();
         valoresDef();
-        obtenerMenuPadre();
-        obtenerMenuHijo();
-        cargarMenuAyuda();
+        if (dataUser.getUser() != null) {
+            obtenerMenuPadre();
+            obtenerMenuHijo();
+            cargarMenuAyuda();
+        }
     }
 
     public void valoresDef() {

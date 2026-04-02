@@ -52,17 +52,17 @@ public class FactorCorreccionBean extends ReusableBean implements Serializable {
     private Date fechaInicial;
     private Date fechaFinal;
     private FactorCorreccion factorSeleccionado;
-    
+
     // User Permissions
     private boolean habilitarComer;
     private boolean habilitarTerminal;
-    
+
     // Creation View Fields
     private boolean panelNuevo;
     private ComercializadoraBean comerNuevo;
     private Terminal termNuevo;
     private Date fechaActual;
-    
+
     // Switch filter
     private boolean mostrarSoloVigentes;
 
@@ -86,7 +86,7 @@ public class FactorCorreccionBean extends ReusableBean implements Serializable {
         fechaFinal = new Date();
         panelNuevo = false;
         mostrarSoloVigentes = false;
-        
+
         habilitarBusqueda();
     }
 
@@ -108,7 +108,8 @@ public class FactorCorreccionBean extends ReusableBean implements Serializable {
             return;
         }
         String codTerm = (terminal != null) ? terminal.getCodigo() : "-1";
-        listaFactoresGuardada = factorServicio.obtenerFactores(comercializadora.getCodigo(), codTerm, fechaInicial, fechaFinal);
+        listaFactoresGuardada = factorServicio.obtenerFactores(comercializadora.getCodigo(), codTerm, fechaInicial,
+                fechaFinal);
         aplicarFiltroVigentes();
         if (listaFactores.isEmpty()) {
             this.dialogo(javax.faces.application.FacesMessage.SEVERITY_INFO,
@@ -127,7 +128,7 @@ public class FactorCorreccionBean extends ReusableBean implements Serializable {
             Map<String, FactorCorreccion> p = new HashMap<>();
             for (FactorCorreccion f : listaFactoresGuardada) {
                 String key = (f.getTerminal() != null ? f.getTerminal().getCodigo() : "") + "-" +
-                             (f.getProducto() != null ? f.getProducto().getCodigo() : "");
+                        (f.getProducto() != null ? f.getProducto().getCodigo() : "");
                 if (!p.containsKey(key)) {
                     p.put(key, f);
                 } else {
@@ -141,7 +142,8 @@ public class FactorCorreccionBean extends ReusableBean implements Serializable {
             listaFactores.addAll(p.values());
             // Sort by Date Descending
             listaFactores.sort((f1, f2) -> {
-                if (f1.getFecha() == null || f2.getFecha() == null) return 0;
+                if (f1.getFecha() == null || f2.getFecha() == null)
+                    return 0;
                 return f2.getFecha().compareTo(f1.getFecha());
             });
         }
@@ -158,7 +160,8 @@ public class FactorCorreccionBean extends ReusableBean implements Serializable {
                     habilitarComer = false;
                     habilitarTerminal = true;
                     for (int i = 0; i < listaComercializadora.size(); i++) {
-                        if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
+                        if (listaComercializadora.get(i).getCodigo()
+                                .equals(dataUser.getUser().getCodigocomercializadora())) {
                             this.comercializadora = listaComercializadora.get(i);
                         }
                     }
@@ -167,19 +170,22 @@ public class FactorCorreccionBean extends ReusableBean implements Serializable {
                     habilitarComer = false;
                     habilitarTerminal = false;
                     for (int i = 0; i < listaComercializadora.size(); i++) {
-                        if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
+                        if (listaComercializadora.get(i).getCodigo()
+                                .equals(dataUser.getUser().getCodigocomercializadora())) {
                             this.comercializadora = listaComercializadora.get(i);
                         }
                     }
                     if (comercializadora != null && comercializadora.getCodigo() == null) {
-                        this.dialogo(javax.faces.application.FacesMessage.SEVERITY_FATAL, "La comercializadora se encuentra deshabilitada");
+                        this.dialogo(javax.faces.application.FacesMessage.SEVERITY_FATAL,
+                                "La comercializadora se encuentra deshabilitada");
                     }
                     break;
                 case "agco":
                     habilitarComer = false;
                     habilitarTerminal = false;
                     for (int i = 0; i < listaComercializadora.size(); i++) {
-                        if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
+                        if (listaComercializadora.get(i).getCodigo()
+                                .equals(dataUser.getUser().getCodigocomercializadora())) {
                             this.comercializadora = listaComercializadora.get(i);
                             break;
                         }
@@ -198,7 +204,6 @@ public class FactorCorreccionBean extends ReusableBean implements Serializable {
             }
         }
     }
-
 
     public void nuevo() {
         panelNuevo = true;
