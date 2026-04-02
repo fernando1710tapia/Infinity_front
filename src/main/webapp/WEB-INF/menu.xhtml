@@ -81,23 +81,25 @@
                         <p:menuitem id="om_buy" value="Buy Now" icon="pi pi-fw pi-money-bill" url="https://www.primefaces.org/store" />
                     </p:submenu>
                 </pa:menu>-->
-                <div class="layout-menu-footer">
-                    <div class="layout-menu-footer-title"></div>
-                    <div class="layout-menu-footer-content">
-                        <!--                        <h:outputLink  value="200.93.248.119:8080/eConsultas-web">Facturacion E</h:outputLink>-->
-                        <a href="#{menuBean.rutaEConsulta}" target="_blank">Portal Facturación Electrónica</a>
-                        <!--                        <p:progressBar value="50" labelTemplate="" displayOnly="true"/>
-                                                Today
-                                                <p:progressBar value="80" labelTemplate=""  displayOnly="true"/>
-                                                Overall-->
+                <h:panelGroup rendered="#{not empty dashboardBean.x}">
+                    <div class="layout-menu-footer">
+                        <div class="layout-menu-footer-title"></div>
+                        <div class="layout-menu-footer-content">
+                            <!--                        <h:outputLink  value="200.93.248.119:8080/eConsultas-web">Facturacion E</h:outputLink>-->
+                            <a href="#{menuBean.rutaEConsulta}" target="_blank">Portal Facturación Electrónica</a>
+                            <!--                        <p:progressBar value="50" labelTemplate="" displayOnly="true"/>
+                                                    Today
+                                                    <p:progressBar value="80" labelTemplate=""  displayOnly="true"/>
+                                                    Overall-->
+                        </div>
+                        <div class="layout-menu-footer-content">
+                            <p:outputLabel value="Vigencia firma e.: #{menuBean.firmae.fir_fechacaduca}"  style="font-size: 12px; color: #7cc64b;"></p:outputLabel>                                                                                             
+                        </div>
+                        <div class="layout-menu-footer-content">    
+                            <p:outputLabel value="Vigencia certificados/dominio srv: #{menuBean.firmae.fir_fechacrea}" style="font-size: 12px; color: #7cc64b;"></p:outputLabel>                                                                          
+                        </div>
                     </div>
-                    <div class="layout-menu-footer-content">
-                        <p:outputLabel value="Vigencia firma e.: #{menuBean.firmae.fir_fechacaduca}"  style="font-size: 12px; color: #7cc64b;"></p:outputLabel>                                                                                             
-                    </div>
-                    <div class="layout-menu-footer-content">    
-                        <p:outputLabel value="Vigencia certificados/dominio srv: #{menuBean.firmae.fir_fechacrea}" style="font-size: 12px; color: #7cc64b;"></p:outputLabel>                                                                          
-                    </div>
-                </div>
+                </h:panelGroup>
             </h:form>
         </div>
     </div>

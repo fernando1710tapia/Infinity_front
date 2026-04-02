@@ -91,10 +91,17 @@ public class MenuBean extends LoginBean implements Serializable {
         fechaC = Fichero.getFECHACERTIFICADOSSL();
         rutaEConsulta = Fichero.getRUTAECONSULTAS();
         menuXeliminar = Fichero.getPERMISOSXUSUARIO();
-        obtenerMenuPadre();
-        obtenerMenuHijo();
+        
+        if (dataUser.getUser() != null) {
+            obtenerMenuPadre();
+            obtenerMenuHijo();
+        }
+        
         cargarMenu();        
-        obtenerFirmae();
+        
+        if (dataUser.getUser() != null) {
+            obtenerFirmae();
+        }
     }
 
     public void obtenerMenuPadre() {
@@ -356,6 +363,25 @@ public class MenuBean extends LoginBean implements Serializable {
     public void cargarMenu() {
         DefaultSubMenu primerNivel;
         DefaultMenuItem item2;
+        
+        if (dataUser.getUser() == null) {
+            // Menú básico para invitados/público
+            DefaultMenuItem loginItem = DefaultMenuItem.builder()
+                    .value("Módulo de Clientes")
+                    .icon("pi pi-sign-in")
+                    .outcome("/login.xhtml")
+                    .build();
+            model.getElements().add(loginItem);
+            
+            DefaultMenuItem soporteItemPublico = DefaultMenuItem.builder()
+                    .value("Soporte")
+                    .icon("pi pi-question-circle")
+                    .outcome("/soporte.xhtml")
+                    .build();
+            model.getElements().add(soporteItemPublico);
+            return; 
+        }
+
         switch (dataUser.getUser().getNiveloperacion()) {
             case "cero":
                 for (MenuBean menuP : listaMenuPadreBean) {
@@ -487,9 +513,15 @@ public class MenuBean extends LoginBean implements Serializable {
                     model.getElements().add(primerNivel);
                 }
                 break;
-            default:
-                break;
         }
+
+        // Agregar ítem de Soporte al final para todos los usuarios
+        DefaultMenuItem soporteItem = DefaultMenuItem.builder()
+                .value("Soporte")
+                .icon("pi pi-question-circle")
+                .outcome("/soporte.xhtml")
+                .build();
+        model.getElements().add(soporteItem);
     }
 
     public List<MenuBean> getListaMenuPadreBean() {

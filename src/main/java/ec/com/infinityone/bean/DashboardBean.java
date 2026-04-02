@@ -104,10 +104,14 @@ public class DashboardBean extends ReusableBean implements Serializable {
         
         x = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
         
-        if (x.getCodigocomercializadora()==null){
-            xcodigoComer=null;
-        }else{
-            xcodigoComer=x.getCodigocomercializadora();
+        if (x != null) {
+            if (x.getCodigocomercializadora() == null) {
+                xcodigoComer = null;
+            } else {
+                xcodigoComer = x.getCodigocomercializadora();
+            }
+        } else {
+            xcodigoComer = null;
         }
         
         
@@ -121,11 +125,13 @@ public class DashboardBean extends ReusableBean implements Serializable {
         codProd = Fichero.getCOLORESPRODUCTOS().split(",");
 
         obtenerTerminales();
-
         obtenerCodigosColores();
-        obtenerListamejorCliente();
-        obtenerprimerCliente();
-        actualizarGrafico();
+        
+        if (x != null) {
+            obtenerListamejorCliente();
+            obtenerprimerCliente();
+            actualizarGrafico();
+        }
 
         
     }
