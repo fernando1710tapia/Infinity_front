@@ -282,6 +282,7 @@ public class SeguridadusuarioBean extends ReusableBean implements Serializable {
             obj.put("respuesta2", usuarioS.getRespuesta2());
             obj.put("pregunta3", usuarioS.getPregunta3());
             obj.put("respuesta3", usuarioS.getRespuesta3());
+            obj.put("habilitadoapp", Boolean.valueOf("true"));
 
             respuesta = obj.toString();
             writer.write(respuesta);
@@ -341,6 +342,7 @@ public class SeguridadusuarioBean extends ReusableBean implements Serializable {
             obj.put("respuesta2", usuarioS.getRespuesta2());
             obj.put("pregunta3", usuarioS.getPregunta3());
             obj.put("respuesta3", usuarioS.getRespuesta3());
+            obj.put("habilitadoapp", Boolean.valueOf("true"));
             respuesta = obj.toString();
             writer.write(respuesta);
             writer.close();
