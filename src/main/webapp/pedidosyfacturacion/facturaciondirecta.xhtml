@@ -135,6 +135,18 @@
                                 </div>
                             </f:facet>
 
+                            <p:column headerText="Fecha Venta" sortBy="#{envF.factura.fechaventa}"
+                                filterBy="#{envF.factura.fechaventa}" width="8%">
+                                <h:outputText value="#{envF.factura.fechaventa}" />
+                            </p:column>
+                            <p:column headerText="Fecha Despacho" sortBy="#{envF.factura.fechadespacho}"
+                                filterBy="#{envF.factura.fechadespacho}" width="8%">
+                                <h:outputText value="#{envF.factura.fechadespacho}" />
+                            </p:column>
+                            <p:column headerText="Fecha Acreditación" sortBy="#{envF.factura.fechaacreditacionprorrogada}"
+                                filterBy="#{envF.factura.fechaacreditacionprorrogada}" width="8%">
+                                <h:outputText value="#{envF.factura.fechaacreditacionprorrogada}" />
+                            </p:column>
                             <p:column headerText="Cliente" sortBy="#{envF.factura.codigocliente}"
                                 filterBy="#{envF.factura.codigocliente}" width="25%">
                                 <h:outputText value="#{envF.factura.codigocliente} #{envF.factura.nombrecliente}" />

@@ -712,6 +712,9 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
                 while ((tmp = br.readLine()) != null) {
                     respuesta += tmp;
                 }
+                
+                LOG.info("API Response (Comerterminal): " + respuesta);
+                
                 JSONObject objetoJson = new JSONObject(respuesta);
                 JSONArray retorno = objetoJson.getJSONArray("retorno");
                 if (retorno.isEmpty()) {
@@ -803,21 +806,55 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
                             np.setNotapedidoPK(npPK);
 
                             /*----Parse Detail if exists for Producto and Volume columns----*/
-                            if (!nt.isNull("detalle")) {
-                                JSONObject det = nt.getJSONObject("detalle");
-                                detNP = new Detallenotapedido();
+                            JSONObject det = null;
+                            if (!nt.isNull("detallesNP")) {
+                                JSONArray detList = nt.getJSONArray("detallesNP");
+                                if (!detList.isEmpty()) {
+                                    det = detList.getJSONObject(0);
+                                }
+                            } else if (!nt.isNull("detalle")) {
+                                det = nt.getJSONObject("detalle");
+                            }
+
+                            detNP = new Detallenotapedido();
+                            boolean hasDetail = false;
+
+                            if (det != null) {
+                                hasDetail = true;
                                 if (!det.isNull("producto")) {
                                     JSONObject prodJson = det.getJSONObject("producto");
                                     Producto p = new Producto();
-                                    p.setCodigo(prodJson.getString("codigo"));
-                                    p.setNombre(prodJson.getString("nombre"));
-                                    detNP.setProducto(p); 
+                                    p.setCodigo(prodJson.optString("codigo", ""));
+                                    p.setNombre(prodJson.optString("nombre", ""));
+                                    detNP.setProducto(p);
+                                } else if (!det.isNull("nombreproducto")) {
+                                    Producto p = new Producto();
+                                    p.setCodigo(det.optString("codigoproducto", ""));
+                                    p.setNombre(det.optString("nombreproducto", ""));
+                                    detNP.setProducto(p);
                                 }
+                                
                                 if (!det.isNull("volumennaturalautorizado")) {
                                     detNP.setVolumennaturalautorizado(det.getBigDecimal("volumennaturalautorizado"));
                                 }
+                            } else {
+                                // Check for flat structure in nt directly
+                                if (!nt.isNull("nombreproducto") || !nt.isNull("volumennaturalautorizado")) {
+                                    hasDetail = true;
+                                    Producto p = new Producto();
+                                    p.setCodigo(nt.optString("codigoproducto", ""));
+                                    p.setNombre(nt.optString("nombreproducto", ""));
+                                    detNP.setProducto(p);
+                                    if (!nt.isNull("volumennaturalautorizado")) {
+                                        detNP.setVolumennaturalautorizado(nt.getBigDecimal("volumennaturalautorizado"));
+                                    }
+                                }
+                            }
+
+                            if (hasDetail) {
                                 envioPedido.setDetalle(detNP);
                             }
+
                             envioPedido.setNotapedido(np);
                             listenvNP.add(envioPedido);
                             envioPedido = new EnvioPedido();
