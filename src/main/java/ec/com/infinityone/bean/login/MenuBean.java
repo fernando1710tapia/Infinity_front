@@ -367,7 +367,7 @@ public class MenuBean extends LoginBean implements Serializable {
         if (dataUser.getUser() == null) {
             // Menú básico para invitados/público
             DefaultMenuItem loginItem = DefaultMenuItem.builder()
-                    .value("Módulo de Clientes")
+                    .value("Ingresar a InfinityOne")
                     .icon("pi pi-sign-in")
                     .outcome("/login.xhtml")
                     .build();

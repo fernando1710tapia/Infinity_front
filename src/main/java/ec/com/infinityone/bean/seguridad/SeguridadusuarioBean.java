@@ -362,10 +362,10 @@ public class SeguridadusuarioBean extends ReusableBean implements Serializable {
     public void deleteItems() {
         try {
             String respuesta;
-            url = new URL(direccion + "/porId?codigo=" + usuarioS.getCodigo());
+            url = new URL(direccion + "/borrarporid?codigo=" + usuarioS.getCodigo());
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
-            connection.setRequestMethod("DELETE");
+            connection.setRequestMethod("PUT");
             connection.setRequestProperty("Content-type", "application/json");
             connection.connect();
             if (connection.getResponseCode() == 200) {

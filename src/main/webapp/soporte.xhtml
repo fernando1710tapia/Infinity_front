@@ -6,7 +6,7 @@
                 template="/WEB-INF/template.xhtml">
 
     <ui:define name="title">Soporte - InfinityMobile</ui:define>
-    
+
     <ui:define name="viewname">
         <li><i class="pi pi-question-circle"/></li>
         <li>/</li>
@@ -26,7 +26,7 @@
                         <h5>Formulario de Contacto</h5>
                         <p:panelGrid columns="1" layout="grid" styleClass="ui-panelgrid-blank">
                             <h:outputText value="Si tienes alguna duda o inconveniente, completa el formulario:" style="margin-bottom: 1rem; display: block;" />
-                            
+
                             <p:outputLabel for="nombre" value="Nombre" />
                             <p:inputText id="nombre" value="#{soporteBean.nombre}" required="true" placeholder="Tu nombre completo" />
 
@@ -43,13 +43,13 @@
 
                             <p:commandButton value="Enviar Mensaje" action="#{soporteBean.enviar}" update="formSoporte" icon="pi pi-send" style="margin-top: 1rem;" />
                         </p:panelGrid>
-                        
+
                         <hr style="border: 0; border-top: 1px solid #dee2e6; margin: 2rem 0;" />
-                        
+
                         <h5>Contacto Directo</h5>
                         <p>
                             <i class="pi pi-envelope" style="margin-right: 0.5rem; color: #2C9BF0;"></i>
-                            <strong>Email:</strong> soporte@infinityone.com.ec
+                            <strong>Email:</strong> supertch.ecuador@gmail.com
                         </p>
                     </div>
                 </div>
@@ -74,7 +74,13 @@
                             <p:tab title="¿Cómo contacto al administrador?">
                                 <p>
                                     Si necesitas asistencia técnica avanzada o reportar un error del sistema, puedes utilizar el formulario 
-                                    de esta página o escribir directamente al correo de soporte: <strong>soporte@infinityone.com.ec</strong>.
+                                    de esta página o escribir directamente al correo de soporte: <strong>supertech.ecuador@gmail.com</strong>.
+                                </p>
+                            </p:tab>
+                            <p:tab title="Eliminar usuario de la APP">
+                                <p>
+                                    Si deseas eliminar tu usuario de la app, por favor llena el formulario con esa necesidad o,
+                                    escribe directamente al correo del administrador de usuarios: <strong>supertech.ecuador@gmail.com</strong>.
                                 </p>
                             </p:tab>
                         </p:accordionPanel>
@@ -91,13 +97,13 @@
                         <div style="line-height: 1.5; text-align: justify;">
                             <h6>1. Recopilación de Información</h6>
                             <p>InfinityMobile recopila información básica necesaria para el contacto y soporte técnico, incluyendo nombre y correo electrónico proporcionados voluntariamente.</p>
-                            
+
                             <h6>2. Uso de los Datos</h6>
                             <p>Los datos ingresados en el formulario de soporte se utilizan exclusivamente para atender sus consultas y mejorar nuestra atención al cliente.</p>
-                            
+
                             <h6>3. Protección de Privacidad</h6>
                             <p>Nos comprometemos a no compartir, vender ni distribuir su información personal a terceros sin su consentimiento expreso, cumpliendo con la normativa de protección de datos vigente.</p>
-                            
+
                             <h6>4. Seguridad</h6>
                             <p>Implementamos medidas de seguridad técnicas para proteger sus datos contra accesos no autorizados o alteraciones durante el envío del formulario.</p>
                         </div>

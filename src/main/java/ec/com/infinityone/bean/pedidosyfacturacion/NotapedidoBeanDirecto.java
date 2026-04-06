@@ -30,6 +30,7 @@ import ec.com.infinityone.reusable.ReusableBean;
 import ec.com.infinityone.bean.actorcomercial.ComercializadoraBean;
 import ec.com.infinityone.configuration.Fichero;
 import ec.com.infinityone.modelo.ClientePK;
+import ec.com.infinityone.modelo.NotaPedidoSOAP;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -55,6 +56,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -248,6 +250,10 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
      */
     private Medida medida;
     /*
+     * Varaibale para guardar los datos de anulación
+     */
+    protected NotaPedidoSOAP anulacion;
+    /*
     Variable para capturar el error de Petroecuador
      */
     private String errorPetro;
@@ -279,6 +285,10 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
     Variable numero nota pedido
      */
     private String numeroNotaPedio;
+     /*
+    Variable trama grabada en creary enviar de una np usada para envío a EPP
+     */
+    private String tramaGrabada;
     /*
     Variable para establecer la fecha mínima
      */
@@ -366,6 +376,7 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
         //codTerminal = "";
         codCliente = "";
         numeroNotaPedio = "";
+        tramaGrabada="";
         codAbas = "";
         tipoFecha = "1";
         prefijo = "";
@@ -781,7 +792,7 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
                             np.setCodigobanco(banco);
                             np.setComercializadora(comerc);
                             np.setAbastecedora(abas);
-
+                            np.setTramaenviadagoe(nt.getString("tramaenviadagoe"));
                             np.setNumerofacturasri(nt.getString("numerofacturasri"));
                             np.setActiva(nt.getBoolean("activa"));
                             npPK.setNumero(ntPK.getString("numero"));
@@ -800,7 +811,7 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
                                     Producto p = new Producto();
                                     p.setCodigo(prodJson.getString("codigo"));
                                     p.setNombre(prodJson.getString("nombre"));
-                                    detNP.setProducto(p);
+                                    detNP.setProducto(p); 
                                 }
                                 if (!det.isNull("volumennaturalautorizado")) {
                                     detNP.setVolumennaturalautorizado(det.getBigDecimal("volumennaturalautorizado"));
@@ -947,11 +958,17 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
                 resp += tmp;
             }
             JSONObject objetoJson = new JSONObject(resp);
-            numeroNotaPedio = objetoJson.getString("developerMessage");
-
-            if (connection.getResponseCode() == 200) {
+            StringTokenizer res = 
+              new StringTokenizer( objetoJson.getString("developerMessage"),";");
+            numeroNotaPedio = res.nextToken(";");
+            tramaGrabada = res.nextToken(";");
+            
+            if ((connection.getResponseCode() == 200) && (!numeroNotaPedio.isEmpty()) && (!tramaGrabada.isEmpty())) {
+                envNP.getNotapedido().getNotapedidoPK().setNumero(numeroNotaPedio);
+                envNP.getNotapedido().setTramaenviadagoe(tramaGrabada);
                 this.dialogo(FacesMessage.SEVERITY_INFO, "NOTA DE PEDIDO REGISTRADA EXITOSAMENTE");
-//FTFT                 enviarOrdenPetro(envNP, numeroFactura);
+                
+                enviarOrdenPetro(envNP);
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
                 System.out.println("FT:: ERROR EN addItems RESPONSECODE "+connection.getResponseCode());
@@ -966,12 +983,8 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
         }
     }
     
-    public void enviarOrdenPetro(EnvioPedido envNP, String numFact) {
-        if (envNP.getNotapedido().getFechadespacho().equals(envNP.getNotapedido().getFechaventa())) {
-            obtenerTramaOrdenEntrega(envNP, numFact);
-        } else if (!envNP.getNotapedido().getFechadespacho().equals(envNP.getNotapedido().getFechaventa()) && envNP.getNotapedido().isAdelantar()) {
-            obtenerTramaOrdenEntrega(envNP, numFact);
-        }
+    public void enviarOrdenPetro(EnvioPedido envNP) {
+         enviarOrdenEntreEpp(envNP, envNP.getNotapedido().getTramaenviadagoe());
     }
     
         public void obtenerTramaOrdenEntrega(EnvioPedido envNP, String numFact) {
@@ -1344,6 +1357,10 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
 
     public void anularNotaPedido() {
         if (notaPedidoAuxiliar != null) {
+            boolean EPPAnuloOe = false;
+             
+            EPPAnuloOe = anularEnEPP(notaPedidoAuxiliar);
+            if (EPPAnuloOe){
             try {
                 // Preparar fechas para el servicio (formato ISO/JS esperado por el backend)
                 SimpleDateFormat formatIn = new SimpleDateFormat("yyyy/MM/dd");
@@ -1379,6 +1396,10 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
             } catch (Exception e) {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR: " + e.getMessage());
                 e.printStackTrace();
+            }
+            }else{
+            
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR: Petroecuador NO ha permitido la anulación de esta Nota de Pedido!" );
             }
         }
     }
@@ -2149,4 +2170,90 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
         this.envioPedidoAuxiliar = envioPedidoAuxiliar;
     }
 
+    
+public boolean anularEnEPP(Notapedido fac) {
+        String fl = "000000000000000000";
+        boolean resultadoAnulacionEPP=false;
+        anulacion = new NotaPedidoSOAP();
+        String cadena = fac.getCodigobanco().getCodigo().trim()
+                + fac.getNotapedidoPK().getCodigocomercializadora().trim()
+                + fac.getNotapedidoPK().getNumero().trim() + comercializadora.getClaveWsepp().trim()
+                + fl;
+        try {
+            String codigoanulacion = "";
+            String respuesta = "";
+            // String direcc =
+            // "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.notapedido/cancelacion";
+            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
+                    + "ec.com.infinity.modelo.notapedido/cancelacion";
+            url = new URL(direcc);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-type", "application/json");
+
+            anulacion.setCodigoabastecedora(fac.getNotapedidoPK().getCodigoabastecedora().trim());
+            anulacion.setCodigocomercializadora(fac.getNotapedidoPK().getCodigocomercializadora().trim());
+            anulacion.setNumero(fac.getNotapedidoPK().getNumero().trim());
+            anulacion.setCadena(cadena);
+
+            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+            Gson gson = new Gson();
+            String JSON = gson.toJson(anulacion);
+            DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+            out.write(JSON.getBytes());
+            out.flush();
+            out.close();
+
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+
+            BufferedReader br = new BufferedReader(reader);
+            String tmp = null;
+            String resp = "";
+            while ((tmp = br.readLine()) != null) {
+                resp += tmp;
+            }
+            JSONObject objetoJson = new JSONObject(resp);
+            JSONArray retorno = objetoJson.getJSONArray("retorno");
+            for (int indice = 0; indice < retorno.length(); indice++) {
+                if (!retorno.isNull(indice)) {
+                    String codanul = retorno.getString(indice);
+                    codigoanulacion = codanul;
+
+                    // FT:SOLO PRUEBA DE 2023-06-12
+                    // codigoanulacion = "08";
+                    // FT:SOLO PRUEBA DE 2023-06-12
+                }
+            }
+
+            if (connection.getResponseCode() == 200) {
+                System.out.println("FT:: codigoanulacion.substring(0, 2)" + codigoanulacion.substring(0, 2)
+                        + "SE DEBE VALIDAR SI ES 08 PARA ANULAR UNA REFACTURACION");
+                 
+                if (codigoanulacion.substring(0, 2).equals("00") || codigoanulacion.substring(0, 2).equals("01")
+                        || codigoanulacion.substring(0, 2).equals("03") ) 
+                {
+                   resultadoAnulacionEPP=true;
+                } else {
+                    resultadoAnulacionEPP=false;
+                    this.dialogo(FacesMessage.SEVERITY_ERROR,
+                            codigoanulacion.substring(0, 2) + " ANULACIÓN OE NO PERMITIDA EN EPP");
+                }
+            } else {
+                resultadoAnulacionEPP=false;
+                this.dialogo(FacesMessage.SEVERITY_ERROR,
+                        "ERROR EN LA ANULACIÓN. código recibido desde PETRO: " + codigoanulacion.substring(0, 2));
+                System.out.println("Error al añadir:" + connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
+            }
+
+        } catch (Throwable e) {
+            resultadoAnulacionEPP=false;
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR EN LA ANULACIÓN");
+            System.out.println("Error" + e.getMessage());
+            e.printStackTrace(System.out);
+        }
+        return resultadoAnulacionEPP;
+    }
+    
 }
