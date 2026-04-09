@@ -1546,6 +1546,7 @@ public class FacturacionDirectaBean extends ReusableBean implements Serializable
                         np.setFechadespacho(fechaDescpacho);
                         np.setAdelantar(true);
                         np.setActiva(nt.getBoolean("activa"));
+                        np.setFacturada(nt.optBoolean("facturada", false));
                         np.setObservacion(nt.getString("observacion"));
                         try {
                             np.setPrefijo(nt.getString("prefijo"));
@@ -1877,7 +1878,7 @@ public class FacturacionDirectaBean extends ReusableBean implements Serializable
             if (!listenvNP.isEmpty()) {
                 if (soloporProcesar) {
                     for (int i = 0; i < listenvNP.size(); i++) {
-                        if (listenvNP.get(i).getNotapedido().getNumerofacturasri().trim().equals("0")) {
+                        if (!listenvNP.get(i).getNotapedido().isFacturada()) {
                             listenvNPAuxilia.add(listenvNP.get(i));
                         }
                     }
@@ -4143,6 +4144,12 @@ public class FacturacionDirectaBean extends ReusableBean implements Serializable
 
     public void validarNumFacturasCliente(EnvioPedido envP) {
         if (envP != null) {
+            if (envP.getNotapedido().isFacturada()) {
+                envP.getNotapedido().setProcesar(false);
+                this.dialogo(FacesMessage.SEVERITY_ERROR,
+                        "Usted no puede facturar esa Nota Pedido, porque ya está Facturada");
+                return;
+            }
             int control = envP.getNotapedido().getCodigocliente().getControldespacho();
             if (control > -1) {
                 String codClienteNP = envP.getNotapedido().getCodigocliente().getClientePK().getCodigo();

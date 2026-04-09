@@ -798,6 +798,13 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
                             np.setTramaenviadagoe(nt.getString("tramaenviadagoe"));
                             np.setNumerofacturasri(nt.getString("numerofacturasri"));
                             np.setActiva(nt.getBoolean("activa"));
+                            np.setFacturada(nt.optBoolean("facturada", false));
+                            String respGen = nt.optString("respuestageneracionoeepp", "");
+                            String respAnu = nt.optString("respuestaanulacionoeepp", "");
+                            np.setRespuestageneracionoeepp(respGen);
+                            np.setRespuestaanulacionoeepp(respAnu);
+                            np.setOeenpetro(respGen.equals("00") || respGen.equals("20"));
+                            np.setOeanuladaenpetro(respAnu.equals("00") || respAnu.equals("01") || respAnu.equals("03"));
                             npPK.setNumero(ntPK.getString("numero"));
                             npPK.setCodigoabastecedora(ntPK.getString("codigoabastecedora"));
                             npPK.setCodigocomercializadora(ntPK.getString("codigocomercializadora"));

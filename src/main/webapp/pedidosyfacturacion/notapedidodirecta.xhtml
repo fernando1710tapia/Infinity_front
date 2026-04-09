@@ -135,6 +135,10 @@
                                 <p:column headerText="Fecha Venta" sortBy="#{notap.notapedido.fechaventa}" width="12%">
                                     <h:outputText value="#{notap.notapedido.fechaventa}" />
                                 </p:column>
+                                <p:column headerText="Fecha Despacho" sortBy="#{notap.notapedido.fechadespacho}"
+                                    width="12%">
+                                    <h:outputText value="#{notap.notapedido.fechadespacho}" />
+                                </p:column>
                                 <p:column headerText="Cliente"
                                     sortBy="#{notap.notapedido.codigocliente.clientePK.codigo}"
                                     filterBy="#{notap.notapedido.codigocliente.clientePK.codigo}" width="25%">
@@ -149,26 +153,28 @@
                                     filterBy="#{notap.notapedido.notapedidoPK.numero}" width="12%">
                                     <h:outputText value="#{notap.notapedido.notapedidoPK.numero}" />
                                 </p:column>
-                                <p:column headerText="Estado" sortBy="#{notap.notapedido.activa}"
-                                    filterBy="#{notap.notapedido.activa}" width="10%">
-                                    <h:outputText
-                                        styleClass="product-badge status-#{estilos.tipoActivoBool(notap.notapedido.activa)}"
-                                        value="#{estilos.valorBoolActivo(notap.notapedido.activa)}" />
-                                </p:column>
                                 <p:column headerText="Producto" width="15%">
                                     <h:outputText value="#{notap.detalle.producto.nombre}" />
                                 </p:column>
                                 <p:column headerText="Volumen Autorizado" width="10%">
                                     <h:outputText value="#{notap.detalle.volumennaturalautorizado}" />
                                 </p:column>
-                                <p:column headerText="Fecha Despacho" sortBy="#{notap.notapedido.fechadespacho}"
-                                    width="12%">
-                                    <h:outputText value="#{notap.notapedido.fechadespacho}" />
+                                <p:column headerText="Estado" sortBy="#{notap.notapedido.activa}"
+                                    filterBy="#{notap.notapedido.activa}" width="10%">
+                                    <h:outputText
+                                        styleClass="product-badge status-#{estilos.tipoActivoBool(notap.notapedido.activa)}"
+                                        value="#{estilos.valorBoolActivo(notap.notapedido.activa)}" />
+                                </p:column>
+                                <p:column headerText="Facturada" sortBy="#{notap.notapedido.facturada}"
+                                    filterBy="#{notap.notapedido.facturada}" width="10%">
+                                    <h:outputText
+                                        styleClass="product-badge status-#{estilos.tipoActivoBool(notap.notapedido.facturada)}"
+                                        value="#{estilos.valorBoolActivoPago(notap.notapedido.facturada)}" />
                                 </p:column>
                                 <p:column headerText="OE Petro" exportable="false" width="7%">
                                     <p:commandButton
-                                        styleClass="product-badge status-#{estilos.tipoActivoBool(notap.notapedido.respuestageneracionoeepp == '00')}"
-                                        value="#{estilos.valorBoolActivoPago(notap.notapedido.respuestageneracionoeepp == '00')}"
+                                        styleClass="product-badge status-#{estilos.tipoActivoBool(notap.notapedido.oeenpetro)}"
+                                        value="#{estilos.valorBoolActivoPago(notap.notapedido.oeenpetro)}"
                                         actionListener="#{notapedidoBeanDirecto.verificarOeenpetro(notap)}"
                                         update="form">
                                         <f:setPropertyActionListener value="#{notap}"
@@ -177,8 +183,8 @@
                                 </p:column>
                                 <p:column headerText="Anu OEPETRO" exportable="false" width="7%">
                                     <p:commandButton
-                                        styleClass="product-badge status-#{estilos.tipoActivoBool(notap.notapedido.respuestaanulacionoeepp == '00')}"
-                                        value="#{estilos.valorBoolActivoPago(notap.notapedido.respuestaanulacionoeepp == '00')}"
+                                        styleClass="product-badge status-#{estilos.tipoActivoBool(notap.notapedido.oeanuladaenpetro)}"
+                                        value="#{estilos.valorBoolActivoPago(notap.notapedido.oeanuladaenpetro)}"
                                         actionListener="#{notapedidoBeanDirecto.verificarAnulacionPetro(notap)}"
                                         update="form">
                                         <f:setPropertyActionListener value="#{notap}"

@@ -143,7 +143,8 @@
                                 filterBy="#{envF.factura.fechadespacho}" width="8%">
                                 <h:outputText value="#{envF.factura.fechadespacho}" />
                             </p:column>
-                            <p:column headerText="Fecha Acreditación" sortBy="#{envF.factura.fechaacreditacionprorrogada}"
+                            <p:column headerText="Fecha Acreditación"
+                                sortBy="#{envF.factura.fechaacreditacionprorrogada}"
                                 filterBy="#{envF.factura.fechaacreditacionprorrogada}" width="8%">
                                 <h:outputText value="#{envF.factura.fechaacreditacionprorrogada}" />
                             </p:column>
@@ -363,7 +364,7 @@
                                     pattern="dd/MM/yyyy" />
                             </div>
                             <div class="p-field p-col-12 p-md-4">
-                                <p:outputLabel for="procesar" value="Solo por Procesar" />
+                                <p:outputLabel for="procesar" value="Solo por Facturar" />
                                 <div class="ui-inputgroup">
                                     <p:toggleSwitch id="procesar" value="#{facturacionDirectaBean.soloporProcesar}">
                                         <p:ajax event="change" listener="#{facturacionDirectaBean.soloPorProcesar()}"
@@ -426,10 +427,11 @@
                                     <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                                 </h:outputText>
                             </p:column>
-                            <p:column headerText="Adelantar" width="10%" rendered="false">
-                                <p:selectBooleanCheckbox id="adelantar" value="#{notaP.notapedido.adelantar}">
-                                    <p:ajax event="change" />
-                                </p:selectBooleanCheckbox>
+                            <p:column headerText="Facturada" sortBy="#{notaP.notapedido.facturada}"
+                                filterBy="#{notaP.notapedido.facturada}" width="10%">
+                                <h:outputText
+                                    styleClass="product-badge status-#{estilos.tipoActivoBool(notaP.notapedido.facturada)}"
+                                    value="#{estilos.valorBoolActivoPago(notaP.notapedido.facturada)}" />
                             </p:column>
                             <p:column headerText="Facturar" width="10%">
                                 <p:selectBooleanCheckbox id="procesar" value="#{notaP.notapedido.procesar}">
@@ -581,11 +583,16 @@
                             <f:convertDateTime pattern="dd/MM/yyyy" type="date" />
                         </h:outputText>
                     </p:column>
-                    <p:column headerText="Adelantar" width="15%">
-                        <p:selectBooleanCheckbox id="adelantar" value="#{notaP.notapedido.adelantar}" />
+                    <p:column headerText="Facturada" sortBy="#{notaP.notapedido.facturada}" width="10%">
+                        <h:outputText
+                            styleClass="product-badge status-#{estilos.tipoActivoBool(notaP.notapedido.facturada)}"
+                            value="#{estilos.valorBoolActivoPago(notaP.notapedido.facturada)}" />
                     </p:column>
                     <p:column headerText="Facturar" width="10%">
-                        <p:selectBooleanCheckbox id="procesar" value="#{notaP.notapedido.procesar}" />
+                        <p:selectBooleanCheckbox id="procesar" value="#{notaP.notapedido.procesar}">
+                            <p:ajax event="change"
+                                listener="#{facturacionDirectaBean.validarNumFacturasCliente(notaP)}" update="@this" />
+                        </p:selectBooleanCheckbox>
                     </p:column>
                 </p:dataTable>
             </p:outputPanel>
