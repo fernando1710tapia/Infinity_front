@@ -2209,6 +2209,17 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
 
     
 public boolean anularEnEPP(Notapedido fac) {
+
+            // B350002141234560000AAA000000000000000000
+        // B3600025400010112345678000000000000000000
+        // WPE.CODBCO char(2)
+        // WPE CODCOM numeric(4.0)
+        // WPE NUMFAC numeric(8.0)
+        // WPE CLAENV char(8) agregar ceros al inicio o al final
+        // FL X(18)
+        // 360002021234560000AAAA000000000000000000
+
+    
         String fl = "000000000000000000";
         boolean resultadoAnulacionEPP=false;
         anulacion = new NotaPedidoSOAP();

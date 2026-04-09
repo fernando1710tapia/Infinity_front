@@ -1489,7 +1489,6 @@ public class FacturacionDirectaBean extends ReusableBean implements Serializable
 
                         /*----Objeto Cliente----*/
                         ////// ftftf clienteNP.setCodigo(cli.getString("codigo"));
-
                         clienteNP.setClientePK(new ClientePK());
                         clienteNP.getClientePK().setCodigo(cliPK.getString("codigo"));
                         clienteNP.getClientePK().setCodigocomercializadora(cliPK.getString("codigocomercializadora"));
@@ -1720,8 +1719,8 @@ public class FacturacionDirectaBean extends ReusableBean implements Serializable
             for (int i = 0; i < listenvNP.size(); i++) {
                 boolean bandera = false;
                 // generarFactura(listenvNP.get(i));
-                if (listenvNP.get(i).getNotapedido().isProcesar() == true
-                        && listenvNP.get(i).getNotapedido().getNumerofacturasri().trim().equals("0")) {
+                if (listenvNP.get(i).getNotapedido().isProcesar() == true   ){
+ //// FT 2026-04-07 NO CONTROLAR ESTO PORQUE LAS NOTAS DE PEDIDO DIRECTAS YA LLEVAN NUMERO DE FACTURA.SIN ESTAR FACTURADAS                       && listenvNP.get(i).getNotapedido().getNumerofacturasri().trim().equals("0")) {
                     // generarFactura(listenvNP.get(i));
                     for (int j = 0; j < prodSinFe.length; j++) {
                         if (listenvNP.get(i).getDetalle().getDetallenotapedidoPK().getCodigoproducto()
@@ -1913,14 +1912,14 @@ public class FacturacionDirectaBean extends ReusableBean implements Serializable
             String mensajeError = "";
             int facturasProrrogadasCaidas = 0;
             String usuario = dataUser.getUser().getNombrever().trim().replace(" ", "");
-            url = new URL(direccion + tablaFactura + "/crearF?"
+            url = new URL(direccion + tablaFactura + "/crearFdirecta?"
                     + "codigoabastecedora=" + envNP.getNotapedido().getNotapedidoPK().getCodigoabastecedora()
                     + "&codigocomercializadora=" + envNP.getNotapedido().getNotapedidoPK().getCodigocomercializadora()
                     + "&numeronotapedido=" + envNP.getNotapedido().getNotapedidoPK().getNumero()
                     + "&numero=" + num
                     + "&codigousuario=" + usuario);
 
-            System.out.println("FT:: generarFacturaP - url:: " + url.toString());
+            System.out.println("FT:: generarFacturaPDIRECTA - url:: " + url.toString());
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
             connection.setRequestMethod("PUT");
@@ -1947,7 +1946,10 @@ public class FacturacionDirectaBean extends ReusableBean implements Serializable
                         }
                     }
                     this.dialogo(FacesMessage.SEVERITY_INFO, "FACTURA REGISTRADA EXITOSAMENTE");
-                    enviarOrdenPetro(envNP, numeroFactura);
+
+// FT 2026-04-07 PARA LAS NOTAS DE PEDIDO DIRECTAS LAS FACTURAS NO DEBN ENVIARSE A PETROECUADOR                    
+                    //enviarOrdenPetro(envNP, numeroFactura);
+
 
                 } else if (connection.getResponseCode() == 299) {
                     for (int indice = 0; indice < retorno.length(); indice++) {
@@ -2532,7 +2534,7 @@ public class FacturacionDirectaBean extends ReusableBean implements Serializable
 
                 System.out.println(
                         "FT:. ENVIANDO ORIGINALMENTE getTrama:. envioPedido.getNotapedido().getCodigocliente().getControlaprorroga(). "
-                                + envioPedido.getNotapedido().getCodigocliente().getControlaprorroga());
+                        + envioPedido.getNotapedido().getCodigocliente().getControlaprorroga());
                 if (envioPedido.getNotapedido().getCodigocliente().getControlaprorroga()) {
                     facturasProrrogadasCaidas = controlarProrroga(
                             envioPedido.getNotapedido().getNotapedidoPK().getCodigocomercializadora(),
@@ -2546,8 +2548,8 @@ public class FacturacionDirectaBean extends ReusableBean implements Serializable
 
                     this.dialogo(FacesMessage.SEVERITY_ERROR,
                             "ERROR AL ENVIAR ESTA FACTURA HACIA PETROECUADOR: . SE HAN ENCONTRADO "
-                                    + facturasProrrogadasCaidas
-                                    + " FACTURAS PRORROGADAS VENCIDAS Y NO PAGADAS - CONSULTE CON LOS ADMINISTRADORES DEL SISTEMA");
+                            + facturasProrrogadasCaidas
+                            + " FACTURAS PRORROGADAS VENCIDAS Y NO PAGADAS - CONSULTE CON LOS ADMINISTRADORES DEL SISTEMA");
 
                 }
 
@@ -2846,7 +2848,7 @@ public class FacturacionDirectaBean extends ReusableBean implements Serializable
             try {
                 System.out.println(
                         "FT:. reenvioOrdenPetro:. envioPedidoAuxiliar.getNotapedido().getCodigocliente().getControlaprorroga() "
-                                + envioPedidoAuxiliar.getNotapedido().getCodigocliente().getControlaprorroga());
+                        + envioPedidoAuxiliar.getNotapedido().getCodigocliente().getControlaprorroga());
                 if (envioPedidoAuxiliar.getNotapedido().getCodigocliente().getControlaprorroga()) {
                     facturasProrrogadasCaidas = controlarProrroga(
                             envioPedidoAuxiliar.getNotapedido().getNotapedidoPK().getCodigocomercializadora(),
@@ -2862,8 +2864,8 @@ public class FacturacionDirectaBean extends ReusableBean implements Serializable
 
                     this.dialogo(FacesMessage.SEVERITY_ERROR,
                             "ERROR AL ENVIAR ESTA FACTURA HACIA PETROECUADOR: . SE HAN ENCONTRADO "
-                                    + facturasProrrogadasCaidas
-                                    + " FACTURAS PRORROGADAS VENCIDAS Y NO PAGADAS - CONSULTE CON LOS ADMINISTRADORES DEL SISTEMA");
+                            + facturasProrrogadasCaidas
+                            + " FACTURAS PRORROGADAS VENCIDAS Y NO PAGADAS - CONSULTE CON LOS ADMINISTRADORES DEL SISTEMA");
 
                 }
 
@@ -3055,7 +3057,7 @@ public class FacturacionDirectaBean extends ReusableBean implements Serializable
                         Logger.getLogger(FacturacionDirectaBean.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 } else {
-                    this.dialogo(FacesMessage.SEVERITY_ERROR, "LA FACTURA NO PUEDE SER ANULADA");
+                    this.dialogo(FacesMessage.SEVERITY_ERROR, "LA FACTURA NO PUEDE SER ANULADA, YA ESTÁ REGISTRADA EN EL SRI!");
                 }
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "LA FACTURA NO SE PUEDE ANULAR DEBIDO A QUE YA ESTÁ PAGADA");
@@ -3066,6 +3068,66 @@ public class FacturacionDirectaBean extends ReusableBean implements Serializable
     }
 
     public void anularFactura(Factura fac) {
+
+        OutputStreamWriter writer;
+        Gson gson = new Gson();
+        String JSON;
+        DataOutputStream out;
+        try {
+            // url = new
+            // URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura/porId");
+            url = new URL(
+                    Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura/porId");
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+            connection.setDoOutput(true);
+            connection.setRequestMethod("PUT");
+            connection.setRequestProperty("Content-type", "application/json");
+            connection.connect();
+
+            // facturaauxiliar.
+            facturaauxiliar.setFechaacreditacion(facturaauxiliar.getFechaacreditacion() + "T12:00:00");
+            facturaauxiliar.setFechaacreditacionprorrogada(
+                    facturaauxiliar.getFechaacreditacionprorrogada() + "T12:00:00");
+            facturaauxiliar.setFechadespacho(facturaauxiliar.getFechadespacho() + "T12:00:00");
+            facturaauxiliar.setFechavencimiento(facturaauxiliar.getFechavencimiento() + "T12:00:00");
+            facturaauxiliar.setFechaventa(facturaauxiliar.getFechaventa() + "T12:00:00");
+            facturaauxiliar.setActiva(false);
+            facturaauxiliar.setEstado("ANULADA");
+            facturaauxiliar.setOeanuladaenpetro(true);
+            facturaauxiliar.setUsuarioactual(dataUser.getUser().getNombrever());
+             
+            gson = new Gson();
+            JSON = gson.toJson(facturaauxiliar);
+            out = new DataOutputStream(connection.getOutputStream());
+            out.write(JSON.getBytes());
+            out.flush();
+            out.close();
+
+            if (connection.getResponseCode() == 200) {
+                for (int i = 0; i < listenvF.size(); i++) {
+                    if (listenvF.get(i).getFactura().getFacturaPK().getNumero()
+                            .equals(facturaauxiliar.getFacturaPK().getNumero())) {
+                        listenvF.get(i).setFactura(facturaauxiliar);
+                    }
+                }
+                System.out.println("Factura actualizada");
+
+            } else {
+                System.out.println("Error al anular la Factura: " + connection.getResponseCode());
+                System.out.println("ResponseMesagge: " + connection.getResponseMessage());
+                System.out.println("getErrorStream: " + connection.getErrorStream());
+            }
+        } catch (Throwable e) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR EN LA ANULACIÓN");
+            System.out.println("Error" + e.getMessage());
+            e.printStackTrace(System.out);
+        }
+    }
+    
+    
+     public void ORIGINALanularFactura(Factura fac) {
         // B350002141234560000AAA000000000000000000
         // B3600025400010112345678000000000000000000
         // WPE.CODBCO char(2)
