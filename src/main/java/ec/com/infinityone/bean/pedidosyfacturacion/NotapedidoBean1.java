@@ -1030,6 +1030,7 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
                 np.setNotapedidoPK(npPK);
                 np.setCodigoterminal(terminal);
                 np.setActiva(true);
+                np.setFacturada("NO");
                 np.setFechaventa(fechV.format(fechaVenta));
                 np.setFechadespacho(fechD.format(fechaDespacho));
                 np.setCodigoautotanque("");

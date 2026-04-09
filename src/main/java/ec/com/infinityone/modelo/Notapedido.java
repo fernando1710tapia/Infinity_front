@@ -23,7 +23,7 @@ public class Notapedido implements Serializable{
 
     private boolean activa;
     
-    private boolean facturada;
+    private String facturada;
 
     private String codigoautotanque;
 
@@ -41,9 +41,6 @@ public class Notapedido implements Serializable{
 
     private String respuestaanulacionoeepp;
 
-    private boolean oeenpetro;
-
-    private boolean oeanuladaenpetro;
 
     private String tramaenviadagoe;
     
@@ -124,13 +121,6 @@ public class Notapedido implements Serializable{
         this.activa = activa;
     }
 
-    public boolean isFacturada() {
-        return facturada;
-    }
-
-    public void setFacturada(boolean facturada) {
-        this.facturada = facturada;
-    }
 
     public String getCodigoautotanque() {
         return codigoautotanque;
@@ -164,13 +154,6 @@ public class Notapedido implements Serializable{
         this.respuestageneracionoeepp = respuestageneracionoeepp;
     }
 
-    public boolean isOeenpetro() {
-        return oeenpetro;
-    }
-
-    public void setOeenpetro(boolean oeenpetro) {
-        this.oeenpetro = oeenpetro;
-    }
 
     public String getObservacion() {
         return observacion;
@@ -196,13 +179,6 @@ public class Notapedido implements Serializable{
         this.respuestaanulacionoeepp = respuestaanulacionoeepp;
     }
 
-    public boolean isOeanuladaenpetro() {
-        return oeanuladaenpetro;
-    }
-
-    public void setOeanuladaenpetro(boolean oeanuladaenpetro) {
-        this.oeanuladaenpetro = oeanuladaenpetro;
-    }
 
     public String getTramaenviadagoe() {
         return tramaenviadagoe;
@@ -328,6 +304,14 @@ public class Notapedido implements Serializable{
 
     public void setCodigoclienteId(String codigoclienteId) {
         this.codigoclienteId = codigoclienteId;
+    }
+
+    public String getFacturada() {
+        return facturada;
+    }
+
+    public void setFacturada(String facturada) {
+        this.facturada = facturada;
     }
     
     
