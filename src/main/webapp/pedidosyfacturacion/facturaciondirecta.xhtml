@@ -430,8 +430,8 @@
                             <p:column headerText="Facturada" sortBy="#{notaP.notapedido.facturada}"
                                 filterBy="#{notaP.notapedido.facturada}" width="10%">
                                 <h:outputText
-                                    styleClass="product-badge status-#{estilos.tipoActivoBool(notaP.notapedido.facturada)}"
-                                    value="#{estilos.valorBoolActivoPago(notaP.notapedido.facturada)}" />
+                                    styleClass="product-badge status-#{notaP.notapedido.facturada eq 'SI' ? 'instock' : (notaP.notapedido.facturada eq 'NO' ? 'outofstock' : 'lowstock')}"
+                                    value="#{notaP.notapedido.facturada}" />
                             </p:column>
                             <p:column headerText="Facturar" width="10%">
                                 <p:selectBooleanCheckbox id="procesar" value="#{notaP.notapedido.procesar}">
@@ -585,13 +585,13 @@
                     </p:column>
                     <p:column headerText="Facturada" sortBy="#{notaP.notapedido.facturada}" width="10%">
                         <h:outputText
-                            styleClass="product-badge status-#{estilos.tipoActivoBool(notaP.notapedido.facturada)}"
-                            value="#{estilos.valorBoolActivoPago(notaP.notapedido.facturada)}" />
+                            styleClass="product-badge status-#{notaP.notapedido.facturada eq 'SI' ? 'instock' : (notaP.notapedido.facturada eq 'NO' ? 'outofstock' : 'lowstock')}"
+                            value="#{notaP.notapedido.facturada}" />
                     </p:column>
                     <p:column headerText="Facturar" width="10%">
                         <p:selectBooleanCheckbox id="procesar" value="#{notaP.notapedido.procesar}">
-                            <p:ajax event="change"
-                                listener="#{facturacionDirectaBean.validarNumFacturasCliente(notaP)}" update="@this" />
+                            <p:ajax event="change" listener="#{facturacionDirectaBean.validarNumFacturasCliente(notaP)}"
+                                update="@this" />
                         </p:selectBooleanCheckbox>
                     </p:column>
                 </p:dataTable>

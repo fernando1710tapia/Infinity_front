@@ -8,6 +8,7 @@ package ec.com.infinityone.modelo;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  *
@@ -65,6 +66,10 @@ public class Notapedido implements Serializable{
     private Comercializadora comercializadora;
     
     private Abastecedora abastecedora;
+    
+    private boolean oeenpetro;
+    
+    private boolean oeanuladaenpetro;
     
 
     
@@ -314,5 +319,22 @@ public class Notapedido implements Serializable{
         this.facturada = facturada;
     }
     
+    @JsonIgnore
+    public boolean isOeenpetro() {
+        return oeenpetro;
+    }
+
+    public void setOeenpetro(boolean oeenpetro) {
+        this.oeenpetro = oeenpetro;
+    }
+
+    @JsonIgnore
+    public boolean isOeanuladaenpetro() {
+        return oeanuladaenpetro;
+    }
+
+    public void setOeanuladaenpetro(boolean oeanuladaenpetro) {
+        this.oeanuladaenpetro = oeanuladaenpetro;
+    }
     
 }

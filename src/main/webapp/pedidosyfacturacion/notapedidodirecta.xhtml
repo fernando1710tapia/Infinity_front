@@ -168,13 +168,13 @@
                                 <p:column headerText="Facturada" sortBy="#{notap.notapedido.facturada}"
                                     filterBy="#{notap.notapedido.facturada}" width="10%">
                                     <h:outputText
-                                        styleClass="product-badge status-#{estilos.tipoActivoBool(notap.notapedido.facturada)}"
-                                        value="#{estilos.valorBoolActivoPago(notap.notapedido.facturada)}" />
+                                        styleClass="product-badge status-#{notap.notapedido.facturada eq 'SI' ? 'instock' : (notap.notapedido.facturada eq 'NO' ? 'outofstock' : 'lowstock')}"
+                                        value="#{notap.notapedido.facturada}" />
                                 </p:column>
                                 <p:column headerText="OE Petro" exportable="false" width="7%">
                                     <p:commandButton
-                                        styleClass="product-badge status-#{estilos.tipoActivoBool(notap.notapedido.oeenpetro)}"
-                                        value="#{estilos.valorBoolActivoPago(notap.notapedido.oeenpetro)}"
+                                        styleClass="product-badge status-#{estilos.estiloEstadoPetro(notap.notapedido.respuestageneracionoeepp)}"
+                                        value="#{estilos.valorEstadoPetro(notap.notapedido.respuestageneracionoeepp)}"
                                         actionListener="#{notapedidoBeanDirecto.verificarOeenpetro(notap)}"
                                         update="form">
                                         <f:setPropertyActionListener value="#{notap}"
@@ -183,8 +183,8 @@
                                 </p:column>
                                 <p:column headerText="Anu OEPETRO" exportable="false" width="7%">
                                     <p:commandButton
-                                        styleClass="product-badge status-#{estilos.tipoActivoBool(notap.notapedido.oeanuladaenpetro)}"
-                                        value="#{estilos.valorBoolActivoPago(notap.notapedido.oeanuladaenpetro)}"
+                                        styleClass="product-badge status-#{estilos.estiloEstadoAnulacionPetro(notap.notapedido.respuestaanulacionoeepp)}"
+                                        value="#{estilos.valorEstadoAnulacionPetro(notap.notapedido.respuestaanulacionoeepp)}"
                                         actionListener="#{notapedidoBeanDirecto.verificarAnulacionPetro(notap)}"
                                         update="form">
                                         <f:setPropertyActionListener value="#{notap}"
