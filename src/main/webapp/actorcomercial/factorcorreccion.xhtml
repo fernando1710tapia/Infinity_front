@@ -62,9 +62,11 @@
                         </div>
                         <div class="p-field p-col-12" style="display: flex; align-items: center; margin-top: 0.5rem;">
                             <p:toggleSwitch id="switchVigentes" value="#{factorCorreccionBean.mostrarSoloVigentes}">
-                                <p:ajax listener="#{factorCorreccionBean.aplicarFiltroVigentes}" update="dt-factores messages" />
+                                <p:ajax listener="#{factorCorreccionBean.aplicarFiltroVigentes}"
+                                    update="dt-factores messages" />
                             </p:toggleSwitch>
-                            <h:outputText value="Mostrar solo vigentes" style="margin-left: 0.5rem; font-weight: bold; color: white;" />
+                            <h:outputText value="Mostrar solo vigentes"
+                                style="margin-left: 0.5rem; font-weight: bold; color: white;" />
                         </div>
                     </div>
 
@@ -125,7 +127,7 @@
                         <div class="p-field p-col-12 p-md-3">
                             <p:outputLabel for="fechaA" value="Fecha" />
                             <p:datePicker id="fechaA" value="#{factorCorreccionBean.fechaActual}" showIcon="true"
-                                pattern="dd/MM/yyyy" />
+                                pattern="dd/MM/yyyy" disabled="true" />
                         </div>
                         <div class="p-field p-col-12 p-md-3" style="display: flex; align-items: flex-end;">
                             <p:commandButton value="Buscar Productos" icon="pi pi-search"

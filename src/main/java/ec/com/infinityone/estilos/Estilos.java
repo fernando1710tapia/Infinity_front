@@ -118,7 +118,8 @@ public class Estilos implements Serializable {
     }
 
     public String valorEstadoPetro(String _tipo) {
-        if (_tipo == null) return "NO";
+        if (_tipo == null)
+            return "NO";
         if (_tipo.equals("00") || _tipo.equals("20")) {
             return "SI";
         } else {
@@ -127,7 +128,8 @@ public class Estilos implements Serializable {
     }
 
     public String valorEstadoAnulacionPetro(String _tipo) {
-        if (_tipo == null) return "NO";
+        if (_tipo == null)
+            return "NO";
         if (_tipo.equals("00") || _tipo.equals("01") || _tipo.equals("03")) {
             return "SI";
         } else {
@@ -136,7 +138,8 @@ public class Estilos implements Serializable {
     }
 
     public String estiloEstadoPetro(String _tipo) {
-        if (_tipo == null) return "outofstock";
+        if (_tipo == null)
+            return "outofstock";
         if (_tipo.equals("00") || _tipo.equals("20")) {
             return "instock";
         } else {
@@ -145,7 +148,8 @@ public class Estilos implements Serializable {
     }
 
     public String estiloEstadoAnulacionPetro(String _tipo) {
-        if (_tipo == null) return "outofstock";
+        if (_tipo == null)
+            return "outofstock";
         if (_tipo.equals("00") || _tipo.equals("01") || _tipo.equals("03")) {
             return "instock";
         } else {
