@@ -730,8 +730,7 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
                 EnvioPedido envioPedido = new EnvioPedido();
 
                 StringBuilder content = new StringBuilder();
-                try (InputStreamReader isr = new InputStreamReader(connection.getInputStream());
-                        BufferedReader br = new BufferedReader(isr)) {
+                try (InputStreamReader isr = new InputStreamReader(connection.getInputStream()); BufferedReader br = new BufferedReader(isr)) {
                     String tmp;
                     while ((tmp = br.readLine()) != null) {
                         content.append(tmp);
@@ -788,9 +787,7 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
                             formap.setCodigo(formPago.getString("codigo"));
 
                             /*----Objeto Cliente----*/
-
                             ////// FTFT cliente.setCodigo(cli.getString("codigo"));
-
                             cliente.setClientePK(new ClientePK());
                             cliente.getClientePK().setCodigocomercializadora(cliPK.getString("codigocomercializadora"));
                             cliente.getClientePK().setCodigo(cliPK.getString("codigo"));
@@ -815,6 +812,7 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
 
                             /*----Guardando el cliente, termina y banco en Nota pedido---*/
                             np.setCodigocliente(cliente);
+                            np.setCodigoclienteId(cliente.getClientePK().getCodigo().trim());
                             np.setCodigoterminal(terminalT);
                             np.setCodigobanco(banco);
                             np.setComercializadora(comerc);
@@ -835,6 +833,19 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
                             np.setFechaventa(fechaVencimiento);
                             np.setFechadespacho(fechaDescpacho);
                             np.setNotapedidoPK(npPK);
+                            np.setUsuarioactual(nt.getString("usuarioactual"));
+                            if (!nt.isNull("observacion")) {
+                                np.setObservacion(nt.getString("observacion"));
+                            } else {
+                                np.setObservacion("");
+                            }
+                            
+                            if (!nt.isNull("prefijo")) {
+                            np.setPrefijo(nt.getString("prefijo"));
+                        } else {
+                            np.setPrefijo("");
+                        }
+                            
 
                             /*----Parse Detail if exists for Producto and Volume columns----*/
                             JSONObject det = null;
@@ -1023,8 +1034,7 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
             }
 
             StringBuilder contentBuilder = new StringBuilder();
-            try (InputStreamReader isr = new InputStreamReader(connection.getInputStream());
-                    BufferedReader br = new BufferedReader(isr)) {
+            try (InputStreamReader isr = new InputStreamReader(connection.getInputStream()); BufferedReader br = new BufferedReader(isr)) {
                 String tmp;
                 while ((tmp = br.readLine()) != null) {
                     contentBuilder.append(tmp);
@@ -1050,7 +1060,6 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
             }
 
             // enviarOrdenPetro(envNP, numeroFactura);
-
         } catch (IOException e) {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR NOTA DE PEDIDO: " + e);
             e.printStackTrace();
@@ -1201,7 +1210,6 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
                 ////////////// PAGADAS - CONSULTE CON LOS ADMINISTRADORES DEL SISTEMA");
                 //////////////
                 ////////////// }
-
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR,
                         "NO SE LOGRÓ GENERAR LA TRAMA DE LA ORDEN DE ENTREGA PARA PETROECUADOR");
@@ -1329,9 +1337,7 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
                         formap.setCodigo(formPago.getString("codigo"));
 
                         /*----Objeto Cliente----*/
-
                         ////// FTFT cliente.setCodigo(cli.getString("codigo"));
-
                         cliente.setClientePK(new ClientePK());
                         cliente.getClientePK().setCodigocomercializadora(cliPK.getString("codigocomercializadora"));
                         cliente.getClientePK().setCodigo(cliPK.getString("codigo"));
@@ -1450,8 +1456,8 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
     public void anularNotaPedido() {
         if (notaPedidoAuxiliar != null) {
             boolean EPPAnuloOe = false;
-
             EPPAnuloOe = anularEnEPP(notaPedidoAuxiliar);
+            // FT PARA PRUEBA SIN PETRO boolean EPPAnuloOe = true;
             if (EPPAnuloOe) {
                 try {
                     // Preparar fechas para el servicio (formato ISO/JS esperado por el backend)
@@ -1463,7 +1469,8 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
 
                     notaPedidoAuxiliar.setFechadespacho(fechaD);
                     notaPedidoAuxiliar.setFechaventa(fechaV);
-                    notaPedidoAuxiliar.setActiva(false);
+                    notaPedidoAuxiliar.setActiva(Boolean.FALSE);
+                    notaPedidoAuxiliar.setUsuarioactual(dataUser.getUser().getNombrever());
 
                     String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
                             + "ec.com.infinity.modelo.notapedido/porId";
@@ -2286,7 +2293,6 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
         // WPE CLAENV char(8) agregar ceros al inicio o al final
         // FL X(18)
         // 360002021234560000AAAA000000000000000000
-
         String fl = "000000000000000000";
         boolean resultadoAnulacionEPP = false;
         anulacion = new NotaPedidoSOAP();
