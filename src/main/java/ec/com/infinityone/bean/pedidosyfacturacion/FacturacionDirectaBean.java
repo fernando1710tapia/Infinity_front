@@ -605,15 +605,19 @@ public class FacturacionDirectaBean extends ReusableBean implements Serializable
             List<Cliente> listaClientesAux = new ArrayList<>();
             listaClientes = new ArrayList<>();
             if (busqueda == 1) {
-                listaClientesAux = clienteServicio.obtenerClientesActivosPorComercializadora(codComer);
+//FT-20260412- FACTURAR CUALQUIER CLIENTE                listaClientesAux = clienteServicio.obtenerClientesActivosPorComercializadora(codComer);
+                listaClientes = clienteServicio.obtenerClientesActivosPorComercializadora(codComer);
             } else {
-                listaClientesAux = clienteServicio.obtenerClientesPorComercializadoraActiva(codComer);
+//FT-20260412- FACTURAR CUALQUIER CLIENTE                listaClientesAux = clienteServicio.obtenerClientesPorComercializadoraActiva(codComer);
+                listaClientes = clienteServicio.obtenerClientesPorComercializadoraActiva(codComer);
             }
-            for (int i = 0; i < listaClientesAux.size(); i++) {
-                if (listaClientesAux.get(i).getCodigoterminaldefecto().getCodigo().equals(codTerminal)) {
-                    listaClientes.add(listaClientesAux.get(i));
-                }
-            }
+            
+     /// FT 2026-04-12 ESTE FOR SE HA ELIMINADO PARA PODER VER TODOS LOS CLIENTES , SIN IMPORTAR EL TERMINAL SELECCIONADO , PARA PODER FACTURAR CUALQUIER PEDIDO DIRECTO       
+//            for (int i = 0; i < listaClientesAux.size(); i++) {
+//                if (listaClientesAux.get(i).getCodigoterminaldefecto().getCodigo().equals(codTerminal)) {
+//                    listaClientes.add(listaClientesAux.get(i));
+//                }
+//            }
             // factura.setCodTerminal(terminal.getCodigo());
         } else {
             codTerminal = "-1";
@@ -629,12 +633,14 @@ public class FacturacionDirectaBean extends ReusableBean implements Serializable
     public void seleccionarCliente(int busqueda) {
         if (cliente != null) {
             codCliente = cliente.getClientePK().getCodigo();
-            for (int i = 0; i < listaTermianles.size(); i++) {
-                if (listaTermianles.get(i).getCodigo().equals(cliente.getCodigoterminaldefecto().getCodigo())) {
-                    terminal = listaTermianles.get(i);
-                    break;
-                }
-            }
+
+     /// FT 2026-04-12 ESTE FOR SE HA ELIMINADO PARA PODER VER TODOS LOS CLIENTES , SIN IMPORTAR EL TERMINAL SELECCIONADO , PARA PODER FACTURAR CUALQUIER PEDIDO DIRECTO       
+//            for (int i = 0; i < listaTermianles.size(); i++) {
+//                if (listaTermianles.get(i).getCodigo().equals(cliente.getCodigoterminaldefecto().getCodigo())) {
+//                    terminal = listaTermianles.get(i);
+//                    break;
+//                }
+//            }
             seleccionarTerminal(busqueda);
         } else {
             codCliente = "-1";
@@ -1538,7 +1544,17 @@ public class FacturacionDirectaBean extends ReusableBean implements Serializable
                         } else {
                             np.setCedulaconductor("");
                         }
-
+                        if (!nt.isNull("respuestageneracionoeepp")) {
+                            np.setRespuestageneracionoeepp(nt.getString("respuestageneracionoeepp"));
+                        } else {
+                            np.setRespuestageneracionoeepp("");
+                        }
+ 
+                        if (!nt.isNull("respuestaanulacionoeepp")) {
+                            np.setRespuestaanulacionoeepp(nt.getString("respuestaanulacionoeepp"));
+                        } else {
+                            np.setRespuestaanulacionoeepp("");
+                        }
                         npPK.setNumero(ntPK.getString("numero"));
                         npPK.setCodigoabastecedora(ntPK.getString("codigoabastecedora"));
                         npPK.setCodigocomercializadora(ntPK.getString("codigocomercializadora"));
@@ -1720,8 +1736,8 @@ public class FacturacionDirectaBean extends ReusableBean implements Serializable
             for (int i = 0; i < listenvNP.size(); i++) {
                 boolean bandera = false;
                 // generarFactura(listenvNP.get(i));
-                if (listenvNP.get(i).getNotapedido().isProcesar() == true   ){
- //// FT 2026-04-07 NO CONTROLAR ESTO PORQUE LAS NOTAS DE PEDIDO DIRECTAS YA LLEVAN NUMERO DE FACTURA.SIN ESTAR FACTURADAS                       && listenvNP.get(i).getNotapedido().getNumerofacturasri().trim().equals("0")) {
+                if (listenvNP.get(i).getNotapedido().isProcesar() == true) {
+                    //// FT 2026-04-07 NO CONTROLAR ESTO PORQUE LAS NOTAS DE PEDIDO DIRECTAS YA LLEVAN NUMERO DE FACTURA.SIN ESTAR FACTURADAS                       && listenvNP.get(i).getNotapedido().getNumerofacturasri().trim().equals("0")) {
                     // generarFactura(listenvNP.get(i));
                     for (int j = 0; j < prodSinFe.length; j++) {
                         if (listenvNP.get(i).getDetalle().getDetallenotapedidoPK().getCodigoproducto()
@@ -1950,8 +1966,6 @@ public class FacturacionDirectaBean extends ReusableBean implements Serializable
 
 // FT 2026-04-07 PARA LAS NOTAS DE PEDIDO DIRECTAS LAS FACTURAS NO DEBN ENVIARSE A PETROECUADOR                    
                     //enviarOrdenPetro(envNP, numeroFactura);
-
-
                 } else if (connection.getResponseCode() == 299) {
                     for (int indice = 0; indice < retorno.length(); indice++) {
                         if (!retorno.isNull(indice)) {
@@ -3098,7 +3112,7 @@ public class FacturacionDirectaBean extends ReusableBean implements Serializable
             facturaauxiliar.setEstado("ANULADA");
             facturaauxiliar.setOeanuladaenpetro(true);
             facturaauxiliar.setUsuarioactual(dataUser.getUser().getNombrever());
-             
+
             gson = new Gson();
             JSON = gson.toJson(facturaauxiliar);
             out = new DataOutputStream(connection.getOutputStream());
@@ -3126,9 +3140,8 @@ public class FacturacionDirectaBean extends ReusableBean implements Serializable
             e.printStackTrace(System.out);
         }
     }
-    
-    
-     public void ORIGINALanularFactura(Factura fac) {
+
+    public void ORIGINALanularFactura(Factura fac) {
         // B350002141234560000AAA000000000000000000
         // B3600025400010112345678000000000000000000
         // WPE.CODBCO char(2)
@@ -3600,9 +3613,9 @@ public class FacturacionDirectaBean extends ReusableBean implements Serializable
                 if (factAux.getFacturaPK() != null) {
                     System.out.println(
                             "Factura anterior encontrada: " + factAux.getFacturaPK().getCodigocomercializadora()
-                                    + " -FAC- " + factAux.getFacturaPK().getNumero() + " -NP-. "
-                                    + factAux.getFacturaPK().getNumeronotapedido() + " - Respuesta: - "
-                                    + connection.getResponseCode());
+                            + " -FAC- " + factAux.getFacturaPK().getNumero() + " -NP-. "
+                            + factAux.getFacturaPK().getNumeronotapedido() + " - Respuesta: - "
+                            + connection.getResponseCode());
                     actualizarFactura(factAux);
                 }
             } else {
@@ -4091,7 +4104,7 @@ public class FacturacionDirectaBean extends ReusableBean implements Serializable
                                 bandera = false;
                                 this.dialogo(FacesMessage.SEVERITY_WARN,
                                         "La factura N." + listFactSelec.get(i).getFacturaPK().getNumero()
-                                                + " no se encuentra en Petro");
+                                        + " no se encuentra en Petro");
                             }
                         } else {
                             bandera = false;
@@ -4525,11 +4538,11 @@ public class FacturacionDirectaBean extends ReusableBean implements Serializable
             // URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.factura/porId");
             url = new URL(
                     Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factura/controlaprorroga?"
-                            + "codigocomercializadora=" + codigoComercializadora
-                            + "&activa=" + true
-                            + "&pagada=" + false
-                            + "&codigocliente=" + codigoCliente
-                            + "&fechaacreditacionprorrogada=" + fechafinal);
+                    + "codigocomercializadora=" + codigoComercializadora
+                    + "&activa=" + true
+                    + "&pagada=" + false
+                    + "&codigocliente=" + codigoCliente
+                    + "&fechaacreditacionprorrogada=" + fechafinal);
 
             System.out.println("FT:. controlarProrroga:. url de servicio de consulta " + url.toString());
 
