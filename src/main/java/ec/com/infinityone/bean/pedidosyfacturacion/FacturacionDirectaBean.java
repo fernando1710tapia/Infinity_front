@@ -605,15 +605,19 @@ public class FacturacionDirectaBean extends ReusableBean implements Serializable
             List<Cliente> listaClientesAux = new ArrayList<>();
             listaClientes = new ArrayList<>();
             if (busqueda == 1) {
-                listaClientesAux = clienteServicio.obtenerClientesActivosPorComercializadora(codComer);
+//FT-20260412- FACTURAR CUALQUIER CLIENTE                listaClientesAux = clienteServicio.obtenerClientesActivosPorComercializadora(codComer);
+                listaClientes = clienteServicio.obtenerClientesActivosPorComercializadora(codComer);
             } else {
-                listaClientesAux = clienteServicio.obtenerClientesPorComercializadoraActiva(codComer);
+//FT-20260412- FACTURAR CUALQUIER CLIENTE                listaClientesAux = clienteServicio.obtenerClientesPorComercializadoraActiva(codComer);
+                listaClientes = clienteServicio.obtenerClientesPorComercializadoraActiva(codComer);
             }
-            for (int i = 0; i < listaClientesAux.size(); i++) {
-                if (listaClientesAux.get(i).getCodigoterminaldefecto().getCodigo().equals(codTerminal)) {
-                    listaClientes.add(listaClientesAux.get(i));
-                }
-            }
+            
+     /// FT 2026-04-12 ESTE FOR SE HA ELIMINADO PARA PODER VER TODOS LOS CLIENTES , SIN IMPORTAR EL TERMINAL SELECCIONADO , PARA PODER FACTURAR CUALQUIER PEDIDO DIRECTO       
+//            for (int i = 0; i < listaClientesAux.size(); i++) {
+//                if (listaClientesAux.get(i).getCodigoterminaldefecto().getCodigo().equals(codTerminal)) {
+//                    listaClientes.add(listaClientesAux.get(i));
+//                }
+//            }
             // factura.setCodTerminal(terminal.getCodigo());
         } else {
             codTerminal = "-1";
@@ -629,12 +633,14 @@ public class FacturacionDirectaBean extends ReusableBean implements Serializable
     public void seleccionarCliente(int busqueda) {
         if (cliente != null) {
             codCliente = cliente.getClientePK().getCodigo();
-            for (int i = 0; i < listaTermianles.size(); i++) {
-                if (listaTermianles.get(i).getCodigo().equals(cliente.getCodigoterminaldefecto().getCodigo())) {
-                    terminal = listaTermianles.get(i);
-                    break;
-                }
-            }
+
+     /// FT 2026-04-12 ESTE FOR SE HA ELIMINADO PARA PODER VER TODOS LOS CLIENTES , SIN IMPORTAR EL TERMINAL SELECCIONADO , PARA PODER FACTURAR CUALQUIER PEDIDO DIRECTO       
+//            for (int i = 0; i < listaTermianles.size(); i++) {
+//                if (listaTermianles.get(i).getCodigo().equals(cliente.getCodigoterminaldefecto().getCodigo())) {
+//                    terminal = listaTermianles.get(i);
+//                    break;
+//                }
+//            }
             seleccionarTerminal(busqueda);
         } else {
             codCliente = "-1";
