@@ -730,7 +730,8 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
                 EnvioPedido envioPedido = new EnvioPedido();
 
                 StringBuilder content = new StringBuilder();
-                try (InputStreamReader isr = new InputStreamReader(connection.getInputStream()); BufferedReader br = new BufferedReader(isr)) {
+                try (InputStreamReader isr = new InputStreamReader(connection.getInputStream());
+                        BufferedReader br = new BufferedReader(isr)) {
                     String tmp;
                     while ((tmp = br.readLine()) != null) {
                         content.append(tmp);
@@ -849,8 +850,8 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
                             String respAnu = nt.optString("respuestaanulacionoeepp", "");
                             np.setRespuestageneracionoeepp(respGen);
                             np.setRespuestaanulacionoeepp(respAnu);
-                            np.setOeenpetro(respGen.equals("00") || respGen.equals("20"));
-                            np.setOeanuladaenpetro(respAnu.equals("00") || respAnu.equals("01") || respAnu.equals("03"));
+                            np.setOeenpetro(respGen);
+                            np.setOeanuladaenpetro(respAnu);
                             npPK.setNumero(ntPK.getString("numero"));
                             npPK.setCodigoabastecedora(ntPK.getString("codigoabastecedora"));
                             npPK.setCodigocomercializadora(ntPK.getString("codigocomercializadora"));
@@ -879,7 +880,6 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
                             } else {
                                 np.setCedulaconductor("");
                             }
-
 
                             /*----Parse Detail if exists for Producto and Volume columns----*/
                             JSONObject det = null;
@@ -1068,7 +1068,8 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
             }
 
             StringBuilder contentBuilder = new StringBuilder();
-            try (InputStreamReader isr = new InputStreamReader(connection.getInputStream()); BufferedReader br = new BufferedReader(isr)) {
+            try (InputStreamReader isr = new InputStreamReader(connection.getInputStream());
+                    BufferedReader br = new BufferedReader(isr)) {
                 String tmp;
                 while ((tmp = br.readLine()) != null) {
                     contentBuilder.append(tmp);
@@ -1491,7 +1492,7 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
         if (notaPedidoAuxiliar != null) {
             boolean EPPAnuloOe = false;
             EPPAnuloOe = anularEnEPP(notaPedidoAuxiliar);
-            // FT PARA PRUEBA SIN PETRO             boolean EPPAnuloOe = true;
+            // FT PARA PRUEBA SIN PETRO boolean EPPAnuloOe = true;
             if (EPPAnuloOe) {
                 try {
                     // Preparar fechas para el servicio (formato ISO/JS esperado por el backend)
@@ -2352,7 +2353,7 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
             anulacion.setNumero(fac.getNotapedidoPK().getNumero().trim());
             anulacion.setCadena(cadena);
 
-            //llenar campos de NP con info para y desde PETRO, en proceso de anulación
+            // llenar campos de NP con info para y desde PETRO, en proceso de anulación
             fac.setTramarenviadaaoe(cadena);
             fac.setTramarecibidaaoe("");
             fac.setRespuestaanulacionoeepp("");
@@ -2390,7 +2391,7 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
                 System.out.println("FT:: codigoanulacion.substring(0, 2)" + codigoanulacion.substring(0, 2)
                         + "SE DEBE VALIDAR SI ES 08 PARA ANULAR UNA REFACTURACION");
 
-                // llenar respuesta de EPP 
+                // llenar respuesta de EPP
                 fac.setTramarecibidaaoe(codigoanulacion.trim());
                 fac.setRespuestaanulacionoeepp(codigoanulacion.trim().substring(0, 2));
 

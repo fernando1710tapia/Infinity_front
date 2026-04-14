@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  *
  * @author HP
  */
-public class Notapedido implements Serializable{
+public class Notapedido implements Serializable {
 
     protected NotapedidoPK notapedidoPK;
 
@@ -23,7 +23,7 @@ public class Notapedido implements Serializable{
     private String fechadespacho;
 
     private boolean activa;
-    
+
     private String facturada;
 
     private String codigoautotanque;
@@ -37,14 +37,13 @@ public class Notapedido implements Serializable{
     private String observacion;
 
     private boolean adelantar;
-    
+
     private boolean procesar;
 
     private String respuestaanulacionoeepp;
 
-
     private String tramaenviadagoe;
-    
+
     private String tramarenviadaaoe;
 
     private String tramarecibidagoe;
@@ -52,36 +51,34 @@ public class Notapedido implements Serializable{
     private String tramarecibidaaoe;
 
     private String usuarioactual;
-   
+
     private String prefijo;
 
     private Cliente codigocliente;
-    
-    private String codigoclienteId;
-    
-    private Terminal codigoterminal;
-    
-    private Banco codigobanco;
-    
-    private Comercializadora comercializadora;
-    
-    private Abastecedora abastecedora;
-    
-    private boolean oeenpetro;
-    
-    private boolean oeanuladaenpetro;
-    
 
-    
-    
+    private String codigoclienteId;
+
+    private Terminal codigoterminal;
+
+    private Banco codigobanco;
+
+    private Comercializadora comercializadora;
+
+    private Abastecedora abastecedora;
+
+    private String oeenpetro;
+
+    private String oeanuladaenpetro;
+
     public Notapedido() {
     }
 
     public Notapedido(NotapedidoPK notapedidoPK) {
         this.notapedidoPK = notapedidoPK;
     }
-    
-    public Notapedido(NotapedidoPK notapedidoPK, String fechaventa, String fechadespacho, boolean activa, boolean adelantar, String usuarioactual) {
+
+    public Notapedido(NotapedidoPK notapedidoPK, String fechaventa, String fechadespacho, boolean activa,
+            boolean adelantar, String usuarioactual) {
         this.notapedidoPK = notapedidoPK;
         this.fechaventa = fechaventa;
         this.fechadespacho = fechadespacho;
@@ -126,7 +123,6 @@ public class Notapedido implements Serializable{
         this.activa = activa;
     }
 
-
     public String getCodigoautotanque() {
         return codigoautotanque;
     }
@@ -159,7 +155,6 @@ public class Notapedido implements Serializable{
         this.respuestageneracionoeepp = respuestageneracionoeepp;
     }
 
-
     public String getObservacion() {
         return observacion;
     }
@@ -183,7 +178,6 @@ public class Notapedido implements Serializable{
     public void setRespuestaanulacionoeepp(String respuestaanulacionoeepp) {
         this.respuestaanulacionoeepp = respuestaanulacionoeepp;
     }
-
 
     public String getTramaenviadagoe() {
         return tramaenviadagoe;
@@ -272,9 +266,7 @@ public class Notapedido implements Serializable{
     public void setTramarenviadaaoe(String tramarenviadaaoe) {
         this.tramarenviadaaoe = tramarenviadaaoe;
     }
-    
-    
-    
+
     @Override
     public int hashCode() {
         int hash = 0;
@@ -289,7 +281,8 @@ public class Notapedido implements Serializable{
             return false;
         }
         Notapedido other = (Notapedido) object;
-        if ((this.notapedidoPK == null && other.notapedidoPK != null) || (this.notapedidoPK != null && !this.notapedidoPK.equals(other.notapedidoPK))) {
+        if ((this.notapedidoPK == null && other.notapedidoPK != null)
+                || (this.notapedidoPK != null && !this.notapedidoPK.equals(other.notapedidoPK))) {
             return false;
         }
         return true;
@@ -301,7 +294,7 @@ public class Notapedido implements Serializable{
 
     public void setProcesar(boolean procesar) {
         this.procesar = procesar;
-    }    
+    }
 
     public String getCodigoclienteId() {
         return codigoclienteId;
@@ -318,23 +311,23 @@ public class Notapedido implements Serializable{
     public void setFacturada(String facturada) {
         this.facturada = facturada;
     }
-    
+
     @JsonIgnore
-    public boolean isOeenpetro() {
+    public String getOeenpetro() {
         return oeenpetro;
     }
 
-    public void setOeenpetro(boolean oeenpetro) {
+    public void setOeenpetro(String oeenpetro) {
         this.oeenpetro = oeenpetro;
     }
 
     @JsonIgnore
-    public boolean isOeanuladaenpetro() {
+    public String getOeanuladaenpetro() {
         return oeanuladaenpetro;
     }
 
-    public void setOeanuladaenpetro(boolean oeanuladaenpetro) {
+    public void setOeanuladaenpetro(String oeanuladaenpetro) {
         this.oeanuladaenpetro = oeanuladaenpetro;
     }
-    
+
 }

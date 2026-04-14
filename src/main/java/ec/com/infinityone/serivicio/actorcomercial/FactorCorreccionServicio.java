@@ -20,6 +20,7 @@ import org.primefaces.shaded.json.JSONObject;
 
 /**
  * Service for Factor de Corrección
+ * 
  * @author Antigravity
  */
 @LocalBean
@@ -33,9 +34,11 @@ public class FactorCorreccionServicio {
             String fIni = sdf.format(fechaIni);
             String fFin = sdf.format(fechaFin);
 
-            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factorcorreccion/buscarfechas?";
-            String params = "codigocomercializadora=" + codComer + "&codigoterminal=" + codTerm + "&fechainicial=" + fIni + "&fechafinal=" + fFin;
-            
+            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
+                    + "ec.com.infinity.modelo.factorcorreccion/buscarfechas?";
+            String params = "codigocomercializadora=" + codComer + "&codigoterminal=" + codTerm + "&fechainicial="
+                    + fIni + "&fechafinal=" + fFin;
+
             URL url = new URL(direcc + params);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
@@ -50,16 +53,16 @@ public class FactorCorreccionServicio {
                 while ((tmp = br.readLine()) != null) {
                     respuesta.append(tmp);
                 }
-                
+
                 JSONObject objetoJson = new JSONObject(respuesta.toString());
                 JSONArray retorno = objetoJson.getJSONArray("retorno");
-                
+
                 SimpleDateFormat sdfParse = new SimpleDateFormat("yyyy-MM-dd");
 
                 for (int i = 0; i < retorno.length(); i++) {
                     JSONObject obj = retorno.getJSONObject(i);
                     FactorCorreccion factor = new FactorCorreccion();
-                    
+
                     // Caso 1: Estructura Plana
                     if (!obj.isNull("fecha")) {
                         Object fechaObj = obj.get("fecha");
@@ -80,7 +83,7 @@ public class FactorCorreccionServicio {
                     } else if (!obj.isNull("codigoproducto")) {
                         parsearProducto(p, obj.get("codigoproducto"));
                     }
-                    
+
                     // Caso 2: Estructura Anidada (factorcorreccionPK)
                     if (!obj.isNull("factorcorreccionPK")) {
                         JSONObject pkJson = obj.getJSONObject("factorcorreccionPK");
@@ -120,9 +123,10 @@ public class FactorCorreccionServicio {
     public List<FactorCorreccion> buscarProductosPorTerminal(String codTerm) {
         List<FactorCorreccion> lista = new ArrayList<>();
         try {
-            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factorcorreccion/buscarterminalproductoxterminal?";
+            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
+                    + "ec.com.infinity.modelo.factorcorreccion/buscarterminalproductoxterminal?";
             String params = "pcodigoterminal=" + codTerm;
-            
+
             URL url = new URL(direcc + params);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
@@ -133,13 +137,15 @@ public class FactorCorreccionServicio {
                 BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 StringBuilder respuesta = new StringBuilder();
                 String tmp;
-                while ((tmp = br.readLine()) != null) { respuesta.append(tmp); }
-                
+                while ((tmp = br.readLine()) != null) {
+                    respuesta.append(tmp);
+                }
+
                 JSONObject objetoJson = new JSONObject(respuesta.toString());
                 JSONArray retorno = objetoJson.getJSONArray("retorno");
                 for (int i = 0; i < retorno.length(); i++) {
                     JSONObject obj = retorno.getJSONObject(i);
-                    
+
                     Producto p = new Producto();
                     if (!obj.isNull("producto")) {
                         parsearProducto(p, obj.get("producto"));
@@ -152,7 +158,7 @@ public class FactorCorreccionServicio {
                     if (p.getCodigo() != null) {
                         FactorCorreccion factor = new FactorCorreccion();
                         factor.setProducto(p);
-                        factor.setFactor(BigDecimal.ZERO);
+                        factor.setFactor(BigDecimal.ONE);
                         lista.add(factor);
                     }
                 }
@@ -163,13 +169,15 @@ public class FactorCorreccionServicio {
         return lista;
     }
 
-    public boolean guardar(List<FactorCorreccion> lista, String codComer, String codTerm, Date fecha, String usuarioActual) {
+    public boolean guardar(List<FactorCorreccion> lista, String codComer, String codTerm, Date fecha,
+            String usuarioActual) {
         try {
             String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.factorcorreccion";
             URL url = new URL(direcc);
-            
+
             for (FactorCorreccion f : lista) {
-                if (f.getFactor().compareTo(BigDecimal.ZERO) == 0) continue;
+                if (f.getFactor().compareTo(BigDecimal.ZERO) == 0)
+                    continue;
 
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setDoOutput(true);
@@ -177,14 +185,14 @@ public class FactorCorreccionServicio {
                 connection.setRequestProperty("Content-Type", "application/json");
 
                 JSONObject json = new JSONObject();
-                
+
                 // Estructura según imagen del usuario
                 JSONObject pkJson = new JSONObject();
                 pkJson.put("codigocomercializadora", codComer);
                 pkJson.put("codigoterminal", codTerm);
                 pkJson.put("codigoproducto", f.getProducto().getCodigo());
                 pkJson.put("fecha", fecha.getTime());
-                
+
                 json.put("factorcorreccionPK", pkJson);
                 json.put("factor", f.getFactor());
                 json.put("usuarioactual", usuarioActual != null ? usuarioActual : "SISTEMA");
@@ -206,8 +214,9 @@ public class FactorCorreccionServicio {
     }
 
     private void parsearTerminal(Terminal t, Object valor) {
-        if (valor == null) return;
-        
+        if (valor == null)
+            return;
+
         if (valor instanceof JSONObject) {
             JSONObject termJson = (JSONObject) valor;
             t.setCodigo(termJson.optString("codigo", ""));
@@ -226,8 +235,9 @@ public class FactorCorreccionServicio {
     }
 
     private void parsearProducto(Producto p, Object valor) {
-        if (valor == null) return;
-        
+        if (valor == null)
+            return;
+
         if (valor instanceof JSONObject) {
             JSONObject prodJson = (JSONObject) valor;
             p.setCodigo(prodJson.optString("codigo", ""));
