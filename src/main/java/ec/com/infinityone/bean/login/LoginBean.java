@@ -335,6 +335,7 @@ public class LoginBean extends ReusableBean implements Serializable {
                         obj.put("respuesta2", usuarioL.getRespuesta2());
                         obj.put("pregunta3", usuarioL.getPregunta3());
                         obj.put("respuesta3", usuarioL.getRespuesta3());
+                        obj.put("habilitadoapp", Boolean.TRUE);
                         respuesta = obj.toString();
                         writer.write(respuesta);
                         writer.close();

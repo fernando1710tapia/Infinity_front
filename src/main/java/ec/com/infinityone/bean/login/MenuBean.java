@@ -91,7 +91,12 @@ public class MenuBean extends LoginBean implements Serializable {
         fechaC = Fichero.getFECHACERTIFICADOSSL();
         rutaEConsulta = Fichero.getRUTAECONSULTAS();
         menuXeliminar = Fichero.getPERMISOSXUSUARIO();
-        
+
+        if(menuXeliminar != null){
+        System.out.println("PERMISOSXUSUARIO-DEBEN-ELIMINARSE:"+menuXeliminar);
+        }else{
+            System.out.println("PERMISOSXUSUARIO-DEBEN-ELIMINARSE ESTÁ NULO:");
+        }
         if (dataUser.getUser() != null) {
             obtenerMenuPadre();
             obtenerMenuHijo();
