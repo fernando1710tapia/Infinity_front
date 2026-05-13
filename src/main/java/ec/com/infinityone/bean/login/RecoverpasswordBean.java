@@ -25,6 +25,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.servlet.http.HttpSession;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.primefaces.PrimeFaces;
 import org.primefaces.shaded.json.JSONArray;
@@ -247,7 +248,8 @@ public class RecoverpasswordBean extends ReusableBean implements Serializable {
             editItems();
             usuarioLog = "";
             correoLog = "";
-            FacesContext.getCurrentInstance().getExternalContext().redirect(Fichero.getRUTADASHBOARD());
+          //ftfttf  logout();
+            //FacesContext.getCurrentInstance().getExternalContext().redirect(Fichero.getRUTADASHBOARD());
         } else {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "Ingrese una respuesta");
         }
@@ -284,13 +286,16 @@ public class RecoverpasswordBean extends ReusableBean implements Serializable {
             obj.put("respuesta2", usuarioL.getRespuesta2());
             obj.put("pregunta3", usuarioL.getPregunta3());
             obj.put("respuesta3", usuarioL.getRespuesta3());
+            obj.put("habilitadoapp",Boolean.TRUE);
             respuesta = obj.toString();
             writer.write(respuesta);
             writer.close();
             if (connection.getResponseCode() == 200) {
-                PrimeFaces.current().executeScript("PF('nuevoPass').hide()");
                 this.dialogo(FacesMessage.SEVERITY_INFO, "USUARIO ACTUALIZADO EXITOSAMENTE");
-                init();
+                PrimeFaces.current().executeScript("PF('nuevoPass').hide()");
+                PrimeFaces.current().executeScript("PF('final').show()");
+    //            logout();
+    //            init();
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ACTUALIZAR");
             }
@@ -373,4 +378,18 @@ public class RecoverpasswordBean extends ReusableBean implements Serializable {
         this.claveNueva = claveNueva;
     }
 
+        public void logout() {
+        try {
+            ((HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(true)).invalidate();
+            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().clear();
+            FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
+            FacesContext.getCurrentInstance().getExternalContext().
+                    redirect(FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath() + "/" + "login.xhtml");
+        } catch (IOException ex) {
+            LOG.log(Level.SEVERE, "Error método logout {0}", ex);
+        } catch (Exception e) {
+            mostrarMensaje(FacesMessage.SEVERITY_ERROR, "Ocurrio un error " + e.getMessage());
+        }
+    }
+    
 }

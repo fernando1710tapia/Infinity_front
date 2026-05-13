@@ -43,6 +43,7 @@ public class Fichero {
     private static String FECHACERTIFICADOSSL;
     private static String RUTAECONSULTAS;
     private static String PERMISOSXUSUARIO;
+    private static String RUTASERVICIOSPERSISTENCIAUSUARIOGLOBAL;
 
     public static void propiedades() {
         InputStream in = null;
@@ -79,6 +80,7 @@ public class Fichero {
             FECHACERTIFICADOSSL = (String) propiedades.get("FECHACERTIFICADOSSL");
             RUTAECONSULTAS = (String) propiedades.get("RUTAECONSULTAS");
             PERMISOSXUSUARIO = (String) propiedades.get("PERMISOSXUSUARIO");
+            RUTASERVICIOSPERSISTENCIAUSUARIOGLOBAL = (String) propiedades.get("RUTASERVICIOSPERSISTENCIAUSUARIOGLOBAL");
             
 
             //LOG.log(Level.INFO, "Ruta Reporte", RUTAREPORTE);
@@ -233,5 +235,14 @@ public class Fichero {
     public static void setPERMISOSXUSUARIO(String PERMISOSXUSUARIO) {
         Fichero.PERMISOSXUSUARIO = PERMISOSXUSUARIO;
     }
+
+    public static String getRUTASERVICIOSPERSISTENCIAUSUARIOGLOBAL() {
+        return RUTASERVICIOSPERSISTENCIAUSUARIOGLOBAL;
+    }
+
+    public static void setRUTASERVICIOSPERSISTENCIAUSUARIOGLOBAL(String RUTASERVICIOSPERSISTENCIAUSUARIOGLOBAL) {
+        Fichero.RUTASERVICIOSPERSISTENCIAUSUARIOGLOBAL = RUTASERVICIOSPERSISTENCIAUSUARIOGLOBAL;
+    }
+    
     
 }

@@ -108,6 +108,8 @@ public class SeguridadusuarioBean extends ReusableBean implements Serializable {
 
     private String[] preguntas;
 
+    private String[] direccionesUsuarioGlobal;
+
     /**
      * Constructor por defecto
      */
@@ -133,6 +135,7 @@ public class SeguridadusuarioBean extends ReusableBean implements Serializable {
         activarCli = false;
         estadoUsuario = true;
         preguntas = Fichero.getPREGUNTAS().split(",");
+        direccionesUsuarioGlobal = Fichero.getRUTASERVICIOSPERSISTENCIAUSUARIOGLOBAL().split(";");
         obtenerUsuario();
         obtenerComercializadora();
         obtenerTerminales();
@@ -246,55 +249,66 @@ public class SeguridadusuarioBean extends ReusableBean implements Serializable {
 
     public void addItems() {
         try {
-            String respuesta;
-            url = new URL(direccion);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoOutput(true);
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-type", "application/json");
+            boolean usuarioExiste = false;
+            usuarioExiste = verificarExistenciaUsuarioGlobal(usuarioS.getCodigo());
+            
+            if (!usuarioExiste) {
+                String respuesta;
+                url = new URL(direccion);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setDoOutput(true);
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Content-type", "application/json");
 
-            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-            JSONObject obj = new JSONObject();
+                OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+                JSONObject obj = new JSONObject();
 
-            obj.put("codigo", usuarioS.getCodigo());
-            obj.put("cedula", usuarioS.getCedula());
-            obj.put("nombre", usuarioS.getNombre());
-            obj.put("nombrever", usuarioS.getNombrever());
-            obj.put("activo", estadoUsuario);
-            obj.put("niveloperacion", usuarioS.getNiveloperacion());
-            if (usuarioS.getNiveloperacion().equals("adco")) {
-                obj.put("codigocomercializadora", codComer);
-            } else if (usuarioS.getNiveloperacion().equals("usac")) {
-                obj.put("codigocomercializadora", codComer);
-                obj.put("codigocliente", cliente.getClientePK().getCodigo());
-            } else if (usuarioS.getNiveloperacion().equals("agco")) {
-                obj.put("codigocomercializadora", codComer);
-                obj.put("codigoterminal", terminal.getCodigo());
-            }
-            obj.put("hash", usuarioS.getHash());
-            obj.put("vigenciahash", usuarioS.getVigenciahash());
-            obj.put("clave", DigestUtils.sha256Hex(usuarioS.getClave()));
-            obj.put("usuarioactual", dataUser.getUser().getNombrever());
-            obj.put("correo", usuarioS.getCorreo());
-            obj.put("pregunta1", usuarioS.getPregunta1());
-            obj.put("respuesta1", usuarioS.getRespuesta1());
-            obj.put("pregunta2", usuarioS.getPregunta2());
-            obj.put("respuesta2", usuarioS.getRespuesta2());
-            obj.put("pregunta3", usuarioS.getPregunta3());
-            obj.put("respuesta3", usuarioS.getRespuesta3());
-            obj.put("habilitadoapp", Boolean.valueOf("true"));
+                obj.put("codigo", usuarioS.getCodigo());
+                obj.put("cedula", usuarioS.getCedula());
+                obj.put("nombre", usuarioS.getNombre());
+                obj.put("nombrever", usuarioS.getNombrever());
+                obj.put("activo", estadoUsuario);
+                obj.put("niveloperacion", usuarioS.getNiveloperacion());
+                if (usuarioS.getNiveloperacion().equals("adco")) {
+                    obj.put("codigocomercializadora", codComer);
+                } else if (usuarioS.getNiveloperacion().equals("usac")) {
+                    obj.put("codigocomercializadora", codComer);
+                    obj.put("codigocliente", cliente.getClientePK().getCodigo());
+                } else if (usuarioS.getNiveloperacion().equals("agco")) {
+                    obj.put("codigocomercializadora", codComer);
+                    obj.put("codigoterminal", terminal.getCodigo());
+                }
+                obj.put("hash", usuarioS.getHash());
+                obj.put("vigenciahash", usuarioS.getVigenciahash());
+                obj.put("clave", DigestUtils.sha256Hex(usuarioS.getClave()));
+                obj.put("usuarioactual", dataUser.getUser().getNombrever());
+                obj.put("correo", usuarioS.getCorreo());
+                obj.put("pregunta1", usuarioS.getPregunta1());
+                obj.put("respuesta1", usuarioS.getRespuesta1());
+                obj.put("pregunta2", usuarioS.getPregunta2());
+                obj.put("respuesta2", usuarioS.getRespuesta2());
+                obj.put("pregunta3", usuarioS.getPregunta3());
+                obj.put("respuesta3", usuarioS.getRespuesta3());
+                obj.put("habilitadoapp", Boolean.valueOf("true"));
 
-            respuesta = obj.toString();
-            writer.write(respuesta);
-            writer.close();
-            if (connection.getResponseCode() == 200) {
-                PrimeFaces.current().executeScript("PF('nuevo').hide()");
-                this.dialogo(FacesMessage.SEVERITY_INFO, "USUARIO REGISTRADO EXITOSAMENTE");
+                respuesta = obj.toString();
+                writer.write(respuesta);
+                writer.close();
+                if (connection.getResponseCode() == 200) {
+                    PrimeFaces.current().executeScript("PF('nuevo').hide()");
+                    this.dialogo(FacesMessage.SEVERITY_INFO, "USUARIO REGISTRADO EXITOSAMENTE");
+                } else {
+                    this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
+                }
+                System.out.println(connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
             } else {
-                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
+                this.dialogo(FacesMessage.SEVERITY_INFO, "ESTE CÓDIGO DE USUARIO YA HA SIDO"
+                        + " USADO EN EL SISTEMA! \n"
+                        + " UTILICE EL SEGUNDO NOMBRE Y/O APELLIDO PARA CREAR UN CÓDIGO ÚNICO \n"
+                        + " O, CONSULTE AL ADMINISTRADOR DEL SISTEMA PARA CREAR ESTE USUARIO");
             }
-            System.out.println(connection.getResponseCode());
-            System.out.println(connection.getResponseMessage());
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -659,6 +673,64 @@ public class SeguridadusuarioBean extends ReusableBean implements Serializable {
 
     public void setListaPreguntas(List<String> listaPreguntas) {
         this.listaPreguntas = listaPreguntas;
+    }
+
+    public boolean verificarExistenciaUsuarioGlobal(String codigoUsuario) {
+
+        boolean usuarioExiste = false;
+        try {
+
+            for (int i = 0; i < direccionesUsuarioGlobal.length; i++) {
+
+                url = new URL(direccionesUsuarioGlobal[i] + "ec.com.infinity.modelo.usuario/porUsuario?codigo="+codigoUsuario);
+
+                System.out.println("FT::. verificarExistenciaUsuarioGlobal. AMBIENTE A BUSCAR:. "+url.toString());
+                
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setDoInput(true);
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("Accept", "application/json");
+
+                listaUsuario = new ArrayList<>();
+
+                InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+
+                BufferedReader br = new BufferedReader(reader);
+                String tmp = null;
+                String respuesta = "";
+                
+                if (connection.getResponseCode() != 200) {
+                    System.out.println("FT::. ERROR verificarExistenciaUsuarioGlobal. AL LLAMAR AL SERVICIO: "
+                            + url.toString() +" - connection.getResponseCode():. "
+                            + String.valueOf(connection.getResponseCode())
+                            + " - connection.getResponseMessage():. "+ connection.getResponseMessage());
+                }else{
+                 
+                while ((tmp = br.readLine()) != null) {
+                    respuesta += tmp;
+                }
+                JSONObject objetoJson = new JSONObject(respuesta);
+                JSONArray retorno = objetoJson.getJSONArray("retorno");
+                for (int indice = 0; indice < retorno.length(); indice++) {
+                 
+                System.out.println("FT::. verificarExistenciaUsuarioGlobal. USUARIO ENCONTRADO EN!!:. "
+                        +url.toString());
+                    usuarioExiste = true;
+                    JSONObject user = retorno.getJSONObject(indice);
+                    usuarioS.setCodigo(user.getString("codigo"));
+                break;
+                }
+                    if (usuarioExiste) {
+                        break;
+                    }
+                }
+            }
+
+            //url = new URL(direccion);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return usuarioExiste;
     }
 
 }
