@@ -100,6 +100,8 @@ public class Cliente implements Serializable {
     private int controldespacho; 
     
     private Boolean controlaprorroga;
+    
+    private String observaciongd;
 
     public Cliente() {
         this.clientePK = new ClientePK();
@@ -518,5 +520,11 @@ public class Cliente implements Serializable {
         this.controlaprorroga = controlaprorroga;
     }
     
+    public String getObservaciongd() {
+		return observaciongd;
+	}
     
+    public void setObservaciongd(String observaciongd) {
+		this.observaciongd = observaciongd;
+	}
 }

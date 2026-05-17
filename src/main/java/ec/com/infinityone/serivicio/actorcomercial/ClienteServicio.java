@@ -409,7 +409,10 @@ public class ClienteServicio {
                     cli.setCodigotipocliente(tc.getString("codigo"));
                 }
                 cli.setControldespacho(cliente.getInt("controldespacho"));
-
+                
+                if (!cliente.isNull("observaciongd"))
+                	cli.setObservaciongd(cliente.getString("observaciongd"));
+                
                 listaClientes.add(cli);
                 cli = new Cliente();
                 termi = new Terminal();
