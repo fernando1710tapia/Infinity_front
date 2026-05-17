@@ -1522,6 +1522,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         np.setAdelantar(true);
                         np.setActiva(nt.getBoolean("activa"));
                         np.setObservacion(nt.getString("observacion"));
+                        np.setFacturada(nt.getString("facturada"));
                         try {
                             np.setPrefijo(nt.getString("prefijo"));
                             //System.out.println("NOTA DE PEDIDO OK: " + npPK.getNumero());
@@ -2333,6 +2334,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         notaPedido.setNumerofacturasri("0");
         notaPedido.setRespuestageneracionoeepp("");
         notaPedido.setObservacion(envNP.getNotapedido().getObservacion());
+        notaPedido.setFacturada(envNP.getNotapedido().getFacturada().trim());
         notaPedido.setAdelantar(envNP.getNotapedido().isAdelantar());
         notaPedido.setRespuestaanulacionoeepp("");
         notaPedido.setTramaenviadagoe("");
