@@ -44,6 +44,7 @@ public class Fichero {
     private static String RUTAECONSULTAS;
     private static String PERMISOSXUSUARIO;
     private static String RUTASERVICIOSPERSISTENCIAUSUARIOGLOBAL;
+    private static String DESTINATARIOGESTIONDIRECTA;
 
     public static void propiedades() {
         InputStream in = null;
@@ -81,7 +82,7 @@ public class Fichero {
             RUTAECONSULTAS = (String) propiedades.get("RUTAECONSULTAS");
             PERMISOSXUSUARIO = (String) propiedades.get("PERMISOSXUSUARIO");
             RUTASERVICIOSPERSISTENCIAUSUARIOGLOBAL = (String) propiedades.get("RUTASERVICIOSPERSISTENCIAUSUARIOGLOBAL");
-            
+            DESTINATARIOGESTIONDIRECTA = (String) propiedades.get("DESTINATARIOGESTIONDIRECTA");
 
             //LOG.log(Level.INFO, "Ruta Reporte", RUTAREPORTE);
             //LOG.log(Level.INFO, "Ruta Servicios", RUTASERVICIOSPERSISTENCIA);
@@ -242,6 +243,14 @@ public class Fichero {
 
     public static void setRUTASERVICIOSPERSISTENCIAUSUARIOGLOBAL(String RUTASERVICIOSPERSISTENCIAUSUARIOGLOBAL) {
         Fichero.RUTASERVICIOSPERSISTENCIAUSUARIOGLOBAL = RUTASERVICIOSPERSISTENCIAUSUARIOGLOBAL;
+    }
+
+    public static String getDESTINATARIOGESTIONDIRECTA() {
+        return DESTINATARIOGESTIONDIRECTA;
+    }
+
+    public static void setDESTINATARIOGESTIONDIRECTA(String DESTINATARIOGESTIONDIRECTA) {
+        Fichero.DESTINATARIOGESTIONDIRECTA = DESTINATARIOGESTIONDIRECTA;
     }
     
     
