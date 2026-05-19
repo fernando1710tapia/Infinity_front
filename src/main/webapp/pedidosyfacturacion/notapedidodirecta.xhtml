@@ -299,7 +299,7 @@
                                 <f:selectItems value="#{notapedidoBeanDirecto.listaClientes}" var="cli"
                                     itemLabel="#{cli.clientePK.codigo}-#{cli.nombrecomercial}" itemValue="#{cli}" />
                                 <p:ajax event="change" listener="#{notapedidoBeanDirecto.seleccionarCliente()}"
-                                    update="clienteProd banco" />
+                                    update="formNuevo clienteProd banco" />
                             </p:selectOneMenu>
                         </div>
                     </div>

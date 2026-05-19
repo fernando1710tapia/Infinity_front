@@ -462,7 +462,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
     }
 
     public void seleccionarTerminal(int busqueda) {
-            if (terminal != null) {
+        if (terminal != null) {
             codTerminal = terminal.getCodigo();
             List<Cliente> listaClientesAux = new ArrayList<>();
             listaClientes = new ArrayList<>();
@@ -488,13 +488,31 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
     }
 
     public void seleccCliente(int busqueda) {
+        boolean pysGDValido = false;
         if (cliente != null) {
-            codCliente = cliente.getClientePK().getCodigo();
-            for (int i = 0; i < listaTermianles.size(); i++) {
-                if (listaTermianles.get(i).getCodigo().equals(cliente.getCodigoterminaldefecto().getCodigo())) {
-                    terminal = listaTermianles.get(i);
-                    break;
+            if ("0002".equalsIgnoreCase(codComer)) {
+
+                if ("03".equalsIgnoreCase(cliente.getCodigoformapago().getCodigo())) {
+
+                    if (new Date().before(cliente.getFehavencimientocontrato())) {
+
+                        pysGDValido = true;
+                    }
                 }
+            }
+
+            if (pysGDValido) {
+
+                codCliente = cliente.getClientePK().getCodigo();
+                for (int i = 0; i < listaTermianles.size(); i++) {
+                    if (listaTermianles.get(i).getCodigo().equals(cliente.getCodigoterminaldefecto().getCodigo())) {
+                        terminal = listaTermianles.get(i);
+                        break;
+                    }
+                }
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_FATAL,
+                        "Este cliente NO está autorizado para generar NP. Consulte con el administrador para verificar su condición");
             }
             seleccionarTerminal(busqueda);
         }
@@ -502,30 +520,57 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
     }
 
     public void seleccionarCliente() {
+        boolean pysGDValido = true;
         if (cliente != null) {
-            codCliente = cliente.getClientePK().getCodigo();
-            listaProductos = new ArrayList<>();
-            listaProductos = cliProdServicio.obtenerProductos(codComer, codCliente);
-            np.setCodigocliente(cliente);
-            if (cliente.getCodigoterminaldefecto() != null) {
-//                for (int i = 0; i < listaTermianles.size(); i++) {
-//                    if (cliente.getCodigoterminaldefecto().equals(listaTermianles.get(i).getCodigo())) {
-//                        terminal = listaTermianles.get(i);
-                //codTerminal = cliente.getCodigoterminaldefecto().getCodigo() + " - " + cliente.getCodigoterminaldefecto().getNombre();
-//                    }
-                //np.setCodigoterminal(cliente.getCodigoterminaldefecto());
-//                }
-            }
+            
+            if ("0002".equalsIgnoreCase(codComer)) {
 
-            if (cliente.getCodigobancodebito() != null) {
-                for (int i = 0; i < listaBancos.size(); i++) {
-                    if (listaBancos.get(i).getCodigo().equals(cliente.getCodigobancodebito())) {
-                        banco = listaBancos.get(i);
-                        np.setCodigobanco(banco);
+                if ("03".equalsIgnoreCase(cliente.getCodigoformapago().getCodigo())) {
+
+                    if (new Date().after(cliente.getFehavencimientocontrato())) {
+
+                        pysGDValido = false;
                     }
                 }
             }
+
+            //if (pysGDValido) {
+                if (Boolean.TRUE) {
+
+                codCliente = cliente.getClientePK().getCodigo();
+                listaProductos = new ArrayList<>();
+                listaProductos = cliProdServicio.obtenerProductos(codComer, codCliente);
+                np.setCodigocliente(cliente);
+                if (cliente.getCodigoterminaldefecto() != null) {
+//                for (int i = 0; i < listaTermianles.size(); i++) {
+//                    if (cliente.getCodigoterminaldefecto().equals(listaTermianles.get(i).getCodigo())) {
+//                        terminal = listaTermianles.get(i);
+                    //codTerminal = cliente.getCodigoterminaldefecto().getCodigo() + " - " + cliente.getCodigoterminaldefecto().getNombre();
+//                    }
+                    //np.setCodigoterminal(cliente.getCodigoterminaldefecto());
+//                }
+                }
+
+                if (cliente.getCodigobancodebito() != null) {
+                    for (int i = 0; i < listaBancos.size(); i++) {
+                        if (listaBancos.get(i).getCodigo().equals(cliente.getCodigobancodebito())) {
+                            banco = listaBancos.get(i);
+                            np.setCodigobanco(banco);
+                        }
+                    }
+                }
+
+            } else {
+
+                this.dialogo(FacesMessage.SEVERITY_FATAL,
+                        "Este cliente NO está autorizado para generar NP. Consulte con el administrador para verificar su condición");
+                
+                //nuevaNotaPedido();
+                listaProductos = new ArrayList<>();
+            }
+
         }
+
     }
 
     public void seleccionarMedida() {
@@ -696,9 +741,9 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                             JSONObject nt = retorno.getJSONObject(indice);
                             JSONObject ntPK = nt.getJSONObject("notapedidoPK");
                             JSONObject cli = nt.getJSONObject("codigocliente");
-                            
+
                             JSONObject cliPK = cli.getJSONObject("clientePK");
-                            
+
                             JSONObject term = nt.getJSONObject("codigoterminal");
                             JSONObject ban = nt.getJSONObject("codigobanco");
                             JSONObject formPago = cli.getJSONObject("codigoformapago");
@@ -733,14 +778,10 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                             formap.setCodigo(formPago.getString("codigo"));
 
                             /*----Objeto Cliente----*/
-                            
-                            
 //////FTFT                            cliente.setCodigo(cli.getString("codigo"));
-
                             cliente.setClientePK(new ClientePK());
                             cliente.getClientePK().setCodigo(cliPK.getString("codigo"));
-                            
-                            
+
                             cliente.setNombre(cli.getString("nombre"));
                             cliente.setNombrecomercial(cli.getString("nombrecomercial"));
                             cliente.setRuc(cli.getString("ruc"));
@@ -801,7 +842,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
     }
 
     public void save() throws ParseException {
-        DateFormat date = new SimpleDateFormat("yyyy-MM-dd");        
+        DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat fechFormat = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
         Calendar c = Calendar.getInstance();
         c.setTime(fechaVenta);
@@ -846,7 +887,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                 np.setTramarecibidaaoe("");
                 np.setUsuarioactual(dataUser.getUser().getNombrever());
                 np.setPrefijo(prefijo);
-                np.setObservacion("Bco: " + nomBanco + " - Cta: " + numCuenta + " - Ch: " + numCheque); 
+                np.setObservacion("Bco: " + nomBanco + " - Cta: " + numCuenta + " - Ch: " + numCheque);
 //                np.setCodigoautotanque(autotanque.getPlaca());
 //                np.setCedulaconductor(autotanque.getCedularuc().getCedularuc());
 
@@ -855,7 +896,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                 detNP.setDetallenotapedidoPK(detNPK);
                 detNP.setVolumennaturalautorizado(detNP.getVolumennaturalrequerido());
                 detNP.setUsuarioactual(dataUser.getUser().getNombrever());
-                 detNP.setCompartimento1(BigDecimal.ZERO);
+                detNP.setCompartimento1(BigDecimal.ZERO);
                 detNP.setCompartimento2(BigDecimal.ZERO);
                 detNP.setCompartimento3(BigDecimal.ZERO);
                 detNP.setCompartimento4(BigDecimal.ZERO);
@@ -864,10 +905,9 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                 detNP.setCompartimento7(BigDecimal.ZERO);
                 detNP.setCompartimento8(BigDecimal.ZERO);
                 detNP.setCompartimento9(BigDecimal.ZERO);
-                detNP.setCompartimento10(BigDecimal.ZERO); 
-                detNP.setSelloinicial(Integer.valueOf("0") );
+                detNP.setCompartimento10(BigDecimal.ZERO);
+                detNP.setSelloinicial(Integer.valueOf("0"));
                 detNP.setSellofinal(Integer.valueOf("0"));
-
 
                 envNP.setNotapedido(np);
                 envNP.setDetalle(detNP);
@@ -898,9 +938,9 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             ObjectMapper mapper = new ObjectMapper();
             String jsonStr = mapper.writeValueAsString(envNP);
-            
-            System.out.println("FT:: addItems OBJETO NOTAPEDIDO "+ jsonStr);
-            
+
+            System.out.println("FT:: addItems OBJETO NOTAPEDIDO " + jsonStr);
+
             DataOutputStream out = new DataOutputStream(connection.getOutputStream());
             out.write(jsonStr.getBytes());
             out.flush();
@@ -921,8 +961,8 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                 this.dialogo(FacesMessage.SEVERITY_INFO, "NOTA DE PEDIDO REGISTRADA EXITOSAMENTE");
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
-                System.out.println("FT:: ERROR EN addItems RESPONSECODE "+connection.getResponseCode());
-                System.out.println("FT:: ERROR EN addItems RESPONSEMESSAGE "+connection.getResponseMessage());
+                System.out.println("FT:: ERROR EN addItems RESPONSECODE " + connection.getResponseCode());
+                System.out.println("FT:: ERROR EN addItems RESPONSEMESSAGE " + connection.getResponseMessage());
             }
 
         } catch (IOException e) {
@@ -998,9 +1038,9 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                         JSONObject nt = retorno.getJSONObject(indice);
                         JSONObject ntPK = nt.getJSONObject("notapedidoPK");
                         JSONObject cli = nt.getJSONObject("codigocliente");
-                        
+
                         JSONObject cliPK = cli.getJSONObject("clientePK");
-                        
+
                         JSONObject term = nt.getJSONObject("codigoterminal");
                         JSONObject ban = nt.getJSONObject("codigobanco");
                         JSONObject formPago = cli.getJSONObject("codigoformapago");
@@ -1028,13 +1068,10 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
                         formap.setCodigo(formPago.getString("codigo"));
 
                         /*----Objeto Cliente----*/
-                        
 //////FTFT                        cliente.setCodigo(cli.getString("codigo"));
-                        
                         cliente.setClientePK(new ClientePK());
                         cliente.getClientePK().setCodigo(cliPK.getString("codigo"));
-                        
-                        
+
                         cliente.setNombre(cli.getString("nombre"));
                         cliente.setRuc(cli.getString("ruc"));
                         cliente.setCorreo1(cli.getString("correo1"));
@@ -1190,7 +1227,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
             file = new FileInputStream(new File(path));
 
             JasperReport reporte = JasperCompileManager.compileReport(file);
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo"+envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora()+".jpeg"));
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo" + envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora() + ".jpeg"));
 //            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
             Map parametro = new HashMap();
 
@@ -1237,7 +1274,7 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
 
             JasperReport reporte = JasperCompileManager.compileReport(file);
             JasperReport subreporte = JasperCompileManager.compileReport(subreport);
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo"+envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora()+".jpeg"));
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo" + envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora() + ".jpeg"));
 //            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
             Map parametro = new HashMap();
 

@@ -531,7 +531,22 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
     }
 
     public void seleccionarCliente() {
+        boolean pysGDValido = true;
         if (cliente != null) {
+            
+            if ("0002".equalsIgnoreCase(codComer)) {
+
+                if ("03".equalsIgnoreCase(cliente.getCodigoformapago().getCodigo())) {
+
+                    if (new Date().after(cliente.getFehavencimientocontrato())) {
+
+                        pysGDValido = false;
+                    }
+                }
+            }
+
+            if (pysGDValido) {
+            
             codCliente = cliente.getClientePK().getCodigo();
             listaProductos = new ArrayList<>();
             listaProductos = cliProdServicio.obtenerProductos(codComer, codCliente);
@@ -557,6 +572,16 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
                     }
                 }
             }
+        
+        } else {
+
+                this.dialogo(FacesMessage.SEVERITY_FATAL,
+                        "Este cliente NO está autorizado para generar NP. Consulte con el administrador para verificar su condición");
+                
+                //nuevaNotaPedido();
+                listaProductos = new ArrayList<>();
+            }
+        
         }
     }
 
