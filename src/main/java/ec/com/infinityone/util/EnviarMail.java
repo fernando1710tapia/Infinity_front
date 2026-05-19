@@ -1,9 +1,14 @@
 package ec.com.infinityone.util;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -11,12 +16,11 @@ import java.util.logging.Logger;
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
-import javax.mail.Session;
-import javax.mail.internet.MimeMessage;
 import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
+import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
@@ -55,15 +59,63 @@ public class EnviarMail implements Serializable {
 		// mesLetras = ArchivoUtils.mesLetras(mes);
 	}
 
-	public static boolean sendEmailSincrono() {
+	public static boolean sendEmailSincrono(String codigoNombreCliente, Date fechaVencimientoContrato, String observacionGD, String usuario) {
 		String destinatario = "roberth7777@yahoo.com";
 		String asunto = "Notificación de autorización de Gestión Directa";
-		generaMensaje();
-		String cuerpoTexto = mensaje.toString();
-		
-		GmailSender.enviarCorreo(destinatario, asunto, cuerpoTexto);
-		
-		return true;
+
+		try {
+			String cuerpoEmail = cargarTemplateHtmlEmail("NotificacionAutorizacionCliente.html");
+
+			// --- 1. Formateo de las fechas del SISTEMA (Igual que antes) ---
+			java.time.LocalDateTime ahora = java.time.LocalDateTime.now();
+			java.util.Locale localeEspanol = new java.util.Locale("es", "EC");
+
+			java.time.format.DateTimeFormatter formatoFechaLarga = java.time.format.DateTimeFormatter.ofPattern("EEEE d 'de' MMMM 'de' yyyy", localeEspanol);
+			java.time.format.DateTimeFormatter formatoHora = java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss");
+
+			String fechaSistema = ahora.format(formatoFechaLarga);
+			if (fechaSistema != null && !fechaSistema.isEmpty()) {
+				fechaSistema = fechaSistema.substring(0, 1).toUpperCase() + fechaSistema.substring(1);
+			}
+			
+			String horaSistema = ahora.format(formatoHora);
+
+			// --- 2. NUEVO: Formateo de la FECHA DE VENCIMIENTO que llega por parámetro ---
+			String fechaVencimientoFormateada = "";
+
+			if (fechaVencimientoContrato != null) {
+				// Convertimos el java.util.Date antiguo al nuevo java.time.Instant para formatearlo de forma larga
+				java.time.LocalDate localDateVencimiento = fechaVencimientoContrato.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+
+				// Aplicamos el formato de fecha larga que definimos arriba
+				fechaVencimientoFormateada = localDateVencimiento.format(formatoFechaLarga);
+
+				// Ponemos la primera letra en mayúscula (Ej: "Viernes 22 de mayo...")
+				if (fechaVencimientoFormateada != null && !fechaVencimientoFormateada.isEmpty()) {
+					fechaVencimientoFormateada = fechaVencimientoFormateada.substring(0, 1).toUpperCase()+ fechaVencimientoFormateada.substring(1);
+				}
+			}
+
+			// --- 3. Reemplazos en el HTML ---
+			cuerpoEmail = cuerpoEmail.replace("$F_FECHA_SISTEMA", fechaSistema);
+			cuerpoEmail = cuerpoEmail.replace("$F_HORA_SISTEMA", horaSistema);
+			cuerpoEmail = cuerpoEmail.replace("$F_USUARIO", usuario != null ? usuario : "");
+			cuerpoEmail = cuerpoEmail.replace("$F_CLIENTE", codigoNombreCliente != null ? codigoNombreCliente : "");
+			cuerpoEmail = cuerpoEmail.replace("$F_OBSERVACIONGD", observacionGD != null ? observacionGD : "");
+
+			// Inyectamos la variable que acabamos de transformar
+			cuerpoEmail = cuerpoEmail.replace("$F_FECHAVMTOCONTRATO", fechaVencimientoFormateada);
+
+			// 4. Envío del correo
+			GmailSender.enviarCorreo(destinatario, asunto, cuerpoEmail);
+
+			return true;
+
+		} catch (Exception e) {
+			System.err.println("Error al cargar la plantilla o enviar el correo: " + e.getMessage());
+			e.printStackTrace();
+			return false;
+		}
 	}
 	
 	public static void generateAndSendEmail() {
@@ -228,6 +280,40 @@ public class EnviarMail implements Serializable {
 				.append("</td>").append("<td width='35'>&nbsp;</td>").append("</tr>").append("</table></td>")
 				.append("</tr>").append("</table>").append("<br>").append("<br></td>").append("</tr>")
 				.append("</table>").append("</div>");
+	}
+	
+	/**
+	 * Carga el template de notificación de email
+	 * @param nombreTemplateHTML
+	 * @return contenido
+	 * @throws Exception
+	 * @author ftpaia
+	 * @date 2026-05-18
+	 */
+	public static String cargarTemplateHtmlEmail(String nombreTemplateHTML) throws Exception {
+		ClassLoader classLoader = EnviarMail.class.getClassLoader();
+        InputStream inputStream = classLoader.getResourceAsStream(nombreTemplateHTML);
+
+        if (inputStream == null) {
+            throw new IOException("No se encontró el archivo: " + nombreTemplateHTML);
+        }
+
+        BufferedReader reader = null;
+        StringBuffer contenido = new StringBuffer();
+        try {
+            reader = new BufferedReader(new InputStreamReader(inputStream));
+            String linea;
+            while ((linea = reader.readLine()) != null) {
+                contenido.append(linea).append("\n");
+            }
+        }catch(Exception ex) {
+        	ex.printStackTrace();
+        }finally {
+            if (reader != null) try { reader.close(); } catch (IOException e) { /* ignorar */ }
+            try { inputStream.close(); } catch (IOException e) { /* ignorar */ }
+        }
+
+        return contenido.toString();
 	}
 	
 	public static String getError() {

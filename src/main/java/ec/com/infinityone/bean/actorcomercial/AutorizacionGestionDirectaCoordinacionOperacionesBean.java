@@ -375,7 +375,12 @@ public class AutorizacionGestionDirectaCoordinacionOperacionesBean extends Reusa
 	private boolean enviarEmail() {
 		EnviarMail.setError("Inicia envío email con causales");
 		EnviarMail.setCorreoErrores("roberth7777@gmail.com");
-		return EnviarMail.sendEmailSincrono(); //generateAndSendEmailSincrono();
+		
+		String codigoNombreCliente = cliente.getClientePK().getCodigo() +" - " + cliente.getNombrecomercial(); 
+		Date fechaVencimientoContrato = cliente.getFehavencimientocontrato();
+		String observacionGD = cliente.getObservaciongd();
+				
+		return EnviarMail.sendEmailSincrono(codigoNombreCliente, fechaVencimientoContrato, observacionGD, dataUser.getUser().getNombrever()); //generateAndSendEmailSincrono();
 	}
 	
 	public Boolean esMenorFechaHoy(Date fecha) throws Exception {

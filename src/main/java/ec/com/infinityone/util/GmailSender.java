@@ -41,8 +41,7 @@ public class GmailSender {
 			message.setSubject(asunto);
 
 			// Si quieres enviar HTML en lugar de texto plano, usa:
-			// message.setContent(cuerpoTexto, "text/html; charset=utf-8");
-			message.setText(cuerpoTexto);
+			message.setContent(cuerpoTexto, "text/html; charset=utf-8");
 
 			// 4. Enviar el correo electrónico
 			Transport.send(message);
