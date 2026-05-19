@@ -4,35 +4,7 @@
  */
 package ec.com.infinityone.bean.pedidosyfacturacion;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import ec.com.infinityone.bean.actorcomercial.ComercializadoraBean;
-import ec.com.infinityone.configuration.Fichero;
-import ec.com.infinityone.modelo.Banco;
-import ec.com.infinityone.modelo.Cliente;
-import ec.com.infinityone.modelo.Detallefactura;
-import ec.com.infinityone.modelo.DetallefacturaPK;
-import ec.com.infinityone.modelo.Detallepago;
-import ec.com.infinityone.modelo.DetallepagoPK;
-import ec.com.infinityone.modelo.EnvioFactura;
-import ec.com.infinityone.modelo.Factura;
-import ec.com.infinityone.modelo.FacturaPK;
-import ec.com.infinityone.modelo.Medida;
-import ec.com.infinityone.modelo.ObjetoDetallePrecioAux;
-import ec.com.infinityone.modelo.Pagocheque;
-import ec.com.infinityone.modelo.PagochequePK;
-import ec.com.infinityone.modelo.Pagofactura;
-import ec.com.infinityone.modelo.PagofacturaPK;
-import ec.com.infinityone.modelo.Pagosbancorechazados;
-import ec.com.infinityone.modelo.PagosbancorechazadosPK;
-import ec.com.infinityone.modelo.Temporalparacobrar;
-import ec.com.infinityone.modelo.TemporalparacobrarPK;
-import ec.com.infinityone.reusable.ReusableBean;
-import ec.com.infinityone.serivicio.actorcomercial.ComercializadoraServicio;
-import ec.com.infinityone.servicio.catalogo.BancoServicio;
-import ec.com.infinityone.servicio.pedidosyfacturacion.CargarFacturasServicio;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -42,27 +14,36 @@ import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
+
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.ws.rs.WebApplicationException;
-import jdk.internal.org.jline.terminal.TerminalBuilder;
+
 import org.primefaces.PrimeFaces;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.file.UploadedFile;
 import org.primefaces.shaded.json.JSONObject;
+
+import ec.com.infinityone.bean.actorcomercial.ComercializadoraBean;
+import ec.com.infinityone.configuration.Fichero;
+import ec.com.infinityone.modelo.Banco;
+import ec.com.infinityone.modelo.Cliente;
+import ec.com.infinityone.modelo.Detallefactura;
+import ec.com.infinityone.modelo.DetallefacturaPK;
+import ec.com.infinityone.modelo.EnvioFactura;
+import ec.com.infinityone.modelo.Factura;
+import ec.com.infinityone.modelo.FacturaPK;
+import ec.com.infinityone.reusable.ReusableBean;
+import ec.com.infinityone.serivicio.actorcomercial.ComercializadoraServicio;
+import ec.com.infinityone.servicio.catalogo.BancoServicio;
+import ec.com.infinityone.servicio.pedidosyfacturacion.CargarFacturasServicio;
 
 /**
  *

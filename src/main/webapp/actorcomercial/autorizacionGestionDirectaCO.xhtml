@@ -1,0 +1,115 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Autorización de Gestión Directa - Coordinación de Operaciones</ui:define>
+
+	<ui:define name="viewname">
+		<li>Autorización de Gestión Directa - Coordinación de Operaciones</li>
+	</ui:define>
+
+	<ui:define name="content">
+		<style type="text/css">
+			.causales-uniformes table {
+				width: 100%;
+				/* Obliga a la estructura interna a usar todo el nuevo ancho */
+			}
+			
+			.causales-uniformes td {
+				display: flex;
+				align-items: flex-start;
+				padding: 0.6rem 0;
+				/* Un poco más de espacio vertical para que respire el diseño */
+			}
+			
+			.causales-uniformes .ui-chkbox-label {
+				margin-left: 1rem;
+				line-height: 1.5;
+				text-align: justify;
+				/* Al estar más ancho, el justificado se verá mucho más limpio */
+			}
+		</style>
+		
+		<h:form id="form">
+			<p:outputPanel id="manage-product-content1">
+				<p:growl id="messages" showDetail="true"/>
+			</p:outputPanel>
+		</h:form>
+
+		<!-- Autorización de Gestión Directa - Coordinación de Operaciones -->
+		<p:dialog header="Autorización de Gestión Directa - Coordinación de Operaciones" visible="true" width="650px" height="auto" showEffect="fade" modal="true" 
+			widgetVar="editarDesp" responsive="true" resizable="false">
+			<h:form id="formEditarDesp">
+				<p:outputPanel rendered="true">
+					<div class="ui-fluid p-formgrid p-grid">
+						<div class="p-field p-col-12 p-md-12"></div>
+						<div class="p-field p-col-12 p-md-6">
+							<div class="ui-inputgroup">
+								<span class="ui-inputgroup-addon"> 
+									<i class="pi pi-desktop"></i>
+								</span>
+								<p:selectOneMenu id="comercializadora" value="#{autorizacionGestionDirectaCoordinacionOperacionesBean.comercializadora}" title="Comercializadora" panelStyle="width:175px"
+									style="min-width: 80%;" autoWidth="false" converter="converterg" disabled="#{!autorizacionGestionDirectaCoordinacionOperacionesBean.habilitarComer}">
+									<f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+									<f:selectItems value="#{autorizacionGestionDirectaCoordinacionOperacionesBean.listaComercializadora}" var="comer" itemLabel="#{comer.objRelacionado}" itemValue="#{comer}"/>
+									<p:ajax event="change" listener="#{autorizacionGestionDirectaCoordinacionOperacionesBean.seleccionarComer}" update="cliente1"/>
+								</p:selectOneMenu>
+							</div>
+						</div>
+
+						<div class="p-field p-col-12 p-md-6">
+							<div class="ui-inputgroup">
+								<span class="ui-inputgroup-addon">
+									<i class="fa fa-money"></i>
+								</span>
+								<p:selectOneMenu id="cliente1" value="#{autorizacionGestionDirectaCoordinacionOperacionesBean.cliente}" title="Cliente" panelStyle="width:175px" style="min-width: 80%;"
+									autoWidth="false" converter="converterg" filter="true" filterMatchMode="contains" disabled="#{autorizacionGestionDirectaCoordinacionOperacionesBean.editarCliente}">
+									<f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
+									<f:selectItems value="#{autorizacionGestionDirectaCoordinacionOperacionesBean.listaClientes}" var="cli" itemLabel="#{cli.clientePK.codigo} - #{cli.nombrecomercial}" itemValue="#{cli}"/>
+									<p:ajax event="change" listener="#{autorizacionGestionDirectaCoordinacionOperacionesBean.seleccionarCliente}" update="formEditarDesp guardar"/>
+								</p:selectOneMenu>
+							</div>
+						</div>
+
+						<div class="p-field p-col-12 p-md-12">
+							<p:outputLabel for="causales" value="Causales de Gestión Directa" style="font-weight: bold;" />
+							<p:selectManyCheckbox id="causales" value="#{autorizacionGestionDirectaCoordinacionOperacionesBean.causalesSeleccionadas}" layout="pageDirection" columns="1">
+								<f:selectItems value="#{autorizacionGestionDirectaCoordinacionOperacionesBean.listaCausales}" var="c" itemLabel="#{c.descripcion}" itemValue="#{c.id}"/>
+							</p:selectManyCheckbox>
+						</div>
+
+						<div class="p-field p-col-12 p-md-4">
+							<p:outputLabel for="fechaVencCont" value="Autorizado hasta el"/>
+							<p:datePicker id="fechaVencCont" value="#{autorizacionGestionDirectaCoordinacionOperacionesBean.cliente.fehavencimientocontrato}" showIcon="true" pattern="dd/MM/yyyy" disabled="#{autorizacionGestionDirectaCoordinacionOperacionesBean.editarCliente}"/>
+							<!-- <p:calendar id="fechaVen" required="true" requiredMessage="Ingrese Fecha" 
+											value="{null}" pattern="dd/MM/yyyy" showOn="button" showButtonPanel="true" style="min-width: 80%;"/>-->
+						</div>
+
+						<div class="p-field p-col-12 p-md-12">
+<!-- 							<p:outputLabel for="observacion" value="Observación"/> -->
+							<span class="ui-float-label"> 
+								<p:inputTextarea id="observacion" value="#{autorizacionGestionDirectaCoordinacionOperacionesBean.cliente.observaciongd}"
+									disabled="false"/>
+								<p:outputLabel for="observacion" value="Observación"/>
+							</span>
+						</div>
+					</div>
+				</p:outputPanel>
+				
+				<div class="p-grid p-justify-end p-mt-2">
+					<p:commandButton id="guardar" value="Guardar" icon="pi pi-check" disabled="false"
+						actionListener="#{autorizacionGestionDirectaCoordinacionOperacionesBean.save}" update=":form formEditarDesp" styleClass="p-mr-2"/>
+					
+					<p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('editarDesp').hide()" class="ui-button-secondary" />
+				</div>
+			</h:form>
+		</p:dialog>
+
+		<p:confirmDialog global="true" showEffect="fade" width="300">
+			<p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check"/>
+			<p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times"/>
+		</p:confirmDialog>
+	</ui:define>
+</ui:composition>
