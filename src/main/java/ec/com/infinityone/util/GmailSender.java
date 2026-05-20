@@ -37,6 +37,10 @@ public class GmailSender {
 			// 3. Construir el mensaje
 			Message message = new MimeMessage(session);
 			message.setFrom(new InternetAddress(USUARIO));
+			
+			if (destinatario != null)
+	            destinatario = destinatario.replace(";", ",");
+			
 			message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destinatario));
 			message.setSubject(asunto);
 

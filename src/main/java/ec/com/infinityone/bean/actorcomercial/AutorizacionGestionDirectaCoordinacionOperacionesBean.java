@@ -15,6 +15,7 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -115,11 +116,6 @@ public class AutorizacionGestionDirectaCoordinacionOperacionesBean extends Reusa
 		listaCausales.add(new Causal("b", "b. Asignación adicional de combustible."));
 		listaCausales.add(new Causal("c", "c. Necesidad operativa de abastecimiento relacionada a la asignación de turnos."));
 		listaCausales.add(new Causal("d", "d. Por cambio de precios en terminales de abastecimiento."));
-		listaCausales.add(new Causal("e", "e. Falta de cheques del cliente."));
-		listaCausales.add(new Causal("f", "f. Facturas no despachadas con valores acreditados a las cuentas bancarias de PYS."));
-		listaCausales.add(new Causal("g", "g. Por cierre de cuentas bancarias del cliente."));
-		listaCausales.add(new Causal("h", "h. Por cambio de personas autorizadas para la firma de cheques."));
-		listaCausales.add(new Causal("i", "i. Otros casos no contemplados."));
 	}
 
 	public void obtenerComercializadora() {
@@ -314,15 +310,37 @@ public class AutorizacionGestionDirectaCoordinacionOperacionesBean extends Reusa
 		this.cliente.setObservaciongd(sb.toString());
 	}
 
-	public void save() throws Exception {
+	public String save() {
 		editarCliente = true;
-		if (editarCliente) {
-			actualizarObservacion();
-			if(editItems()) {
-				if(enviarEmail()) {
-					this.dialogo(FacesMessage.SEVERITY_INFO, "CLIENTE ACTUALIZADO EXITOSAMENTE Y EMAIL ENVIADO");
+		try {
+			if (editarCliente) {
+				actualizarObservacion();
+
+				if (editItems()) {
+					// Ejecutamos el envío de email de forma segura
+					boolean emailEnviado = enviarEmail();
+
+					if (emailEnviado) {
+						this.dialogo(FacesMessage.SEVERITY_INFO, "CLIENTE ACTUALIZADO EXITOSAMENTE Y EMAIL ENVIADO");
+					} else {
+						this.dialogo(FacesMessage.SEVERITY_WARN, "CLIENTE ACTUALIZADO, PERO EL EMAIL NO PUDO SER ENVIADO");
+					}
 				}
 			}
+
+			// Retornar null en JSF le dice al ciclo de vida que refresque la misma página actual limpiando componentes AJAX
+			return null;
+
+		} catch (Exception e) {
+			// Al capturar la excepción aquí evitamos que rompa el árbol de renderizado de PrimeFaces
+			System.err.println("Error crítico en el proceso de guardado de Gestión Directa: " + e.getMessage());
+			e.printStackTrace();
+
+			// Pintamos el error directamente en la interfaz del usuario para que sepa qué falló
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+				"Error de Sistema", "No se pudo completar la operación: " + e.getMessage()));
+			
+			return null;
 		}
 	}
 	

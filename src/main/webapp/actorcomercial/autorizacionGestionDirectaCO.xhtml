@@ -7,7 +7,7 @@
 	<ui:define name="title">Autorización de Gestión Directa - Coordinación de Operaciones</ui:define>
 
 	<ui:define name="viewname">
-		<li>Autorización de Gestión Directa - Coordinación de Operaciones</li>
+		<li></li>
 	</ui:define>
 
 	<ui:define name="content">
@@ -99,8 +99,14 @@
 				</p:outputPanel>
 				
 				<div class="p-grid p-justify-end p-mt-2">
-					<p:commandButton id="guardar" value="Guardar" icon="pi pi-check" disabled="false"
-						actionListener="#{autorizacionGestionDirectaCoordinacionOperacionesBean.save}" update=":form formEditarDesp" styleClass="p-mr-2"/>
+					<p:commandButton id="guardar" 
+                     value="Guardar" 
+                     icon="pi pi-check" 
+                     disabled="false"
+                     action="#{autorizacionGestionDirectaCoordinacionOperacionesBean.save}" 
+                     update="formEditarDesp" 
+                     oncomplete="if (!args.validationFailed) PF('editarDesp').hide()"
+                     styleClass="p-mr-2"/>
 					
 					<p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('editarDesp').hide()" class="ui-button-secondary" />
 				</div>

@@ -25,6 +25,8 @@ import javax.mail.Transport;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+
+import ec.com.infinityone.configuration.Fichero;
 //import javax.websocket.Session;
 
 public class EnviarMail implements Serializable {
@@ -60,7 +62,7 @@ public class EnviarMail implements Serializable {
 	}
 
 	public static boolean sendEmailSincrono(String codigoNombreCliente, Date fechaVencimientoContrato, String observacionGD, String usuario) {
-		String destinatario = "roberth7777@yahoo.com";
+		String destinatario = Fichero.getDESTINATARIOGESTIONDIRECTA(); //"roberth7777@yahoo.com";
 		String asunto = "Notificación de autorización de Gestión Directa";
 
 		try {
@@ -107,7 +109,8 @@ public class EnviarMail implements Serializable {
 			cuerpoEmail = cuerpoEmail.replace("$F_FECHAVMTOCONTRATO", fechaVencimientoFormateada);
 
 			// 4. Envío del correo
-			GmailSender.enviarCorreo(destinatario, asunto, cuerpoEmail);
+			//GmailSender.enviarCorreo(destinatario, asunto, cuerpoEmail);
+			generateAndSendEmailSincrono(destinatario, asunto, cuerpoEmail);
 
 			return true;
 
@@ -178,20 +181,21 @@ public class EnviarMail implements Serializable {
 		t.start();
 	}
 
-	public static boolean generateAndSendEmailSincrono() {
+	public static boolean generateAndSendEmailSincrono(String destinatario, String asunto, String cuerpoEmail) {
 		try {
 			String currentDir = System.getProperty("user.dir");
-			String cuenta = "notificaciones@petrolrios.ec";
-			String password = "Murci3lag0_";
-
+			String cuenta = "notificaciones@petrolrios.ec";//"notificaciones@petrolrios.ec";
+			String password = "Murci3lag0_";//"Murci3lag0_";
+			
 			// Control de nulidad obligatorio para evitar el NullPointerException previo
 			if (EnviarMail.correoErrores == null || EnviarMail.correoErrores.trim().isEmpty()) {
 				EnviarMail.LOG.severe("Error: El destinatario (correoErrores) está nulo o vacío.");
 				return false;
-			}
+			}else
+				destinatario = destinatario.replace(";", ",");
 
-			EnviarMail.inicializar();
-			EnviarMail.generaMensaje();
+			//EnviarMail.inicializar();
+			//EnviarMail.generaMensaje();
 			EnviarMail.mailServerProperties = System.getProperties();
 			EnviarMail.mailServerProperties.put("mail.smtp.port", "587");
 			EnviarMail.mailServerProperties.put("mail.smtp.auth", Boolean.valueOf(true));
@@ -203,13 +207,13 @@ public class EnviarMail implements Serializable {
 			EnviarMail.getMailSession = Session.getDefaultInstance(EnviarMail.mailServerProperties, null);
 			EnviarMail.generateMailMessage = new MimeMessage(EnviarMail.getMailSession);
 
-			EnviarMail.generateMailMessage.addRecipients(Message.RecipientType.TO, EnviarMail.correoErrores);
+			EnviarMail.generateMailMessage.addRecipients(Message.RecipientType.TO, destinatario);
 			EnviarMail.generateMailMessage.setSubject("Mensaje de Infinity");
 			EnviarMail.generateMailMessage.setFrom(new javax.mail.internet.InternetAddress(cuenta)); // Envoltura segura
 
 			MimeMultipart multipart = new MimeMultipart("related");
 			MimeBodyPart mimeBodyPart = new MimeBodyPart();
-			String htmlText = EnviarMail.mensaje.toString();
+			String htmlText = cuerpoEmail;//EnviarMail.mensaje.toString();
 			mimeBodyPart.setContent(htmlText, "text/html");
 			multipart.addBodyPart((BodyPart) mimeBodyPart);
 
@@ -231,7 +235,7 @@ public class EnviarMail implements Serializable {
 			System.out.println("Mail Session has been created successfully to " + EnviarMail.correoErrores + "..");
 
 			Transport transport = EnviarMail.getMailSession.getTransport("smtp");
-			transport.connect("infinity.petrolrios.ec", cuenta, password);
+			transport.connect(/*"infinity.petrolrios.ec"*/"mail.petrolrios.ec", cuenta, password);
 			transport.sendMessage((Message) EnviarMail.generateMailMessage, EnviarMail.generateMailMessage.getAllRecipients());
 			transport.close();
 
