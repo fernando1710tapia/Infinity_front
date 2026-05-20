@@ -183,69 +183,84 @@ public class EnviarMail implements Serializable {
 
 	public static boolean generateAndSendEmailSincrono(String destinatario, String asunto, String cuerpoEmail) {
 		try {
-			String currentDir = System.getProperty("user.dir");
-			String cuenta = "notificaciones@petrolrios.ec";//"notificaciones@petrolrios.ec";
-			String password = "Murci3lag0_";//"Murci3lag0_";
-			
-			// Control de nulidad obligatorio para evitar el NullPointerException previo
-			if (EnviarMail.correoErrores == null || EnviarMail.correoErrores.trim().isEmpty()) {
-				EnviarMail.LOG.severe("Error: El destinatario (correoErrores) está nulo o vacío.");
+			String cuenta = "notificaciones@petrolrios.ec";
+			String password = "Murci3lag0_";
+
+			// 1. Control de nulidad correcto sobre el parámetro que entra al método
+			if (destinatario == null || destinatario.trim().isEmpty()) {
+				System.err.println("Error: El destinatario está nulo o vacío.");
 				return false;
-			}else
+			} else {
 				destinatario = destinatario.replace(";", ",");
+			}
 
-			//EnviarMail.inicializar();
-			//EnviarMail.generaMensaje();
-			EnviarMail.mailServerProperties = System.getProperties();
-			EnviarMail.mailServerProperties.put("mail.smtp.port", "587");
-			EnviarMail.mailServerProperties.put("mail.smtp.auth", Boolean.valueOf(true));
-			EnviarMail.mailServerProperties.put("mail.smtp.starttls.enable", Boolean.valueOf(true));
-			EnviarMail.mailServerProperties.put("mail.smtp.ssl.protocols", "TLSv1.2");
-			EnviarMail.mailServerProperties.put("mail.smtp.ssl.trust", "infinity.petrolrios.ec");
+			// 2. Configuración de propiedades limpia
+			Properties props = new Properties();
+			props.put("mail.smtp.host", "mail.petrolrios.ec"); // ¡Faltaba mapear el host aquí!
+			props.put("mail.smtp.port", "587"); // Si sigue dando "Refused", cambia a "465"
+			props.put("mail.smtp.auth", "true");
+			props.put("mail.smtp.starttls.enable", "true");
+			props.put("mail.smtp.ssl.protocols", "TLSv1.2");
+			props.put("mail.smtp.ssl.trust", "mail.petrolrios.ec");
 
-			System.out.println("Mail Server Properties have been setup successfully..");
-			EnviarMail.getMailSession = Session.getDefaultInstance(EnviarMail.mailServerProperties, null);
-			EnviarMail.generateMailMessage = new MimeMessage(EnviarMail.getMailSession);
+			// 3. Crear instancia única de Sesión
+			Session session = Session.getInstance(props, null);
+			MimeMessage message = new MimeMessage(session);
 
-			EnviarMail.generateMailMessage.addRecipients(Message.RecipientType.TO, destinatario);
-			EnviarMail.generateMailMessage.setSubject("Mensaje de Infinity");
-			EnviarMail.generateMailMessage.setFrom(new javax.mail.internet.InternetAddress(cuenta)); // Envoltura segura
+			// 4. Configurar remitente y destinatarios estructurados por comas
+			message.setFrom(new javax.mail.internet.InternetAddress(cuenta));
+			message.addRecipients(Message.RecipientType.TO, javax.mail.internet.InternetAddress.parse(destinatario));
+			message.setSubject(asunto != null ? asunto : "Mensaje de Infinity");
 
+			// 5. Construcción del cuerpo Multipart (HTML + Imágenes incrustadas)
 			MimeMultipart multipart = new MimeMultipart("related");
-			MimeBodyPart mimeBodyPart = new MimeBodyPart();
-			String htmlText = cuerpoEmail;//EnviarMail.mensaje.toString();
-			mimeBodyPart.setContent(htmlText, "text/html");
-			multipart.addBodyPart((BodyPart) mimeBodyPart);
 
-			// Adjunto 1: Cabecera
-			mimeBodyPart = new MimeBodyPart();
-			FileDataSource fileDataSource = new FileDataSource(currentDir + EnviarMail.SEPARATOR + "src" + EnviarMail.SEPARATOR + "resources" + EnviarMail.SEPARATOR + "header.jpg");
-			mimeBodyPart.setDataHandler(new DataHandler((DataSource) fileDataSource));
-			mimeBodyPart.addHeader("Content-ID", "<cabecera>");
-			multipart.addBodyPart((BodyPart) mimeBodyPart);
+			// Bloque del Texto HTML
+			MimeBodyPart htmlPart = new MimeBodyPart();
+			htmlPart.setContent(cuerpoEmail, "text/html; charset=utf-8");
+			multipart.addBodyPart(htmlPart);
 
-			// Adjunto 2: Logo
-			mimeBodyPart = new MimeBodyPart();
-			fileDataSource = new FileDataSource(currentDir + EnviarMail.SEPARATOR + "src" + EnviarMail.SEPARATOR + "resources" + EnviarMail.SEPARATOR + "infinity.png");
-			mimeBodyPart.setDataHandler(new DataHandler((DataSource) fileDataSource));
-			mimeBodyPart.addHeader("Content-ID", "<logo>");
-			multipart.addBodyPart((BodyPart) mimeBodyPart);
+			// Bloque del LOGO (Carga segura desde Classpath / src/main/resources)
+			ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+			java.net.URL logoUrl = classLoader.getResource("infinity.png");
 
-			EnviarMail.generateMailMessage.setContent((Multipart) multipart);
-			System.out.println("Mail Session has been created successfully to " + EnviarMail.correoErrores + "..");
+			if (logoUrl != null) {
+				MimeBodyPart logoPart = new MimeBodyPart();
+				logoPart.setDataHandler(new DataHandler(logoUrl));
+				logoPart.addHeader("Content-ID", "<logo>");
+				multipart.addBodyPart(logoPart);
+			} else {
+				System.out.println("Advertencia: No se encontró el archivo infinity.png en resources");
+			}
 
-			Transport transport = EnviarMail.getMailSession.getTransport("smtp");
-			transport.connect(/*"infinity.petrolrios.ec"*/"mail.petrolrios.ec", cuenta, password);
-			transport.sendMessage((Message) EnviarMail.generateMailMessage, EnviarMail.generateMailMessage.getAllRecipients());
+			/*
+			 * * NOTA: Si deseas volver a activar el Header, solo descomenta este bloque
+			 *
+			 * java.net.URL headerUrl = classLoader.getResource("header.jpg"); if (headerUrl
+			 * != null) { MimeBodyPart headerPart = new MimeBodyPart();
+			 * headerPart.setDataHandler(new DataHandler(headerUrl));
+			 * headerPart.addHeader("Content-ID", "<cabecera>");
+			 * multipart.addBodyPart(headerPart); }
+			 */
+
+			message.setContent(multipart);
+
+			// 6. Conexión y envío al servidor SMTP
+			Transport transport = session.getTransport("smtp");
+			transport.connect("mail.petrolrios.ec", cuenta, password);
+			transport.sendMessage(message, message.getAllRecipients());
 			transport.close();
 
-			EnviarMail.LOG.info("Mail has been send successfully..");
-			return true; // Si llegó hasta aquí, todo fue perfecto
+			System.out.println("¡Correo enviado con éxito a: " + destinatario);
+			return true;
+
 		} catch (MessagingException mex) {
-			EnviarMail.LOG.severe("Error al enviar correo: " + mex);
-			return true; //false; // Si saltó una excepción SMTP, falló
+			System.err.println("Error de mensajería SMTP: " + mex.getMessage());
+			mex.printStackTrace();
+			return false; // CORREGIDO: Retornar falso si falla la conexión
 		} catch (Exception ex) {
-			EnviarMail.LOG.severe("Error general: " + ex);
+			System.err.println("Error general en el proceso: " + ex.getMessage());
+			ex.printStackTrace();
 			return false;
 		}
 	}
