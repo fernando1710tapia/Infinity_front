@@ -139,7 +139,7 @@ public class EnviarMail implements Serializable {
 					EnviarMail.mailServerProperties.put("mail.smtp.auth", Boolean.valueOf(true));
 					EnviarMail.mailServerProperties.put("mail.smtp.starttls.enable", Boolean.valueOf(true));
 					EnviarMail.mailServerProperties.put("mail.smtp.ssl.protocols", "TLSv1.2");
-					EnviarMail.mailServerProperties.put("mail.smtp.ssl.trust", "infinity.petrolrios.ec");
+					EnviarMail.mailServerProperties.put("mail.smtp.ssl.trust", "mail.petrolrios.ec");
 					System.out.println("Mail Server Properties have been setup successfully..");
 					EnviarMail.getMailSession = Session.getDefaultInstance(EnviarMail.mailServerProperties, null);
 					EnviarMail.generateMailMessage = new MimeMessage(EnviarMail.getMailSession);
@@ -169,7 +169,7 @@ public class EnviarMail implements Serializable {
 					EnviarMail.generateMailMessage.setContent((Multipart) multipart);
 					System.out.println("Mail Session has been created successfully to " + EnviarMail.correoErrores + "..");
 					Transport transport = EnviarMail.getMailSession.getTransport("smtp");
-					transport.connect("infinity.petrolrios.ec", cuenta, password);
+					transport.connect("mail.petrolrios.ec", cuenta, password);
 					transport.sendMessage((Message) EnviarMail.generateMailMessage, EnviarMail.generateMailMessage.getAllRecipients());
 					transport.close();
 					EnviarMail.LOG.info("Mail has been send successfully..");

@@ -410,9 +410,15 @@ public class ClienteServicio {
                 }
                 cli.setControldespacho(cliente.getInt("controldespacho"));
                 
-                if (!cliente.isNull("observaciongd"))
+                if (!cliente.isNull("observaciongd")){
+                    if (cliente.getString("observaciongd").isEmpty()){
+                        cli.setObservaciongd("nd");
+                    }else{
                 	cli.setObservaciongd(cliente.getString("observaciongd"));
-                
+                    }
+                }else{
+                    cli.setObservaciongd("nd");
+                }
                 listaClientes.add(cli);
                 cli = new Cliente();
                 termi = new Terminal();
