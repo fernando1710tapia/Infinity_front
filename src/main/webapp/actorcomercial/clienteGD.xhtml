@@ -137,17 +137,15 @@
 									
 									<div class="p-field p-col-12 p-md-4">
 										<span class="ui-float-label"> 
-											<p:inputText id="ruc" value="#{clienteGDBean.cliente.ruc}" required="true"
-												maxlength="13" disabled="#{clienteGDBean.soloLectura}"/> 
+											<p:inputText id="ruc" value="#{clienteGDBean.cliente.ruc}" required="true" maxlength="13" disabled="#{clienteGDBean.soloLectura}"/> 
 											<p:outputLabel for="ruc">Ruc</p:outputLabel>
 										</span>
 									</div>
 									
 									<div class="p-field p-col-12 p-md-12"></div>
 									<div class="p-field p-col-12 p-md-12">
-										<span class="ui-float-label"> 
-											<p:inputText id="nombre" value="#{clienteGDBean.cliente.nombre}" required="true"
-												maxlength="100" disabled="#{clienteGDBean.soloLectura}"/> 
+										<span class="ui-float-label">
+											<p:inputText id="nombre" value="#{clienteGDBean.cliente.nombre}" required="true" maxlength="100" disabled="#{clienteGDBean.soloLectura}"/> 
 											<p:outputLabel for="nombre">Razón Social</p:outputLabel>
 										</span>
 									</div>
@@ -206,7 +204,7 @@
 									</div>
 									
 									<div class="p-field p-col-12 p-md-4">
-										<span class="ui-float-label"> 
+										<span class="ui-float-label">
 											<p:password id="claveStc" value="#{clienteGDBean.cliente.clavestc}" redisplay="true" required="true" maxlength="4" readonly="#{clienteGDBean.soloLectura}"/> 
 											<p:outputLabel for="claveStc">Clave STC</p:outputLabel>
 										</span>
@@ -219,56 +217,63 @@
 											<p:outputLabel for="telef1">Teléfono 1</p:outputLabel>
 										</span>
 									</div>
+									
 									<div class="p-field p-col-12 p-md-6">
-										<span class="ui-float-label"> <p:inputText id="telef2"
-												value="#{clienteGDBean.cliente.telefono2}" maxlength="12"
-												disabled="#{clienteGDBean.soloLectura}"/> <p:outputLabel
-												for="telef2">Teléfono 2</p:outputLabel>
+										<span class="ui-float-label">
+											<p:inputText id="telef2" value="#{clienteGDBean.cliente.telefono2}" maxlength="12" disabled="#{clienteGDBean.soloLectura}"/>
+												<p:outputLabel for="telef2">Teléfono 2</p:outputLabel>
 										</span>
 									</div>
+									
 									<div class="p-field p-col-12 p-md-12"></div>
 									<div class="p-field p-col-12 p-md-6">
-										<span class="ui-float-label"> <p:inputText id="correo1"
-												value="#{clienteGDBean.cliente.correo1}" maxlength="100"
-												disabled="#{clienteGDBean.soloLectura}"/> <p:outputLabel
-												for="correo1">Correo 1</p:outputLabel>
+										<span class="ui-float-label">
+											<p:inputText id="correo1" value="#{clienteGDBean.cliente.correo1}" maxlength="100" disabled="#{clienteGDBean.soloLectura}"/>
+											<p:outputLabel for="correo1">Correo 1</p:outputLabel>
 										</span>
 									</div>
+									
 									<div class="p-field p-col-12 p-md-6">
-										<span class="ui-float-label"> <p:inputText id="correo2"
-												value="#{clienteGDBean.cliente.correo2}" maxlength="100"
-												disabled="#{clienteGDBean.soloLectura}"/> <p:outputLabel
-												for="correo2">Correo 2</p:outputLabel>
+										<span class="ui-float-label">
+											<p:inputText id="correo2" value="#{clienteGDBean.cliente.correo2}" maxlength="100" disabled="#{clienteGDBean.soloLectura}"/>
+											<p:outputLabel for="correo2">Correo 2</p:outputLabel>
 										</span>
 									</div>
+									
 									<div class="p-field p-col-12 p-md-4">
 										<p:outputLabel for="direccionInen">Dirección Inen</p:outputLabel>
 										<div class="ui-inputgroup">
-											<span class="ui-inputgroup-addon"> <i
-												class="fa fa-money"></i>
+											<span class="ui-inputgroup-addon">
+												<i class="fa fa-money"></i>
 											</span>
-											<p:selectOneMenu id="direccionInen"
-												value="#{clienteGDBean.direccioninen}" title="Direción INEN"
-												panelStyle="width:175px" style="min-width: 80%;"
-												autoWidth="false" converter="converterg" filter="true"
-												filterMatchMode="contains" required="true"
-												requiredMessage="Seleccione Direción INEN"
-												disabled="#{clienteGDBean.soloLectura}">
-												<f:selectItem noSelectionOption="true"
-													itemLabel="Seleccione" itemValue="#{null}"/>
-												<f:selectItems value="#{clienteGDBean.listaDireccioninen}"
-													var="inen" itemLabel="#{inen.codigo} - #{inen.nombre}"
-													itemValue="#{inen}"/>
+											<p:selectOneMenu id="direccionInen" value="#{clienteGDBean.direccioninen}" title="Direción INEN"
+												panelStyle="width:175px" style="min-width: 80%;" autoWidth="false" converter="converterg" filter="true"
+												filterMatchMode="contains" required="true" requiredMessage="Seleccione Direción INEN" disabled="#{clienteGDBean.soloLectura}">
+												<f:selectItem noSelectionOption="true" itemLabel="Seleccione" itemValue="#{null}"/>
+												<f:selectItems value="#{clienteGDBean.listaDireccioninen}" var="inen" itemLabel="#{inen.codigo} - #{inen.nombre}" itemValue="#{inen}"/>
 											</p:selectOneMenu>
 										</div>
 									</div>
-									<div class="p-field p-col-12 p-md-4">
+									
+									<div class="p-field p-col-12 p-md-3">
 										<p:outputLabel for="estado" value="Activo"/>
 										<div class="ui-inputgroup">
-											<p:toggleSwitch id="estado"
-												value="#{clienteGDBean.cliente.estado}"
-												disabled="#{clienteGDBean.soloLectura}">
-											</p:toggleSwitch>
+											<p:toggleSwitch id="estado" value="#{clienteGDBean.cliente.estado}" disabled="#{clienteGDBean.soloLectura}"></p:toggleSwitch>
+										</div>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-5">
+										<p:outputLabel for="supervisorZonal">Supervisor Zonal</p:outputLabel>
+										<div class="ui-inputgroup">
+											<span class="ui-inputgroup-addon">
+												<i class="fa fa-money"></i>
+											</span>
+											<p:selectOneMenu id="supervisorZonal" value="#{clienteGDBean.supervisorZonal}" title="Supervisor Zonal" panelStyle="width:175px" 
+												style="min-width: 80%;" autoWidth="false" converter="converterg" filter="true" filterMatchMode="contains" required="true"
+												requiredMessage="Seleccione Supervisor" disabled="#{clienteGDBean.soloLectura}">
+												<f:selectItem noSelectionOption="true" itemLabel="Seleccione" itemValue="#{null}"/>
+												<f:selectItems value="#{clienteGDBean.listaSupervisorZonal}" var="supervisorzonal" itemLabel="#{supervisorzonal.codigo} - #{supervisorzonal.nombre}" itemValue="#{supervisorzonal}"/>
+											</p:selectOneMenu>
 										</div>
 									</div>
 								</div>

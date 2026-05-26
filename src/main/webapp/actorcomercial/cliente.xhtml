@@ -230,7 +230,8 @@
                                             <p:inputText id="correo2" value="#{clienteBean.cliente.correo2}" maxlength="100" disabled="#{clienteBean.soloLectura}"/>
                                             <p:outputLabel for="correo2">Correo 2</p:outputLabel>
                                         </span>
-                                    </div>  
+                                    </div>
+                                    
                                     <div class="p-field p-col-12 p-md-4">    
                                         <p:outputLabel for="direccionInen">Dirección Inen</p:outputLabel>
                                         <div class="ui-inputgroup">
@@ -250,12 +251,28 @@
                                             </p:selectOneMenu>
                                         </div>                            
                                     </div>
-                                    <div class="p-field p-col-12 p-md-4">
+                                    
+                                    <div class="p-field p-col-12 p-md-3">
                                         <p:outputLabel for="estado"  value="Activo"/>
                                         <div class="ui-inputgroup">
                                             <p:toggleSwitch id="estado" value="#{clienteBean.cliente.estado}" disabled="#{clienteBean.soloLectura}"> </p:toggleSwitch>
                                         </div>
-                                    </div>                                                  
+                                    </div>
+                                    
+                                    <div class="p-field p-col-12 p-md-5">
+										<p:outputLabel for="supervisorZonal">Supervisor Zonal</p:outputLabel>
+										<div class="ui-inputgroup">
+											<span class="ui-inputgroup-addon">
+												<i class="fa fa-money"></i>
+											</span>
+											<p:selectOneMenu id="supervisorZonal" value="#{clienteBean.supervisorZonal}" title="Supervisor Zonal" panelStyle="width:175px" 
+												style="min-width: 80%;" autoWidth="false" converter="converterg" filter="true" filterMatchMode="contains" required="true"
+												requiredMessage="Seleccione Supervisor" disabled="#{clienteBean.soloLectura}">
+												<f:selectItem noSelectionOption="true" itemLabel="Seleccione" itemValue="#{null}"/>
+												<f:selectItems value="#{clienteBean.listaSupervisorZonal}" var="supervisorzonal" itemLabel="#{supervisorzonal.codigo} - #{supervisorzonal.nombre}" itemValue="#{supervisorzonal}"/>
+											</p:selectOneMenu>
+										</div>
+									</div>                                                  
                                 </div>
                             </p:tab>
                             <p:tab title="Información Adicional">

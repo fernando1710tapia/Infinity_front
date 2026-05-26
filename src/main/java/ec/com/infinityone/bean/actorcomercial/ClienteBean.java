@@ -13,6 +13,7 @@ import ec.com.infinityone.servicio.catalogo.BancoServicio;
 import ec.com.infinityone.servicio.catalogo.DireccioninenServicio;
 import ec.com.infinityone.servicio.catalogo.FormapagoServicio;
 import ec.com.infinityone.servicio.catalogo.TerminalService;
+import ec.com.infinityone.servicio.catalogo.UsuarioServicio;
 import ec.com.infinityone.configuration.Fichero;
 import ec.com.infinityone.modelo.Banco;
 import ec.com.infinityone.modelo.Cliente;
@@ -23,6 +24,7 @@ import ec.com.infinityone.modelo.Listaprecio;
 import ec.com.infinityone.modelo.ListaprecioPK;
 import ec.com.infinityone.modelo.ObjetoNivel1;
 import ec.com.infinityone.modelo.Terminal;
+import ec.com.infinityone.modelo.Usuario;
 import ec.com.infinityone.servicio.preciosyfacturacion.ListaprecioServicio;
 import ec.com.infinityone.reusable.ReusableBean;
 import java.io.BufferedReader;
@@ -66,7 +68,9 @@ public class ClienteBean extends ReusableBean implements Serializable {
     private TerminalService terminalServicio;
     @Inject
     private ListaprecioServicio listaPrecioServicio;
-
+    @Inject
+	private UsuarioServicio usuarioServicio;
+    
     private ComercializadoraBean comercializadora;
 
     private Cliente cliente;
@@ -101,6 +105,10 @@ public class ClienteBean extends ReusableBean implements Serializable {
 
     private List<ObjetoNivel1> listaTipoclientes;
     /*
+	 * Variable que almacena los supervisors Zonales
+	 */
+	private List<Usuario> listaSupervisorZonal;
+    /*
     Objeto formapago
      */
     private Formapago formapago;
@@ -133,6 +141,11 @@ public class ClienteBean extends ReusableBean implements Serializable {
      */
     private String codComer;
 
+    /*
+	 * Objeto Usuario
+	 */
+	private Usuario supervisorZonal;
+	
     /**
      * Constructor por defecto
      */
@@ -161,6 +174,8 @@ public class ClienteBean extends ReusableBean implements Serializable {
         listaprecio = new Listaprecio();
         direccioninen = new Direccioninen();
         listaprecioPK = new ListaprecioPK();
+        supervisorZonal = new Usuario();
+        
         //obtenerClientes();
         obtenerListaComercializadora();
         obtenerDireccioninen();
@@ -171,6 +186,7 @@ public class ClienteBean extends ReusableBean implements Serializable {
         habilitarBusqueda();
         //obtenerPrecio();
         //getURL();
+        //obtenerSupervisorZonal();
     }
 
     public void obtenerClientes() {
@@ -212,6 +228,10 @@ public class ClienteBean extends ReusableBean implements Serializable {
         }        
     }
 
+    public void obtenerSupervisorZonal() {
+		listaSupervisorZonal = this.usuarioServicio.obtenerUsuarioPorComercializadora(codComer);
+	}
+    
     public void seleccionarComercializadora() {
         if (comercializadora != null) {
             codComer = comercializadora.getCodigo();
@@ -219,6 +239,7 @@ public class ClienteBean extends ReusableBean implements Serializable {
             listaListaprecios = new ArrayList<>();
             listaListaprecios = this.listaPrecioServicio.getListaprecioPorComer(codComer);
             habilitarBusqueda();
+            obtenerSupervisorZonal();
         }
     }
 
@@ -302,6 +323,7 @@ public class ClienteBean extends ReusableBean implements Serializable {
         this.cliente.setCodigolistaprecio(listaprecio.getListaprecioPK().getCodigo());
         this.cliente.setCodigodireccioninen(direccioninen.getCodigo());
         this.cliente.setUsuarioactual(dataUser.getUser().getNombrever());
+        this.cliente.setCodigosupervisorzonal(supervisorZonal != null ? supervisorZonal.getCodigo():null);
     }
 
     public void addItems() {
@@ -676,4 +698,19 @@ public class ClienteBean extends ReusableBean implements Serializable {
         this.listaTipoclientes = listaTipoclientes;
     }
 
+	public List<Usuario> getListaSupervisorZonal() {
+		return listaSupervisorZonal;
+	}
+    
+    public void setListaSupervisorZonal(List<Usuario> listaSupervisorZonal) {
+		this.listaSupervisorZonal = listaSupervisorZonal;
+	}
+    
+    public Usuario getSupervisorZonal() {
+		return supervisorZonal;
+	}
+    
+    public void setSupervisorZonal(Usuario supervisorZonal) {
+		this.supervisorZonal = supervisorZonal;
+	}
 }
