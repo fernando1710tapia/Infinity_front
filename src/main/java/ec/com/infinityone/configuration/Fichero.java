@@ -45,6 +45,13 @@ public class Fichero {
     private static String PERMISOSXUSUARIO;
     private static String RUTASERVICIOSPERSISTENCIAUSUARIOGLOBAL;
     private static String DESTINATARIOGESTIONDIRECTA;
+ 
+    // VARIABLES DE CONFIGURACION DE GESTION DE CORREOS
+    private static String CORREOERRORES;
+    private static String CLAVECORREO;
+    private static String PUERTO;
+    private static String SERVERCORREO;
+ 
 
     public static void propiedades() {
         InputStream in = null;
@@ -82,7 +89,15 @@ public class Fichero {
             RUTAECONSULTAS = (String) propiedades.get("RUTAECONSULTAS");
             PERMISOSXUSUARIO = (String) propiedades.get("PERMISOSXUSUARIO");
             RUTASERVICIOSPERSISTENCIAUSUARIOGLOBAL = (String) propiedades.get("RUTASERVICIOSPERSISTENCIAUSUARIOGLOBAL");
+        // 2026-05-28 VARIABLES PARA MANEJO DE GESTION DE CORREOS Y CONTROL DE GD    
             DESTINATARIOGESTIONDIRECTA = (String) propiedades.get("DESTINATARIOGESTIONDIRECTA");
+            
+            CORREOERRORES = (String) propiedades.get("CORREOERRORES");
+            CLAVECORREO = (String) propiedades.get("CLAVECORREO");
+            PUERTO = (String) propiedades.get("PUERTO");
+            SERVERCORREO = (String) propiedades.get("SERVERCORREO");
+            
+            
 
             //LOG.log(Level.INFO, "Ruta Reporte", RUTAREPORTE);
             //LOG.log(Level.INFO, "Ruta Servicios", RUTASERVICIOSPERSISTENCIA);
@@ -251,6 +266,38 @@ public class Fichero {
 
     public static void setDESTINATARIOGESTIONDIRECTA(String DESTINATARIOGESTIONDIRECTA) {
         Fichero.DESTINATARIOGESTIONDIRECTA = DESTINATARIOGESTIONDIRECTA;
+    }
+
+    public static String getCLAVECORREO() {
+        return CLAVECORREO;
+    }
+
+    public static void setCLAVECORREO(String CLAVECORREO) {
+        Fichero.CLAVECORREO = CLAVECORREO;
+    }
+
+    public static String getPUERTO() {
+        return PUERTO;
+    }
+
+    public static void setPUERTO(String PUERTO) {
+        Fichero.PUERTO = PUERTO;
+    }
+
+    public static String getCORREOERRORES() {
+        return CORREOERRORES;
+    }
+
+    public static void setCORREOERRORES(String CORREOERRORES) {
+        Fichero.CORREOERRORES = CORREOERRORES;
+    }
+
+    public static String getSERVERCORREO() {
+        return SERVERCORREO;
+    }
+
+    public static void setSERVERCORREO(String SERVERCORREO) {
+        Fichero.SERVERCORREO = SERVERCORREO;
     }
     
     
