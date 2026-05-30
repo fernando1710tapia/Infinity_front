@@ -103,7 +103,13 @@ public class EnviarMail implements Serializable {
             cuerpoEmail = cuerpoEmail.replace("$F_HORA_SISTEMA", horaSistema);
             cuerpoEmail = cuerpoEmail.replace("$F_USUARIO", usuario != null ? usuario : "");
             cuerpoEmail = cuerpoEmail.replace("$F_CLIENTE", codigoNombreCliente != null ? codigoNombreCliente : "");
-            cuerpoEmail = cuerpoEmail.replace("$F_OBSERVACIONGD", observacionGD != null ? observacionGD : "");
+            
+			// Formateamos el string largo para transformarlo en componentes HTML limpios
+			String observacionHtml = "";
+			if (observacionGD != null && !observacionGD.trim().isEmpty())
+				observacionHtml = formatearObservacionAHtml(observacionGD);
+            
+            cuerpoEmail = cuerpoEmail.replace("$F_OBSERVACIONGD", observacionHtml);
 
             // Inyectamos la variable que acabamos de transformar
             cuerpoEmail = cuerpoEmail.replace("$F_FECHAVMTOCONTRATO", fechaVencimientoFormateada);
@@ -120,6 +126,50 @@ public class EnviarMail implements Serializable {
             return false;
         }
     }
+
+	private static String formatearObservacionAHtml(String textoOriginal) {
+		try {
+			// 1. Separamos la sección de "Observación:" del resto de las causales
+			String[] partesPrincipales = textoOriginal.split(";?\\s*Observación:\\s*");
+			String causalesTexto = partesPrincipales[0]; // Contiene las causales
+			String observacionTexto = partesPrincipales.length > 1 ? partesPrincipales[1] : "";
+
+			// 2. Limpiamos la palabra inicial "Causales:" para procesar solo el contenido
+			causalesTexto = causalesTexto.replace("Causales:", "").trim();
+
+			// 3. Expresión regular que detecta los patrones de incisos como "e. ", "f. ","a. "
+			// Separa las causales usando esos identificadores
+			String[] listadoCausales = causalesTexto.split("(?=\\b[a-z]\\.\\s)");
+
+			StringBuilder htmlBuilder = new StringBuilder();
+			htmlBuilder.append("<br/><br/><b>Causales:</b>");
+			htmlBuilder.append("<ul style='margin-top: 5px; margin-bottom: 5px; padding-left: 20px;'>");
+
+			for (String causal : listadoCausales) {
+				String causalLimpia = causal.trim();
+				// Quitamos el punto y coma del final si existe para que se vea estético
+				if (causalLimpia.endsWith(";")) {
+					causalLimpia = causalLimpia.substring(0, causalLimpia.length() - 1);
+				}
+				if (!causalLimpia.isEmpty()) {
+					htmlBuilder.append("<li style='margin-bottom: 3px;'>").append(causalLimpia).append("</li>");
+				}
+			}
+			
+			htmlBuilder.append("</ul>");
+
+			// 4. Si venía una observación, la agregamos abajo como texto normal
+			if (!observacionTexto.isEmpty()) {
+				htmlBuilder.append("<b>Observación:</b> ").append(observacionTexto.trim());
+			}
+
+			return htmlBuilder.toString();
+		} catch (Exception e) {
+			// En caso de que el formato cambie drásticamente, devolvemos el texto original
+			// para no romper el correo
+			return textoOriginal;
+		}
+	}
 
     public static void generateAndSendEmail() {
         Thread t = new Thread(new Runnable() {
@@ -228,7 +278,7 @@ public class EnviarMail implements Serializable {
             EnviarMail.generateMailMessage = new MimeMessage(EnviarMail.getMailSession);
 
             EnviarMail.generateMailMessage.addRecipients(Message.RecipientType.TO, destinatario);
-            EnviarMail.generateMailMessage.setSubject("Mensaje de Infinity");
+            EnviarMail.generateMailMessage.setSubject(asunto);
             EnviarMail.generateMailMessage.setFrom(new javax.mail.internet.InternetAddress(cuenta)); // Envoltura segura
 
             MimeMultipart multipart = new MimeMultipart("related");

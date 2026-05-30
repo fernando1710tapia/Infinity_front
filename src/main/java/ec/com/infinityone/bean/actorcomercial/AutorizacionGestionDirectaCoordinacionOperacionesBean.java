@@ -392,9 +392,8 @@ public class AutorizacionGestionDirectaCoordinacionOperacionesBean extends Reusa
 
 	private boolean enviarEmail() {
 		EnviarMail.setError("Inicia envío email con causales");
-		//EnviarMail.setCorreoErrores("roberth7777@gmail.com");
-                EnviarMail.setCorreoErrores(Fichero.getCORREOERRORES());
-		
+		EnviarMail.setCorreoErrores(Fichero.getCORREOERRORES());
+
 		String codigoNombreCliente = cliente.getClientePK().getCodigo() +" - " + cliente.getNombrecomercial(); 
 		Date fechaVencimientoContrato = cliente.getFehavencimientocontrato();
 		String observacionGD = cliente.getObservaciongd();
