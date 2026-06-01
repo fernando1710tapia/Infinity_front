@@ -129,13 +129,13 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
      */
     @Inject
     private ClienteProductoServicio cliProdServicio;
-    
+
     /*
     Variable para acceder a los servicios de TerminalSello
      */
     @Inject
     private SellosServicio sellosServicio;
-    
+
     /*
     Variable Comercializadora
      */
@@ -199,7 +199,7 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
     /*
     Variable para guardar una lista de Nota y Detalle Pedido
      */
-    private List<EnvioPedido> listenvNP; 
+    private List<EnvioPedido> listenvNP;
     /*
     Variable Cliente
      */
@@ -256,12 +256,12 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
     Lista de Medidas
      */
     private List<Medida> listaMedida;
-    
+
     /*
     Lista de DetalleTerminalSellos
      */
     private List<Detalleterminalsello> listaDetalleTerminalSellos;
-    
+
     /*
     Variable Medida
      */
@@ -318,7 +318,7 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
     private boolean todosClientes;
 
     private List<Autotanque> listaAutotanque;
-    
+
     private List<Conductor> listaConductores;
 
     private Autotanque autotanque;
@@ -501,7 +501,7 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
         listaDetalleTerminalSellos = new ArrayList<>();
         listaDetalleTerminalSellos = sellosServicio.sellosValidosParaNP(codigoComercializadora, codigoTerminal, selloInicial, selloFinal);
     }
-    
+
     public void obtenerAutotanque() {
         try {
             url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.autotanque");
@@ -680,13 +680,31 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
     }
 
     public void seleccCliente(int busqueda) {
+       //ABRIR CONTROL COORDINANDO CON PYS         boolean pysGDValido = false;
+        boolean pysGDValido = true;
         if (cliente != null) {
-            codCliente = cliente.getClientePK().getCodigo();
-            for (int i = 0; i < listaTermianles.size(); i++) {
-                if (listaTermianles.get(i).getCodigo().equals(cliente.getCodigoterminaldefecto().getCodigo())) {
-                    terminal = listaTermianles.get(i);
-                    break;
+            if ("0002".equalsIgnoreCase(codComer)) {
+
+                if ("03".equalsIgnoreCase(cliente.getCodigoformapago().getCodigo())) {
+
+                    if (new Date().before(cliente.getFehavencimientocontrato())) {
+
+                        pysGDValido = true;
+                    }
                 }
+            }
+
+            if (pysGDValido) {
+                codCliente = cliente.getClientePK().getCodigo();
+                for (int i = 0; i < listaTermianles.size(); i++) {
+                    if (listaTermianles.get(i).getCodigo().equals(cliente.getCodigoterminaldefecto().getCodigo())) {
+                        terminal = listaTermianles.get(i);
+                        break;
+                    }
+                }
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_FATAL,
+                        "Este cliente NO está autorizado para generar NP. Consulte con el administrador para verificar su condición");
             }
             seleccionarTerminal(busqueda);
         }
@@ -888,9 +906,9 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
                             JSONObject nt = retorno.getJSONObject(indice);
                             JSONObject ntPK = nt.getJSONObject("notapedidoPK");
                             JSONObject cli = nt.getJSONObject("codigocliente");
-                            
+
                             JSONObject cliPK = cli.getJSONObject("clientePK");
-                            
+
                             JSONObject term = nt.getJSONObject("codigoterminal");
                             JSONObject ban = nt.getJSONObject("codigobanco");
                             JSONObject formPago = cli.getJSONObject("codigoformapago");
@@ -925,14 +943,10 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
                             formap.setCodigo(formPago.getString("codigo"));
 
                             /*----Objeto Cliente----*/
-                            
-                            
 //////FTFTF                            cliente.setCodigo(cli.getString("codigo"));
-                            
                             cliente.setClientePK(new ClientePK());
                             cliente.getClientePK().setCodigo(cliPK.getString("codigo"));
-                            
-                            
+
                             cliente.setNombre(cli.getString("nombre"));
                             cliente.setNombrecomercial(cli.getString("nombrecomercial"));
                             cliente.setRuc(cli.getString("ruc"));
@@ -1046,7 +1060,7 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
                 np.setUsuarioactual(dataUser.getUser().getNombrever());
                 np.setPrefijo(prefijo);
                 if (codComer.equals(CodigoComerEnum.PETROL_RIOS.getCodigo())) {
-                     np.setObservacion("Bco: " + nomBanco + " - Cta: " + numCuenta + " - Ch: " + numCheque);
+                    np.setObservacion("Bco: " + nomBanco + " - Cta: " + numCuenta + " - Ch: " + numCheque);
                 }
                 np.setCodigoautotanque(autotanque.getPlaca());
                 np.setCedulaconductor(autotanque.getCedularuc().getCedularuc());
@@ -1201,9 +1215,9 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
                         JSONObject nt = retorno.getJSONObject(indice);
                         JSONObject ntPK = nt.getJSONObject("notapedidoPK");
                         JSONObject cli = nt.getJSONObject("codigocliente");
-                        
+
                         JSONObject cliPK = cli.getJSONObject("clientePK");
-                        
+
                         JSONObject term = nt.getJSONObject("codigoterminal");
                         JSONObject ban = nt.getJSONObject("codigobanco");
                         JSONObject formPago = cli.getJSONObject("codigoformapago");
@@ -1230,13 +1244,11 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
                         /*----Objeto Fromapago----*/
                         formap.setCodigo(formPago.getString("codigo"));
 
-                        /*----Objeto Cliente----*/ 
-                        
+                        /*----Objeto Cliente----*/
 //////FTFTFT                        cliente.setCodigo(cli.getString("codigo"));
-                        
                         cliente.setClientePK(new ClientePK());
                         cliente.getClientePK().setCodigo(cliPK.getString("codigo"));
-                        
+
                         cliente.setNombre(cli.getString("nombre"));
                         cliente.setRuc(cli.getString("ruc"));
                         cliente.setCorreo1(cli.getString("correo1"));
@@ -1392,7 +1404,7 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
             file = new FileInputStream(new File(path));
 
             JasperReport reporte = JasperCompileManager.compileReport(file);
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo"+envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora()+".jpeg"));
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo" + envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora() + ".jpeg"));
 //            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
             Map parametro = new HashMap();
 
@@ -1438,7 +1450,7 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
 
             JasperReport reporte = JasperCompileManager.compileReport(file);
             JasperReport subreporte = JasperCompileManager.compileReport(subreport);
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo"+envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora()+".jpeg"));
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo" + envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora() + ".jpeg"));
 //            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
             Map parametro = new HashMap();
 
@@ -1551,9 +1563,9 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
 //        editAutotanque();
 //        obtenerAutotanque();
 //FT 20240723 EL AUTOTANQUE SELECCIONADO TOMA EL CONDUCTOR SELECCIONADO SOLO PARA ESTE CICLO DE VIDA DE LA PAGINA 
-          this.autotanque.getCedularuc().setCedularuc(conductor.getCedularuc());  
-          this.autotanque.setCedularuc(conductor);
-          PrimeFaces.current().executeScript("PF('elegirconductor').hide()");
+        this.autotanque.getCedularuc().setCedularuc(conductor.getCedularuc());
+        this.autotanque.setCedularuc(conductor);
+        PrimeFaces.current().executeScript("PF('elegirconductor').hide()");
 
 //        for (int i = 0; i < listaAutotanque.size(); i++) {
 //            System.out.println("FT:: actualizarAutotanque ubicar el autotanque seleccionado anteriormente " + autoAux.getPlaca() + " -i " + i + " - " + listaAutotanque.get(i).getPlaca());
@@ -1563,7 +1575,6 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
 //                break;
 //            }
 //        }
-
     }
 
     public void editAutotanque() {
@@ -1615,29 +1626,29 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
         int contadorSellosValidos = 0;
         int contadorSellosSolicitados = 0;
         if (np.detNP.getSelloinicial() != 0 && np.detNP.getSellofinal() != 0) {
-            if(np.detNP.getSelloinicial() < np.detNP.getSellofinal()){
-                obtenerSellosParaNP(codComer, codTerminal, np.detNP.getSelloinicial(), np.detNP.getSellofinal()); 
-                
+            if (np.detNP.getSelloinicial() < np.detNP.getSellofinal()) {
+                obtenerSellosParaNP(codComer, codTerminal, np.detNP.getSelloinicial(), np.detNP.getSellofinal());
+
                 contadorSellosSolicitados = np.detNP.getSellofinal() - np.detNP.getSelloinicial() + 1;
-                
+
                 for (int i = 0; i < listaDetalleTerminalSellos.size(); i++) {
                     if (listaDetalleTerminalSellos.get(i).getActivo()) {
                         contadorSellosValidos++;
                     }
                 }
                 if (contadorSellosValidos != contadorSellosSolicitados) {
-                    
+
                     this.dialogo(FacesMessage.SEVERITY_ERROR, "ffffffffffffffffLA FECHA DE FIN NO PUEDE SER MAYOR A 7 DÍAS A LA FECHA DE INICIO");
-                    
-                    this.dialogo(FacesMessage.SEVERITY_ERROR, " Metodo.calcularCantidadSellos: Usted ha solicitado " +contadorSellosSolicitados+" sellos para esta NP, sin embargo, se han encontrado "+contadorSellosValidos+" sellos validos"+"Esta divergecia de datos - NO PERMITIRÁ GRABAR ESTA NOTA DE PEDIDO!");
-                    System.out.println(" Metodo.calcularCantidadSellos: Usted ha solicitado " +contadorSellosSolicitados+" sellos para esta NP, sin embargo, se han encontrado "+contadorSellosValidos+" sellos validos"+"Esta divergecia de datos - NO PERMITIRÁ GRABAR ESTA NOTA DE PEDIDO!");
+
+                    this.dialogo(FacesMessage.SEVERITY_ERROR, " Metodo.calcularCantidadSellos: Usted ha solicitado " + contadorSellosSolicitados + " sellos para esta NP, sin embargo, se han encontrado " + contadorSellosValidos + " sellos validos" + "Esta divergecia de datos - NO PERMITIRÁ GRABAR ESTA NOTA DE PEDIDO!");
+                    System.out.println(" Metodo.calcularCantidadSellos: Usted ha solicitado " + contadorSellosSolicitados + " sellos para esta NP, sin embargo, se han encontrado " + contadorSellosValidos + " sellos validos" + "Esta divergecia de datos - NO PERMITIRÁ GRABAR ESTA NOTA DE PEDIDO!");
                 }
                 this.setCantidadSellos(contadorSellosValidos);
-                System.out.println("FT:: VERIFICACION DE CANTIDAD DE SELLOS Y VALIDOS:. "+this.getCantidadSellos() +" VALIDOS:. "+contadorSellosValidos);
-            }else{
+                System.out.println("FT:: VERIFICACION DE CANTIDAD DE SELLOS Y VALIDOS:. " + this.getCantidadSellos() + " VALIDOS:. " + contadorSellosValidos);
+            } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "EL SELLO FINAL DEBE SER MAYOR AL SELLO INICIAL - NO PODRÁ GRABAR ESTA NOTA DE PEDIDO!");
             }
-        }else{
+        } else {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "LOS SELLOS DEBEN SER NUMÉRICOS - NO PODRÁ GRABAR ESTA NOTA DE PEDIDO!");
         }
     }
@@ -2089,5 +2100,5 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
     public void setMostarObservacion(boolean mostarObservacion) {
         this.mostarObservacion = mostarObservacion;
     }
-    
+
 }

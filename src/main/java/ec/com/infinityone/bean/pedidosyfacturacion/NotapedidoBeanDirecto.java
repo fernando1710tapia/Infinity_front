@@ -517,13 +517,32 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
     }
 
     public void seleccCliente(int busqueda) {
+//ABRIR CONTROL COORDINANDO CON PYS         boolean pysGDValido = false;
+        boolean pysGDValido = true;
         if (cliente != null) {
-            codCliente = cliente.getClientePK().getCodigo();
-            for (int i = 0; i < listaTermianles.size(); i++) {
-                if (listaTermianles.get(i).getCodigo().equals(cliente.getCodigoterminaldefecto().getCodigo())) {
-                    terminal = listaTermianles.get(i);
-                    break;
+            if ("0002".equalsIgnoreCase(codComer)) {
+
+                if ("03".equalsIgnoreCase(cliente.getCodigoformapago().getCodigo())) {
+
+                    if (new Date().before(cliente.getFehavencimientocontrato())) {
+
+                        pysGDValido = true;
+                    }
                 }
+            }
+
+            if (pysGDValido) {
+
+                codCliente = cliente.getClientePK().getCodigo();
+                for (int i = 0; i < listaTermianles.size(); i++) {
+                    if (listaTermianles.get(i).getCodigo().equals(cliente.getCodigoterminaldefecto().getCodigo())) {
+                        terminal = listaTermianles.get(i);
+                        break;
+                    }
+                }
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_FATAL,
+                        "Este cliente NO está autorizado para generar NP. Consulte con el administrador para verificar su condición");
             }
             seleccionarTerminal(busqueda);
         }
@@ -533,7 +552,7 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
     public void seleccionarCliente() {
         boolean pysGDValido = true;
         if (cliente != null) {
-            
+
             if ("0002".equalsIgnoreCase(codComer)) {
 
                 if ("03".equalsIgnoreCase(cliente.getCodigoformapago().getCodigo())) {
@@ -546,42 +565,42 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
             }
 
             if (pysGDValido) {
-            
-            codCliente = cliente.getClientePK().getCodigo();
-            listaProductos = new ArrayList<>();
-            listaProductos = cliProdServicio.obtenerProductos(codComer, codCliente);
-            np.setCodigocliente(cliente);
-            if (cliente.getCodigoterminaldefecto() != null) {
-                // for (int i = 0; i < listaTermianles.size(); i++) {
-                // if
-                // (cliente.getCodigoterminaldefecto().equals(listaTermianles.get(i).getCodigo()))
-                // {
-                // terminal = listaTermianles.get(i);
-                // codTerminal = cliente.getCodigoterminaldefecto().getCodigo() + " - " +
-                // cliente.getCodigoterminaldefecto().getNombre();
-                // }
-                // np.setCodigoterminal(cliente.getCodigoterminaldefecto());
-                // }
-            }
 
-            if (cliente.getCodigobancodebito() != null) {
-                for (int i = 0; i < listaBancos.size(); i++) {
-                    if (listaBancos.get(i).getCodigo().equals(cliente.getCodigobancodebito())) {
-                        banco = listaBancos.get(i);
-                        np.setCodigobanco(banco);
+                codCliente = cliente.getClientePK().getCodigo();
+                listaProductos = new ArrayList<>();
+                listaProductos = cliProdServicio.obtenerProductos(codComer, codCliente);
+                np.setCodigocliente(cliente);
+                if (cliente.getCodigoterminaldefecto() != null) {
+                    // for (int i = 0; i < listaTermianles.size(); i++) {
+                    // if
+                    // (cliente.getCodigoterminaldefecto().equals(listaTermianles.get(i).getCodigo()))
+                    // {
+                    // terminal = listaTermianles.get(i);
+                    // codTerminal = cliente.getCodigoterminaldefecto().getCodigo() + " - " +
+                    // cliente.getCodigoterminaldefecto().getNombre();
+                    // }
+                    // np.setCodigoterminal(cliente.getCodigoterminaldefecto());
+                    // }
+                }
+
+                if (cliente.getCodigobancodebito() != null) {
+                    for (int i = 0; i < listaBancos.size(); i++) {
+                        if (listaBancos.get(i).getCodigo().equals(cliente.getCodigobancodebito())) {
+                            banco = listaBancos.get(i);
+                            np.setCodigobanco(banco);
+                        }
                     }
                 }
-            }
-        
-        } else {
+
+            } else {
 
                 this.dialogo(FacesMessage.SEVERITY_FATAL,
                         "Este cliente NO está autorizado para generar NP. Consulte con el administrador para verificar su condición");
-                
+
                 //nuevaNotaPedido();
                 listaProductos = new ArrayList<>();
             }
-        
+
         }
     }
 
@@ -755,8 +774,7 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
                 EnvioPedido envioPedido = new EnvioPedido();
 
                 StringBuilder content = new StringBuilder();
-                try (InputStreamReader isr = new InputStreamReader(connection.getInputStream());
-                        BufferedReader br = new BufferedReader(isr)) {
+                try (InputStreamReader isr = new InputStreamReader(connection.getInputStream()); BufferedReader br = new BufferedReader(isr)) {
                     String tmp;
                     while ((tmp = br.readLine()) != null) {
                         content.append(tmp);
@@ -1093,8 +1111,7 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
             }
 
             StringBuilder contentBuilder = new StringBuilder();
-            try (InputStreamReader isr = new InputStreamReader(connection.getInputStream());
-                    BufferedReader br = new BufferedReader(isr)) {
+            try (InputStreamReader isr = new InputStreamReader(connection.getInputStream()); BufferedReader br = new BufferedReader(isr)) {
                 String tmp;
                 while ((tmp = br.readLine()) != null) {
                     contentBuilder.append(tmp);

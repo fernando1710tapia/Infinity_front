@@ -488,7 +488,8 @@ public class NotapedidoBean extends ReusableBean implements Serializable {
     }
 
     public void seleccCliente(int busqueda) {
-        boolean pysGDValido = false;
+       //ABRIR CONTROL COORDINANDO CON PYS         boolean pysGDValido = false;
+        boolean pysGDValido = true;
         if (cliente != null) {
             if ("0002".equalsIgnoreCase(codComer)) {
 
