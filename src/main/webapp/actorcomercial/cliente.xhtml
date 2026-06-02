@@ -266,7 +266,7 @@
 												<i class="fa fa-money"></i>
 											</span>
 											<p:selectOneMenu id="supervisorZonal" value="#{clienteBean.supervisorZonal}" title="Supervisor Zonal" panelStyle="width:175px" 
-												style="min-width: 80%;" autoWidth="false" converter="converterg" filter="true" filterMatchMode="contains" required="true"
+												style="min-width: 80%;" autoWidth="false" converter="converterg" filter="true" filterMatchMode="contains" required="false"
 												requiredMessage="Seleccione Supervisor" disabled="#{clienteBean.soloLectura}">
 												<f:selectItem noSelectionOption="true" itemLabel="Seleccione" itemValue="#{null}"/>
 												<f:selectItems value="#{clienteBean.listaSupervisorZonal}" var="supervisorzonal" itemLabel="#{supervisorzonal.codigo} - #{supervisorzonal.nombre}" itemValue="#{supervisorzonal}"/>
