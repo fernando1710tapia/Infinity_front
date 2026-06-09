@@ -796,7 +796,8 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                 JSONObject objetoJson = new JSONObject(respuesta);
                 JSONArray retorno = objetoJson.getJSONArray("retorno");
                 if (retorno.isEmpty()) {
-                    this.dialogo(FacesMessage.SEVERITY_ERROR, "NO SE ENCONTRARON " + getTituloPantallaPlural().toUpperCase());
+                    this.dialogo(FacesMessage.SEVERITY_ERROR,
+                            "NO SE ENCONTRARON " + getTituloPantallaPlural().toUpperCase());
                 } else {
 
                     for (int indice = 0; indice < retorno.length(); indice++) {
@@ -952,7 +953,8 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                                             JSONObject pkJson = det.getJSONObject("detalleprepedidoPK");
                                             DetalleprepedidoPK pk = new DetalleprepedidoPK();
                                             pk.setCodigoabastecedora(pkJson.optString("codigoabastecedora", ""));
-                                            pk.setCodigocomercializadora(pkJson.optString("codigocomercializadora", ""));
+                                            pk.setCodigocomercializadora(
+                                                    pkJson.optString("codigocomercializadora", ""));
                                             pk.setNumero(pkJson.optString("numero", ""));
                                             pk.setCodigoproducto(pkJson.optString("codigoproducto", ""));
                                             pk.setCodigomedida(pkJson.optString("codigomedida", ""));
@@ -975,7 +977,8 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                                             dp.setVolumennaturalrequerido(det.getBigDecimal("volumennaturalrequerido"));
                                         }
                                         if (!det.isNull("volumennaturalautorizado")) {
-                                            dp.setVolumennaturalautorizado(det.getBigDecimal("volumennaturalautorizado"));
+                                            dp.setVolumennaturalautorizado(
+                                                    det.getBigDecimal("volumennaturalautorizado"));
                                         } else {
                                             dp.setVolumennaturalautorizado(BigDecimal.ZERO);
                                         }
@@ -1043,10 +1046,12 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                                     java.util.List<Detalleprepedido> singleList = new java.util.ArrayList<>();
                                     singleList.add(dpParsed);
                                     row.setDetalle(singleList);
+                                    row.setEstadoForzado(row.getEstadoAutorizado());
                                     listPrepedido.add(row);
                                 }
                             } else {
                                 envioPedido.setPrepedido(np);
+                                envioPedido.setEstadoForzado(envioPedido.getEstadoAutorizado());
                                 listPrepedido.add(envioPedido);
                             }
                             envioPedido = new PrepedidoSolicitud();
@@ -1066,6 +1071,9 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                     System.out.println(connection.getResponseCode());
                     System.out.println(connection.getResponseMessage());
                 }
+
+                this.listPrepedidoCompleta = new java.util.ArrayList<>(listPrepedido);
+                filtrarAutorizados();
             }
             // habilitarBusqueda();
         } catch (IOException e) {
@@ -1355,6 +1363,10 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
     }
 
     public void dialogoAnulacionPrepedido(PrepedidoSolicitud envNP) {
+        if ("SI".equals(envNP.getEstadoAutorizado())) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "No se puede anular un prepedido que ya está autorizado.");
+            return;
+        }
         this.prepedidoAuxiliar = envNP.getPrepedido();
         if (!this.prepedidoAuxiliar.isActiva()) {
             this.dialogo(FacesMessage.SEVERITY_ERROR,
@@ -1367,6 +1379,202 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
         }
     }
 
+    public void dialogoAutorizacionPrepedido(PrepedidoSolicitud envNP) {
+        if (!envNP.getPrepedido().isActiva()) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "No se puede autorizar porque el prepedido está anulado.");
+            return;
+        }
+        if (envNP.getDetalle() == null || envNP.getDetalle().isEmpty() ||
+                envNP.getDetalle().get(0).getVolumennaturalautorizado() == null ||
+                envNP.getDetalle().get(0).getVolumennaturalautorizado().compareTo(java.math.BigDecimal.ZERO) == 0) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "El volumen autorizado debe ser diferente de 0.");
+            return;
+        }
+        this.envNP = envNP;
+        PrimeFaces.current().executeScript("PF('autorizarDialog').show()");
+    }
+
+    public void autorizarPrepedido() {
+        if (this.envNP != null) {
+            for (PrepedidoSolicitud p : listPrepedido) {
+                p.setAutorizar(false);
+            }
+            this.envNP.setAutorizar(true);
+            procesarAutorizacion();
+            PrimeFaces.current().executeScript("PF('autorizarDialog').hide()");
+        }
+    }
+
+    public void cancelarAutorizacion() {
+        if (this.envNP != null) {
+            this.envNP.setAutorizar(false);
+            if (this.envNP.getDetalle() != null) {
+                for (ec.com.infinityone.modelo.Detalleprepedido det : this.envNP.getDetalle()) {
+                    det.setVolumennaturalautorizado(java.math.BigDecimal.ZERO);
+                }
+            }
+            PrimeFaces.current().executeScript("PF('autorizarDialog').hide()");
+        }
+    }
+
+    public static class FilaGenerarNota {
+        private PrepedidoSolicitud prepedidoSolicitud;
+        private String codigoProductoClienteSeleccionado;
+
+        public FilaGenerarNota(PrepedidoSolicitud ps) {
+            this.prepedidoSolicitud = ps;
+        }
+
+        public PrepedidoSolicitud getPrepedidoSolicitud() {
+            return prepedidoSolicitud;
+        }
+
+        public void setPrepedidoSolicitud(PrepedidoSolicitud ps) {
+            this.prepedidoSolicitud = ps;
+        }
+
+        public String getCodigoProductoClienteSeleccionado() {
+            return codigoProductoClienteSeleccionado;
+        }
+
+        public void setCodigoProductoClienteSeleccionado(String codigo) {
+            this.codigoProductoClienteSeleccionado = codigo;
+        }
+
+        public boolean isBloqueado() {
+            if (prepedidoSolicitud == null || prepedidoSolicitud.getDetalle() == null
+                    || prepedidoSolicitud.getDetalle().isEmpty()) {
+                return true;
+            }
+            java.math.BigDecimal volAutorizado = prepedidoSolicitud.getDetalle().get(0).getVolumennaturalautorizado();
+            return volAutorizado == null || volAutorizado.compareTo(java.math.BigDecimal.ZERO) <= 0;
+        }
+    }
+
+    private java.util.List<FilaGenerarNota> listaDetallesGenerar;
+    private java.util.List<Producto> listaProductosClienteModal;
+
+    public java.util.List<FilaGenerarNota> getListaDetallesGenerar() {
+        return listaDetallesGenerar;
+    }
+
+    public void setListaDetallesGenerar(java.util.List<FilaGenerarNota> listaDetallesGenerar) {
+        this.listaDetallesGenerar = listaDetallesGenerar;
+    }
+
+    public java.util.List<Producto> getListaProductosClienteModal() {
+        return listaProductosClienteModal;
+    }
+
+    public void setListaProductosClienteModal(java.util.List<Producto> listaProductosClienteModal) {
+        this.listaProductosClienteModal = listaProductosClienteModal;
+    }
+
+    private String filtroAutorizado = "";
+    private java.util.List<PrepedidoSolicitud> listPrepedidoCompleta;
+
+    public String getFiltroAutorizado() {
+        return filtroAutorizado;
+    }
+
+    public void setFiltroAutorizado(String filtroAutorizado) {
+        this.filtroAutorizado = filtroAutorizado;
+    }
+
+    public java.util.List<PrepedidoSolicitud> getListPrepedidoCompleta() {
+        return listPrepedidoCompleta;
+    }
+
+    public void setListPrepedidoCompleta(java.util.List<PrepedidoSolicitud> listPrepedidoCompleta) {
+        this.listPrepedidoCompleta = listPrepedidoCompleta;
+    }
+
+    public void filtrarAutorizados() {
+        if (listPrepedidoCompleta == null)
+            return;
+        if (filtroAutorizado == null || filtroAutorizado.isEmpty()) {
+            this.listPrepedido = new java.util.ArrayList<>(listPrepedidoCompleta);
+        } else {
+            this.listPrepedido = listPrepedidoCompleta.stream()
+                    .filter(p -> filtroAutorizado.equals(p.getEstadoAutorizado()))
+                    .collect(java.util.stream.Collectors.toList());
+        }
+    }
+
+    public void generarNotaPedido(PrepedidoSolicitud envNP) {
+        if (!"SI".equals(envNP.getEstadoAutorizado())) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR,
+                    "El prepedido debe estar autorizado para generar la nota de pedido.");
+            return;
+        }
+
+        this.envNP = envNP;
+
+        // Cargar productos del cliente
+        try {
+            if (envNP.getPrepedido() != null && envNP.getPrepedido().getCodigocliente() != null) {
+                String codCliente = envNP.getPrepedido().getCodigocliente().getClientePK().getCodigo();
+                String codComer = envNP.getPrepedido().getCodigocliente().getClientePK().getCodigocomercializadora();
+                listaProductosClienteModal = cliProdServicio.obtenerProductos(codComer, codCliente);
+            } else {
+                listaProductosClienteModal = new java.util.ArrayList<>();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            listaProductosClienteModal = new java.util.ArrayList<>();
+        }
+
+        // Cargar todos los detalles del mismo prepedido para el modal
+        listaDetallesGenerar = new java.util.ArrayList<>();
+        if (listPrepedido != null && envNP != null && envNP.getPrepedido() != null) {
+            String targetNumero = envNP.getPrepedido().getPrepedidoPK().getNumero();
+            if (targetNumero != null) {
+                targetNumero = targetNumero.trim();
+                for (PrepedidoSolicitud ps : listPrepedido) {
+                    if (ps.getPrepedido() != null && ps.getPrepedido().getPrepedidoPK() != null) {
+                        String currentNumero = ps.getPrepedido().getPrepedidoPK().getNumero();
+                        if (currentNumero != null && targetNumero.equals(currentNumero.trim())) {
+                            listaDetallesGenerar.add(new FilaGenerarNota(ps));
+                        }
+                    }
+                }
+            }
+        }
+
+        org.primefaces.PrimeFaces.current().ajax().update("formGenerar");
+        org.primefaces.PrimeFaces.current().executeScript("PF('generarDialog').show();");
+    }
+
+    public void procesarGenerarNotaFila(FilaGenerarNota fila) {
+        if (fila == null || fila.getPrepedidoSolicitud() == null) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "No se encontró el detalle de la fila.");
+            return;
+        }
+
+        this.dialogo(FacesMessage.SEVERITY_INFO,
+                "Proceso de generación de nota de pedido iniciado para producto cliente: "
+                        + fila.getCodigoProductoClienteSeleccionado());
+        // TODO: Lógica individual para llamar al API con la fila específica
+    }
+
+    private String getErrorStreamContent(HttpURLConnection connection) {
+        StringBuilder content = new StringBuilder();
+        try (java.io.InputStream errorStream = connection.getErrorStream()) {
+            if (errorStream != null) {
+                try (java.io.BufferedReader br = new java.io.BufferedReader(
+                        new java.io.InputStreamReader(errorStream))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        content.append(line);
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return content.toString();
+    }
+
     public void anularPrepedido() {
         try {
             String respuesta = "";
@@ -1377,21 +1585,26 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                     + prepedidoAuxiliar.getPrepedidoPK().getCodigoabastecedora());
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoOutput(true);
-            connection.setRequestMethod("PUT");
+            connection.setRequestMethod("DELETE");
             connection.setRequestProperty("Content-type", "application/json");
 
-            if (connection.getResponseCode() == 200) {
-                this.dialogo(FacesMessage.SEVERITY_INFO, "NOTA DE PEDIDO ANULADA EXITOSAMENTE");
+            if (connection.getResponseCode() == 200 || connection.getResponseCode() == 204) {
+                this.dialogo(FacesMessage.SEVERITY_INFO, "PREPEDIDO ANULADO EXITOSAMENTE");
                 init();
             } else {
-                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ANULAR");
-                System.out.println(connection.getResponseCode());
-                System.out.println(connection.getResponseMessage());
+                String errorInfo = getErrorStreamContent(connection);
+                String allowHeader = connection.getHeaderField("Allow");
+                String errorMsg = "ERROR AL ANULAR: HTTP " + connection.getResponseCode() + " " + errorInfo;
+                if (connection.getResponseCode() == 405 && allowHeader != null) {
+                    errorMsg += " [Métodos permitidos: " + allowHeader + "]";
+                }
+                this.dialogo(FacesMessage.SEVERITY_ERROR, errorMsg);
+                System.out.println("FT:: ERROR EN anularPrepedido RESPONSECODE " + connection.getResponseCode());
             }
 
         } catch (IOException e) {
             e.printStackTrace();
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "Error de conexión al anular: " + e.getMessage());
         }
     }
 
@@ -2159,6 +2372,7 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
     public void setMedida3(Medida medida3) {
         this.medida3 = medida3;
     }
+
     public void procesarAutorizacion() {
         boolean processados = false;
         try {
@@ -2167,11 +2381,14 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                     if (pSolicitud.isAutorizar()) {
                         if (pSolicitud.getDetalle() != null) {
                             for (Detalleprepedido det : pSolicitud.getDetalle()) {
-                                if (det.getVolumennaturalautorizado() == null || det.getVolumennaturalautorizado().compareTo(BigDecimal.ZERO) <= 0) {
-                                    this.dialogo(javax.faces.application.FacesMessage.SEVERITY_WARN, "EL VOLUMEN AUTORIZADO DEBE SER MAYOR A 0 PARA AUTORIZAR EL PRODUCTO " + (det.getProducto() != null ? det.getProducto().getNombre() : ""));
+                                if (det.getVolumennaturalautorizado() == null
+                                        || det.getVolumennaturalautorizado().compareTo(BigDecimal.ZERO) <= 0) {
+                                    // Simplemente ignoramos los productos a los que no se les asignó volumen, no es
+                                    // un error
                                     continue;
                                 }
-                                String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.detalleprepedido/porId";
+                                String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
+                                        + "ec.com.infinity.modelo.detalleprepedido/porId";
                                 URL url = new URL(direcc);
                                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                                 connection.setDoOutput(true);
@@ -2180,20 +2397,27 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
 
                                 JSONObject jsonPayload = new JSONObject();
                                 JSONObject pkJson = new JSONObject();
-                                pkJson.put("codigoabastecedora", pSolicitud.getPrepedido().getPrepedidoPK().getCodigoabastecedora());
-                                pkJson.put("codigocomercializadora", pSolicitud.getPrepedido().getPrepedidoPK().getCodigocomercializadora());
+                                pkJson.put("codigoabastecedora",
+                                        pSolicitud.getPrepedido().getPrepedidoPK().getCodigoabastecedora());
+                                pkJson.put("codigocomercializadora",
+                                        pSolicitud.getPrepedido().getPrepedidoPK().getCodigocomercializadora());
                                 pkJson.put("numero", pSolicitud.getPrepedido().getPrepedidoPK().getNumero());
                                 pkJson.put("codigoproducto", det.getProducto().getCodigo());
-                                
+
                                 String codigoMedida = "01";
-                                if (det.getDetalleprepedidoPK() != null && det.getDetalleprepedidoPK().getCodigomedida() != null) {
+                                if (det.getDetalleprepedidoPK() != null
+                                        && det.getDetalleprepedidoPK().getCodigomedida() != null) {
                                     codigoMedida = det.getDetalleprepedidoPK().getCodigomedida();
                                 }
                                 pkJson.put("codigomedida", codigoMedida);
                                 jsonPayload.put("detalleprepedidoPK", pkJson);
 
-                                jsonPayload.put("volumennaturalrequerido", det.getVolumennaturalrequerido() != null ? det.getVolumennaturalrequerido() : BigDecimal.ZERO);
-                                jsonPayload.put("volumennaturalautorizado", det.getVolumennaturalautorizado() != null ? det.getVolumennaturalautorizado() : BigDecimal.ZERO);
+                                jsonPayload.put("volumennaturalrequerido",
+                                        det.getVolumennaturalrequerido() != null ? det.getVolumennaturalrequerido()
+                                                : BigDecimal.ZERO);
+                                jsonPayload.put("volumennaturalautorizado",
+                                        det.getVolumennaturalautorizado() != null ? det.getVolumennaturalautorizado()
+                                                : BigDecimal.ZERO);
 
                                 String usuario = "UsuarioWeb";
                                 if (dataUser != null && dataUser.getUser() != null) {
@@ -2225,6 +2449,11 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                                 productoJson.put("codigoareamercadeo", areaMercadeoJson);
                                 jsonPayload.put("producto", productoJson);
 
+                                // Nuevos campos requeridos por el servicio web
+                                jsonPayload.put("activo", pSolicitud.getPrepedido().isActiva());
+                                jsonPayload.put("autorizado", "SI");
+                                jsonPayload.put("numeronp", "0");
+
                                 OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
                                 out.write(jsonPayload.toString());
                                 out.close();
@@ -2232,7 +2461,12 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                                 if (connection.getResponseCode() == 200 || connection.getResponseCode() == 204) {
                                     processados = true;
                                 } else {
-                                    System.out.println("Error procesando autorización: " + connection.getResponseCode() + " " + connection.getResponseMessage());
+                                    String errResponse = getErrorStreamContent(connection);
+                                    this.dialogo(FacesMessage.SEVERITY_ERROR,
+                                            "ERROR HTTP " + connection.getResponseCode() + " al autorizar "
+                                                    + det.getProducto().getNombre() + ": " + errResponse);
+                                    System.out.println("Error procesando autorización: " + connection.getResponseCode()
+                                            + " " + connection.getResponseMessage() + " " + errResponse);
                                 }
                             }
                         }
@@ -2241,9 +2475,17 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
             }
             if (processados) {
                 this.dialogo(FacesMessage.SEVERITY_INFO, "REGISTROS PROCESADOS EXITOSAMENTE");
-                obtenerPrepedidos(); // Recargar la tabla
+                if (this.envNP != null) {
+                    this.envNP.setEstadoForzado("SI");
+                    this.envNP.setAutorizar(false);
+                }
+                // No recargar la tabla entera para que las filas no se muevan de su posición
             } else {
-                this.dialogo(FacesMessage.SEVERITY_WARN, "NO SE PROCESÓ NINGÚN REGISTRO. VERIFIQUE SELECCIÓN.");
+                this.dialogo(FacesMessage.SEVERITY_WARN,
+                        "NO SE PROCESÓ NINGÚN REGISTRO DEBIDO A ERRORES O PORQUE NO SE ASIGNARON VOLÚMENES.");
+                if (this.envNP != null) {
+                    this.envNP.setAutorizar(false);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

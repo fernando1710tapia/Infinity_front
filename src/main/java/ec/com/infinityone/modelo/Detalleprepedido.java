@@ -43,6 +43,11 @@ public class Detalleprepedido implements Serializable {
     private BigDecimal compartimento10;
     private Integer selloinicial;
     private Integer sellofinal;
+
+    // Campos añadidos para sincronizar con el JSON esperado por el backend
+    private Boolean activo = true;
+    private String autorizado = "NO";
+    private String numeronp = "0";
     
     public Detalleprepedido() {
     }
@@ -222,7 +227,29 @@ public class Detalleprepedido implements Serializable {
         this.sellofinal = sellofinal;
     }
     
-    
+    public Boolean getActivo() {
+        return activo;
+    }
+
+    public void setActivo(Boolean activo) {
+        this.activo = activo;
+    }
+
+    public String getAutorizado() {
+        return autorizado;
+    }
+
+    public void setAutorizado(String autorizado) {
+        this.autorizado = autorizado;
+    }
+
+    public String getNumeronp() {
+        return numeronp;
+    }
+
+    public void setNumeronp(String numeronp) {
+        this.numeronp = numeronp;
+    }
     
     @Override
     public int hashCode() {

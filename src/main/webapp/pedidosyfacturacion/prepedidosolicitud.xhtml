@@ -89,7 +89,7 @@
                                         </p:selectOneMenu>
                                     </div>
                                 </div>
-                                <div class="p-field p-col-12 p-md-4">
+                                <div class="p-field p-col-12 p-md-3">
                                     <p:outputLabel for="tipoBus">Tipo de Fecha</p:outputLabel>
                                     <p:selectOneRadio id="tipoBus" value="#{prepedidoSolicitudBean.tipoFecha}"
                                         layout="responsive" columns="2">
@@ -97,22 +97,35 @@
                                         <f:selectItem itemLabel="Fecha Despacho" itemValue="2" />
                                     </p:selectOneRadio>
                                 </div>
-                                <div class="p-field p-col-12 p-md-4">
+                                <div class="p-field p-col-12 p-md-2">
                                     <p:outputLabel for="fechaIn" value="Fecha Inicio" />
                                     <p:datePicker id="fechaIn" value="#{prepedidoSolicitudBean.fechaInicial}"
                                         showIcon="true" pattern="dd/MM/yyyy">
                                         <p:ajax event="dateSelect" update="fechaFin" />
                                     </p:datePicker>
                                 </div>
-                                <div class="p-field p-col-12 p-md-4">
+                                <div class="p-field p-col-12 p-md-2">
                                     <p:outputLabel for="fechaFin" value="Fecha Fin" />
                                     <p:datePicker id="fechaFin" value="#{prepedidoSolicitudBean.fechaFinal}"
                                         showIcon="true" pattern="dd/MM/yyyy"
                                         mindate="#{prepedidoSolicitudBean.fechaInicial}" />
                                 </div>
+                                <div class="p-field p-col-12 p-md-3">
+                                    <p:outputLabel for="filtroEstado" value="Estado Autorizado" />
+                                    <p:selectOneMenu id="filtroEstado"
+                                        value="#{prepedidoSolicitudBean.filtroAutorizado}"
+                                        disabled="#{empty prepedidoSolicitudBean.listPrepedidoCompleta}">
+                                        <f:selectItem itemLabel="TODAS" itemValue="" />
+                                        <f:selectItem itemLabel="AUTORIZADAS" itemValue="SI" />
+                                        <f:selectItem itemLabel="NO AUTORIZADAS" itemValue="NO" />
+                                        <p:ajax event="change" listener="#{prepedidoSolicitudBean.filtrarAutorizados()}"
+                                            update="dt-products" />
+                                    </p:selectOneMenu>
+                                </div>
                                 <div class="p-field p-col-12 p-md-2">
                                     <p:commandButton value="Buscar" icon="pi pi-search"
-                                        actionListener="#{prepedidoSolicitudBean.obtenerPrepedidos()}" update="form" />
+                                        actionListener="#{prepedidoSolicitudBean.obtenerPrepedidos()}" update="form"
+                                        style="margin-top: 1.5rem;" />
                                 </div>
                             </div>
                             <p:dataTable id="dt-products" widgetVar="dtProducts" var="prepedidoItem"
@@ -148,23 +161,28 @@
                                         value="#{prepedidoItem.prepedido.codigocliente.clientePK.codigo} - #{prepedidoItem.prepedido.codigocliente.nombrecomercial}" />
                                 </p:column>
 
+                                <p:column headerText="Número Nota Pedido" width="12%">
+                                    <h:outputText value="0" />
+                                </p:column>
                                 <p:column headerText="Número #{prepedidoSolicitudBean.tituloPantalla}"
                                     sortBy="#{prepedidoItem.prepedido.prepedidoPK.numero}"
                                     filterBy="#{prepedidoItem.prepedido.prepedidoPK.numero}" width="12%">
                                     <h:outputText value="#{prepedidoItem.prepedido.prepedidoPK.numero}" />
                                 </p:column>
                                 <p:column headerText="Producto" width="15%">
-                                    <h:outputText value="#{not empty prepedidoItem.detalle ? prepedidoItem.detalle[0].producto.nombre : ''}"
+                                    <h:outputText
+                                        value="#{not empty prepedidoItem.detalle ? prepedidoItem.detalle[0].producto.nombre : ''}"
                                         style="display: block; margin-bottom: 2px;" />
                                 </p:column>
                                 <p:column headerText="Volumen Solicitado" width="10%">
-                                    <h:outputText value="#{not empty prepedidoItem.detalle ? prepedidoItem.detalle[0].volumennaturalrequerido : ''}"
+                                    <h:outputText
+                                        value="#{not empty prepedidoItem.detalle ? prepedidoItem.detalle[0].volumennaturalrequerido : ''}"
                                         style="display: block; margin-bottom: 2px;" />
                                 </p:column>
                                 <p:column headerText="Volumen Autorizado" width="10%">
-                                    <p:inputNumber value="#{prepedidoItem.detalle[0].volumennaturalautorizado}" decimalPlaces="2" 
-                                        style="display: block; margin-bottom: 2px; width: 100%;" inputStyle="width: 100%;" 
-                                        emptyValue="zero" minValue="0"
+                                    <p:inputNumber value="#{prepedidoItem.detalle[0].volumennaturalautorizado}"
+                                        decimalPlaces="2" style="display: block; margin-bottom: 2px; width: 100%;"
+                                        inputStyle="width: 100%;" emptyValue="zero" minValue="0"
                                         disabled="#{prepedidoItem.estadoAutorizado eq 'SI'}"
                                         rendered="#{not empty prepedidoItem.detalle}" />
                                 </p:column>
@@ -181,12 +199,21 @@
                                         value="#{prepedidoItem.estadoAutorizado}" />
                                 </p:column>
                                 <p:column headerText="Autorizar" width="5%" style="text-align: center;">
-                                    <p:selectBooleanCheckbox value="#{prepedidoItem.autorizar}" disabled="#{prepedidoItem.estadoAutorizado eq 'SI'}" />
+                                    <p:commandButton icon="pi pi-check" styleClass="ui-button-success rounded-button"
+                                        process="@form" update="form"
+                                        actionListener="#{prepedidoSolicitudBean.dialogoAutorizacionPrepedido(prepedidoItem)}" />
+                                </p:column>
+
+                                <p:column headerText="Nota de pedido" exportable="false" width="10%"
+                                    style="text-align: center;">
+                                    <p:commandButton value="Generar" process="@form" update="form"
+                                        styleClass="ui-button-info"
+                                        actionListener="#{prepedidoSolicitudBean.generarNotaPedido(prepedidoItem)}" />
                                 </p:column>
 
                                 <p:column headerText="Anular" exportable="false" width="5%">
                                     <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-times"
-                                        process="@this"
+                                        process="@form"
                                         actionListener="#{prepedidoSolicitudBean.dialogoAnulacionPrepedido(prepedidoItem)}"
                                         update="form">
                                         <f:setPropertyActionListener value="#{prepedidoItem}"
@@ -195,11 +222,6 @@
                                 </p:column>
 
                             </p:dataTable>
-                            <div class="p-d-flex p-jc-start p-mt-3" style="margin-top: 15px; text-align: left;">
-                                <p:commandButton value="Procesar" icon="pi pi-check" styleClass="ui-button-success" 
-                                                 actionListener="#{prepedidoSolicitudBean.procesarAutorizacion}" 
-                                                 update="form" />
-                            </div>
 
 
                         </div>
@@ -269,8 +291,8 @@
                         <p:outputLabel for="todos" value="Todos" />
                         <div class="ui-inputgroup">
                             <p:toggleSwitch id="todos" value="#{prepedidoSolicitudBean.todosClientes}">
-                                <p:ajax event="change" listener="#{prepedidoSolicitudBean.todosCli()}"
-                                    update="cliente" />
+                                <p:ajax event="change" listener="#{prepedidoSolicitudBean.todosCli()}" update="cliente"
+                                    process="@this" />
                             </p:toggleSwitch>
                         </div>
                     </div>
@@ -401,8 +423,9 @@
                     </div>
                     <div class="p-field p-col-12 p-md-4">
                         <span class="ui-float-label">
-                            <p:inputText id="volNatural1"
-                                value="#{prepedidoSolicitudBean.detNP1.volumennaturalrequerido}" maxlength="13" />
+                            <p:inputNumber id="volNatural1"
+                                value="#{prepedidoSolicitudBean.detNP1.volumennaturalrequerido}" decimalPlaces="2"
+                                emptyValue="zero" minValue="0" />
                             <p:outputLabel for="volNatural1">Vol. Natural</p:outputLabel>
                         </span>
                     </div>
@@ -423,8 +446,9 @@
                     </div>
                     <div class="p-field p-col-12 p-md-4">
                         <span class="ui-float-label">
-                            <p:inputText id="volNatural2"
-                                value="#{prepedidoSolicitudBean.detNP2.volumennaturalrequerido}" maxlength="13" />
+                            <p:inputNumber id="volNatural2"
+                                value="#{prepedidoSolicitudBean.detNP2.volumennaturalrequerido}" decimalPlaces="2"
+                                emptyValue="zero" minValue="0" />
                             <p:outputLabel for="volNatural2">Vol. Natural</p:outputLabel>
                         </span>
                     </div>
@@ -445,8 +469,9 @@
                     </div>
                     <div class="p-field p-col-12 p-md-4">
                         <span class="ui-float-label">
-                            <p:inputText id="volNatural3"
-                                value="#{prepedidoSolicitudBean.detNP3.volumennaturalrequerido}" maxlength="13" />
+                            <p:inputNumber id="volNatural3"
+                                value="#{prepedidoSolicitudBean.detNP3.volumennaturalrequerido}" decimalPlaces="2"
+                                emptyValue="zero" minValue="0" />
                             <p:outputLabel for="volNatural3">Vol. Natural</p:outputLabel>
                         </span>
                     </div>
@@ -476,6 +501,56 @@
             <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
                 onclick="PF('deleteProductDialog').hide()" />
         </p:confirmDialog>
+
+        <p:confirmDialog widgetVar="autorizarDialog" showEffect="fade" width="300"
+            message="¿Autorizar #{prepedidoSolicitudBean.tituloPantalla}?" header="Confirmación" severity="info"
+            closable="false">
+            <p:commandButton value="Si" icon="pi pi-check"
+                actionListener="#{prepedidoSolicitudBean.autorizarPrepedido()}" process="@this" update=":form" />
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
+                onclick="PF('autorizarDialog').hide()" actionListener="#{prepedidoSolicitudBean.cancelarAutorizacion()}"
+                update=":form" />
+        </p:confirmDialog>
+
+        <p:dialog widgetVar="generarDialog" header="Generar Nota de Pedido" width="70%" modal="true" showEffect="fade"
+            responsive="true">
+            <h:form id="formGenerar">
+                <p:dataTable value="#{prepedidoSolicitudBean.listaDetallesGenerar}" var="filaItem"
+                    emptyMessage="No hay detalles para este prepedido.">
+
+                    <p:column headerText="Producto" width="15%">
+                        <h:outputText
+                            value="#{not empty filaItem.prepedidoSolicitud.detalle ? filaItem.prepedidoSolicitud.detalle[0].producto.nombre : ''}" />
+                    </p:column>
+
+                    <p:column headerText="Prod. Cliente" width="25%">
+                        <p:selectOneMenu value="#{filaItem.codigoProductoClienteSeleccionado}" style="width: 100%;"
+                            disabled="#{filaItem.bloqueado}">
+                            <f:selectItem itemLabel="Seleccione producto..." itemValue="" />
+                            <f:selectItems value="#{prepedidoSolicitudBean.listaProductosClienteModal}" var="prodCli"
+                                itemLabel="#{prodCli.nombre}" itemValue="#{prodCli.codigo}" />
+                        </p:selectOneMenu>
+                    </p:column>
+
+                    <p:column headerText="Vol. Autorizado" width="20%">
+                        <p:inputNumber value="#{filaItem.prepedidoSolicitud.detalle[0].volumennaturalautorizado}"
+                            decimalPlaces="2" emptyValue="zero" minValue="0" style="width: 100%;"
+                            inputStyle="width: 100%;" disabled="#{filaItem.bloqueado}" />
+                    </p:column>
+
+                    <p:column headerText="# Nota de Pedido" width="15%" style="text-align: center;">
+                        <h:outputText value="00" />
+                    </p:column>
+
+                    <p:column headerText="Generar" width="15%" style="text-align: center;">
+                        <p:commandButton value="Generar" icon="pi pi-cog" styleClass="ui-button-primary"
+                            actionListener="#{prepedidoSolicitudBean.procesarGenerarNotaFila(filaItem)}" process="@form"
+                            disabled="#{filaItem.bloqueado}" />
+                    </p:column>
+
+                </p:dataTable>
+            </h:form>
+        </p:dialog>
 
         <p:confirmDialog global="true" showEffect="fade" width="300">
             <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />

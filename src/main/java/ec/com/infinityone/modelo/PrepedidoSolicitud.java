@@ -57,8 +57,22 @@ public class PrepedidoSolicitud {
         this.autorizar = autorizar;
     }
 
+    private String estadoForzado = null;
+
+    @JsonIgnore
+    public String getEstadoForzado() {
+        return estadoForzado;
+    }
+
+    public void setEstadoForzado(String estadoForzado) {
+        this.estadoForzado = estadoForzado;
+    }
+
     @JsonIgnore
     public String getEstadoAutorizado() {
+        if (estadoForzado != null) {
+            return estadoForzado;
+        }
         if (detalle != null && !detalle.isEmpty()) {
             for (Detalleprepedido d : detalle) {
                 if (d.getVolumennaturalautorizado() != null && d.getVolumennaturalautorizado().compareTo(java.math.BigDecimal.ZERO) > 0) {
