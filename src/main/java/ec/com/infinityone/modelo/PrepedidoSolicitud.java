@@ -57,6 +57,17 @@ public class PrepedidoSolicitud {
         this.autorizar = autorizar;
     }
 
+    private String numeroNotaPedidoGenerada = "0";
+
+    @JsonIgnore
+    public String getNumeroNotaPedidoGenerada() {
+        return numeroNotaPedidoGenerada;
+    }
+
+    public void setNumeroNotaPedidoGenerada(String numeroNotaPedidoGenerada) {
+        this.numeroNotaPedidoGenerada = numeroNotaPedidoGenerada;
+    }
+
     private String estadoForzado = null;
 
     @JsonIgnore

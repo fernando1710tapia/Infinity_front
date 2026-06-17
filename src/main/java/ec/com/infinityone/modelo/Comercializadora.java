@@ -101,6 +101,8 @@ public class Comercializadora implements Serializable {
     
     private String escontribuyenteespacial;
     
+    private Boolean generapedidodirecto;
+    
     private Short diasplazocredito;
     
     private BigDecimal tasainteres;
@@ -151,6 +153,14 @@ public class Comercializadora implements Serializable {
 
     public void setEscontribuyenteespacial(String escontribuyenteespacial) {
         this.escontribuyenteespacial = escontribuyenteespacial;
+    }
+
+    public Boolean getGenerapedidodirecto() {
+        return generapedidodirecto;
+    }
+
+    public void setGenerapedidodirecto(Boolean generapedidodirecto) {
+        this.generapedidodirecto = generapedidodirecto;
     }
 
 

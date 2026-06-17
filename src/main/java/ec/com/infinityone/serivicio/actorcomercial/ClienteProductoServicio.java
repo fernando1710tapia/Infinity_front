@@ -71,6 +71,9 @@ public class ClienteProductoServicio {
                 JSONObject prod = clienteProd.getJSONObject("producto");
                 producto.setCodigo(prod.getString("codigo"));
                 producto.setNombre(prod.getString("nombre"));
+                if (!prod.isNull("productogenerico")) {
+                    producto.setProductogenerico(prod.getString("productogenerico"));
+                }
                 listaProductos.add(producto);      
                 producto = new Producto();
             }
@@ -114,6 +117,9 @@ public class ClienteProductoServicio {
                 producto.setNombre(prod.getString("nombre"));
                 producto.setCodigoarch(prod.getString("codigoarch"));
                 producto.setCodigostc(prod.getString("codigostc"));
+                if (!prod.isNull("productogenerico")) {
+                    producto.setProductogenerico(prod.getString("productogenerico"));
+                }
                 clienteproductoPK.setCodigo(prodPK.getString("codigo"));
                 clienteproductoPK.setCodigocliente(prodPK.getString("codigocliente"));
                 clienteproductoPK.setCodigocomercializadora(prodPK.getString("codigocomercializadora"));

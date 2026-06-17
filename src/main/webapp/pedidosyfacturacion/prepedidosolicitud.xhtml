@@ -162,7 +162,8 @@
                                 </p:column>
 
                                 <p:column headerText="Número Nota Pedido" width="12%">
-                                    <h:outputText value="0" />
+                                    <h:outputText
+                                        value="#{prepedidoItem.numeroNotaPedidoGenerada ne '0' ? prepedidoItem.numeroNotaPedidoGenerada : '0'}" />
                                 </p:column>
                                 <p:column headerText="Número #{prepedidoSolicitudBean.tituloPantalla}"
                                     sortBy="#{prepedidoItem.prepedido.prepedidoPK.numero}"
@@ -183,7 +184,7 @@
                                     <p:inputNumber value="#{prepedidoItem.detalle[0].volumennaturalautorizado}"
                                         decimalPlaces="2" style="display: block; margin-bottom: 2px; width: 100%;"
                                         inputStyle="width: 100%;" emptyValue="zero" minValue="0"
-                                        disabled="#{prepedidoItem.estadoAutorizado eq 'SI'}"
+                                        disabled="#{prepedidoItem.estadoAutorizado eq 'SI' or not prepedidoItem.prepedido.activa}"
                                         rendered="#{not empty prepedidoItem.detalle}" />
                                 </p:column>
                                 <p:column headerText="Estado" sortBy="#{prepedidoItem.prepedido.activa}"
@@ -198,26 +199,38 @@
                                         styleClass="product-badge status-#{prepedidoItem.estadoAutorizado eq 'SI' ? 'instock' : (prepedidoItem.estadoAutorizado eq 'NO' ? 'outofstock' : 'lowstock')}"
                                         value="#{prepedidoItem.estadoAutorizado}" />
                                 </p:column>
+
+                                <p:column headerText="Anular" exportable="false" width="5%" style="text-align: center;">
+                                    <p:commandButton icon="pi pi-times" styleClass="rounded-button ui-button-warning"
+                                        process="@form"
+                                        actionListener="#{prepedidoSolicitudBean.dialogoAnulacionPrepedido(prepedidoItem)}"
+                                        update=":form" disabled="#{not prepedidoItem.prepedido.activa}">
+                                        <f:setPropertyActionListener value="#{prepedidoItem}"
+                                            target="#{prepedidoSolicitudBean.envNP}" />
+                                    </p:commandButton>
+                                </p:column>
+
                                 <p:column headerText="Autorizar" width="5%" style="text-align: center;">
                                     <p:commandButton icon="pi pi-check" styleClass="ui-button-success rounded-button"
                                         process="@form" update="form"
-                                        actionListener="#{prepedidoSolicitudBean.dialogoAutorizacionPrepedido(prepedidoItem)}" />
+                                        actionListener="#{prepedidoSolicitudBean.dialogoAutorizacionPrepedido(prepedidoItem)}"
+                                        disabled="#{not prepedidoItem.prepedido.activa}" />
                                 </p:column>
 
                                 <p:column headerText="Nota de pedido" exportable="false" width="10%"
                                     style="text-align: center;">
                                     <p:commandButton value="Generar" process="@form" update="form"
                                         styleClass="ui-button-info"
-                                        actionListener="#{prepedidoSolicitudBean.generarNotaPedido(prepedidoItem)}" />
+                                        actionListener="#{prepedidoSolicitudBean.generarNotaPedido(prepedidoItem)}"
+                                        disabled="#{prepedidoItem.numeroNotaPedidoGenerada ne '0' or not prepedidoItem.prepedido.activa}" />
                                 </p:column>
 
-                                <p:column headerText="Anular" exportable="false" width="5%">
-                                    <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-times"
-                                        process="@form"
-                                        actionListener="#{prepedidoSolicitudBean.dialogoAnulacionPrepedido(prepedidoItem)}"
-                                        update="form">
-                                        <f:setPropertyActionListener value="#{prepedidoItem}"
-                                            target="#{prepedidoSolicitudBean.envNP}" />
+                                <p:column headerText="Imprimir" exportable="false" width="5%"
+                                    style="text-align: center;">
+                                    <p:commandButton icon="pi pi-print"
+                                        actionListener="#{prepedidoSolicitudBean.imprimirNotaPedido(prepedidoItem)}"
+                                        ajax="false">
+                                        <p:fileDownload value="#{prepedidoSolicitudBean.pdfStream}" />
                                     </p:commandButton>
                                 </p:column>
 
@@ -527,7 +540,7 @@
                         <p:selectOneMenu value="#{filaItem.codigoProductoClienteSeleccionado}" style="width: 100%;"
                             disabled="#{filaItem.bloqueado}">
                             <f:selectItem itemLabel="Seleccione producto..." itemValue="" />
-                            <f:selectItems value="#{prepedidoSolicitudBean.listaProductosClienteModal}" var="prodCli"
+                            <f:selectItems value="#{filaItem.listaProductosFiltrada}" var="prodCli"
                                 itemLabel="#{prodCli.nombre}" itemValue="#{prodCli.codigo}" />
                         </p:selectOneMenu>
                     </p:column>
@@ -539,13 +552,13 @@
                     </p:column>
 
                     <p:column headerText="# Nota de Pedido" width="15%" style="text-align: center;">
-                        <h:outputText value="00" />
+                        <h:outputText value="#{filaItem.numeroNotaPedidoGenerada}" />
                     </p:column>
 
                     <p:column headerText="Generar" width="15%" style="text-align: center;">
                         <p:commandButton value="Generar" icon="pi pi-cog" styleClass="ui-button-primary"
                             actionListener="#{prepedidoSolicitudBean.procesarGenerarNotaFila(filaItem)}" process="@form"
-                            disabled="#{filaItem.bloqueado}" />
+                            update="@form :form" disabled="#{filaItem.bloqueado}" />
                     </p:column>
 
                 </p:dataTable>
