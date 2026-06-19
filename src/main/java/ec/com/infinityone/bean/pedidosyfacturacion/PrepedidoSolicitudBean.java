@@ -5,6 +5,8 @@
  */
 package ec.com.infinityone.bean.pedidosyfacturacion;
 
+import javax.faces.context.FacesContext;
+import javax.faces.context.ExternalContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import ec.com.infinityone.serivicio.actorcomercial.ClienteProductoServicio;
@@ -985,6 +987,9 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                                         } else {
                                             dp.setVolumennaturalautorizado(BigDecimal.ZERO);
                                         }
+                                        if (det.has("activo") && !det.isNull("activo")) {
+                                            dp.setActivo(det.getBoolean("activo"));
+                                        }
                                         detallesParseados.add(dp);
                                     }
                                 }
@@ -1048,7 +1053,42 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                                 }
                             }
 
+                            String numNotaBackend = "0";
+                            try {
+                                if (nt.has("numeronotapedidogenerada") && !nt.isNull("numeronotapedidogenerada")) {
+                                    numNotaBackend = nt.optString("numeronotapedidogenerada", "0");
+                                } else if (nt.has("numeroNotaPedidoGenerada")
+                                        && !nt.isNull("numeroNotaPedidoGenerada")) {
+                                    numNotaBackend = nt.optString("numeroNotaPedidoGenerada", "0");
+                                } else if (nt.has("numeronotapedido") && !nt.isNull("numeronotapedido")) {
+                                    numNotaBackend = nt.optString("numeronotapedido", "0");
+                                } else if (nt.has("notapedido") && !nt.isNull("notapedido")) {
+                                    Object objNp = nt.get("notapedido");
+                                    if (objNp instanceof String) {
+                                        numNotaBackend = (String) objNp;
+                                    } else if (objNp instanceof JSONObject) {
+                                        JSONObject joNp = (JSONObject) objNp;
+                                        if (joNp.has("notapedidoPK") && !joNp.isNull("notapedidoPK")) {
+                                            numNotaBackend = joNp.getJSONObject("notapedidoPK").optString("numero",
+                                                    "0");
+                                        } else if (joNp.has("numero") && !joNp.isNull("numero")) {
+                                            numNotaBackend = joNp.optString("numero", "0");
+                                        }
+                                    }
+                                } else if (nt.has("notapedidogenerada") && !nt.isNull("notapedidogenerada")) {
+                                    numNotaBackend = nt.optString("notapedidogenerada", "0");
+                                }
+                                if (numNotaBackend == null || numNotaBackend.trim().isEmpty()
+                                        || numNotaBackend.equals("null")) {
+                                    numNotaBackend = "0";
+                                }
+                            } catch (Exception e) {
+                                LOG.log(java.util.logging.Level.WARNING, "Error parseando nota pedido generada", e);
+                            }
+
                             if (!detallesParseados.isEmpty()) {
+                                int idx = 0;
+                                JSONArray arr = nt.optJSONArray("detalleprepedidoList");
                                 for (Detalleprepedido dpParsed : detallesParseados) {
                                     PrepedidoSolicitud row = new PrepedidoSolicitud();
                                     row.setPrepedido(np);
@@ -1056,11 +1096,39 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                                     singleList.add(dpParsed);
                                     row.setDetalle(singleList);
                                     row.setEstadoForzado(row.getEstadoAutorizado());
+
+                                    String finalNumNp = numNotaBackend;
+                                    try {
+                                        if (arr != null && idx < arr.length()) {
+                                            JSONObject detJson = arr.getJSONObject(idx);
+                                            if (detJson.has("numeronp") && !detJson.isNull("numeronp")) {
+                                                String val = detJson.optString("numeronp", "0");
+                                                if (val != null && !val.trim().isEmpty() && !val.equals("null")
+                                                        && !val.equals("0")) {
+                                                    finalNumNp = val;
+                                                }
+                                            }
+                                        } else if (nt.has("detalle") && !nt.isNull("detalle")) {
+                                            JSONObject detJson = nt.getJSONObject("detalle");
+                                            if (detJson.has("numeronp") && !detJson.isNull("numeronp")) {
+                                                String val = detJson.optString("numeronp", "0");
+                                                if (val != null && !val.trim().isEmpty() && !val.equals("null")
+                                                        && !val.equals("0")) {
+                                                    finalNumNp = val;
+                                                }
+                                            }
+                                        }
+                                    } catch (Exception e) {
+                                    }
+
+                                    row.setNumeroNotaPedidoGenerada(finalNumNp);
                                     listPrepedido.add(row);
+                                    idx++;
                                 }
                             } else {
                                 envioPedido.setPrepedido(np);
                                 envioPedido.setEstadoForzado(envioPedido.getEstadoAutorizado());
+                                envioPedido.setNumeroNotaPedidoGenerada(numNotaBackend);
                                 listPrepedido.add(envioPedido);
                             }
                             envioPedido = new PrepedidoSolicitud();
@@ -1435,7 +1503,11 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
         public FilaGenerarNota(PrepedidoSolicitud ps) {
             this.prepedidoSolicitud = ps;
             this.listaProductosFiltrada = new java.util.ArrayList<>();
-            this.numeroNotaPedidoGenerada = "00";
+            if (ps != null && ps.getNumeroNotaPedidoGenerada() != null && !ps.getNumeroNotaPedidoGenerada().trim().isEmpty() && !ps.getNumeroNotaPedidoGenerada().equals("0")) {
+                this.numeroNotaPedidoGenerada = ps.getNumeroNotaPedidoGenerada();
+            } else {
+                this.numeroNotaPedidoGenerada = "00";
+            }
         }
 
         public String getNumeroNotaPedidoGenerada() {
@@ -1567,6 +1639,9 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                     if (ps.getPrepedido() != null && ps.getPrepedido().getPrepedidoPK() != null) {
                         String currentNumero = ps.getPrepedido().getPrepedidoPK().getNumero();
                         if (currentNumero != null && targetNumero.equals(currentNumero.trim())) {
+                            if (!ps.isRegistroActivo()) {
+                                continue;
+                            }
                             FilaGenerarNota fila = new FilaGenerarNota(ps);
 
                             java.util.List<Producto> filtrada = new java.util.ArrayList<>();
@@ -1765,11 +1840,15 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
             JSONObject objetoJson = new JSONObject(respuesta);
             String devMsg = objetoJson.optString("developerMessage", "");
             String numeroNotaPedio = "";
+            String tramaGrabada = "";
 
             if (devMsg != null && !devMsg.isEmpty()) {
                 String[] parts = devMsg.split(";");
                 if (parts.length > 0) {
                     numeroNotaPedio = parts[0];
+                }
+                if (parts.length > 1) {
+                    tramaGrabada = parts[1];
                 }
             }
 
@@ -1793,6 +1872,14 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                 fila.setNumeroNotaPedidoGenerada(numeroNotaPedio);
                 fila.getPrepedidoSolicitud().setNumeroNotaPedidoGenerada(numeroNotaPedio);
                 this.dialogo(FacesMessage.SEVERITY_INFO, "NOTA DE PEDIDO REGISTRADA EXITOSAMENTE: " + numeroNotaPedio);
+
+                if (prep.getComercializadora() != null
+                        && Boolean.TRUE.equals(prep.getComercializadora().getGenerapedidodirecto())
+                        && !tramaGrabada.isEmpty()) {
+                    envioPedido.getNotapedido().getNotapedidoPK().setNumero(numeroNotaPedio);
+                    envioPedido.getNotapedido().setTramaenviadagoe(tramaGrabada);
+                    enviarOrdenEntreEpp(envioPedido, tramaGrabada);
+                }
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR NOTA DE PEDIDO");
             }
@@ -1821,22 +1908,105 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
         return content.toString();
     }
 
+    public void enviarOrdenEntreEpp(ec.com.infinityone.modelo.EnvioPedido envioPedido, String trama) {
+        String codigoabastecedora = envioPedido.getNotapedido().getAbastecedora().getCodigo();
+        String codigocomercializadora = envioPedido.getNotapedido().getComercializadora().getCodigo();
+        String numero = envioPedido.getNotapedido().getNotapedidoPK().getNumero();
+        String cadena = trama;
+        try {
+            String codigoPetroGenerado = "";
+            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.notapedido/envio";
+            URL url = new URL(direcc);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setConnectTimeout(5000);
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-type", "application/json");
+
+            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+            JSONObject obj = new JSONObject();
+            obj.put("codigoabastecedora", codigoabastecedora);
+            obj.put("codigocomercializadora", codigocomercializadora);
+            obj.put("numero", numero);
+            obj.put("cadena", cadena);
+            writer.write(obj.toString());
+            writer.close();
+
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+            BufferedReader br = new BufferedReader(reader);
+            String tmp = null;
+            String resp = "";
+            while ((tmp = br.readLine()) != null) {
+                resp += tmp;
+            }
+            JSONObject objetoJson = new JSONObject(resp);
+            JSONArray retorno = objetoJson.getJSONArray("retorno");
+            for (int indice = 0; indice < retorno.length(); indice++) {
+                if (!retorno.isNull(indice)) {
+                    codigoPetroGenerado = retorno.getString(indice);
+                }
+            }
+
+            if (connection.getResponseCode() == 200) {
+                if (codigoPetroGenerado.substring(0, 2).equals("00")) {
+                    this.dialogo(FacesMessage.SEVERITY_INFO,
+                            "ORDEN ENVIADA A PETRO. RESPUESTA: 00 RECIBIDA CORRECTAMENTE!");
+                } else {
+                    this.dialogo(FacesMessage.SEVERITY_ERROR, "ORDEN ENVIADA A PETRO. RESPUESTA: "
+                            + codigoPetroGenerado.substring(0, 2) + " NO HA SIDO RECIBIDA!");
+                }
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR: NO SE HA PODIDO ENVIAR LA ORDEN A PETROECUADOR");
+            }
+        } catch (Throwable e) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR: NO SE HA PODIDO ENVIAR LA ORDEN A PETROECUADOR");
+            e.printStackTrace();
+        }
+    }
+
     public void anularPrepedido() {
         try {
-            this.prepedidoAuxiliar.setActiva(false);
-
-            // Fix dates before sending to avoid 500 error on backend
-            java.text.SimpleDateFormat sdfIn = new java.text.SimpleDateFormat("yyyy/MM/dd");
-            java.text.SimpleDateFormat sdfOut = new java.text.SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
-            if (this.prepedidoAuxiliar.getFechaventa() != null && this.prepedidoAuxiliar.getFechaventa().length() == 10) {
-                this.prepedidoAuxiliar.setFechaventa(sdfOut.format(sdfIn.parse(this.prepedidoAuxiliar.getFechaventa())));
+            if (this.envNP == null || this.envNP.getDetalle() == null || this.envNP.getDetalle().isEmpty()) {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "No se encontró el detalle del prepedido para anular.");
+                return;
             }
-            if (this.prepedidoAuxiliar.getFechadespacho() != null && this.prepedidoAuxiliar.getFechadespacho().length() == 10) {
-                this.prepedidoAuxiliar.setFechadespacho(sdfOut.format(sdfIn.parse(this.prepedidoAuxiliar.getFechadespacho())));
+
+            ec.com.infinityone.modelo.Detalleprepedido detalle = this.envNP.getDetalle().get(0);
+            Boolean estadoAnterior = detalle.getActivo();
+            detalle.setActivo(false);
+
+            if (detalle.getCompartimento1() == null)
+                detalle.setCompartimento1(java.math.BigDecimal.ZERO);
+            if (detalle.getCompartimento2() == null)
+                detalle.setCompartimento2(java.math.BigDecimal.ZERO);
+            if (detalle.getCompartimento3() == null)
+                detalle.setCompartimento3(java.math.BigDecimal.ZERO);
+            if (detalle.getCompartimento4() == null)
+                detalle.setCompartimento4(java.math.BigDecimal.ZERO);
+            if (detalle.getCompartimento5() == null)
+                detalle.setCompartimento5(java.math.BigDecimal.ZERO);
+            if (detalle.getCompartimento6() == null)
+                detalle.setCompartimento6(java.math.BigDecimal.ZERO);
+            if (detalle.getCompartimento7() == null)
+                detalle.setCompartimento7(java.math.BigDecimal.ZERO);
+            if (detalle.getCompartimento8() == null)
+                detalle.setCompartimento8(java.math.BigDecimal.ZERO);
+            if (detalle.getCompartimento9() == null)
+                detalle.setCompartimento9(java.math.BigDecimal.ZERO);
+            if (detalle.getCompartimento10() == null)
+                detalle.setCompartimento10(java.math.BigDecimal.ZERO);
+            if (detalle.getSelloinicial() == null)
+                detalle.setSelloinicial(0);
+            if (detalle.getSellofinal() == null)
+                detalle.setSellofinal(0);
+
+            if (detalle.getUsuarioactual() == null || detalle.getUsuarioactual().isEmpty()) {
+                detalle.setUsuarioactual(
+                        dataUser != null && dataUser.getUser() != null ? dataUser.getUser().getNombrever() : "ADMIN");
             }
 
             String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
-                    + "ec.com.infinity.modelo.prepedido/porId";
+                    + "ec.com.infinity.modelo.detalleprepedido/porId";
             URL url = new URL(direcc);
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -1845,7 +2015,7 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
             connection.setRequestProperty("Content-type", "application/json");
 
             com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
-            String jsonStr = mapper.writeValueAsString(this.prepedidoAuxiliar);
+            String jsonStr = mapper.writeValueAsString(detalle);
 
             try (java.io.OutputStreamWriter out = new java.io.OutputStreamWriter(connection.getOutputStream(),
                     "UTF-8")) {
@@ -1854,21 +2024,19 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
             }
 
             if (connection.getResponseCode() == 200 || connection.getResponseCode() == 204) {
-                this.dialogo(FacesMessage.SEVERITY_INFO, "PREPEDIDO ANULADO EXITOSAMENTE");
-                this.envNP.getPrepedido().setActiva(false);
+                this.dialogo(FacesMessage.SEVERITY_INFO, "REGISTRO ANULADO EXITOSAMENTE");
             } else {
                 String errorInfo = getErrorStreamContent(connection);
-                String errorMsg = "ERROR AL ANULAR: HTTP " + connection.getResponseCode() + " " + errorInfo;
+                String errorMsg = "ERROR AL ANULAR REGISTRO: HTTP " + connection.getResponseCode() + " " + errorInfo;
                 this.dialogo(FacesMessage.SEVERITY_ERROR, errorMsg);
                 System.out.println("FT:: ERROR EN anularPrepedido RESPONSECODE " + connection.getResponseCode());
-                // Revert state in memory if failed
-                this.prepedidoAuxiliar.setActiva(true);
+                // Revertir estado si falló
+                detalle.setActivo(estadoAnterior);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
             this.dialogo(FacesMessage.SEVERITY_ERROR, "Error al anular: " + e.getMessage());
-            this.prepedidoAuxiliar.setActiva(true);
         }
     }
 
@@ -2194,6 +2362,47 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                 JSONArray retorno = objetoJson.getJSONArray("retorno");
                 if (retorno.length() > 0) {
                     JSONObject envioPedidoJson = retorno.getJSONObject(0);
+
+                    try {
+                        if (envioPedidoJson.has("notapedido") && !envioPedidoJson.isNull("notapedido")) {
+                            JSONObject npJson = envioPedidoJson.getJSONObject("notapedido");
+                            if (npJson.has("codigocliente") && !npJson.isNull("codigocliente")) {
+                                JSONObject cliJson = npJson.getJSONObject("codigocliente");
+                                
+                                if (cliJson.optJSONObject("codigodireccioninen") != null) {
+                                    cliJson.put("codigodireccioninen", cliJson.getJSONObject("codigodireccioninen").optString("codigo"));
+                                }
+                                if (cliJson.optJSONObject("codigotipocliente") != null) {
+                                    cliJson.put("codigotipocliente", cliJson.getJSONObject("codigotipocliente").optString("codigo"));
+                                }
+                                if (cliJson.optJSONObject("codigobancodebito") != null) {
+                                    cliJson.put("codigobancodebito", cliJson.getJSONObject("codigobancodebito").optString("codigo"));
+                                }
+                            }
+                        }
+
+                        if (envioPedidoJson.has("detalle") && !envioPedidoJson.isNull("detalle")) {
+                            JSONObject detalleJson = envioPedidoJson.getJSONObject("detalle");
+                            if (detalleJson.has("producto") && !detalleJson.isNull("producto")) {
+                                JSONObject prodJson = detalleJson.getJSONObject("producto");
+                                if (prodJson.optJSONObject("codigoareamercadeo") != null) {
+                                    prodJson.put("codigoareamercadeo", prodJson.getJSONObject("codigoareamercadeo").optString("codigo"));
+                                }
+                                if (prodJson.optJSONObject("codigostc") != null) {
+                                    prodJson.put("codigostc", prodJson.getJSONObject("codigostc").optString("codigo"));
+                                }
+                                if (prodJson.optJSONObject("codigoarch") != null) {
+                                    prodJson.put("codigoarch", prodJson.getJSONObject("codigoarch").optString("codigo"));
+                                }
+                                if (prodJson.optJSONObject("productogenerico") != null) {
+                                    prodJson.put("productogenerico", prodJson.getJSONObject("productogenerico").optString("codigo"));
+                                }
+                            }
+                        }
+                    } catch (Exception ex) {
+                        System.out.println("Error preprocesando JSON en imprimirNotaPedido: " + ex.getMessage());
+                    }
+
                     ObjectMapper mapper = new ObjectMapper();
                     mapper.configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
                             false);
@@ -2211,6 +2420,32 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
             e.printStackTrace();
             this.dialogo(FacesMessage.SEVERITY_ERROR, "Error de conexión al obtener Nota de Pedido: " + e.getMessage());
         }
+    }
+
+    public String imprimirNotaPedidoPreview(PrepedidoSolicitud prepedidoItem) {
+        imprimirNotaPedido(prepedidoItem);
+        if (pdfStream != null && pdfStream.getStream() != null) {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            ExternalContext externalContext = facesContext.getExternalContext();
+            externalContext.setResponseContentType("application/pdf");
+            externalContext.setResponseHeader("Content-Disposition", "inline; filename=\"" + pdfStream.getName() + "\"");
+            try {
+                InputStream is = pdfStream.getStream();
+                java.io.OutputStream os = externalContext.getResponseOutputStream();
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = is.read(buffer)) > 0) {
+                    os.write(buffer, 0, length);
+                }
+                os.flush();
+                os.close();
+                is.close();
+                facesContext.responseComplete();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
 
     public void generarReporteNp(ec.com.infinityone.modelo.EnvioPedido envP) {

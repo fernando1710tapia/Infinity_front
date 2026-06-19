@@ -93,4 +93,13 @@ public class PrepedidoSolicitud {
         }
         return "NO";
     }
+
+    @JsonIgnore
+    public boolean isRegistroActivo() {
+        if (detalle != null && !detalle.isEmpty() && detalle.get(0) != null) {
+            Boolean act = detalle.get(0).getActivo();
+            return act != null ? act : true;
+        }
+        return prepedido != null ? prepedido.isActiva() : true;
+    }
 }

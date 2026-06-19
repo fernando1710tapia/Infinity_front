@@ -184,14 +184,14 @@
                                     <p:inputNumber value="#{prepedidoItem.detalle[0].volumennaturalautorizado}"
                                         decimalPlaces="2" style="display: block; margin-bottom: 2px; width: 100%;"
                                         inputStyle="width: 100%;" emptyValue="zero" minValue="0"
-                                        disabled="#{prepedidoItem.estadoAutorizado eq 'SI' or not prepedidoItem.prepedido.activa}"
+                                        disabled="#{prepedidoItem.estadoAutorizado eq 'SI' or not prepedidoItem.registroActivo}"
                                         rendered="#{not empty prepedidoItem.detalle}" />
                                 </p:column>
-                                <p:column headerText="Estado" sortBy="#{prepedidoItem.prepedido.activa}"
-                                    filterBy="#{prepedidoItem.prepedido.activa}" width="10%">
+                                <p:column headerText="Estado" sortBy="#{prepedidoItem.registroActivo}"
+                                    filterBy="#{prepedidoItem.registroActivo}" width="10%">
                                     <h:outputText
-                                        styleClass="product-badge status-#{estilos.tipoActivoBool(prepedidoItem.prepedido.activa)}"
-                                        value="#{estilos.valorBoolActivo(prepedidoItem.prepedido.activa)}" />
+                                        styleClass="product-badge status-#{estilos.tipoActivoBool(prepedidoItem.registroActivo)}"
+                                        value="#{estilos.valorBoolActivo(prepedidoItem.registroActivo)}" />
                                 </p:column>
                                 <p:column headerText="Autorizado" sortBy="#{prepedidoItem.estadoAutorizado}"
                                     filterBy="#{prepedidoItem.estadoAutorizado}" width="10%">
@@ -204,7 +204,7 @@
                                     <p:commandButton icon="pi pi-times" styleClass="rounded-button ui-button-warning"
                                         process="@form"
                                         actionListener="#{prepedidoSolicitudBean.dialogoAnulacionPrepedido(prepedidoItem)}"
-                                        update=":form" disabled="#{not prepedidoItem.prepedido.activa}">
+                                        update=":form" disabled="#{prepedidoItem.numeroNotaPedidoGenerada ne '0' or not prepedidoItem.registroActivo}">
                                         <f:setPropertyActionListener value="#{prepedidoItem}"
                                             target="#{prepedidoSolicitudBean.envNP}" />
                                     </p:commandButton>
@@ -214,7 +214,7 @@
                                     <p:commandButton icon="pi pi-check" styleClass="ui-button-success rounded-button"
                                         process="@form" update="form"
                                         actionListener="#{prepedidoSolicitudBean.dialogoAutorizacionPrepedido(prepedidoItem)}"
-                                        disabled="#{not prepedidoItem.prepedido.activa}" />
+                                        disabled="#{prepedidoItem.numeroNotaPedidoGenerada ne '0' or not prepedidoItem.registroActivo}" />
                                 </p:column>
 
                                 <p:column headerText="Nota de pedido" exportable="false" width="10%"
@@ -222,15 +222,15 @@
                                     <p:commandButton value="Generar" process="@form" update="form"
                                         styleClass="ui-button-info"
                                         actionListener="#{prepedidoSolicitudBean.generarNotaPedido(prepedidoItem)}"
-                                        disabled="#{prepedidoItem.numeroNotaPedidoGenerada ne '0' or not prepedidoItem.prepedido.activa}" />
+                                        disabled="#{prepedidoItem.numeroNotaPedidoGenerada ne '0' or not prepedidoItem.registroActivo}" />
                                 </p:column>
 
                                 <p:column headerText="Imprimir" exportable="false" width="5%"
                                     style="text-align: center;">
                                     <p:commandButton icon="pi pi-print"
-                                        actionListener="#{prepedidoSolicitudBean.imprimirNotaPedido(prepedidoItem)}"
-                                        ajax="false">
-                                        <p:fileDownload value="#{prepedidoSolicitudBean.pdfStream}" />
+                                        action="#{prepedidoSolicitudBean.imprimirNotaPedidoPreview(prepedidoItem)}"
+                                        ajax="false" disabled="#{prepedidoItem.numeroNotaPedidoGenerada eq '0' or not prepedidoItem.registroActivo}"
+                                        onclick="this.form.target='_blank'; setTimeout(() => this.form.target='_self', 500);">
                                     </p:commandButton>
                                 </p:column>
 
