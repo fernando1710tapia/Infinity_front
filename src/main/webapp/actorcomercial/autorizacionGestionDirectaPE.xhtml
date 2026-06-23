@@ -4,7 +4,7 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
 
-	<ui:define name="title">Autorización de Gestión Directa - Presidencia Ejecutiva</ui:define>
+	<ui:define name="title">Autorización de G.D. - Presidencia E.</ui:define>
 
 	<ui:define name="viewname">
 		<li></li>
@@ -30,6 +30,52 @@
 				text-align: justify;
 				/* Al estar más ancho, el justificado se verá mucho más limpio */
 			}
+                        @media screen and (max-width: 768px) {
+
+                /* Dialogo */
+                .dialog-gd {
+                    width: 92vw !important;
+                    max-width: 92vw !important;
+                }
+
+                /* Contenido */
+                .dialog-gd .ui-dialog-content {
+                    padding: 12px !important;
+                }
+
+                /* Título */
+                .dialog-gd .ui-dialog-title {
+                    font-size: 1.1rem !important;
+                    white-space: normal !important;
+                }
+
+                /* Selects */
+                .dialog-gd .ui-selectonemenu {
+                    width: 100% !important;
+                }
+
+                /* Área observación */
+                .dialog-gd textarea {
+                    width: 100% !important;
+                }
+                
+                .causales-uniformes table{
+                    width: 100%
+                }
+
+                .causales-uniformes td{
+                    display: flex;
+                    align-items: flex-start;
+                    padding: 0.6rem 0;
+                        
+                }
+                .causales-uniformes .ui-chkbox-label{
+                    margin-left: 0;
+                    padding-left:  0;
+                    line-height: 1.4;
+                        
+                }
+            }
 		</style>
 		
 		<h:form id="form">
@@ -39,7 +85,8 @@
 		</h:form>
 
 		<!-- Autorización de Gestión Directa - Presidencia Ejecutiva -->
-		<p:dialog header="Autorización de Gestión Directa - Presidencia Ejecutiva" visible="true" width="650px" height="auto" showEffect="fade" modal="true" 
+		<p:dialog header="Autorización de Gestión Directa - Presidencia Ejecutiva" 
+                          visible="true" width="650px" styleClass="dialog-gd" showEffect="fade" modal="true" 
 			widgetVar="editarDesp" responsive="true" resizable="false">
 			<h:form id="formEditarDesp">
 				<p:outputPanel rendered="true">
@@ -51,7 +98,8 @@
 									<i class="pi pi-desktop"></i>
 								</span>
 								<p:selectOneMenu id="comercializadora" value="#{autorizacionGestionDirectaPresidenciaEjecutivaBean.comercializadora}" title="Comercializadora" panelStyle="width:175px"
-									style="min-width: 80%;" autoWidth="false" converter="converterg" disabled="#{!autorizacionGestionDirectaPresidenciaEjecutivaBean.habilitarComer}">
+									style="width: 90%;" autoWidth="false" 
+                                                                        converter="converterg" disabled="#{!autorizacionGestionDirectaPresidenciaEjecutivaBean.habilitarComer}">
 									<f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
 									<f:selectItems value="#{autorizacionGestionDirectaPresidenciaEjecutivaBean.listaComercializadora}" var="comer" itemLabel="#{comer.objRelacionado}" itemValue="#{comer}"/>
 									<p:ajax event="change" listener="#{autorizacionGestionDirectaPresidenciaEjecutivaBean.seleccionarComer}" update="cliente1"/>
@@ -64,7 +112,8 @@
 								<span class="ui-inputgroup-addon">
 									<i class="fa fa-money"></i>
 								</span>
-								<p:selectOneMenu id="cliente1" value="#{autorizacionGestionDirectaPresidenciaEjecutivaBean.cliente}" title="Cliente" panelStyle="width:175px" style="min-width: 80%;"
+								<p:selectOneMenu id="cliente1" value="#{autorizacionGestionDirectaPresidenciaEjecutivaBean.cliente}" 
+                                                                                 title="Cliente" panelStyle="width:175px" style="width: 90%;"
 									autoWidth="false" converter="converterg" filter="true" filterMatchMode="contains" disabled="#{autorizacionGestionDirectaPresidenciaEjecutivaBean.editarCliente}">
 									<f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}"/>
 									<f:selectItems value="#{autorizacionGestionDirectaPresidenciaEjecutivaBean.listaClientes}" var="cli" itemLabel="#{cli.clientePK.codigo} - #{cli.nombrecomercial}" itemValue="#{cli}"/>
@@ -75,14 +124,19 @@
 
 						<div class="p-field p-col-12 p-md-12">
 							<p:outputLabel for="causales" value="Causales de Gestión Directa" style="font-weight: bold;" />
-							<p:selectManyCheckbox id="causales" value="#{autorizacionGestionDirectaPresidenciaEjecutivaBean.causalesSeleccionadas}" layout="pageDirection" columns="1">
+							<p:selectManyCheckbox id="causales" 
+                                                        value="#{autorizacionGestionDirectaPresidenciaEjecutivaBean.causalesSeleccionadas}" 
+                                                        layout="pageDirection" columns="1" styleClass="causales-uniformes">
 								<f:selectItems value="#{autorizacionGestionDirectaPresidenciaEjecutivaBean.listaCausales}" var="c" itemLabel="#{c.descripcion}" itemValue="#{c.id}"/>
 							</p:selectManyCheckbox>
 						</div>
 
 						<div class="p-field p-col-12 p-md-4">
 							<p:outputLabel for="fechaVencCont" value="Autorizado hasta el"/>
-							<p:datePicker id="fechaVencCont" value="#{autorizacionGestionDirectaPresidenciaEjecutivaBean.cliente.fehavencimientocontrato}" showIcon="true" pattern="dd/MM/yyyy" disabled="#{autorizacionGestionDirectaPresidenciaEjecutivaBean.editarCliente}"/>
+							<p:datePicker id="fechaVencCont" 
+                                                        value="#{autorizacionGestionDirectaPresidenciaEjecutivaBean.cliente.fehavencimientocontrato}" 
+                                                        showIcon="true" pattern="dd/MM/yyyy" style="width:100%;"
+                                                        disabled="#{autorizacionGestionDirectaPresidenciaEjecutivaBean.editarCliente}"/>
 							<!-- <p:calendar id="fechaVen" required="true" requiredMessage="Ingrese Fecha" 
 											value="{null}" pattern="dd/MM/yyyy" showOn="button" showButtonPanel="true" style="min-width: 80%;"/>-->
 						</div>
@@ -90,7 +144,8 @@
 						<div class="p-field p-col-12 p-md-12">
 <!-- 							<p:outputLabel for="observacion" value="Observación"/> -->
 							<span class="ui-float-label"> 
-								<p:inputTextarea id="observacion" value="#{autorizacionGestionDirectaPresidenciaEjecutivaBean.cliente.observaciongd}"
+								<p:inputTextarea id="observacion" value="#{autorizacionGestionDirectaPresidenciaEjecutivaBean.cliente.observaciongd}" 
+                                                                        style="width:100%;"  rows="3"
 									disabled="false"/>
 								<p:outputLabel for="observacion" value="Observación"/>
 							</span>
@@ -98,9 +153,10 @@
 					</div>
 				</p:outputPanel>
 				
-				<div class="p-grid p-justify-end p-mt-2">
+				<div class="p-grid p-justify-start p-mt-2">
 					<p:commandButton id="guardar" value="Guardar" icon="pi pi-check" disabled="false"
-						actionListener="#{autorizacionGestionDirectaPresidenciaEjecutivaBean.save}" update=":form formEditarDesp" styleClass="p-mr-2"/>
+						actionListener="#{autorizacionGestionDirectaPresidenciaEjecutivaBean.save}" 
+                                                update=":form formEditarDesp" styleClass="p-mr-2"/>
 					
 					<p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('editarDesp').hide()" class="ui-button-secondary" />
 				</div>

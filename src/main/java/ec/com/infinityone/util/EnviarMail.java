@@ -27,9 +27,20 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import ec.com.infinityone.configuration.Fichero;
+import ec.com.infinityone.modelo.Cliente;
+import ec.com.infinityone.modelo.Usuario;
+import ec.com.infinityone.servicio.catalogo.UsuarioServicio;
+import javax.inject.Inject;
 //import javax.websocket.Session;
 
+
 public class EnviarMail implements Serializable {
+
+ @Inject
+    private UsuarioServicio usuarioservicio;
+
+  private List<Usuario> listaUsuarios;
+    
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = Logger.getLogger(EnviarMail.class.getName());
@@ -61,8 +72,12 @@ public class EnviarMail implements Serializable {
         // mesLetras = ArchivoUtils.mesLetras(mes);
     }
 
-    public static boolean sendEmailSincrono(String codigoNombreCliente, Date fechaVencimientoContrato, String observacionGD, String usuario) {
-        String destinatario = Fichero.getDESTINATARIOGESTIONDIRECTA(); //"roberth7777@yahoo.com";
+    public static boolean sendEmailSincrono(String codigoNombreCliente, Date fechaVencimientoContrato, String observacionGD, String usuario, String destinatariosIniciales) {
+        
+       
+        
+        //String destinatario = obtenerDestinatarioTerminal(this.cliente);
+        String destinatario = destinatariosIniciales+Fichero.getDESTINATARIOGESTIONDIRECTA(); //"roberth7777@yahoo.com";
         String asunto = "Notificación de autorización de Gestión Directa";
 
         try {
@@ -127,6 +142,76 @@ public class EnviarMail implements Serializable {
         }
     }
 
+    public static boolean sendEmailSincrono(String codigoNombreCliente, Date fechaVencimientoContrato, String observacionGD, String usuario) {
+        
+       
+        
+        //String destinatario = obtenerDestinatarioTerminal(this.cliente);
+        String destinatario = Fichero.getDESTINATARIOGESTIONDIRECTA(); //"roberth7777@yahoo.com";
+        String asunto = "Notificación de autorización de Gestión Directa";
+
+        try {
+            String cuerpoEmail = cargarTemplateHtmlEmail("NotificacionAutorizacionCliente.html");
+
+            // --- 1. Formateo de las fechas del SISTEMA (Igual que antes) ---
+            java.time.LocalDateTime ahora = java.time.LocalDateTime.now();
+            java.util.Locale localeEspanol = new java.util.Locale("es", "EC");
+
+            java.time.format.DateTimeFormatter formatoFechaLarga = java.time.format.DateTimeFormatter.ofPattern("EEEE d 'de' MMMM 'de' yyyy", localeEspanol);
+            java.time.format.DateTimeFormatter formatoHora = java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss");
+
+            String fechaSistema = ahora.format(formatoFechaLarga);
+            if (fechaSistema != null && !fechaSistema.isEmpty()) {
+                fechaSistema = fechaSistema.substring(0, 1).toUpperCase() + fechaSistema.substring(1);
+            }
+
+            String horaSistema = ahora.format(formatoHora);
+
+            // --- 2. NUEVO: Formateo de la FECHA DE VENCIMIENTO que llega por parámetro ---
+            String fechaVencimientoFormateada = "";
+
+            if (fechaVencimientoContrato != null) {
+                // Convertimos el java.util.Date antiguo al nuevo java.time.Instant para formatearlo de forma larga
+                java.time.LocalDate localDateVencimiento = fechaVencimientoContrato.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+
+                // Aplicamos el formato de fecha larga que definimos arriba
+                fechaVencimientoFormateada = localDateVencimiento.format(formatoFechaLarga);
+
+                // Ponemos la primera letra en mayúscula (Ej: "Viernes 22 de mayo...")
+                if (fechaVencimientoFormateada != null && !fechaVencimientoFormateada.isEmpty()) {
+                    fechaVencimientoFormateada = fechaVencimientoFormateada.substring(0, 1).toUpperCase() + fechaVencimientoFormateada.substring(1);
+                }
+            }
+
+            // --- 3. Reemplazos en el HTML ---
+            cuerpoEmail = cuerpoEmail.replace("$F_FECHA_SISTEMA", fechaSistema);
+            cuerpoEmail = cuerpoEmail.replace("$F_HORA_SISTEMA", horaSistema);
+            cuerpoEmail = cuerpoEmail.replace("$F_USUARIO", usuario != null ? usuario : "");
+            cuerpoEmail = cuerpoEmail.replace("$F_CLIENTE", codigoNombreCliente != null ? codigoNombreCliente : "");
+            
+			// Formateamos el string largo para transformarlo en componentes HTML limpios
+			String observacionHtml = "";
+			if (observacionGD != null && !observacionGD.trim().isEmpty())
+				observacionHtml = formatearObservacionAHtml(observacionGD);
+            
+            cuerpoEmail = cuerpoEmail.replace("$F_OBSERVACIONGD", observacionHtml);
+
+            // Inyectamos la variable que acabamos de transformar
+            cuerpoEmail = cuerpoEmail.replace("$F_FECHAVMTOCONTRATO", fechaVencimientoFormateada);
+
+            // 4. Envío del correo
+            //GmailSender.enviarCorreo(destinatario, asunto, cuerpoEmail);
+            generateAndSendEmailSincrono(destinatario, asunto, cuerpoEmail);
+
+            return true;
+
+        } catch (Exception e) {
+            System.err.println("Error al cargar la plantilla o enviar el correo: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
 	private static String formatearObservacionAHtml(String textoOriginal) {
 		try {
 			// 1. Separamos la sección de "Observación:" del resto de las causales
@@ -418,5 +503,25 @@ public class EnviarMail implements Serializable {
 
     public static void setCorreoErrores(String correoErrores) {
         EnviarMail.correoErrores = correoErrores;
+    }
+    
+    public String obtenerDestinatarioTerminal(Cliente cliente) {
+
+        String respuesta = "";
+        listaUsuarios = new ArrayList<>();
+        try{
+        listaUsuarios = usuarioservicio.obtenerUsuarioXTerminal(cliente.getClientePK().getCodigocomercializadora(), cliente.getCodigoterminaldefecto().getCodigo());
+
+        for (int i = 0; i < listaUsuarios.size(); i++) {
+
+            respuesta = respuesta + listaUsuarios.get(i).getCorreo() + ",";
+        }
+        }catch(Throwable t){
+        
+            System.out.println("FT:: ERROR CAPTURADO:.obtenerDestinatarioTerminal. "+t.getMessage());
+            t.printStackTrace(System.out);
+            return  "ERROR-EN-obtenerDestinatarioTerminal(),";
+        }
+        return respuesta;
     }
 }

@@ -121,4 +121,50 @@ public class UsuarioServicio {
 		
 		return listaUsuario;
 	}
+        
+        
+        	public List<Usuario> obtenerUsuarioXTerminal(String codComer, String codigoterminal) {
+		try {
+			// URL url = new
+			// URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.usuario/porusuarioadm?codigocomercializadora");
+			URL url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim()	+ "ec.com.infinity.modelo.usuario/usuarioxterminal?codigocomercializadora=" + codComer+"&codigoterminal="+codigoterminal);
+
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setDoInput(true);
+			connection.setRequestMethod("GET");
+			connection.setRequestProperty("Accept", "application/json");
+
+			listaUsuario = new ArrayList<>();
+			Usuario usuario = new Usuario();
+			InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+
+			BufferedReader br = new BufferedReader(reader);
+			String tmp = null;
+			String respuesta = "";
+			
+			while ((tmp = br.readLine()) != null) {
+				respuesta += tmp;
+			}
+			
+			JSONObject objetoJson = new JSONObject(respuesta);
+			JSONArray retorno = objetoJson.getJSONArray("retorno");
+			
+			for (int indice = 0; indice < retorno.length(); indice++) {
+				JSONObject terminal = retorno.getJSONObject(indice);
+				usuario.setCodigo(terminal.getString("codigo"));
+				usuario.setNombre(terminal.getString("nombre"));
+                                usuario.setCorreo(terminal.getString("correo"));
+				listaUsuario.add(usuario);
+				usuario = new Usuario();
+			}
+
+			System.out.println(connection.getResponseCode());
+			System.out.println(connection.getResponseMessage());
+			return listaUsuario;
+		} catch (IOException ioex) {
+			ioex.printStackTrace();
+		}
+		
+		return listaUsuario;
+	}
 }
