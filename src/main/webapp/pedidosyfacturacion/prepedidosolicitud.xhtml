@@ -228,9 +228,13 @@
                                 <p:column headerText="Imprimir" exportable="false" width="5%"
                                     style="text-align: center;">
                                     <p:commandButton icon="pi pi-print"
-                                        action="#{prepedidoSolicitudBean.imprimirNotaPedidoPreview(prepedidoItem)}"
+                                        actionListener="#{prepedidoSolicitudBean.imprimirNotaPedido(prepedidoItem)}"
                                         ajax="false" disabled="#{prepedidoItem.numeroNotaPedidoGenerada eq '0' or not prepedidoItem.registroActivo}"
-                                        onclick="this.form.target='_blank'; setTimeout(() => this.form.target='_self', 500);">
+                                        onstart="PF('blockUIWidget').block()" 
+                                        oncomplete="PF('blockUIWidget').unblock()"
+                                        onclick="PrimeFaces.monitorDownload(start, stop);"
+                                        update="@form" styleClass="edit-button rounded-button ui-button-success">
+                                        <p:fileDownload value="#{prepedidoSolicitudBean.pdfStream}"/>
                                     </p:commandButton>
                                 </p:column>
 
