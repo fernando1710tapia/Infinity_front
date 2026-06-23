@@ -28,6 +28,8 @@ public class Producto implements Serializable {
     private String usuarioactual;
     
     private BigDecimal porcentajeivapresuntivo;
+
+    private String productogenerico;
     
 //    private List<Comercializadoraproducto> comercializadoraproductoList;
 //
@@ -102,6 +104,14 @@ public class Producto implements Serializable {
 
     public void setPorcentajeivapresuntivo(BigDecimal porcentajeivapresuntivo) {
         this.porcentajeivapresuntivo = porcentajeivapresuntivo;
+    }
+
+    public String getProductogenerico() {
+        return productogenerico;
+    }
+
+    public void setProductogenerico(String productogenerico) {
+        this.productogenerico = productogenerico;
     }
 
 //    public void setDetallenotapedidoList(List<Detallenotapedido> detallenotapedidoList) {
