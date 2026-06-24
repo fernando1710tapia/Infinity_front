@@ -1,0 +1,269 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Autotanque</ui:define>
+
+    <ui:define name="viewname">
+        <li>Autotanque</li>        
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="form">
+            <p:outputPanel rendered="true">
+                <div class="p-grid crud-demo">
+                    <div class="p-col-12">
+                        <div class="card">
+                            <p:growl id="messages" showDetail="true" />
+
+                            <p:toolbar styleClass="p-mb-4">
+                                <p:toolbarGroup>
+                                    <p:commandButton value="Nuevo" icon="pi pi-plus" actionListener="#{autotanqueBean.nuevoAutotanque()}" update=":formNuevo"
+                                                     styleClass="ui-button-success" style="margin-right: .5rem" />
+                                </p:toolbarGroup>
+                                <p:toolbarGroup>
+                                    <p:commandButton value="Export" icon="pi pi-upload" styleClass="ui-button-help" ajax="false">
+                                        <p:dataExporter type="pdf" target="dt-products" fileName="products"/>
+                                    </p:commandButton>
+                                </p:toolbarGroup>
+                            </p:toolbar>
+
+                            <p:dataTable id="dt-products" widgetVar="dtProducts" var="autoT" value="#{autotanqueBean.listaAutotanque}" reflow="true" styleClass="products-table"
+                                         paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
+                                <f:facet name="header">
+                                    <div class="products-table-header">
+                                        <span style="font-weight: bold">Autotanques</span>
+
+                                        <span class="filter-container ui-input-icon-left">
+                                            <i class="pi pi-search"></i>
+                                            <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar" />
+                                        </span>
+                                    </div>
+                                </f:facet>
+
+                                <p:ajax event="rowToggle" listener="#{crudDemoView.onRowToggle}" />                                
+
+                                <p:column headerText="Placa" sortBy="#{autoT.placa}" filterBy="#{autoT.placa}" width="8%">
+                                    <h:outputText value="#{autoT.placa}" />
+                                </p:column>
+                                <p:column headerText="Conductor" sortBy="#{autoT.cedularuc.cedularuc}" filterBy="#{autoT.cedularuc.cedularuc}" width="25%">
+                                    <h:outputText value="#{autoT.cedularuc.cedularuc} - #{autoT.cedularuc.nombre}" />
+                                </p:column>
+                                <p:column headerText="Volumen Total" sortBy="#{autoT.volumentotal}" filterBy="#{autoT.volumentotal}" width="10%">
+                                    <h:outputText value="#{autoT.volumentotal}" />
+                                </p:column>
+                                <p:column headerText="Compartimentos" sortBy="#{autoT.compartimentos}" filterBy="#{autoT.compartimentos}" width="12%">
+                                    <h:outputText value="#{autoT.compartimentos}" />
+                                </p:column>
+                                <p:column headerText="Estado" sortBy="#{autoT.activo}" filterBy="#{autoT.activo}">
+                                    <h:outputText styleClass="product-badge status-#{estilos.tipoActivoBool(autoT.activo)}" value="#{estilos.valorBoolActivo(autoT.activo)}" />
+                                </p:column>
+                                <p:column exportable="false">
+                                    <p:commandButton icon="pi pi-pencil" update="form :formNuevo" actionListener="#{autotanqueBean.editaAutotanque(autoT)}"
+                                                     styleClass="edit-button rounded-button ui-button-success" process="@this">
+                                        <f:setPropertyActionListener value="#{autoT}" target="#{autotanqueBean.autotanque}" />
+                                    </p:commandButton>
+                                    <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash" process="@this" oncomplete="PF('deleteProductDialog').show()" >
+                                        <f:setPropertyActionListener value="#{autoT}" target="#{autotanqueBean.autotanque}" />
+                                    </p:commandButton>
+                                </p:column>                               
+                            </p:dataTable>
+                        </div>
+                    </div>
+                </div>
+            </p:outputPanel>
+        </h:form>   
+        <p:dialog header="Nuevo Autotanque" width="60%" showEffect="fade" modal="true" widgetVar="nuevo" responsive="true">            
+            <h:form id="formNuevo">
+                <p:outputPanel rendered = "true">
+                    <div class="ui-fluid p-formgrid p-grid">
+                        <div class="p-field p-col-12 p-md-12"></div>
+                        <div class="p-field p-col-12 p-md-6">
+                            <span class="ui-float-label">
+                                <p:inputText id="placa" value="#{autotanqueBean.autotanque.placa}" required="true" maxlength="7" disabled="#{autotanqueBean.soloLectura}"/>                                   
+                                <p:outputLabel for="placa">Placa</p:outputLabel>
+                            </span>
+                        </div>
+                        <div class="p-field p-col-12 p-md-6">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon">
+                                    <i class="fa fa-money"></i>
+                                </span>
+                                <p:selectOneMenu id="ci" value="#{autotanqueBean.conductor}" title="Conductor"
+                                                 panelStyle="width:175px" style="min-width: 80%;" 
+                                                 autoWidth="false" 
+                                                 filter="true" filterMatchMode="startsWith"
+                                                 converter="converterg" 
+                                                 required="true" requiredMessage="Seleccione un conductor">
+                                    <f:selectItem noSelectionOption="true" itemLabel="Conductor" itemValue="#{null}" />                                            
+                                    <f:selectItems value="#{autotanqueBean.listaConductores}"
+                                                   var="cond"
+                                                   itemLabel="#{cond.cedularuc} - #{cond.nombre}"
+                                                   itemValue="#{cond}" />                                      
+                                </p:selectOneMenu>
+                            </div>                            
+                        </div>                 
+                        <div class="p-field p-col-12 p-md-12">
+                            <p:outputLabel>Compartimientos (-1 compartimento no usado)</p:outputLabel>                            
+                        </div>
+                        <div class="p-field p-col-12 p-md-12">
+                            <h:panelGrid columns="10" style="margin-left: 0; margin-right: auto; text-align: left;" >
+                                <p:outputLabel for="comp1" value="1" />
+                                <p:outputLabel for="comp2" value="2" />
+                                <p:outputLabel for="comp3" value="3" />
+                                <p:outputLabel for="comp4" value="4" />
+                                <p:outputLabel for="comp5" value="5" />
+                                <p:outputLabel for="comp6" value="6" />
+                                <p:outputLabel for="comp7" value="7" />
+                                <p:outputLabel for="comp8" value="8" />
+                                <p:outputLabel for="comp9" value="9" />
+                                <p:outputLabel for="comp10" value="10" />    
+                                
+                                <p:inputText id="comp1" value="#{autotanqueBean.autotanque.compartimento1}" maxlength="50">
+                                    <p:ajax event="blur" listener="#{autotanqueBean.calcularVol()}" update="volTot"/>
+                                </p:inputText>
+                                <p:inputText id="comp2" value="#{autotanqueBean.autotanque.compartimento2}" maxlength="50">
+                                    <p:ajax event="blur" listener="#{autotanqueBean.calcularVol()}" update="volTot"/>
+                                </p:inputText>
+                                <p:inputText id="comp3" value="#{autotanqueBean.autotanque.compartimento3}" maxlength="50">
+                                    <p:ajax event="blur" listener="#{autotanqueBean.calcularVol()}" update="volTot"/>
+                                </p:inputText>
+                                <p:inputText id="comp4" value="#{autotanqueBean.autotanque.compartimento4}" maxlength="50">
+                                    <p:ajax event="blur" listener="#{autotanqueBean.calcularVol()}" update="volTot"/>
+                                </p:inputText>
+                                <p:inputText id="comp5" value="#{autotanqueBean.autotanque.compartimento5}" maxlength="50">
+                                    <p:ajax event="blur" listener="#{autotanqueBean.calcularVol()}" update="volTot"/>
+                                </p:inputText>
+                                <p:inputText id="comp6" value="#{autotanqueBean.autotanque.compartimento6}" maxlength="50">
+                                    <p:ajax event="blur" listener="#{autotanqueBean.calcularVol()}" update="volTot"/>
+                                </p:inputText>
+                                <p:inputText id="comp7" value="#{autotanqueBean.autotanque.compartimento7}" maxlength="50">
+                                    <p:ajax event="blur" listener="#{autotanqueBean.calcularVol()}" update="volTot"/>
+                                </p:inputText>
+                                <p:inputText id="comp8" value="#{autotanqueBean.autotanque.compartimento8}" maxlength="50">
+                                    <p:ajax event="blur" listener="#{autotanqueBean.calcularVol()}" update="volTot"/>
+                                </p:inputText>
+                                <p:inputText id="comp9" value="#{autotanqueBean.autotanque.compartimento9}" maxlength="50">
+                                    <p:ajax event="blur" listener="#{autotanqueBean.calcularVol()}" update="volTot"/>
+                                </p:inputText>
+                                <p:inputText id="comp10" value="#{autotanqueBean.autotanque.compartimento10}" maxlength="50">
+                                    <p:ajax event="blur" listener="#{autotanqueBean.calcularVol()}" update="volTot"/>
+                                </p:inputText>                                                               
+                            </h:panelGrid>
+                        </div>
+
+
+
+                        <!--<div class="p-field p-col-12 p-md-1">
+                            <span class="ui-float-label">                                            
+                                <p:inputText id="comp1" value="#{autotanqueBean.autotanque.compartimento1}" maxlength="50">
+                                    <p:ajax event="blur" listener="#{autotanqueBean.calcularVol()}" update="volTot"/>
+                                </p:inputText>
+                                <p:outputLabel for="comp1">1</p:outputLabel>
+                            </span>
+                        </div>
+                        <div class="p-field p-col-12 p-md-1">
+                            <span class="ui-float-label">                                            
+                                <p:inputText id="comp2" value="#{autotanqueBean.autotanque.compartimento2}" maxlength="50">
+                                    <p:ajax event="blur" listener="#{autotanqueBean.calcularVol()}" update="volTot"/>
+                                </p:inputText>
+                                <p:outputLabel for="comp2">2</p:outputLabel>
+                            </span>
+                        </div>                        
+                        <div class="p-field p-col-12 p-md-1">
+                            <span class="ui-float-label">                                            
+                                <p:inputText id="comp3" value="#{autotanqueBean.autotanque.compartimento3}" maxlength="50">
+                                    <p:ajax event="blur" listener="#{autotanqueBean.calcularVol()}" update="volTot"/>
+                                </p:inputText>
+                                <p:outputLabel for="comp3">3</p:outputLabel>
+                            </span>
+                        </div>                      
+                        <div class="p-field p-col-12 p-md-1">
+                            <span class="ui-float-label">                                            
+                                <p:inputText id="comp4" value="#{autotanqueBean.autotanque.compartimento4}" maxlength="50">
+                                    <p:ajax event="blur" listener="#{autotanqueBean.calcularVol()}" update="volTot"/>
+                                </p:inputText>
+                                <p:outputLabel for="comp4">4</p:outputLabel>
+                            </span>
+                        </div>                        
+                        <div class="p-field p-col-12 p-md-1">
+                            <span class="ui-float-label">                                            
+                                <p:inputText id="comp5" value="#{autotanqueBean.autotanque.compartimento5}" maxlength="50">
+                                    <p:ajax event="blur" listener="#{autotanqueBean.calcularVol()}" update="volTot"/>
+                                </p:inputText>
+                                <p:outputLabel for="comp5">5</p:outputLabel>
+                            </span>
+                        </div>                        
+                        <div class="p-field p-col-12 p-md-1">
+                            <span class="ui-float-label">                                            
+                                <p:inputText id="comp6" value="#{autotanqueBean.autotanque.compartimento6}" maxlength="50">
+                                    <p:ajax event="blur" listener="#{autotanqueBean.calcularVol()}" update="volTot"/>
+                                </p:inputText>
+                                <p:outputLabel for="comp6">6</p:outputLabel>
+                            </span>
+                        </div>                        
+                        <div class="p-field p-col-12 p-md-1">
+                            <span class="ui-float-label">                                            
+                                <p:inputText id="comp7" value="#{autotanqueBean.autotanque.compartimento7}" maxlength="50">
+                                    <p:ajax event="blur" listener="#{autotanqueBean.calcularVol()}" update="volTot"/>
+                                </p:inputText>
+                                <p:outputLabel for="comp7">7</p:outputLabel>
+                            </span>
+                        </div>                       
+                        <div class="p-field p-col-12 p-md-1">
+                            <span class="ui-float-label">                                            
+                                <p:inputText id="comp8" value="#{autotanqueBean.autotanque.compartimento8}" maxlength="50">
+                                    <p:ajax event="blur" listener="#{autotanqueBean.calcularVol()}" update="volTot"/>
+                                </p:inputText>
+                                <p:outputLabel for="comp8">8</p:outputLabel>
+                            </span>
+                        </div>                        
+                        <div class="p-field p-col-12 p-md-1">
+                            <span class="ui-float-label">                                            
+                                <p:inputText id="comp9" value="#{autotanqueBean.autotanque.compartimento9}" maxlength="50">
+                                    <p:ajax event="blur" listener="#{autotanqueBean.calcularVol()}" update="volTot"/>
+                                </p:inputText>
+                                <p:outputLabel for="comp9">9</p:outputLabel>
+                            </span>
+                        </div>                        
+                        <div class="p-field p-col-12 p-md-1">
+                            <span class="ui-float-label">                                            
+                                <p:inputText id="comp10" value="#{autotanqueBean.autotanque.compartimento10}" maxlength="50">
+                                    <p:ajax event="blur" listener="#{autotanqueBean.calcularVol()}" update="volTot"/>
+                                </p:inputText>
+                                <p:outputLabel for="comp10">10</p:outputLabel>
+                            </span>
+                        </div>-->
+                        <div class="p-field p-col-12 p-md-6">                                
+                            <p:outputLabel id="volTot" >Volumen Total: #{autotanqueBean.volTotal}</p:outputLabel>                            
+                        </div>
+                        <div class="p-field p-col-12 p-md-12">
+                            <p:outputLabel for="estado"  value="Activo"/>
+                            <div class="ui-inputgroup">
+                                <p:toggleSwitch id="estado" value="#{autotanqueBean.estadoAutotanque}" > </p:toggleSwitch>
+                            </div>
+                        </div>         
+                    </div>
+                </p:outputPanel>
+                <div class="p-grid p-justify-end">
+                    <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{autotanqueBean.save()}"
+                                     update=":form formNuevo" styleClass="p-mr-2"/>
+                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('nuevo').hide()" class="ui-button-secondary" />
+                </div>
+            </h:form>
+        </p:dialog>
+        <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300" message="Eliminar Cliente?" header="Confirm" severity="warn">
+            <p:commandButton value="Si" icon="pi pi-check" actionListener="#{autotanqueBean.deleteItems()}" process="@this" oncomplete="PF('deleteProductDialog').hide()"
+                             update=":form"/>
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('deleteProductDialog').hide()" />
+        </p:confirmDialog>
+
+        <p:confirmDialog global="true" showEffect="fade" width="300">
+            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+        </p:confirmDialog>
+    </ui:define>
+</ui:composition>

@@ -1,0 +1,297 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Prorrogar Facturas</ui:define>
+
+    <ui:define name="viewname">
+        <li>Prorrogar Facturas</li>        
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="form">
+            <p:outputPanel rendered="#{prorrogarFacturaBean.pantallaInicial}">
+                <div class="p-grid crud-demo">
+                    <div class="p-col-12">
+                        <div class="card">
+                            <p:growl id="messages" showDetail="true" />   
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-4">
+                                    <p:outputLabel for="comercializadora" value="Comercializadora"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-money"></i>
+                                        </span>
+                                        <p:selectOneMenu id="comercializadora" value="#{prorrogarFacturaBean.comercializadora}" title="Comercializadora"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         filter="true" filterMatchMode="startsWith"
+                                                         disabled="#{!prorrogarFacturaBean.habilitarComer}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+                                            <f:selectItems value="#{prorrogarFacturaBean.listaComercializadora}"
+                                                           var="comer"
+                                                           itemLabel="#{comer.objRelacionado}"
+                                                           itemValue="#{comer}" />
+                                            <p:ajax event="change" listener="#{prorrogarFacturaBean.seleccionarComer()}"/>                                            
+                                        </p:selectOneMenu>
+                                    </div>                            
+                                </div>                                
+                                <div class="p-field p-col-12 p-md-4">
+                                    <p:outputLabel for="banco" value="Banco"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-money"></i>
+                                        </span>
+                                        <p:selectOneMenu id="banco" value="#{prorrogarFacturaBean.banco}" title="Banco"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         required="true" requiredMessage="Seleccione Banco">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Banco" itemValue="#{null}"/>
+                                            <f:selectItems value="#{prorrogarFacturaBean.listaBancos}"
+                                                           var="banco"
+                                                           itemLabel="#{banco.codigo}-#{banco.nombre}"
+                                                           itemValue="#{banco}" />
+                                            <p:ajax event="change" listener="#{prorrogarFacturaBean.seleccionarBanco}"/>
+                                        </p:selectOneMenu>
+                                    </div>                 
+                                </div>  
+                                <div class="p-field p-col-12 p-md-12">
+                                    <p:outputLabel for="archivo" value="Subir Archivo"/>
+                                    <p:fileUpload id="archivo" listener="#{prorrogarFacturaBean.handleFileUploadDoc}"                                              
+                                                  mode="advanced" multiple="false"
+                                                  auto="true"                                              
+                                                  sizeLimit="502400" allowTypes="/(\.|\/)(txt|TXT)$/"
+                                                  invalidSizeMessage="Maximum file size allowed is 100 KB"
+                                                  invalidFileMessage="only txt is allowed"/>  
+                                    <p:outputLabel id="ubi" value="#{prorrogarFacturaBean.ubicacion}"/>
+                                </div>  
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </p:outputPanel>
+            <div class="p-grid p-col-12 p-justify-end">                     
+                <p:commandButton value="Procesar" icon="pi pi-check" actionListener="#{pagoFacturaBean.guardar}" process="@this"  
+                                 update="@this :form prorrogarfactura" styleClass="p-mr-2" />                    
+                <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('zip').hide()" class="ui-button-secondary" />
+            </div>
+        </h:form>
+
+        <p:dialog header="Prorrogar Facturas" width="80%" height="500px" showEffect="fade" modal="true" widgetVar="zip" responsive="true">
+            <h:form id="prorrogarfactura">
+                <p:outputPanel rendered="true">
+                    <div class="p-grid crud-demo">                        
+                        <div class="ui-fluid p-col-12 p-formgrid p-grid">                            
+                            <div class="p-field p-col-12 p-md-6">
+                                <p:outputLabel for="comercializadora" value="Comercializadora"/>
+                                <div class="ui-inputgroup">
+                                    <span class="ui-inputgroup-addon">
+                                        <i class="fa fa-money"></i>
+                                    </span>
+                                    <p:selectOneMenu id="comercializadora" value="#{prorrogarFacturaBean.comercializadora}" title="Comercializadora"
+                                                     panelStyle="width:175px" style="min-width: 80%;" 
+                                                     autoWidth="false" converter="converterg"
+                                                     filter="true" filterMatchMode="startsWith"
+                                                     disabled="#{!prorrogarFacturaBean.habilitarComer}" required="true" requiredMessage="Seleccione una Comercializadora">
+                                        <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+                                        <f:selectItems value="#{prorrogarFacturaBean.listaComercializadora}"
+                                                       var="comer"
+                                                       itemLabel="#{comer.objRelacionado}"
+                                                       itemValue="#{comer}" />
+                                        <p:ajax event="change" listener="#{prorrogarFacturaBean.seleccionarComer()}"/>                                            
+                                    </p:selectOneMenu>
+                                </div>                            
+                            </div>     
+                            <div class="p-field p-col-12 p-md-6">
+                                <p:outputLabel for="banco" value="Banco"/>
+                                <div class="ui-inputgroup">
+                                    <span class="ui-inputgroup-addon">
+                                        <i class="fa fa-money"></i>
+                                    </span>
+                                    <p:selectOneMenu id="banco" value="#{prorrogarFacturaBean.banco}" title="Banco"
+                                                     panelStyle="width:175px" style="min-width: 80%;" 
+                                                     autoWidth="false" converter="converterg"
+                                                     required="true" requiredMessage="Seleccione Banco">
+                                        <f:selectItem noSelectionOption="true" itemLabel="Banco" itemValue="#{null}"/>
+                                        <f:selectItems value="#{prorrogarFacturaBean.listaBancos}"
+                                                       var="banco"
+                                                       itemLabel="#{banco.codigo}-#{banco.nombre}"
+                                                       itemValue="#{banco}" />
+                                        <p:ajax event="change" listener="#{prorrogarFacturaBean.seleccionarBanco}"/>
+                                    </p:selectOneMenu>
+                                </div>                 
+                            </div> 
+                            <div class="p-field p-col-12 p-md-12">
+                                <p:outputLabel for="observacion" value="Observación"/>
+                                <p:inputTextarea id="observacion" value="#{prorrogarFacturaBean.observ}" required="true" requiredMessage="Es necesario ingresar la observación"/>
+                            </div>
+                            <div class="p-field p-col-12 p-md-12">
+                                <p:outputLabel for="archivo" value="Subir Archivo"/>
+                                <p:fileUpload id="archivo" listener="#{prorrogarFacturaBean.handleFileUploadDoc}"                                              
+                                              mode="advanced" multiple="false"
+                                              auto="true"                                              
+                                              sizeLimit="102400" allowTypes="/(\.|\/)(txt|TXT)$/"
+                                              invalidSizeMessage="Maximum file size allowed is 100 KB"
+                                              invalidFileMessage="only txt is allowed"/>  
+                                <p:outputLabel id="ubi" value="#{prorrogarFacturaBean.ubicacion}"/>
+                            </div>                            
+                        </div> 
+                    </div>
+                </p:outputPanel>
+                <div class="p-grid p-col-12 p-justify-end">                     
+                    <p:commandButton value="Procesar" icon="pi pi-check" actionListener="#{pagoFacturaBean.guardar}" process="@this"  
+                                     update="@this :form prorrogarfactura" styleClass="p-mr-2" />                    
+                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('zip').hide()" class="ui-button-secondary" />
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <p:dialog header="Ingreso Datos del Pago" width="60%" showEffect="fade" modal="true" widgetVar="ingresoDatos" responsive="true">
+            <h:form id="ingresoDatos">
+                <p:outputPanel rendered="true">
+                    <div class="p-grid crud-demo">                        
+                        <div class="ui-fluid p-col-12 p-formgrid p-grid">
+                            <div class="p-field p-col-12 p-md-12">
+                                <h4>El total a pagar incluido rubro a terceros: $#{pagoFacturaBean.suma}</h4>                                
+                            </div>                             
+                            <div class="p-field p-col-12 p-md-4">
+                                <p:outputLabel for="banco" value="Banco Depósito"/>
+                                <div class="ui-inputgroup">
+                                    <span class="ui-inputgroup-addon">
+                                        <i class="fa fa-money"></i>
+                                    </span>
+                                    <p:selectOneMenu id="banco" value="#{pagoFacturaBean.banco}" title="Banco"
+                                                     panelStyle="width:175px" style="min-width: 80%;" 
+                                                     autoWidth="false" converter="converterg"
+                                                     required="true" requiredMessage="Seleccione Banco">
+                                        <f:selectItem noSelectionOption="true" itemLabel="Banco" itemValue="#{null}"/>
+                                        <f:selectItems value="#{pagoFacturaBean.listaBancos}"
+                                                       var="banco"
+                                                       itemLabel="#{banco.codigo}-#{banco.nombre}"
+                                                       itemValue="#{banco}" />
+                                        <p:ajax event="change" listener="#{pagoFacturaBean.seleccionarBanco}"/>
+                                    </p:selectOneMenu>
+                                </div>                 
+                            </div>                            
+                            <div class="p-field p-col-12 p-md-4">
+                                <p:outputLabel for="fechaDep" value="Fecha Depósito"/>
+                                <p:datePicker id="fechaDep" value="#{pagoFacturaBean.fechaDep}" showIcon="true" pattern="dd/MM/yyyy">
+                                    <p:ajax event="dateSelect" />
+                                </p:datePicker>                                
+                            </div>                           
+                            <div class="p-field p-col-12 p-md-4">
+                                <p:outputLabel for="obs" value="Observación"/>
+                                <p:inputText id="obs" value="#{pagoFacturaBean.observ}" required="true" />
+                            </div>    
+                        </div> 
+
+                        <div class="p-col-12">
+                            <div class="card">    
+                                <p:panel rendered="true" >
+                                    <div class="ui-fluid p-formgrid p-grid">      
+                                        <div class="p-field p-col-12 p-md-12">
+                                            <h5>Informacion de cheque</h5>                                
+                                        </div>    
+                                        <div class="p-field p-col-12 p-md-3">
+                                            <p:outputLabel for="bancoChe" value="Banco Cheque"/>
+                                            <div class="ui-inputgroup">
+                                                <span class="ui-inputgroup-addon">
+                                                    <i class="fa fa-money"></i>
+                                                </span>
+                                                <p:selectOneMenu id="bancoChe" value="#{pagoFacturaBean.bancoCheque}" title="Banco"
+                                                                 panelStyle="width:175px" style="min-width: 80%;" 
+                                                                 autoWidth="false" converter="converterg"
+                                                                 required="true" requiredMessage="Seleccione Banco">
+                                                    <f:selectItem noSelectionOption="true" itemLabel="Banco" itemValue="#{null}"/>
+                                                    <f:selectItems value="#{pagoFacturaBean.listaBancos}"
+                                                                   var="banco"
+                                                                   itemLabel="#{banco.codigo}-#{banco.nombre}"
+                                                                   itemValue="#{banco}" />
+                                                    <p:ajax event="change" listener="#{pagoFacturaBean.seleccionarBanco}"/>
+                                                </p:selectOneMenu>
+                                            </div>                 
+                                        </div>     
+                                        <div class="p-field p-col-12 p-md-3">
+                                            <p:outputLabel for="cta" value="Cta"/>                                            
+                                            <p:inputText id="cta" value="#{pagoFacturaBean.cuentaCheque}" maxlength="15"/>
+                                        </div> 
+                                        <div class="p-field p-col-12 p-md-3">
+                                            <p:outputLabel for="nChe" value="N. Cheque"/>
+                                            <p:inputText id="nChe" value="#{pagoFacturaBean.numCheque}" maxlength="15"/>
+                                        </div> 
+                                        <div class="p-field p-col-12 p-md-3">                                            
+                                            <p:fileUpload id="imagen" label="Imagen Cheque" listener="#{pagoFacturaBean.handleFileUploadImage}"                                              
+                                                          mode="advanced" multiple="false"
+                                                          update="ubiC" auto="true"                                              
+                                                          sizeLimit="102400000" allowTypes="/(\.|\/)(gif|jpe?g|png)$/"
+                                                          invalidSizeMessage="Maximum file size allowed is 1000 KB"
+                                                          invalidFileMessage="only gif,jpeg,png, is allowed"/>    
+                                            <p:outputLabel id="ubiC" value="#{pagoFacturaBean.ubicacion}"/>
+                                        </div>  
+                                        <!--<div class="p-field p-col-12 p-md-4">   
+                                            <p:commandButton value="Guardar Aux" icon="pi pi-save" actionListener="{pagoFacturaBean.guardarAux}" process="@this"  
+                                                             update="@this :form formPagoDirecto" styleClass="p-mr-2" /> 
+                                        </div>  -->
+                                    </div>  
+                                </p:panel>
+                            </div>
+                        </div>
+                    </div>
+                </p:outputPanel>
+                <div class="p-grid p-col-12 p-justify-end">                     
+                    <p:commandButton value="Guardar" icon="pi pi-save" actionListener="#{pagoFacturaBean.guardarPagoDirecto}" process="@this"  
+                                     update="@this :form" styleClass="p-mr-2" />                    
+                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('ingresoDatos').hide()" class="ui-button-secondary" />
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <p:dialog header="Imagen Cheque" width="60%" showEffect="fade" modal="true" widgetVar="imgCheque" responsive="true">
+            <h:form id="formImg">
+                <p:outputPanel rendered="true">
+                    <div class="p-grid crud-demo">                        
+                        <div class="ui-fluid p-col-12 p-formgrid p-grid">
+                            <div class="card">
+                                <p:galleria value="#{pagoFacturaBean.images}" var="image" panelWidth="500" panelHeight="313" showCaption="true">
+                                    <p:graphicImage name="#{image}" alt="#{image}" title="#{image}"/>
+                                    <f:facet name="thumbnail">
+                                        <p:graphicImage name="#{image}" alt="#{image}" />
+                                    </f:facet>
+                                    <p:graphicImage name="images/Supertech.png" library="apollo-layout" style="width:60%" />
+                                </p:galleria>
+                            </div>                            
+                        </div> 
+                    </div>
+                </p:outputPanel>
+                <div class="p-grid p-col-12 p-justify-end">                                                  
+                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('ingresoDatos').hide()" class="ui-button-secondary" />
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300" message="Eliminar Pago?" header="Confirm" severity="warn">
+            <p:commandButton value="Si" icon="pi pi-check" actionListener="#{pagoFacturaBean.deleteItems()}" process="@this" oncomplete="PF('deleteProductDialog').hide()"
+                             update=":form"/>
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('deleteProductDialog').hide()" />
+        </p:confirmDialog>
+
+        <p:confirmDialog widgetVar="deletePagoDialog" showEffect="fade" width="300" message="Se anulará el pago, considere esto para los procesos de negocio, como el manejo de garantias. Anular detalle de pago?" header="Confirm" severity="warn">
+            <p:commandButton value="Si" icon="pi pi-check" actionListener="#{pagoFacturaBean.editDetallePagoItems()}" process="@this" oncomplete="PF('deletePagoDialog').hide()"
+                             update=":form"/>
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('deleteCuotaDialog').hide()" />
+        </p:confirmDialog> 
+
+        <p:confirmDialog widgetVar="configTermDialog" showEffect="fade" width="300" message="Requiere configurar Terminal?" header="Confirm" severity="warn">
+            <p:commandButton value="Si" icon="pi pi-check" process="@this" oncomplete="PF('configTermDialog').hide()" actionListener="#{listaPrecioBean.configTerminal(1)}"/>
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('configTermDialog').hide()" />
+        </p:confirmDialog>
+
+        <p:confirmDialog global="true" showEffect="fade" width="300">
+            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+        </p:confirmDialog>                    
+    </ui:define>
+</ui:composition>

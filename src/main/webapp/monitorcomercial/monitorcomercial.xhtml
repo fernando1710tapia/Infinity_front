@@ -1,0 +1,183 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Monitor Comercial</ui:define>
+    <ui:define name="viewname">
+        <li><i class="pi pi-home"/></li>
+        <li>/</li>
+        <li>
+            <p:link outcome="/crud">Monitor Comercial</p:link>
+        </li>
+    </ui:define>
+    <ui:define name="head">
+        <h:outputScript name="chartjs/chart.js" library="demo" />
+        <script type="text/javascript">
+            //<![CDATA[
+            Chart.defaults.global.defaultFontColor = '#8FA6B8';
+            setInterval(function () {
+                setAnimation(PF('knob1'));
+                setAnimation(PF('knob2'));
+                setAnimation(PF('knob3'));
+                setAnimation(PF('knob4'));
+                PF('pb1').setValue(generateRandomNumber());
+                PF('pb2').setValue(generateRandomNumber());
+                PF('pb3').setValue(generateRandomNumber());
+                PF('pb4').setValue(generateRandomNumber());
+            }, 2000);
+
+            function setAnimation(widget) {
+                widget.jq.animate({value: generateRandomNumber()}, {
+                    duration: 1000,
+                    easing: 'linear',
+                    progress: function ()
+                    {
+                        widget.setValue(Math.floor(this.value));
+                    }
+                });
+            }
+
+            function generateRandomNumber() {
+                return Math.floor(Math.random() * 100) + 1;
+            }
+            $(function () {
+                var ordersChart = new Chart(document.getElementById("order-chart").getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio'],
+                        datasets: [{
+                                label: 'Compra',
+                                data: [20, 40, 20, 70, 20, 49, 30],
+                                backgroundColor: 'rgba(57, 163, 244, .7)',
+                                borderWidth: 0,
+                                fill: false,
+                            }, {
+                                label: 'Venta',
+                                data: [5, 19, 10, 10, 22, 14, 10],
+                                backgroundColor: 'rgba(222, 162, 66, .7)',
+                                borderWidth: 0,
+                                fill: false,
+                            },
+                            {
+                                label: 'Utilidad',
+                                data: [45, 80, 70, 90, 30, 90, 50],
+                                backgroundColor: 'rgba(118, 190, 69, .8)',
+                                borderWidth: 0,
+                                fill: false,
+                            }]
+                    },
+                    options: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                fontColor: '#8FA6B8'
+                            }
+                        },
+                        maintainAspectRatio: false,
+                        hover: {
+                            mode: 'index'
+                        },
+                        scales: {
+                            xAxes: [{
+                                    display: true,
+                                    stacked: true,
+                                    barPercentage: 0.4,
+                                    gridLines: {
+                                        color: 'rgba(143, 166, 184, .3)',
+                                    }
+                                }],
+                            yAxes: [{
+                                    display: true,
+                                    stacked: true,
+                                    gridLines: {
+                                        color: 'rgba(143, 166, 184, .3)',
+                                    }
+                                }]
+                        }
+                    }
+                });
+            });
+            //]]>
+        </script>
+
+        <style type="text/css">
+            .jqplot-xaxis-label {
+                color: #9fadb7;
+                display: none;
+            }
+            .jqplot-yaxis-label {
+                color: #9fadb7;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="form">
+            <div class="p-grid dashboard">     
+                <div class="p-col-12 p-md-6">
+                    <div class="ui-fluid p-formgrid p-grid">
+                        <div class="p-field p-col-12 p-md-12">
+                            <div class="ui-inputgroup">
+                                <span class="ui-inputgroup-addon">
+                                    <i class="fa fa-money"></i>
+                                </span>
+                                <p:selectOneMenu id="comercializadora" value="#{monitorcomercialBean.selectedComer}" title="Comercializadora"
+                                                 panelStyle="width:175px" style="min-width: 80%;" 
+                                                 autoWidth="false" converter="converterg"
+                                                 filter="true" filterMatchMode="startsWith">                
+                                    <f:selectItem noSelectionOption="true" itemLabel="Seleccionar" itemValue="#{null}"/>
+                                    <f:selectItems value="#{monitorcomercialBean.listaComercialiodoras}"
+                                                   var="comer"
+                                                   itemLabel="#{comer.objRelacionado}"
+                                                   itemValue="#{comer}" />  
+                                    <p:ajax event="change" listener="#{monitorcomercialBean.seleccionarComercializadora()}" update="form"/>
+                                </p:selectOneMenu>
+                            </div>                            
+                        </div>
+                    </div>
+                    <p:panel  header="Última actualización: #{monitorcomercialBean.formattedDate}" styleClass="disk-spaces" id="panelGarantia">
+                        <h4 align="center">Monitor de Garantía: #{monitorcomercialBean.usoActualS} %</h4>
+                        <br></br>
+                        <span >Valor Total Garantizado: $ #{monitorcomercialBean.totalGaranS} </span> 
+                        <p:progressBar value="#{monitorcomercialBean.porcentajeValores(monitorcomercialBean.totalGaran)}" widgetVar="pb1"/>
+
+                        <span>Valor Garantizado a 3 días: $ #{monitorcomercialBean.garan3DiasS}</span>
+                        <p:progressBar value="#{monitorcomercialBean.porcentajeValores(monitorcomercialBean.garan3Dias)}" widgetVar="pb2" />
+
+                        <span>Valor Máximo Alcanzable: $ #{monitorcomercialBean.maximoAlcanzableS}</span>
+                        <p:progressBar value="#{monitorcomercialBean.porcentajeValores(monitorcomercialBean.maximoAlcanzable)}" widgetVar="pb3" />
+
+                        <span>Valor Utilizado: $ #{monitorcomercialBean.utilizadoS}</span>
+                        <p:progressBar value="#{monitorcomercialBean.porcentajeValores(monitorcomercialBean.utilizado)}" widgetVar="pb4" />
+
+                        <span>Saldo Disponible: $ #{monitorcomercialBean.saldoDisponibleS}</span>
+                        <p:progressBar value="#{monitorcomercialBean.porcentajeValores(monitorcomercialBean.saldoDisponible)}" widgetVar="pb5" />
+                        <f:facet name="actions">                        
+                            <p:commandLink styleClass="ui-panel-titlebar-icon ui-corner-all ui-state-default" actionListener="#{monitorcomercialBean.obtenerPrimeraGarantia}" update="panelGarantia">
+                                <h:outputText styleClass="ui-icon pi pi-replay"/>
+                            </p:commandLink>
+                        </f:facet>
+                    </p:panel>
+                </div>
+                <div class="p-col-12 p-lg-6">
+                    <div class="card">
+                        <h5>Volumen Despachado</h5>
+                        <p:barChart model="#{chartDemoView.barModel}" style="width: 100%; height: 500px;"/>
+                    </div>
+                </div>
+                <div class="p-col-12 p-lg-6">
+                    <div class="card">
+                        <h5>Facturación Unica</h5>
+                        <p:donutChart model="#{chartDemoView.donutModel}" style="width: 100%; height: 500px;"/>
+                    </div>
+                </div>
+
+
+            </div>
+        </h:form>
+    </ui:define>
+
+</ui:composition>

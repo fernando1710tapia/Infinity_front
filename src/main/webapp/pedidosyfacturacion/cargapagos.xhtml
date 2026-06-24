@@ -1,0 +1,79 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Carga Pagos-2</ui:define>
+
+    <ui:define name="viewname">
+        <li>Carga Pagos-2</li>        
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="cargapago">
+            <p:outputPanel rendered="#{cargaPagoBean.pantallaInicial}">
+                <div class="p-grid crud-demo">
+                    <div class="p-col-12">
+                        <div class="card">
+                            <p:growl id="messages" showDetail="true" />   
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-4">
+                                    <p:outputLabel for="comercializadora" value="Comercializadora"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-money"></i>
+                                        </span>
+                                        <p:selectOneMenu id="comercializadora" value="#{cargaPagoBean.comercializadora}" title="Comercializadora"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         filter="true" filterMatchMode="startsWith"
+                                                         disabled="#{!cargaPagoBean.habilitarComer}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+                                            <f:selectItems value="#{cargaPagoBean.listaComercializadora}"
+                                                           var="comer"
+                                                           itemLabel="#{comer.objRelacionado}"
+                                                           itemValue="#{comer}" />
+                                            <p:ajax event="change" listener="#{cargaPagoBean.seleccionarComer()}"/>                                            
+                                        </p:selectOneMenu>
+                                    </div>                            
+                                </div>                                
+                                <div class="p-field p-col-12 p-md-4">
+                                    <p:outputLabel for="banco" value="Banco"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-money"></i>
+                                        </span>
+                                        <p:selectOneMenu id="banco" value="#{cargaPagoBean.banco}" title="Banco"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         required="true" requiredMessage="Seleccione Banco">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Banco" itemValue="#{null}"/>
+                                            <f:selectItems value="#{cargaPagoBean.listaBancos}"
+                                                           var="banco"
+                                                           itemLabel="#{banco.codigo}-#{banco.nombre}"
+                                                           itemValue="#{banco}" />
+                                            <p:ajax event="change" listener="#{cargaPagoBean.seleccionarBanco}"/>
+                                        </p:selectOneMenu>
+                                    </div>                 
+                                </div>  
+                                <div class="p-field p-col-12 p-md-12">
+                                    <p:outputLabel for="archivo" value="Subir Archivo"/>
+                                    <p:fileUpload id="archivo" listener="#{cargaPagoBean.handleFileUploadDoc}"                                              
+                                                  mode="advanced" multiple="false"
+                                                  auto="true" update="messages, :cargapago"                                             
+                                                  sizeLimit="502400" allowTypes="/(\.|\/)(txt|TXT)$/"
+                                                  invalidSizeMessage="Maximum file size allowed is 100 KB"
+                                                  invalidFileMessage="only txt is allowed"/>  
+                                    <p:outputLabel id="ubi" value="#{cargaPagoBean.ubicacion}"/>
+                                </div>  
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </p:outputPanel>
+        </h:form>
+ 
+    </ui:define>
+</ui:composition>

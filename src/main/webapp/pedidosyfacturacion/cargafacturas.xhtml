@@ -1,0 +1,153 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Carga Facturas</ui:define>
+
+    <ui:define name="viewname">
+        <li>Carga Facturas</li>        
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="form">
+            <p:outputPanel rendered="#{cargaFacturaBean.pantallaInicial}">
+                <div class="p-grid crud-demo">
+                    <div class="p-col-12">
+                        <div class="card">
+                            <p:growl id="messages" showDetail="true" />   
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-4">
+                                    <p:outputLabel for="comercializadora" value="Comercializadora"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-money"></i>
+                                        </span>
+                                        <p:selectOneMenu id="comercializadora" value="#{cargaFacturaBean.comercializadora}" title="Comercializadora"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         filter="true" filterMatchMode="startsWith"
+                                                         disabled="#{!cargaFacturaBean.habilitarComer}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+                                            <f:selectItems value="#{cargaFacturaBean.listaComercializadora}"
+                                                           var="comer"
+                                                           itemLabel="#{comer.objRelacionado}"
+                                                           itemValue="#{comer}" />
+                                            <p:ajax event="change" listener="#{cargaFacturaBean.seleccionarComer()}"/>                                            
+                                        </p:selectOneMenu>
+                                    </div>                            
+                                </div>                                
+                                <div class="p-field p-col-12 p-md-4">
+                                    <p:outputLabel for="banco" value="Banco"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-money"></i>
+                                        </span>
+                                        <p:selectOneMenu id="banco" value="#{cargaFacturaBean.banco}" title="Banco"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         required="true" requiredMessage="Seleccione Banco">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Banco" itemValue="#{null}"/>
+                                            <f:selectItems value="#{cargaFacturaBean.listaBancos}"
+                                                           var="banco"
+                                                           itemLabel="#{banco.codigo}-#{banco.nombre}"
+                                                           itemValue="#{banco}" />
+                                            <p:ajax event="change" listener="#{cargaFacturaBean.seleccionarBanco}"/>
+                                        </p:selectOneMenu>
+                                    </div>                 
+                                </div>  
+                                <div class="p-field p-col-12 p-md-12">
+                                    <p:outputLabel for="archivo" value="Subir Archivo"/>
+                                    <p:fileUpload id="archivo" listener="#{cargaFacturaBean.handleFileUploadDoc}"                                              
+                                                  mode="advanced" multiple="false"
+                                                  auto="true"                                              
+                                                  sizeLimit="502400" allowTypes="/(\.|\/)(txt|TXT)$/"
+                                                  invalidSizeMessage="Maximum file size allowed is 100 KB"
+                                                  invalidFileMessage="only txt is allowed"/>  
+                                    <p:outputLabel id="ubi" value="#{cargaFacturaBean.ubicacion}"/>
+                                </div>  
+                            </div>
+                        </div>
+                        <p:toolbar>
+                            <p:toolbarGroup>
+                                <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('zip').hide()" class="ui-button-secondary" />
+                            </p:toolbarGroup>
+                        </p:toolbar> 
+                    </div>
+                </div>
+            </p:outputPanel>
+        </h:form>
+
+        <p:dialog header="Cargar Facturas" width="80%" height="500px" showEffect="fade" modal="true" widgetVar="zip" responsive="true">
+            <h:form id="cargafactura">
+                <p:outputPanel rendered="true">
+                    <div class="p-grid crud-demo">                        
+                        <div class="ui-fluid p-col-12 p-formgrid p-grid">                            
+                            <div class="p-field p-col-12 p-md-6">
+                                <p:outputLabel for="comercializadora" value="Comercializadora"/>
+                                <div class="ui-inputgroup">
+                                    <span class="ui-inputgroup-addon">
+                                        <i class="fa fa-money"></i>
+                                    </span>
+                                    <p:selectOneMenu id="comercializadora" value="#{cargaFacturaBean.comercializadora}" title="Comercializadora"
+                                                     panelStyle="width:175px" style="min-width: 80%;" 
+                                                     autoWidth="false" converter="converterg"
+                                                     filter="true" filterMatchMode="startsWith"
+                                                     disabled="#{!cargaFacturaBean.habilitarComer}" required="true" requiredMessage="Seleccione una Comercializadora">
+                                        <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+                                        <f:selectItems value="#{cargaFacturaBean.listaComercializadora}"
+                                                       var="comer"
+                                                       itemLabel="#{comer.objRelacionado}"
+                                                       itemValue="#{comer}" />
+                                        <p:ajax event="change" listener="#{cargaFacturaBean.seleccionarComer()}"/>                                            
+                                    </p:selectOneMenu>
+                                </div>                            
+                            </div>     
+                            <div class="p-field p-col-12 p-md-6">
+                                <p:outputLabel for="banco" value="Banco"/>
+                                <div class="ui-inputgroup">
+                                    <span class="ui-inputgroup-addon">
+                                        <i class="fa fa-money"></i>
+                                    </span>
+                                    <p:selectOneMenu id="banco" value="#{cargaFacturaBean.banco}" title="Banco"
+                                                     panelStyle="width:175px" style="min-width: 80%;" 
+                                                     autoWidth="false" converter="converterg"
+                                                     required="true" requiredMessage="Seleccione Banco">
+                                        <f:selectItem noSelectionOption="true" itemLabel="Banco" itemValue="#{null}"/>
+                                        <f:selectItems value="#{cargaFacturaBean.listaBancos}"
+                                                       var="banco"
+                                                       itemLabel="#{banco.codigo}-#{banco.nombre}"
+                                                       itemValue="#{banco}" />
+                                        <p:ajax event="change" listener="#{cargaFacturaBean.seleccionarBanco}"/>
+                                    </p:selectOneMenu>
+                                </div>                 
+                            </div> 
+                            <div class="p-field p-col-12 p-md-12">
+                                <p:outputLabel for="observacion" value="Observación"/>
+                                <p:inputTextarea id="observacion" value="#{cargaFacturaBean.observ}" required="true" requiredMessage="Es necesario ingresar la observación"/>
+                            </div>
+                            <div class="p-field p-col-12 p-md-12">
+                                <p:outputLabel for="archivo" value="Subir Archivo"/>
+                                <p:fileUpload id="archivo" listener="#{cargaFacturaBean.handleFileUploadDoc}"                                              
+                                              mode="advanced" multiple="false"
+                                              auto="true"                                              
+                                              sizeLimit="102400" allowTypes="/(\.|\/)(txt|TXT)$/"
+                                              invalidSizeMessage="Maximum file size allowed is 100 KB"
+                                              invalidFileMessage="only txt is allowed"/>  
+                                <p:outputLabel id="ubi" value="#{cargaFacturaBean.ubicacion}"/>
+                            </div>                            
+                        </div> 
+                    </div>
+                </p:outputPanel>
+                <div class="p-grid p-col-12 p-justify-end">                     
+                    <p:commandButton value="Procesar" icon="pi pi-check" actionListener="#{pagoFacturaBean.guardar}" process="@this"  
+                                     update="@this :form cargafactura" styleClass="p-mr-2" />                    
+                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('zip').hide()" class="ui-button-secondary" />
+                </div>
+            </h:form>
+        </p:dialog>
+
+    </ui:define>
+</ui:composition>

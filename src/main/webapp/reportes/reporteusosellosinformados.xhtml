@@ -1,0 +1,105 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Reporte Uso de Sellos y la verificación en el Cliente</ui:define>
+
+    <ui:define name="viewname">
+        <li>Reporte Uso de Sellos y la verificación en el Cliente</li>        
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="form">
+            <p:outputPanel id="manage-product-content1" rendered="true">
+                <div class="p-grid crud-demo">
+                    <div class="p-col-12">
+                        <div class="card">
+                            <p:growl id="messages" showDetail="true" />
+
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-3">
+                                    <p:outputLabel for="comercializadora" value="Comercializadora"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="pi pi-desktop"></i>
+                                        </span>
+                                        <p:selectOneMenu id="comercializadora" value="#{reporteusosellosinformados.comercializadora}" title="Comercializadora"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         disabled="#{!reporteusosellosinformados.habilitarComer}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+                                            <f:selectItems value="#{reporteusosellosinformados.listaComercializadora}"
+                                                           var="comer"
+                                                           itemLabel="#{comer.objRelacionado}"
+                                                           itemValue="#{comer}" />
+                                            <p:ajax event="change" listener="#{reporteusosellosinformados.seleccionarComerc()}" update="form"/>
+                                        </p:selectOneMenu> 
+                                    </div>                          
+                                </div>
+                                <div class="p-field p-col-12 p-md-3">
+                                    <p:outputLabel for="term" value="Terminal"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>
+                                        <p:selectOneMenu id="term" value="#{reporteusosellosinformados.terminal}" title="Terminal"
+                                                         panelStyle="width:175px" style="min-width: 80%;" 
+                                                         autoWidth="false" converter="converterg"
+                                                         disabled="#{!reporteusosellosinformados.habilitarTerminal}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}"/>
+                                            <f:selectItems value="#{reporteusosellosinformados.listaTerminal}"
+                                                           var="ter"
+                                                           itemLabel="#{ter.codigo} - #{ter.nombre}"                                                           
+                                                           itemValue="#{ter}" />
+                                            <p:ajax event="change" listener="#{reporteusosellosinformados.seleccionarTerminal()}"/>
+                                        </p:selectOneMenu> 
+                                    </div> 
+                                </div>
+                                <div class="p-field p-col-12 p-md-2">                                  
+                                    <p:outputLabel for="fechaI" value="Fecha Inicio"/>
+                                    <p:datePicker id="fechaI" value="#{reporteusosellosinformados.fechaI}" showIcon="true" pattern="dd/MM/yyyy">
+                                        <p:ajax event="dateSelect" update="fechaF"/>
+                                    </p:datePicker>
+                                </div>
+                                <div class="p-field p-col-12 p-md-2">                                  
+                                    <p:outputLabel for="fechaF" value="Fecha Fin"/>
+                                    <p:datePicker id="fechaF" value="#{reporteusosellosinformados.fechaf}" showIcon="true" pattern="dd/MM/yyyy" mindate="#{reporteusosellosinformados.fechaI}"/>                                   
+                                </div>
+                                <div class="p-field p-col-12 p-md-2">
+                                    <p:outputLabel value="&#160;"/>
+                                    <p:commandButton icon="pi pi-print" actionListener="#{reporteusosellosinformados.generarArchivo()}" ajax="false"
+                                                     onstart="PF('blockUIWidget').block()" 
+                                                     oncomplete="PF('blockUIWidget').unblock()"
+                                                     onclick="PrimeFaces.monitorDownload(start, stop);"
+                                                     update="@form" 
+                                                     value='Generar Reporte'>
+                                        <p:fileDownload value="#{reporteusosellosinformados.docStream}"/>
+                                    </p:commandButton>                                   
+                                </div>                                
+                                <div class="p-field p-col-12 p-md-12"> </div>
+                            </div>                              
+                        </div>
+                    </div>
+                </div>
+            </p:outputPanel>
+        </h:form>
+
+        <p:confirmDialog global="true" showEffect="fade" width="300">
+            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+        </p:confirmDialog>    
+
+        <p:confirmDialog widgetVar="reenvioPetro" showEffect="fade" width="300" message="Reenviar a Petro?" header="Confirm" severity="warn">
+            <p:commandButton value="Si" icon="pi pi-check" actionListener="#{crudDemoView.deleteProduct}" process="@this" oncomplete="PF('reenvioPetro').hide()"/>
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('reenvioPetro').hide()" />
+        </p:confirmDialog>
+
+        <p:confirmDialog global="true" showEffect="fade" width="300">
+            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+        </p:confirmDialog> 
+    </ui:define>
+</ui:composition>

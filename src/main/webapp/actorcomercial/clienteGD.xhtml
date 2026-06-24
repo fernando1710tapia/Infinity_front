@@ -1,0 +1,522 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Cliente Gestión Directa</ui:define>
+
+	<ui:define name="viewname">
+		<li>Cliente Gestión Directa</li>
+	</ui:define>
+
+	<ui:define name="content">
+		<h:form id="form">
+			<p:outputPanel rendered="true">
+				<div class="p-grid crud-demo">
+					<div class="p-col-12">
+						<div class="card">
+							<p:growl id="messages" showDetail="true"/>
+
+							<p:toolbar styleClass="p-mb-4">
+								<p:toolbarGroup>
+									<p:commandButton value="Nuevo" icon="pi pi-plus" actionListener="#{clienteGDBean.nuevoCliente()}"
+										update=":formNuevo" styleClass="ui-button-success" style="margin-right: .5rem"/>
+								</p:toolbarGroup>
+								
+								<p:toolbarGroup>
+									<p:commandButton value="Exposrt" icon="pi pi-upload" styleClass="ui-button-help" ajax="false">
+										<p:dataExporter type="pdf" target="dt-products" fileName="products"/>
+									</p:commandButton>
+								</p:toolbarGroup>
+							</p:toolbar>
+
+							<div class="ui-fluid p-formgrid p-grid">
+								<div class="p-field p-col-12 p-md-4">
+									<div class="ui-inputgroup">
+										<span class="ui-inputgroup-addon"> <i
+											class="fa fa-money"></i>
+										</span>
+
+										<p:selectOneMenu id="comercializadora" value="#{clienteGDBean.comercializadora}" title="Comercializadora" panelStyle="width:175px"
+											style="min-width: 80%;" autoWidth="false" converter="converterg" filter="true" filterMatchMode="startsWith" disabled="#{!clienteGDBean.habilitarComer}">
+											<f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+											<f:selectItems value="#{clienteGDBean.listaComercializadora}" var="comer" itemLabel="#{comer.objRelacionado}" itemValue="#{comer}"/>
+											<p:ajax event="change" listener="#{clienteGDBean.seleccionarComercializadora()}"/>
+										</p:selectOneMenu>
+									</div>
+								</div>
+
+								<div class="p-field p-col-12 p-md-4">
+									<p:commandButton value="Buscar" icon="pi pi-search-plus" actionListener="#{clienteGDBean.seleccionarComerParaBusqueda()}" update="dt-products"/>
+								</div>
+							</div>
+
+							<p:dataTable id="dt-products" widgetVar="dtProducts" var="cliente" value="#{clienteGDBean.listaClientes}" reflow="true" styleClass="products-table" 
+								paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
+								<f:facet name="header">
+									<div class="products-table-header">
+										<span style="font-weight: bold">Clientes</span> 
+										<span class="filter-container ui-input-icon-left"> 
+											<i class="pi pi-search"></i> 
+											<p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Buscar"/>
+										</span>
+									</div>
+								</f:facet>
+
+								<p:ajax event="rowToggle" listener="#{crudDemoView.onRowToggle}"/>
+
+								<p:column headerText="Código" sortBy="#{cliente.clientePK.codigo}" filterBy="#{cliente.clientePK.codigo}" width="15%">
+									<h:outputText value="#{cliente.clientePK.codigo}"/>
+								</p:column>
+								
+								<p:column headerText="Nombre Comercial" sortBy="#{cliente.nombrecomercial}" filterBy="#{cliente.nombrecomercial}" width="30%">
+									<h:outputText value="#{cliente.nombrecomercial}"/>
+								</p:column>
+								
+								<p:column headerText="Estado" sortBy="#{cliente.estado}" filterBy="#{cliente.estado}">
+									<h:outputText styleClass="product-badge status-#{estilos.tipoActivoBool(cliente.estado)}" value="#{estilos.valorBoolActivo(cliente.estado)}"/>
+								</p:column>
+								
+								<p:column exportable="false">
+									<p:commandButton icon="pi pi-pencil" update="form :formNuevo" actionListener="#{clienteGDBean.editarCliente(cliente)}"
+										styleClass="edit-button rounded-button ui-button-success" process="@this">
+										<f:setPropertyActionListener value="#{cliente}" target="#{clienteGDBean.cliente}"/>
+									</p:commandButton>
+									
+									<p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash" process="@this" oncomplete="PF('deleteProductDialog').show()">
+										<f:setPropertyActionListener value="#{cliente}" target="#{clienteGDBean.cliente}"/>
+									</p:commandButton>
+								</p:column>
+								
+								<p:column style="width: 3.5rem">
+									<p:commandButton icon="pi pi-search" update="form :formNuevo" actionListener="#{clienteGDBean.lecturaDatos(cliente)}"
+										styleClass="edit-button rounded-button ui-button-success" process="@this">
+										<f:setPropertyActionListener value="#{cliente}" target="#{clienteGDBean.cliente}"/>
+									</p:commandButton>
+								</p:column>
+							</p:dataTable>
+						</div>
+					</div>
+				</div>
+			</p:outputPanel>
+		</h:form>
+
+		<p:dialog header="Cliente Gestión Directa" width="60%" height="500px" showEffect="fade" modal="true" widgetVar="nuevo" responsive="true" visible="false">
+			<h:form id="formNuevo">
+				<p:outputPanel rendered="true">
+					<div class="p-grid crud-demo">
+						<p:tabView id="informacion">
+							<!-- Información General -->
+							<p:tab title="Información General">
+								<div class="ui-fluid p-formgrid p-grid">
+									<div class="p-field p-col-12 p-md-4">
+										<!--<p:outputLabel for="direccionInen">Comercializadora</p:outputLabel>-->
+										<div class="ui-inputgroup">
+											<span class="ui-inputgroup-addon"> 
+												<i class="fa fa-money"></i>
+											</span>
+
+											<p:selectOneMenu id="comercializadora" value="#{clienteGDBean.comercializadora}" title="Comercializadora" panelStyle="width:175px"
+												style="min-width: 80%;" autoWidth="false" filter="true" filterMatchMode="startsWith" converter="converterg"
+												disabled="#{!clienteGDBean.habilitarComer}" required="true" requiredMessage="Seleccione una comercializadora">
+												<f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}"/>
+												<f:selectItems value="#{clienteGDBean.listaComercializadora}" var="comer" itemLabel="#{comer.objRelacionado}" itemValue="#{comer}"/>
+												<p:ajax event="change" listener="#{clienteGDBean.seleccionarComercializadora()}" update="formNuevo"/>
+											</p:selectOneMenu>
+										</div>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-4">
+										<span class="ui-float-label"> 
+											<p:inputMask id="codigo" value="#{clienteGDBean.cliente.clientePK.codigo}" required="true" maxlength="8" mask="99999999" 
+												disabled="#{clienteGDBean.editarCliente}"/> 
+											<p:outputLabel for="codigo">Código</p:outputLabel>
+										</span>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-4">
+										<span class="ui-float-label"> 
+											<p:inputText id="ruc" value="#{clienteGDBean.cliente.ruc}" required="true" maxlength="13" disabled="#{clienteGDBean.soloLectura}"/> 
+											<p:outputLabel for="ruc">Ruc</p:outputLabel>
+										</span>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-12"></div>
+									<div class="p-field p-col-12 p-md-12">
+										<span class="ui-float-label">
+											<p:inputText id="nombre" value="#{clienteGDBean.cliente.nombre}" required="true" maxlength="100" disabled="#{clienteGDBean.soloLectura}"/> 
+											<p:outputLabel for="nombre">Razón Social</p:outputLabel>
+										</span>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-12">
+										<span class="ui-float-label"> 
+											<p:inputText id="nombreComer" value="#{clienteGDBean.cliente.nombrecomercial}" required="true" maxlength="100" disabled="#{clienteGDBean.soloLectura}"/>
+											<p:outputLabel for="nombreComer">Nombre Comercial</p:outputLabel>
+										</span>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-4"></div>
+									<div class="p-field p-col-12 p-md-12"></div>
+									<div class="p-field p-col-12 p-md-4">
+										<span class="ui-float-label"> 
+										<p:inputText id="idRepresentante" value="#{clienteGDBean.cliente.identificacionrepresentantelega}" maxlength="13" disabled="#{clienteGDBean.soloLectura}"/> 
+										<p:outputLabel for="idRepresentante">ID Representate Legal</p:outputLabel>
+										</span>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-4">
+										<span class="ui-float-label"> 
+											<p:inputText id="nombreRepresentante" value="#{clienteGDBean.cliente.nombrerepresentantelegal}" maxlength="100" disabled="#{clienteGDBean.soloLectura}"/> 
+											<p:outputLabel for="nombreRepresentante">Nombre Representate Legal</p:outputLabel>
+										</span>
+									</div>
+
+									<div class="p-field p-col-12 p-md-4">
+										<span class="ui-float-label"> 
+											<p:inputText id="nomArrendatario" value="#{clienteGDBean.cliente.nombrearrendatario}" maxlength="100" disabled="#{clienteGDBean.soloLectura}"/> 
+											<p:outputLabel for="nomArrendatario">Nombre Arrendatario</p:outputLabel>
+										</span>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-12"></div>
+									<div class="p-field p-col-12 p-md-12">
+										<span class="ui-float-label"> 
+											<p:inputTextarea id="direccion" value="#{clienteGDBean.cliente.direccion}" required="true" disabled="#{clienteGDBean.soloLectura}"/> 
+											<p:outputLabel for="direccion">Dirección</p:outputLabel>
+										</span>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-12"></div>
+									<div class="p-field p-col-12 p-md-4">
+										<span class="ui-float-label"> 
+											<p:inputText id="codigoArch" value="#{clienteGDBean.cliente.codigoarch}" required="true" maxlength="10" disabled="#{clienteGDBean.soloLectura}"/> 
+											<p:outputLabel for="codigoArch">Código ARCH</p:outputLabel>
+										</span>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-4">
+										<span class="ui-float-label"> 
+											<p:inputText id="codigoStc" value="#{clienteGDBean.cliente.codigostc}" required="true" maxlength="10" disabled="#{clienteGDBean.soloLectura}"/> 
+											<p:outputLabel for="codigoStc">Código STC</p:outputLabel>
+										</span>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-4">
+										<span class="ui-float-label">
+											<p:password id="claveStc" value="#{clienteGDBean.cliente.clavestc}" redisplay="true" required="true" maxlength="4" readonly="#{clienteGDBean.soloLectura}"/> 
+											<p:outputLabel for="claveStc">Clave STC</p:outputLabel>
+										</span>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-12"></div>
+									<div class="p-field p-col-12 p-md-6">
+										<span class="ui-float-label"> 
+											<p:inputText id="telef1" value="#{clienteGDBean.cliente.telefono1}" maxlength="12" disabled="#{clienteGDBean.soloLectura}"/> 
+											<p:outputLabel for="telef1">Teléfono 1</p:outputLabel>
+										</span>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-6">
+										<span class="ui-float-label">
+											<p:inputText id="telef2" value="#{clienteGDBean.cliente.telefono2}" maxlength="12" disabled="#{clienteGDBean.soloLectura}"/>
+												<p:outputLabel for="telef2">Teléfono 2</p:outputLabel>
+										</span>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-12"></div>
+									<div class="p-field p-col-12 p-md-6">
+										<span class="ui-float-label">
+											<p:inputText id="correo1" value="#{clienteGDBean.cliente.correo1}" maxlength="100" disabled="#{clienteGDBean.soloLectura}"/>
+											<p:outputLabel for="correo1">Correo 1</p:outputLabel>
+										</span>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-6">
+										<span class="ui-float-label">
+											<p:inputText id="correo2" value="#{clienteGDBean.cliente.correo2}" maxlength="100" disabled="#{clienteGDBean.soloLectura}"/>
+											<p:outputLabel for="correo2">Correo 2</p:outputLabel>
+										</span>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-4">
+										<p:outputLabel for="direccionInen">Dirección Inen</p:outputLabel>
+										<div class="ui-inputgroup">
+											<span class="ui-inputgroup-addon">
+												<i class="fa fa-money"></i>
+											</span>
+											<p:selectOneMenu id="direccionInen" value="#{clienteGDBean.direccioninen}" title="Direción INEN"
+												panelStyle="width:175px" style="min-width: 80%;" autoWidth="false" converter="converterg" filter="true"
+												filterMatchMode="contains" required="true" requiredMessage="Seleccione Direción INEN" disabled="#{clienteGDBean.soloLectura}">
+												<f:selectItem noSelectionOption="true" itemLabel="Seleccione" itemValue="#{null}"/>
+												<f:selectItems value="#{clienteGDBean.listaDireccioninen}" var="inen" itemLabel="#{inen.codigo} - #{inen.nombre}" itemValue="#{inen}"/>
+											</p:selectOneMenu>
+										</div>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-3">
+										<p:outputLabel for="estado" value="Activo"/>
+										<div class="ui-inputgroup">
+											<p:toggleSwitch id="estado" value="#{clienteGDBean.cliente.estado}" disabled="#{clienteGDBean.soloLectura}"></p:toggleSwitch>
+										</div>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-5">
+										<p:outputLabel for="supervisorZonal">Supervisor Zonal</p:outputLabel>
+										<div class="ui-inputgroup">
+											<span class="ui-inputgroup-addon">
+												<i class="fa fa-money"></i>
+											</span>
+											<p:selectOneMenu id="supervisorZonal" value="#{clienteGDBean.supervisorZonal}" title="Supervisor Zonal" panelStyle="width:175px" 
+												style="min-width: 80%;" autoWidth="false" converter="converterg" filter="true" filterMatchMode="contains" required="false"
+												requiredMessage="Seleccione Supervisor" disabled="#{clienteGDBean.soloLectura}">
+												<f:selectItem noSelectionOption="true" itemLabel="Seleccione" itemValue="#{null}"/>
+												<f:selectItems value="#{clienteGDBean.listaSupervisorZonal}" var="supervisorzonal" itemLabel="#{supervisorzonal.codigo} - #{supervisorzonal.nombre}" itemValue="#{supervisorzonal}"/>
+											</p:selectOneMenu>
+										</div>
+									</div>
+								</div>
+							</p:tab>
+							
+							<!-- Información Adicional -->
+							<p:tab title="Información Adicional">
+								<div class="ui-fluid p-formgrid p-grid">
+									<div class="p-field p-col-12 p-md-4">
+										<p:outputLabel for="formaPago">Forma Pago</p:outputLabel>
+										<div class="ui-inputgroup">
+											<span class="ui-inputgroup-addon"> <i
+												class="fa fa-money"></i>
+											</span>
+											
+											<p:selectOneMenu id="formaPago" value="#{clienteGDBean.formapago}" title="Iva" panelStyle="width:175px" style="min-width: 80%;"
+												autoWidth="false" converter="converterg" required="true" requiredMessage="Seleccione Forma de Pago" disabled="#{clienteGDBean.soloLectura}">
+												<f:selectItem noSelectionOption="true" itemLabel="Seleccione" itemValue="#{null}"/>
+												<f:selectItems value="#{clienteGDBean.listaFormapagos}" var="fpago" itemLabel="#{fpago.codigo} - #{fpago.nombre}" itemValue="#{fpago}"/>
+											</p:selectOneMenu>
+										</div>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-4">
+										<p:outputLabel for="fechaVencCont" value="Gestión directa autorizada hasta"/>
+										<p:datePicker id="fechaVencCont" value="#{clienteGDBean.cliente.fehavencimientocontrato}"
+											showIcon="true" pattern="dd/MM/yyyy" disabled="#{clienteGDBean.editarCliente}"/>
+										<!-- <p:calendar id="fechaVen" required="true" requiredMessage="Ingrese Fecha" 
+											value="{null}" pattern="dd/MM/yyyy" showOn="button" showButtonPanel="true" style="min-width: 80%;"/>-->
+									</div>
+									
+									<div class="p-field p-col-12 p-md-4">
+										<p:outputLabel value="&#160;" style="display: block;"/>
+										<p:commandButton value="Mostrar Observ." icon="pi pi-check" update=":formObservaciones"
+											oncomplete="PF('dialogoObservaciones').show()" styleClass="p-mr-2" style="width: 100%"/>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-4">
+										<p:outputLabel for="plazoCredito">Plazo Crédito</p:outputLabel>
+										<div class="ui-inputgroup">
+											<span class="ui-inputgroup-addon"> <i
+												class="fa fa-money"></i>
+											</span>
+											<p:selectOneMenu id="plazoCredito" value="#{clienteGDBean.cliente.tipoplazocredito}" title="Iva" panelStyle="width:175px" 
+												style="min-width: 80%;" autoWidth="false" disabled="#{clienteGDBean.soloLectura}" required="true">
+												<f:selectItem noSelectionOption="true" itemLabel="Seleccione" itemValue="#{null}"/>
+												<f:selectItem itemLabel="Calendario" itemValue="CAL"/>
+												<f:selectItem itemLabel="Laborables" itemValue="LAB"/>
+											</p:selectOneMenu>
+										</div>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-4">
+										<p:outputLabel for="diasPlazoC">Días Plazo Crédito</p:outputLabel>
+										<p:inputText id="diasPlazoC" value="#{clienteGDBean.cliente.diasplazocredito}" maxlength="2" disabled="#{clienteGDBean.soloLectura}"/>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-4 p-d-none p-d-md-block"></div>
+									
+									<div class="p-field p-col-12 p-md-4">
+										<p:outputLabel for="codBancoDeb">Código Banco Débito</p:outputLabel>
+										<div class="ui-inputgroup">
+											<span class="ui-inputgroup-addon"> 
+												<i class="fa fa-money"></i>
+											</span>
+											<p:selectOneMenu id="codBancoDeb" value="#{clienteGDBean.banco}" title="Código Banco Débito" panelStyle="width:175px" style="min-width: 80%;"
+												autoWidth="false" converter="converterg" required="true" requiredMessage="Seleccione Banco" disabled="#{clienteGDBean.soloLectura}">
+												<f:selectItem noSelectionOption="true" itemLabel="Código Banco Débito" itemValue="#{null}"/>
+												<f:selectItems value="#{clienteGDBean.listaBancos}" var="bnco" itemLabel="#{bnco.codigo} - #{bnco.nombre}" itemValue="#{bnco}"/>
+											</p:selectOneMenu>
+										</div>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-4">
+										<p:outputLabel for="tipoCuentaDeb">Tipo Cuenta Débito</p:outputLabel>
+										<div class="ui-inputgroup">
+											<span class="ui-inputgroup-addon"> 
+												<i class="fa fa-money"></i>
+											</span>
+											
+											<p:selectOneMenu id="tipoCuentaDeb" value="#{clienteGDBean.cliente.tipocuentadebito}" title="Tipo Cuenta Débito" panelStyle="width:175px"
+												style="min-width: 80%;" autoWidth="false" disabled="#{clienteGDBean.soloLectura}">
+												<f:selectItem noSelectionOption="true" itemLabel="Tipo Cuenta Débito" itemValue="#{null}"/>
+												<f:selectItem itemLabel="Ahorros" itemValue="AHO"/>
+												<f:selectItem itemLabel="Corriente" itemValue="CTE"/>
+												<f:selectItem itemLabel="BG-Cuenta Amiga" itemValue="CM"/>
+											</p:selectOneMenu>
+										</div>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-4">
+										<p:outputLabel for="cuentaDeb">Cuenta Débito</p:outputLabel>
+										<p:inputText id="cuentaDeb" value="#{clienteGDBean.cliente.cuentadebito}" maxlength="10" disabled="#{clienteGDBean.soloLectura}"/>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-4">
+										<p:outputLabel for="tasaInteres">Tasa Interés</p:outputLabel>
+										<p:inputNumber id="tasaInteres" value="#{clienteGDBean.cliente.tasainteres}" maxlength="4" disabled="#{clienteGDBean.soloLectura}"/>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-4">
+										<p:outputLabel for="centroCost">Centro Costo</p:outputLabel>
+										<p:inputText id="centroCost" value="#{clienteGDBean.cliente.centrocosto}" maxlength="20" disabled="#{clienteGDBean.soloLectura}"/>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-4">
+										<p:outputLabel for="contEspe" value="Contribuyente Especial"/>
+										<p:inputText id="contEspe" value="#{clienteGDBean.cliente.escontribuyenteespacial}" disabled="#{clienteGDBean.soloLectura}" required="true"/>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-4">
+										<p:outputLabel for="termDefec" value="Terminal Por Defecto"/>
+										<div class="ui-inputgroup">
+											<span class="ui-inputgroup-addon"> 
+												<i class="fa fa-money"></i>
+											</span>
+											<p:selectOneMenu id="termDefec" value="#{clienteGDBean.terminal}" title="Terminal Por Defecto" panelStyle="width:175px" 
+												style="min-width: 80%;" autoWidth="false" converter="converterg" required="true" requiredMessage="Seleccione Terminal"
+												disabled="#{clienteGDBean.soloLectura}">
+												<f:selectItem noSelectionOption="true" itemLabel="Seleccione" itemValue="#{null}"/>
+												<f:selectItems value="#{clienteGDBean.listaTerminales}" var="ter" itemLabel="#{ter.codigo} - #{ter.nombre}" itemValue="#{ter}"/>
+											</p:selectOneMenu>
+										</div>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-4">
+										<p:outputLabel for="codListaPrecio" value="Lista Precio"/>
+										<div class="ui-inputgroup">
+											<span class="ui-inputgroup-addon"> 
+												<i class="fa fa-money"></i>
+											</span>
+											<p:selectOneMenu id="codListaPrecio" value="#{clienteGDBean.listaprecio}" title="Lista Precio" panelStyle="width:175px" 
+												style="min-width: 80%;" autoWidth="false" converter="converterg" filter="true" filterMatchMode="contains" required="true"
+												requiredMessage="Seleccione Lista Precio" disabled="#{clienteGDBean.soloLectura}">
+												<f:selectItem noSelectionOption="true" itemLabel="Seleccione" itemValue="#{null}"/>
+												<f:selectItems value="#{clienteGDBean.listaListaprecios}" var="lista" itemLabel="#{lista.listaprecioPK.codigo} - #{lista.nombre}" itemValue="#{lista}"/>
+											</p:selectOneMenu>
+										</div>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-4">
+										<p:outputLabel for="codTipoCliente" value="Tipo Cliente"/>
+										<div class="ui-inputgroup">
+											<span class="ui-inputgroup-addon"> 
+												<i class="fa fa-money"></i>
+											</span>
+											<p:selectOneMenu id="codTipoCliente" value="#{clienteGDBean.cliente.codigotipocliente}" title="Tipo Cliente" panelStyle="width:175px"
+												style="min-width: 80%;" autoWidth="false" required="true" requiredMessage="Seleccione Tipo Cliente" disabled="#{clienteGDBean.soloLectura}">
+												<f:selectItem noSelectionOption="true" itemLabel="Seleccione" itemValue="#{null}"/>
+												<f:selectItems value="#{clienteGDBean.listaTipoclientes}" var="list" itemLabel="#{list.codigo} - #{list.nombre}" itemValue="#{list.codigo}"/>
+											</p:selectOneMenu>
+										</div>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-4">
+										<p:outputLabel for="fechaIns" value="Fecha de Inscripcion"/>
+										<p:datePicker id="fechaIns" value="#{clienteGDBean.cliente.fehainscripcion}" showIcon="true" pattern="dd/MM/yyyy" disabled="#{clienteGDBean.soloLectura}"/>
+										<!-- <p:calendar id="fechaIni" required="true" requiredMessage="Ingrese Fecha" value="{null}" pattern="dd/MM/yyyy" 
+                                                   showOn="button" showButtonPanel="true" style="min-width: 80%;"/>-->
+									</div>
+									
+									<div class="p-field p-col-12 p-md-4">
+										<p:outputLabel for="fechaIniOp" value="Fecha Inicio Operacion"/>
+										<p:datePicker id="fechaIniOp" value="#{clienteGDBean.cliente.fehainiciooperacion}" showIcon="true" pattern="dd/MM/yyyy" disabled="#{clienteGDBean.soloLectura}"/>
+										<!-- <p:calendar id="fechaVen" required="true" requiredMessage="Ingrese Fecha" value="{null}" pattern="dd/MM/yyyy" 
+											showOn="button" showButtonPanel="true" style="min-width: 80%;"/>-->
+									</div>
+									
+									<div class="p-field p-col-12 p-md-4">
+										<p:outputLabel for="fechaArch" value="Fecha Registro ARCH"/>
+										<p:datePicker id="fechaArch" value="#{clienteGDBean.cliente.feharegistroarch}" showIcon="true" pattern="dd/MM/yyyy" disabled="#{clienteGDBean.soloLectura}"/>
+										<!-- <p:calendar id="fechaVen" required="true" requiredMessage="Ingrese Fecha" value="{null}" pattern="dd/MM/yyyy" 
+											showOn="button" showButtonPanel="true" style="min-width: 80%;"/>-->
+									</div>
+
+									<div class="p-field p-col-12 p-md-4">
+										<p:outputLabel for="controGaran" value="Controla Garantía"/>
+										<div class="ui-inputgroup">
+											<p:toggleSwitch id="controGaran" value="#{clienteGDBean.cliente.controlagarantia}" disabled="#{clienteGDBean.soloLectura}">
+												<p:ajax event="change" listener="#{clienteGDBean.controlaGarantia()}" update=":form"></p:ajax>
+											</p:toggleSwitch>
+										</div>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-4">
+										<p:outputLabel for="controProrroga" value="Controla Fac.Prorrogadas"/>
+										<div class="ui-inputgroup">
+											<p:toggleSwitch id="controProrroga" value="#{clienteGDBean.cliente.controlaprorroga}" disabled="#{clienteGDBean.soloLectura}">
+												<p:ajax event="change" listener="#{clienteGDBean.controlaProrroga()}" update=":form"></p:ajax>
+											</p:toggleSwitch>
+										</div>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-4">
+										<p:outputLabel for="subsidio2" value="Aplica Subsidio 2"/>
+										<div class="ui-inputgroup">
+											<p:toggleSwitch id="subsidio2" value="#{clienteGDBean.cliente.aplicasubsidio2}" disabled="#{clienteGDBean.soloLectura}">
+											</p:toggleSwitch>
+										</div>
+									</div>
+									
+									<div class="p-field p-col-12 p-md-4">
+										<p:outputLabel for="facsindesp" value="Fact. sin despacho"/>
+										<div class="ui-inputgroup">
+											<p:spinner id="facsindesp" value="#{clienteGDBean.cliente.controldespacho}" disabled="#{clienteGDBean.soloLectura}" min="-1" max="20"/>
+										</div>
+									</div>
+								</div>
+							</p:tab>
+						</p:tabView>
+					</div>
+				</p:outputPanel>
+				
+				<div class="p-grid p-justify-end">
+					<p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{clienteGDBean.save}" update=":form formNuevo" styleClass="p-mr-2"/>
+					<p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('nuevo').hide()" class="ui-button-secondary"/>
+				</div>
+			</h:form>
+		</p:dialog>
+
+		<!-- Observaciones del Cliente Gestión directa -->
+		<p:dialog header="Detalles de la autorización GD" widgetVar="dialogoObservaciones" modal="true" width="450px" responsive="true" showEffect="fade" hideEffect="fade"
+			resizable="false">
+
+			<h:form id="formObservaciones">
+				<p:outputPanel id="panelObservaciones" styleClass="ui-fluid">
+					<div class="p-field p-col-12">
+<!-- 						<p:outputLabel for="txtAreaObservacion" value="Detalle de la Observación:" style="font-weight: bold; margin-bottom: .5rem; display: block;"/> -->
+						<p:inputTextarea id="txtAreaObservacion" value="#{clienteGDBean.cliente.observaciongd}" rows="10" cols="60" autoResize="false" readonly="true"
+							style="width: 100%; resize: none; max-height: 200px; overflow-y: auto;"/>
+					</div>
+
+					<div class="p-grid p-justify-end p-mt-3" style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+						<p:commandButton value="Cerrar" icon="pi pi-times" onclick="PF('dialogoObservaciones').hide()" type="button"
+							styleClass="ui-button-secondary" style="width: auto;"/>
+					</div>
+				</p:outputPanel>
+			</h:form>
+		</p:dialog>
+
+		<p:confirmDialog global="true" showEffect="fade" width="300">
+			<p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check"/>
+			<p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times"/>
+		</p:confirmDialog>
+	</ui:define>
+</ui:composition>

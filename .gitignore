@@ -1,0 +1,12 @@
+# Configuración interna de Eclipse
+.settings/
+.project
+.classpath
+.factorypath
+
+# Carpetas de compilación
+target/
+bin/
+
+# Archivos temporales o logs
+*.log

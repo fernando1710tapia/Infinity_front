@@ -1,0 +1,83 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Descarga XML</ui:define>
+
+    <ui:define name="viewname">
+        <li>Descarga XML</li>        
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="form">
+            <p:outputPanel id="manage-product-content1">
+                <div class="p-grid crud-demo">
+                    <div class="p-col-12">
+                        <div class="card">
+                            <p:growl id="messages" showDetail="true" />
+
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-4">
+                                    <p:outputLabel for="comercializadora" value="Comercializadora"/>
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>
+                                        <p:selectOneMenu id="comercializadora" value="#{descargaxml.comercializadora}" title="Comercializadora"
+                                                         panelStyle="width:175px" style="min-width: 80%;" required="true"
+                                                         autoWidth="false" converter="converterg" disabled="#{!descargaxml.habilitarComer}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="#{null}" />
+                                            <f:selectItems value="#{descargaxml.listaComercializadora}"
+                                                           var="comer"
+                                                           itemLabel="#{comer.objRelacionado}"
+                                                           itemValue="#{comer}" />
+                                            <p:ajax event="change" listener="#{descargaxml.seleccionarComercializdora}"
+                                                    update="form"/>
+                                        </p:selectOneMenu> 
+                                    </div>  
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">                                  
+                                    <p:outputLabel for="fechaB" value="Fecha Inicio"/>
+                                    <p:datePicker id="fechaB" value="#{descargaxml.fechaB}" showIcon="true" pattern="dd/MM/yyyy">
+                                        <p:ajax event="dateSelect"/>
+                                    </p:datePicker>
+                                </div>                                
+                                <div class="p-field p-col-12 p-md-2">
+                                    <p:outputLabel value="&#160;"/>
+                                    <p:commandButton icon="pi pi-folder" actionListener="#{descargaxml.descargarxml()}" ajax="false"
+                                                     onstart="PF('blockUIWidget').block()" 
+                                                     oncomplete="PF('blockUIWidget').unblock()"
+                                                     onclick="PrimeFaces.monitorDownload(start, stop);"
+                                                     update="@form" 
+                                                     value='Generar Descarga'>
+                                        <p:fileDownload value="#{descargaxml.txtStream}"/>
+                                    </p:commandButton>                                   
+                                </div>                                
+                                <div class="p-field p-col-12 p-md-4">
+                                </div>
+                            </div>                              
+                        </div>
+                    </div>
+                </div>
+            </p:outputPanel>
+        </h:form>
+
+        <p:confirmDialog global="true" showEffect="fade" width="300">
+            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+        </p:confirmDialog>    
+
+        <p:confirmDialog widgetVar="reenvioPetro" showEffect="fade" width="300" message="Reenviar a Petro?" header="Confirm" severity="warn">
+            <p:commandButton value="Si" icon="pi pi-check" actionListener="#{crudDemoView.deleteProduct}" process="@this" oncomplete="PF('reenvioPetro').hide()"/>
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times" onclick="PF('reenvioPetro').hide()" />
+        </p:confirmDialog>
+
+        <p:confirmDialog global="true" showEffect="fade" width="300">
+            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+        </p:confirmDialog> 
+    </ui:define>
+</ui:composition>
