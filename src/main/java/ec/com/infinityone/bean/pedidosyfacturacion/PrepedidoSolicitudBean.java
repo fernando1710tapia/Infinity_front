@@ -557,6 +557,9 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                         "Este cliente NO estÃƒÆ’Ã‚Â¡ autorizado para generar NP. Consulte con el administrador para verificar su condiciÃƒÆ’Ã‚Â³n");
             }
             seleccionarTerminal(busqueda);
+        } else {
+            codCliente = "";
+            seleccionarTerminal(busqueda);
         }
 
     }
@@ -613,6 +616,9 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                 listaProductos = new ArrayList<>();
             }
 
+        } else {
+            codCliente = "";
+            listaProductos = new ArrayList<>();
         }
     }
 
@@ -781,8 +787,6 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
 
                 listPrepedido = new ArrayList<>();
                 listDetNP = new ArrayList<>();
-                cliente = new Cliente();
-                PrepedidoSolicitud envioPedido = new PrepedidoSolicitud();
 
                 StringBuilder content = new StringBuilder();
                 try (InputStreamReader isr = new InputStreamReader(connection.getInputStream());
@@ -809,6 +813,13 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                             JSONObject cli = nt.getJSONObject("codigocliente");
 
                             JSONObject cliPK = cli.getJSONObject("clientePK");
+                            
+                            if (codCliente != null && !codCliente.trim().isEmpty()) {
+                                String currentClienteCodigo = cliPK.optString("codigo", "");
+                                if (!codCliente.trim().equals(currentClienteCodigo.trim())) {
+                                    continue;
+                                }
+                            }
 
                             JSONObject term = nt.getJSONObject("codigoterminal");
                             JSONObject ban = nt.getJSONObject("codigobanco");
@@ -824,120 +835,128 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                             String fechaDescpacho = date.format(dateFD);
                             String fechaVencimiento = date.format(dateFV);
                             /*----Objeto Abastecedora----*/
-                            abas.setCodigo(abastecedora.getString("codigo"));
+                            Abastecedora parseAbas = new Abastecedora();
+                            parseAbas.setCodigo(abastecedora.getString("codigo"));
 
                             /*----Objeto comercializadora----*/
-                            comerc.setCodigo(com.getString("codigo"));
-                            comerc.setNombre(com.getString("nombre"));
-                            comerc.setRuc(com.getString("ruc"));
-                            comerc.setDireccion(com.getString("direccion"));
-                            comerc.setAmbientesri(com.getString("ambientesri").charAt(0));
-                            comerc.setEsagenteretencion(com.getBoolean("esagenteretencion"));
-                            comerc.setEscontribuyenteespacial(com.getString("escontribuyenteespacial"));
-                            comerc.setTipoemision(com.getString("tipoemision").charAt(0));
-                            comerc.setObligadocontabilidad(com.getString("obligadocontabilidad"));
-                            comerc.setEstablecimientofac(com.getString("establecimientofac"));
-                            comerc.setPuntoventafac(com.getString("puntoventafac"));
-                            comerc.setClavewsepp(com.getString("clavewsepp"));
+                            Comercializadora parseComerc = new Comercializadora();
+                            parseComerc.setCodigo(com.getString("codigo"));
+                            parseComerc.setNombre(com.getString("nombre"));
+                            parseComerc.setRuc(com.getString("ruc"));
+                            parseComerc.setDireccion(com.getString("direccion"));
+                            parseComerc.setAmbientesri(com.getString("ambientesri").charAt(0));
+                            parseComerc.setEsagenteretencion(com.getBoolean("esagenteretencion"));
+                            parseComerc.setEscontribuyenteespacial(com.getString("escontribuyenteespacial"));
+                            parseComerc.setTipoemision(com.getString("tipoemision").charAt(0));
+                            parseComerc.setObligadocontabilidad(com.getString("obligadocontabilidad"));
+                            parseComerc.setEstablecimientofac(com.getString("establecimientofac"));
+                            parseComerc.setPuntoventafac(com.getString("puntoventafac"));
+                            parseComerc.setClavewsepp(com.getString("clavewsepp"));
                             if (!com.isNull("generapedidodirecto")) {
-                                comerc.setGenerapedidodirecto(com.getBoolean("generapedidodirecto"));
+                                parseComerc.setGenerapedidodirecto(com.getBoolean("generapedidodirecto"));
                             }
 
                             /*----Objeto Fromapago----*/
-                            formap.setCodigo(formPago.getString("codigo"));
+                            Formapago parseFormap = new Formapago();
+                            parseFormap.setCodigo(formPago.getString("codigo"));
 
                             /*----Objeto Cliente----*/
-                            ////// FTFT cliente.setCodigo(cli.getString("codigo"));
-                            cliente.setClientePK(new ClientePK());
-                            cliente.getClientePK().setCodigocomercializadora(cliPK.getString("codigocomercializadora"));
-                            cliente.getClientePK().setCodigo(cliPK.getString("codigo"));
+                            Cliente parseCliente = new Cliente();
+                            parseCliente.setClientePK(new ClientePK());
+                            parseCliente.getClientePK().setCodigocomercializadora(cliPK.getString("codigocomercializadora"));
+                            parseCliente.getClientePK().setCodigo(cliPK.getString("codigo"));
 
-                            cliente.setNombre(cli.getString("nombre"));
-                            cliente.setNombrecomercial(cli.getString("nombrecomercial"));
-                            cliente.setRuc(cli.getString("ruc"));
-                            cliente.setCorreo1(cli.getString("correo1"));
-                            cliente.setTelefono1(cli.getString("telefono1"));
-                            cliente.setDireccion(cli.getString("direccion"));
+                            parseCliente.setNombre(cli.getString("nombre"));
+                            parseCliente.setNombrecomercial(cli.getString("nombrecomercial"));
+                            parseCliente.setRuc(cli.getString("ruc"));
+                            parseCliente.setCorreo1(cli.getString("correo1"));
+                            parseCliente.setTelefono1(cli.getString("telefono1"));
+                            parseCliente.setDireccion(cli.getString("direccion"));
                             if (!cli.isNull("tipoplazocredito")) {
-                                cliente.setTipoplazocredito(cli.getString("tipoplazocredito"));
+                                parseCliente.setTipoplazocredito(cli.getString("tipoplazocredito"));
                             }
-                            cliente.setCodigolistaprecio(cli.getLong("codigolistaprecio"));
-                            cliente.setCodigoformapago(formap);
+                            parseCliente.setCodigolistaprecio(cli.getLong("codigolistaprecio"));
+                            parseCliente.setCodigoformapago(parseFormap);
 
                             /*----Objeto Terminal----*/
-                            terminalT.setCodigo(term.getString("codigo"));
+                            Terminal parseTerminal = new Terminal();
+                            parseTerminal.setCodigo(term.getString("codigo"));
 
                             /*----Objeto Banco----*/
-                            banco.setCodigo(ban.getString("codigo"));
+                            Banco parseBanco = new Banco();
+                            parseBanco.setCodigo(ban.getString("codigo"));
 
                             /*----Guardando el cliente, termina y banco en Nota pedido---*/
-                            np.setCodigocliente(cliente);
-                            np.setCodigoclienteId(cliente.getClientePK().getCodigo().trim());
-                            np.setCodigoterminal(terminalT);
-                            np.setCodigobanco(banco);
-                            np.setComercializadora(comerc);
-                            np.setAbastecedora(abas);
+                            Prepedido parseNp = new Prepedido();
+                            parseNp.setCodigocliente(parseCliente);
+                            parseNp.setCodigoclienteId(parseCliente.getClientePK().getCodigo().trim());
+                            parseNp.setCodigoterminal(parseTerminal);
+                            parseNp.setCodigobanco(parseBanco);
+                            parseNp.setComercializadora(parseComerc);
+                            parseNp.setAbastecedora(parseAbas);
 
                             if (!nt.isNull("tramaenviadagoe")) {
-                                np.setTramaenviadagoe(nt.getString("tramaenviadagoe"));
+                                parseNp.setTramaenviadagoe(nt.getString("tramaenviadagoe"));
                             } else {
-                                np.setTramaenviadagoe("");
+                                parseNp.setTramaenviadagoe("");
                             }
 
                             if (!nt.isNull("tramarecibidagoe")) {
-                                np.setTramarecibidagoe(nt.getString("tramarecibidagoe"));
+                                parseNp.setTramarecibidagoe(nt.getString("tramarecibidagoe"));
                             } else {
-                                np.setTramarecibidagoe("");
+                                parseNp.setTramarecibidagoe("");
                             }
 
                             if (!nt.isNull("tramarenviadaaoe")) {
-                                np.setTramarenviadaaoe(nt.getString("tramarenviadaaoe"));
+                                parseNp.setTramarenviadaaoe(nt.getString("tramarenviadaaoe"));
                             } else {
-                                np.setTramarenviadaaoe("");
+                                parseNp.setTramarenviadaaoe("");
                             }
 
                             if (!nt.isNull("tramarecibidaaoe")) {
-                                np.setTramarecibidaaoe(nt.getString("tramarecibidaaoe"));
+                                parseNp.setTramarecibidaaoe(nt.getString("tramarecibidaaoe"));
                             } else {
-                                np.setTramarecibidaaoe("");
+                                parseNp.setTramarecibidaaoe("");
                             }
 
-                            np.setNumerofacturasri(nt.getString("numerofacturasri"));
-                            np.setActiva(nt.getBoolean("activa"));
-                            np.setFacturada(nt.getString("facturada"));
+                            parseNp.setNumerofacturasri(nt.getString("numerofacturasri"));
+                            parseNp.setActiva(nt.getBoolean("activa"));
+                            parseNp.setFacturada(nt.getString("facturada"));
                             String respGen = nt.optString("respuestageneracionoeepp", "");
                             String respAnu = nt.optString("respuestaanulacionoeepp", "");
-                            np.setRespuestageneracionoeepp(respGen);
-                            np.setRespuestaanulacionoeepp(respAnu);
-                            np.setOeenpetro(respGen);
-                            np.setOeanuladaenpetro(respAnu);
-                            npPK.setNumero(ntPK.getString("numero"));
-                            npPK.setCodigoabastecedora(ntPK.getString("codigoabastecedora"));
-                            npPK.setCodigocomercializadora(ntPK.getString("codigocomercializadora"));
-                            np.setFechaventa(fechaVencimiento);
-                            np.setFechadespacho(fechaDescpacho);
-                            np.setPrepedidoPK(npPK);
-                            np.setUsuarioactual(nt.getString("usuarioactual"));
+                            parseNp.setRespuestageneracionoeepp(respGen);
+                            parseNp.setRespuestaanulacionoeepp(respAnu);
+                            parseNp.setOeenpetro(respGen);
+                            parseNp.setOeanuladaenpetro(respAnu);
+                            
+                            PrepedidoPK parseNpPK = new PrepedidoPK();
+                            parseNpPK.setNumero(ntPK.getString("numero"));
+                            parseNpPK.setCodigoabastecedora(ntPK.getString("codigoabastecedora"));
+                            parseNpPK.setCodigocomercializadora(ntPK.getString("codigocomercializadora"));
+                            parseNp.setFechaventa(fechaVencimiento);
+                            parseNp.setFechadespacho(fechaDescpacho);
+                            parseNp.setPrepedidoPK(parseNpPK);
+                            parseNp.setUsuarioactual(nt.getString("usuarioactual"));
                             if (!nt.isNull("observacion")) {
-                                np.setObservacion(nt.getString("observacion"));
+                                parseNp.setObservacion(nt.getString("observacion"));
                             } else {
-                                np.setObservacion("");
+                                parseNp.setObservacion("");
                             }
 
                             if (!nt.isNull("prefijo")) {
-                                np.setPrefijo(nt.getString("prefijo"));
+                                parseNp.setPrefijo(nt.getString("prefijo"));
                             } else {
-                                np.setPrefijo("");
+                                parseNp.setPrefijo("");
                             }
                             if (!nt.isNull("codigoautotanque")) {
-                                np.setCodigoautotanque(nt.getString("codigoautotanque"));
+                                parseNp.setCodigoautotanque(nt.getString("codigoautotanque"));
                             } else {
-                                np.setCodigoautotanque("");
+                                parseNp.setCodigoautotanque("");
                             }
                             if (!nt.isNull("cedulaconductor")) {
-                                np.setCedulaconductor(nt.getString("cedulaconductor"));
+                                parseNp.setCedulaconductor(nt.getString("cedulaconductor"));
                             } else {
-                                np.setCedulaconductor("");
+                                parseNp.setCedulaconductor("");
                             }
 
                             /*----Parse Detail if exists for Producto and Volume columns----*/
@@ -1091,7 +1110,7 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                                 JSONArray arr = nt.optJSONArray("detalleprepedidoList");
                                 for (Detalleprepedido dpParsed : detallesParseados) {
                                     PrepedidoSolicitud row = new PrepedidoSolicitud();
-                                    row.setPrepedido(np);
+                                    row.setPrepedido(parseNp);
                                     java.util.List<Detalleprepedido> singleList = new java.util.ArrayList<>();
                                     singleList.add(dpParsed);
                                     row.setDetalle(singleList);
@@ -1126,21 +1145,14 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                                     idx++;
                                 }
                             } else {
-                                envioPedido.setPrepedido(np);
+                                PrepedidoSolicitud envioPedido = new PrepedidoSolicitud();
+                                envioPedido.setPrepedido(parseNp);
                                 envioPedido.setEstadoForzado(envioPedido.getEstadoAutorizado());
                                 envioPedido.setNumeroNotaPedidoGenerada(numNotaBackend);
                                 listPrepedido.add(envioPedido);
                             }
-                            envioPedido = new PrepedidoSolicitud();
-                            np = new Prepedido();
-                            npPK = new PrepedidoPK();
+                            
                             listDetNP = new ArrayList<>();
-                            cliente = new Cliente();
-                            banco = new Banco();
-                            comerc = new Comercializadora();
-                            terminalT = new Terminal();
-                            abas = new Abastecedora();
-                            formap = new Formapago();
                         }
                     }
                 }
