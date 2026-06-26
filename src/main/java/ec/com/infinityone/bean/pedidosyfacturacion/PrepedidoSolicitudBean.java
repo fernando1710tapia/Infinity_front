@@ -768,45 +768,55 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                 // "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.prepedido/paraFactura?";
                 String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
                         + "ec.com.infinity.modelo.prepedido/paraFactura?";
-                if (codCliente.isEmpty()) {
-                    url = new URL(direcc + "codigoabastecedora=" + codAbas + "&codigocomercializadora=" + codComer
-                            + "&codigoterminal=" + codTerminal
-                            + "&tipofecha=" + tipoFecha + "&fecha=" + fechaI);
-                } else {
-                    url = new URL(direcc + "codigoabastecedora=" + codAbas + "&codigocomercializadora=" + codComer
-                            + "&codigoterminal=" + codTerminal
-                            + "&tipofecha=" + tipoFecha + "&fecha=" + fechaI + "&codigocliente="
-                            + this.codCliente);
-                }
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setDoInput(true);
-                connection.setRequestMethod("GET");
-                connection.setRequestProperty("Accept", "application/json");
-                connection.setConnectTimeout(30000);
-                connection.setReadTimeout(30000);
-
                 listPrepedido = new ArrayList<>();
                 listDetNP = new ArrayList<>();
 
-                StringBuilder content = new StringBuilder();
-                try (InputStreamReader isr = new InputStreamReader(connection.getInputStream());
-                        BufferedReader br = new BufferedReader(isr)) {
-                    String tmp;
-                    while ((tmp = br.readLine()) != null) {
-                        content.append(tmp);
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(firstDate);
+                while (cal.getTime().compareTo(secondDate) <= 0) {
+                    String fechaStr = date.format(cal.getTime());
+
+                    if (codCliente == null || codCliente.isEmpty()) {
+                        url = new URL(direcc + "codigoabastecedora=" + codAbas + "&codigocomercializadora=" + codComer
+                                + "&codigoterminal=" + codTerminal
+                                + "&tipofecha=" + tipoFecha + "&fecha=" + fechaStr);
+                    } else {
+                        url = new URL(direcc + "codigoabastecedora=" + codAbas + "&codigocomercializadora=" + codComer
+                                + "&codigoterminal=" + codTerminal
+                                + "&tipofecha=" + tipoFecha + "&fecha=" + fechaStr + "&codigocliente="
+                                + this.codCliente);
                     }
-                }
-                String respuesta = content.toString();
-                LOG.info("API Response (Comerterminal): " + respuesta);
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setDoInput(true);
+                    connection.setRequestMethod("GET");
+                    connection.setRequestProperty("Accept", "application/json");
+                    connection.setConnectTimeout(30000);
+                    connection.setReadTimeout(30000);
 
-                JSONObject objetoJson = new JSONObject(respuesta);
-                JSONArray retorno = objetoJson.getJSONArray("retorno");
-                if (retorno.isEmpty()) {
-                    this.dialogo(FacesMessage.SEVERITY_ERROR,
-                            "NO SE ENCONTRARON " + getTituloPantallaPlural().toUpperCase());
-                } else {
+                    StringBuilder content = new StringBuilder();
+                    try (InputStreamReader isr = new InputStreamReader(connection.getInputStream());
+                            BufferedReader br = new BufferedReader(isr)) {
+                        String tmp;
+                        while ((tmp = br.readLine()) != null) {
+                            content.append(tmp);
+                        }
+                    }
+                    String respuesta = content.toString();
+                    LOG.info("API Response (Comerterminal) para fecha " + fechaStr + ": " + respuesta);
+                    
+                    try {
+                        if (connection.getResponseCode() != 200) {
+                            System.out.println(connection.getResponseCode());
+                            System.out.println(connection.getResponseMessage());
+                        }
+                    } catch (Exception e) {}
 
-                    for (int indice = 0; indice < retorno.length(); indice++) {
+                    if (respuesta != null && !respuesta.isEmpty() && respuesta.startsWith("{")) {
+                        JSONObject objetoJson = new JSONObject(respuesta);
+                        if (objetoJson.has("retorno")) {
+                            JSONArray retorno = objetoJson.getJSONArray("retorno");
+                            if (!retorno.isEmpty()) {
+                                for (int indice = 0; indice < retorno.length(); indice++) {
                         if (!retorno.isNull(indice)) {
                             JSONObject nt = retorno.getJSONObject(indice);
                             JSONObject ntPK = nt.getJSONObject("prepedidoPK");
@@ -1155,10 +1165,15 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                             listDetNP = new ArrayList<>();
                         }
                     }
+                            }
+                        }
+                    }
+                    cal.add(Calendar.DATE, 1);
                 }
-                if (connection.getResponseCode() != 200) {
-                    System.out.println(connection.getResponseCode());
-                    System.out.println(connection.getResponseMessage());
+
+                if (listPrepedido.isEmpty()) {
+                    this.dialogo(FacesMessage.SEVERITY_ERROR,
+                            "NO SE ENCONTRARON " + getTituloPantallaPlural().toUpperCase());
                 }
 
                 this.listPrepedidoCompleta = new java.util.ArrayList<>(listPrepedido);
