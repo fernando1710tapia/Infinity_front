@@ -12,6 +12,7 @@ import ec.com.infinityone.modelo.ClientePK;
 import ec.com.infinityone.modelo.Direccioninen;
 import ec.com.infinityone.modelo.Formapago;
 import ec.com.infinityone.modelo.Terminal;
+import ec.com.infinityone.modelo.Usuario;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -43,6 +44,8 @@ public class ClienteServicio {
     private Cliente cli;
 
     private Terminal termi;
+    
+    private Usuario usuario;
 
     private Formapago fpago;
 
@@ -69,6 +72,7 @@ public class ClienteServicio {
             
 //            uncliPK = new ClientePK();
             termi = new Terminal();
+            usuario = new Usuario();
             fpago = new Formapago();
             banco = new Banco();
             dinen = new Direccioninen();
@@ -254,6 +258,7 @@ public class ClienteServicio {
             fpago = new Formapago();
             banco = new Banco();
             dinen = new Direccioninen();
+            usuario = new Usuario();
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
             BufferedReader br = new BufferedReader(reader);
@@ -388,7 +393,8 @@ public class ClienteServicio {
                     cli.setFehavencimientocontrato(new Date());
                 }
                 if (!cliente.isNull("codigosupervisorzonal")) {
-                    cli.setCodigosupervisorzonal(cliente.getString("codigosupervisorzonal"));
+                    cli.setCodigosupervisorzonal(cliente.getString("codigosupervisorzonal").trim());
+                    usuario.setCodigo(cli.getCodigosupervisorzonal().trim());
                 }
                 if (!cliente.isNull("usuarioactual")) {
                     cli.setUsuarioactual(cliente.getString("usuarioactual"));
@@ -422,6 +428,7 @@ public class ClienteServicio {
                 listaClientes.add(cli);
                 cli = new Cliente();
                 termi = new Terminal();
+                usuario = new Usuario();
                 fpago = new Formapago();
                 banco = new Banco();
                 dinen = new Direccioninen();

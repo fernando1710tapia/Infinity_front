@@ -212,6 +212,12 @@ public class ComercializadoraBean extends ReusableBean implements Serializable {
      */
     private boolean editarComercializadora;
     
+    /*
+    Variable que establece true or false para el generapedidodirecto
+     */
+    private boolean generapedidodirecto;
+    
+    
     private String xcodigoComer;
 
     public ComercializadoraBean() {
@@ -502,6 +508,7 @@ public class ComercializadoraBean extends ReusableBean implements Serializable {
             obj.put("ambientesri", comercializadora.getAmbienteSri());
             obj.put("tipoemision", comercializadora.getTipoEmision());
             obj.put("usuarioactual", x.getNombrever());
+            obj.put("generapedidodirecto", comercializadora.isGenerapedidodirecto());
             respuesta = obj.toString();
             writer.write(respuesta);
             writer.close();
@@ -908,5 +915,15 @@ public class ComercializadoraBean extends ReusableBean implements Serializable {
     public void setObContabilidad(boolean obContabilidad) {
         this.obContabilidad = obContabilidad;
     }
+
+    public boolean isGenerapedidodirecto() {
+        return generapedidodirecto;
+    }
+
+    public void setGenerapedidodirecto(boolean generapedidodirecto) {
+        this.generapedidodirecto = generapedidodirecto;
+    }
+    
+    
 
 }

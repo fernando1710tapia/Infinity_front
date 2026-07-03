@@ -173,6 +173,9 @@ public class ComercializadoraServicio {
                     if (!comer.isNull("leyendaagenteretencion")) {
                         comercializadora.setLeyendaAgRetencion(comer.getString("leyendaagenteretencion"));
                     }
+                    if (!comer.isNull("generapedidodirecto")) {
+                        comercializadora.setGenerapedidodirecto(comer.getBoolean("generapedidodirecto"));
+                    }
                     comercializadora.setUsuario(comer.getString("usuarioactual"));
                     comercializadora.setPrefijoNpe(comer.getString("prefijonpe"));
                     comercializadora.setClaveWsepp(comer.getString("clavewsepp"));
@@ -180,6 +183,10 @@ public class ComercializadoraServicio {
                     comercializadora.setTipoEmision(comer.getString("tipoemision"));
                     comercializadora.setObjRelacionado(comer.getString("codigo") + " - " + comer.getString("nombre"));
                     comercializadora.setAbastecedora(abas.getString("codigo"));
+
+                    System.out.println("FT:: obtenerComercializadoras() REVISION COMERCIALIZADORA:. "
+                            + comercializadora.getCodigo()+"- generapedidodirecto  -"+comercializadora.isGenerapedidodirecto());
+
                     listaComercializadora.add(comercializadora);
                     comercializadora = new ComercializadoraBean();
                 }

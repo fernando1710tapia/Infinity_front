@@ -152,7 +152,7 @@ public class AutorizacionGestionDirectaJefaturaFinancieraBean extends ReusableBe
                     }
                 }
 
-                listaClientes = clienteServicio.obtenerClientesPorComercializadora(comercializadora.getCodigo());
+                listaClientes = clienteServicio.obtenerClientesActivosPorComercializadora(comercializadora.getCodigo());
             }
 
             if (dataUser.getUser().getNiveloperacion().equals("usac")) {
@@ -171,7 +171,7 @@ public class AutorizacionGestionDirectaJefaturaFinancieraBean extends ReusableBe
             codComer = comercializadora.getCodigo();
             codAbas = comercializadora.getAbastecedora();
 
-            listaClientes = clienteServicio.obtenerClientesPorComercializadora(codComer);
+            listaClientes = clienteServicio.obtenerClientesActivosPorComercializadora(codComer);
         }
     }
 

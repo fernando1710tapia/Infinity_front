@@ -189,10 +189,11 @@ public class ClienteGDBean extends ReusableBean implements Serializable {
 		obtenerBanco();
 		obtenerTerminal();
 		obtenerTipocliente();
+                obtenerSupervisorZonal();
 		habilitarBusqueda();
 		// obtenerPrecio();
 		// getURL();
-		//obtenerSupervisorZonal();
+		
 	}
 
 	public void obtenerClientes() {
@@ -235,6 +236,7 @@ public class ClienteGDBean extends ReusableBean implements Serializable {
 	}
 
 	public void obtenerSupervisorZonal() {
+                listaSupervisorZonal = new ArrayList<>();
 		listaSupervisorZonal = this.usuarioServicio.obtenerUsuarioPorComercializadora(codComer);
 	}
 	
@@ -337,6 +339,7 @@ public class ClienteGDBean extends ReusableBean implements Serializable {
 		this.cliente.setCodigodireccioninen(direccioninen.getCodigo());
 		this.cliente.setUsuarioactual(dataUser.getUser().getNombrever());
 		this.cliente.setCodigosupervisorzonal(supervisorZonal != null ? supervisorZonal.getCodigo():null);
+ 
 	}
 
 	public void addItems() {
@@ -511,6 +514,8 @@ public class ClienteGDBean extends ReusableBean implements Serializable {
 			formapago = cliente.getCodigoformapago();
 			banco.setCodigo(cliente.getCodigobancodebito());
 			terminal = cliente.getCodigoterminaldefecto();
+                        supervisorZonal.setCodigo(cliente.getCodigosupervisorzonal().trim());
+ //                       supervisorZonal.setCodigo(cliente.getCodigosupervisorzonal().trim());
 //        listaprecioPK.setCodigo(cliente.getCodigolistaprecio());
 //        listaprecio.setListaprecioPK(listaprecioPK);
 			
@@ -531,6 +536,14 @@ public class ClienteGDBean extends ReusableBean implements Serializable {
 					}
 				}
 			}
+                if (!listaSupervisorZonal.isEmpty()) {
+                for (int i = 0; i < listaSupervisorZonal.size(); i++) {
+                    if (listaSupervisorZonal.get(i).getCodigo().trim().equalsIgnoreCase(cliente.getCodigosupervisorzonal().trim())) {
+                        this.supervisorZonal = listaSupervisorZonal.get(i);
+                        break;
+                    }
+                }
+            }
 		}
 
 		PrimeFaces.current().executeScript("PF('nuevo').show()");
@@ -550,6 +563,7 @@ public class ClienteGDBean extends ReusableBean implements Serializable {
 		formapago = cliente.getCodigoformapago();
 		banco.setCodigo(cliente.getCodigobancodebito());
 		terminal = cliente.getCodigoterminaldefecto();
+                supervisorZonal.setCodigo(cliente.getCodigosupervisorzonal().trim());
 //        listaprecioPK.setCodigo(cliente.getCodigolistaprecio());
 //        listaprecio.setListaprecioPK(listaprecioPK);
 		
@@ -564,6 +578,14 @@ public class ClienteGDBean extends ReusableBean implements Serializable {
 				this.listaprecio = listaListaprecios.get(i);
 			}
 		}
+                if (!listaSupervisorZonal.isEmpty()) {
+                for (int i = 0; i < listaSupervisorZonal.size(); i++) {
+                    if (listaSupervisorZonal.get(i).getCodigo().trim().equalsIgnoreCase(cliente.getCodigosupervisorzonal().trim())) {
+                        this.supervisorZonal = listaSupervisorZonal.get(i);
+                        break;
+                    }
+                }
+            }
 		
 		PrimeFaces.current().executeScript("PF('nuevo').show()");
 		
