@@ -26,16 +26,16 @@ public class Producto implements Serializable {
     private String codigoarch;
 
     private String usuarioactual;
-    
+
     private BigDecimal porcentajeivapresuntivo;
 
     private String productogenerico;
-    
-//    private List<Comercializadoraproducto> comercializadoraproductoList;
-//
-//    private List<Detallenotapedido> detallenotapedidoList;
-// 
-//    private List<Detallefactura> detallefacturaList;
+
+    // private List<Comercializadoraproducto> comercializadoraproductoList;
+    //
+    // private List<Detallenotapedido> detallenotapedidoList;
+    //
+    // private List<Detallefactura> detallefacturaList;
     public Producto() {
     }
 
@@ -114,9 +114,10 @@ public class Producto implements Serializable {
         this.productogenerico = productogenerico;
     }
 
-//    public void setDetallenotapedidoList(List<Detallenotapedido> detallenotapedidoList) {
-//        this.detallenotapedidoList = detallenotapedidoList;
-//    }
+    // public void setDetallenotapedidoList(List<Detallenotapedido>
+    // detallenotapedidoList) {
+    // this.detallenotapedidoList = detallenotapedidoList;
+    // }
     @Override
     public int hashCode() {
         int hash = 0;
@@ -131,7 +132,8 @@ public class Producto implements Serializable {
             return false;
         }
         Producto other = (Producto) object;
-        if ((this.codigo == null && other.codigo != null) || (this.codigo != null && !this.codigo.equals(other.codigo))) {
+        if ((this.codigo == null && other.codigo != null)
+                || (this.codigo != null && !this.codigo.equals(other.codigo))) {
             return false;
         }
         return true;

@@ -1244,6 +1244,10 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                 if (detNP1.getVolumennaturalrequerido() == null) {
                     detNP1.setVolumennaturalrequerido(BigDecimal.ZERO);
                 }
+                // Validación: forzar a ZERO si el valor es negativo
+                if (detNP1.getVolumennaturalrequerido().compareTo(BigDecimal.ZERO) < 0) {
+                    detNP1.setVolumennaturalrequerido(BigDecimal.ZERO);
+                }
                 Producto prod1 = new Producto();
                 prod1.setCodigo("9901");
                 prod1.setNombre("EXTRA");
@@ -1270,10 +1274,17 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                 detNP1.setCompartimento10(BigDecimal.ZERO);
                 detNP1.setSelloinicial(0);
                 detNP1.setSellofinal(0);
-                listaDetalles.add(detNP1);
+                // Solo incluir EXTRA si el volumen ingresado es mayor a cero
+                if (detNP1.getVolumennaturalrequerido().compareTo(BigDecimal.ZERO) > 0) {
+                    listaDetalles.add(detNP1);
+                }
 
                 // Fila 2 - SUPER 9903
                 if (detNP2.getVolumennaturalrequerido() == null) {
+                    detNP2.setVolumennaturalrequerido(BigDecimal.ZERO);
+                }
+                // Validación: forzar a ZERO si el valor es negativo
+                if (detNP2.getVolumennaturalrequerido().compareTo(BigDecimal.ZERO) < 0) {
                     detNP2.setVolumennaturalrequerido(BigDecimal.ZERO);
                 }
                 Producto prod2 = new Producto();
@@ -1302,10 +1313,17 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                 detNP2.setCompartimento10(BigDecimal.ZERO);
                 detNP2.setSelloinicial(0);
                 detNP2.setSellofinal(0);
-                listaDetalles.add(detNP2);
+                // Solo incluir SUPER si el volumen ingresado es mayor a cero
+                if (detNP2.getVolumennaturalrequerido().compareTo(BigDecimal.ZERO) > 0) {
+                    listaDetalles.add(detNP2);
+                }
 
                 // Fila 3 - DIESEL 9904
                 if (detNP3.getVolumennaturalrequerido() == null) {
+                    detNP3.setVolumennaturalrequerido(BigDecimal.ZERO);
+                }
+                // Validación: forzar a ZERO si el valor es negativo
+                if (detNP3.getVolumennaturalrequerido().compareTo(BigDecimal.ZERO) < 0) {
                     detNP3.setVolumennaturalrequerido(BigDecimal.ZERO);
                 }
                 Producto prod3 = new Producto();
@@ -1334,10 +1352,15 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                 detNP3.setCompartimento10(BigDecimal.ZERO);
                 detNP3.setSelloinicial(0);
                 detNP3.setSellofinal(0);
-                listaDetalles.add(detNP3);
+                // Solo incluir DIESEL si el volumen ingresado es mayor a cero
+                if (detNP3.getVolumennaturalrequerido().compareTo(BigDecimal.ZERO) > 0) {
+                    listaDetalles.add(detNP3);
+                }
 
+                // Validación: debe haber al menos un producto con volumen > 0
                 if (listaDetalles.isEmpty()) {
-                    this.dialogo(FacesMessage.SEVERITY_ERROR, "Debe ingresar volumen en al menos un producto.");
+                    this.dialogo(FacesMessage.SEVERITY_ERROR,
+                            "Debe ingresar volumen mayor a cero en al menos un producto.");
                     return;
                 }
 
