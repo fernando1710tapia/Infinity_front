@@ -356,6 +356,7 @@ public class AutorizacionGestionDirectaJefaturaFinancieraBean extends ReusableBe
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             ObjectMapper mapper = new ObjectMapper();
             String jsonStr = mapper.writeValueAsString(this.cliente);
+            System.out.println("FT::. JEFE-FINANCIERO-editcliente:. "+jsonStr);
 
             Gson gson = new Gson();
             String JSON = gson.toJson(this.cliente);

@@ -76,6 +76,7 @@ public class ClienteServicio {
             fpago = new Formapago();
             banco = new Banco();
             dinen = new Direccioninen();
+            usuario = new Usuario();
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
             BufferedReader br = new BufferedReader(reader);
@@ -93,7 +94,7 @@ public class ClienteServicio {
                 JSONObject fp = cliente.getJSONObject("codigoformapago");
                 JSONObject bn = cliente.getJSONObject("codigobancodebito");
                 JSONObject di = cliente.getJSONObject("codigodireccioninen");
-                //JSONObject tc = cliente.getJSONObject("codigotipocliente");
+                JSONObject tc = cliente.getJSONObject("codigotipocliente");
 
                 termi.setCodigo(terminal.getString("codigo"));
                 termi.setNombre(terminal.getString("nombre"));
@@ -202,7 +203,8 @@ public class ClienteServicio {
                     cli.setFehavencimientocontrato(new Date());
                 }
                 if (!cliente.isNull("codigosupervisorzonal")) {
-                    cli.setCodigosupervisorzonal(cliente.getString("codigosupervisorzonal"));
+                    cli.setCodigosupervisorzonal(cliente.getString("codigosupervisorzonal").trim());
+                    usuario.setCodigo(cli.getCodigosupervisorzonal().trim());
                 }
                 if (!cliente.isNull("usuarioactual")) {
                     cli.setUsuarioactual(cliente.getString("usuarioactual"));
@@ -219,6 +221,20 @@ public class ClienteServicio {
                     fpago.setCodigo(fp.getString("codigo"));
                     cli.setCodigoformapago(fpago);
                 }
+                if (!cliente.isNull("codigotipocliente")) {
+                    cli.setCodigotipocliente(tc.getString("codigo"));
+                }
+                cli.setControldespacho(cliente.getInt("controldespacho"));
+                
+                if (!cliente.isNull("observaciongd")){
+                    if (cliente.getString("observaciongd").isEmpty()){
+                        cli.setObservaciongd("nd");
+                    }else{
+                	cli.setObservaciongd(cliente.getString("observaciongd"));
+                    }
+                }else{
+                    cli.setObservaciongd("nd");
+                }
                 // if (!cliente.isNull("codigotipocliente")) {
                 //   cli.setCodigotipocliente(tc.getString("codigo"));
                 // }
@@ -230,6 +246,10 @@ public class ClienteServicio {
                 listaClientes.add(cli);
                 cli = new Cliente();
                 termi = new Terminal();
+                usuario = new Usuario();
+                fpago = new Formapago();
+                banco = new Banco();
+                dinen = new Direccioninen();
             }
 
             if (connection.getResponseCode() != 200) {
@@ -591,7 +611,8 @@ public class ClienteServicio {
                     cli.setFehavencimientocontrato(new Date());
                 }
                 if (!cliente.isNull("codigosupervisorzonal")) {
-                    cli.setCodigosupervisorzonal(cliente.getString("codigosupervisorzonal"));
+                    cli.setCodigosupervisorzonal(cliente.getString("codigosupervisorzonal").trim());
+                    usuario.setCodigo(cli.getCodigosupervisorzonal().trim());
                 }
                 if (!cliente.isNull("usuarioactual")) {
                     cli.setUsuarioactual(cliente.getString("usuarioactual"));
@@ -612,7 +633,16 @@ public class ClienteServicio {
                     cli.setCodigotipocliente(tc.getString("codigo"));
                 }
                 cli.setControldespacho(cliente.getInt("controldespacho"));
-
+                
+                if (!cliente.isNull("observaciongd")){
+                    if (cliente.getString("observaciongd").isEmpty()){
+                        cli.setObservaciongd("nd");
+                    }else{
+                	cli.setObservaciongd(cliente.getString("observaciongd"));
+                    }
+                }else{
+                    cli.setObservaciongd("nd");
+                }
                 listaClientes.add(cli);
                 cli = new Cliente();
                 termi = new Terminal();
@@ -779,7 +809,8 @@ public class ClienteServicio {
                     cli.setFehavencimientocontrato(new Date());
                 }
                 if (!cliente.isNull("codigosupervisorzonal")) {
-                    cli.setCodigosupervisorzonal(cliente.getString("codigosupervisorzonal"));
+                    cli.setCodigosupervisorzonal(cliente.getString("codigosupervisorzonal").trim());
+                    usuario.setCodigo(cli.getCodigosupervisorzonal().trim());
                 }
                 if (!cliente.isNull("usuarioactual")) {
                     cli.setUsuarioactual(cliente.getString("usuarioactual"));
@@ -800,7 +831,16 @@ public class ClienteServicio {
                     cli.setCodigotipocliente(tc.getString("codigo"));
                 }
                 cli.setControldespacho(cliente.getInt("controldespacho"));
-
+                
+                if (!cliente.isNull("observaciongd")){
+                    if (cliente.getString("observaciongd").isEmpty()){
+                        cli.setObservaciongd("nd");
+                    }else{
+                	cli.setObservaciongd(cliente.getString("observaciongd"));
+                    }
+                }else{
+                    cli.setObservaciongd("nd");
+                }
                 listaClientes.add(cli);
                 cli = new Cliente();
                 termi = new Terminal();
@@ -966,7 +1006,8 @@ public class ClienteServicio {
                     cli.setFehavencimientocontrato(new Date());
                 }
                 if (!cliente.isNull("codigosupervisorzonal")) {
-                    cli.setCodigosupervisorzonal(cliente.getString("codigosupervisorzonal"));
+                    cli.setCodigosupervisorzonal(cliente.getString("codigosupervisorzonal").trim());
+                    usuario.setCodigo(cli.getCodigosupervisorzonal().trim());
                 }
                 if (!cliente.isNull("usuarioactual")) {
                     cli.setUsuarioactual(cliente.getString("usuarioactual"));
@@ -987,7 +1028,16 @@ public class ClienteServicio {
                     cli.setCodigotipocliente(tc.getString("codigo"));
                 }
                 cli.setControldespacho(cliente.getInt("controldespacho"));
-
+                
+                if (!cliente.isNull("observaciongd")){
+                    if (cliente.getString("observaciongd").isEmpty()){
+                        cli.setObservaciongd("nd");
+                    }else{
+                	cli.setObservaciongd(cliente.getString("observaciongd"));
+                    }
+                }else{
+                    cli.setObservaciongd("nd");
+                }
                 listaClientes.add(cli);
                 cli = new Cliente();
                 termi = new Terminal();
@@ -1134,6 +1184,7 @@ public class ClienteServicio {
             fpago = new Formapago();
             banco = new Banco();
             dinen = new Direccioninen();
+            usuario = new Usuario();
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
             BufferedReader br = new BufferedReader(reader);
@@ -1153,6 +1204,7 @@ public class ClienteServicio {
                 JSONObject fp = cliente.getJSONObject("codigoformapago");
                 JSONObject bn = cliente.getJSONObject("codigobancodebito");
                 JSONObject di = cliente.getJSONObject("codigodireccioninen");
+                JSONObject tc = cliente.getJSONObject("codigotipocliente");
 
                 termi.setCodigo(terminal.getString("codigo"));
                 termi.setNombre(terminal.getString("nombre"));
@@ -1266,7 +1318,8 @@ public class ClienteServicio {
                     cli.setFehavencimientocontrato(new Date());
                 }
                 if (!cliente.isNull("codigosupervisorzonal")) {
-                    cli.setCodigosupervisorzonal(cliente.getString("codigosupervisorzonal"));
+                    cli.setCodigosupervisorzonal(cliente.getString("codigosupervisorzonal").trim());
+                    usuario.setCodigo(cli.getCodigosupervisorzonal().trim());
                 }
                 if (!cliente.isNull("usuarioactual")) {
                     cli.setUsuarioactual(cliente.getString("usuarioactual"));
@@ -1283,11 +1336,31 @@ public class ClienteServicio {
                     fpago.setCodigo(fp.getString("codigo"));
                     cli.setCodigoformapago(fpago);
                 }
+                if (!cliente.isNull("codigotipocliente")) {
+                    cli.setCodigotipocliente(tc.getString("codigo"));
+                }
+                cli.setControldespacho(cliente.getInt("controldespacho"));
+                
+                if (!cliente.isNull("observaciongd")){
+                    if (cliente.getString("observaciongd").isEmpty()){
+                        cli.setObservaciongd("nd");
+                    }else{
+                	cli.setObservaciongd(cliente.getString("observaciongd"));
+                    }
+                }else{
+                    cli.setObservaciongd("nd");
+                }
+                
                 if (cliente.getBoolean("estado") == true) {
+//                    System.out.println("FT::. buscarclientesACTIVOS:. "+cli.getClientePK().getCodigo() +" - tipoCliente -"+cli.getCodigotipocliente()+"-y controldespachos :."+cli.getControldespacho());
                     listaClientes.add(cli);
                 }
                 cli = new Cliente();
                 termi = new Terminal();
+                usuario = new Usuario();
+                fpago = new Formapago();
+                banco = new Banco();
+                dinen = new Direccioninen();
             }
 
             if (connection.getResponseCode() != 200) {

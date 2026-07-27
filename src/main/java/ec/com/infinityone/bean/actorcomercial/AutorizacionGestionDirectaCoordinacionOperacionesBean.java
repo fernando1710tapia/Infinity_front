@@ -332,9 +332,9 @@ public class AutorizacionGestionDirectaCoordinacionOperacionesBean extends Reusa
                 Formapago formapago3 = new Formapago();
                 formapago3.setCodigo("03");
                 this.cliente.setCodigoformapago(formapago3);
-
-               // if (editItems()) {  
-                   if (Boolean.TRUE) {//
+ 
+               if (editItems()) {  
+               //    if (Boolean.TRUE) {//
                     // Ejecutamos el envío de email de forma segura
                     boolean emailEnviado = enviarEmail();
 
@@ -380,6 +380,7 @@ public class AutorizacionGestionDirectaCoordinacionOperacionesBean extends Reusa
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             ObjectMapper mapper = new ObjectMapper();
             String jsonStr = mapper.writeValueAsString(this.cliente);
+            System.out.println("FT::. JEFE-OPERACIONES-editcliente:. "+jsonStr);
 
 ////            Gson gson = new Gson();
 ////            String JSON = gson.toJson(this.cliente);

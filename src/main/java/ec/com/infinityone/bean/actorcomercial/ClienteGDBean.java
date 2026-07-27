@@ -55,714 +55,723 @@ import org.primefaces.shaded.json.JSONObject;
 @ViewScoped
 public class ClienteGDBean extends ReusableBean implements Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	@Inject
-	private ClienteServicio clienteServicio;
-	@Inject
-	private ComercializadoraServicio comercializadoraServicio;
-	@Inject
-	private DireccioninenServicio direccioninenServicio;
-	@Inject
-	private FormapagoServicio formapagoServicio;
-	@Inject
-	private BancoServicio bancoServicio;
-	@Inject
-	private TerminalService terminalServicio;
-	@Inject
-	private ListaprecioServicio listaPrecioServicio;
-	@Inject
-	private UsuarioServicio usuarioServicio;
-	
-	private ComercializadoraBean comercializadora;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+    @Inject
+    private ClienteServicio clienteServicio;
+    @Inject
+    private ComercializadoraServicio comercializadoraServicio;
+    @Inject
+    private DireccioninenServicio direccioninenServicio;
+    @Inject
+    private FormapagoServicio formapagoServicio;
+    @Inject
+    private BancoServicio bancoServicio;
+    @Inject
+    private TerminalService terminalServicio;
+    @Inject
+    private ListaprecioServicio listaPrecioServicio;
+    @Inject
+    private UsuarioServicio usuarioServicio;
 
-	private Cliente cliente;
+    private ComercializadoraBean comercializadora;
 
-	private ListaprecioPK listaprecioPK;
-	/*
+    private Cliente cliente;
+
+    private ListaprecioPK listaprecioPK;
+    /*
 	 * Objeto Direccion
-	 */
-	private Direccioninen direccioninen;
-	/*
+     */
+    private Direccioninen direccioninen;
+    /*
 	 * Variable que almacena varios clientes
-	 */
-	private List<Cliente> listaClientes;
+     */
+    private List<Cliente> listaClientes;
 //    /*
 //    Variable que almacena varias Comercializaros
 //     */
-	private List<ComercializadoraBean> listaComercializadora;
-	/*
+    private List<ComercializadoraBean> listaComercializadora;
+    /*
 	 * Variable que almacena varios Direccions
-	 */
-	private List<Direccioninen> listaDireccioninen;
-	/*
+     */
+    private List<Direccioninen> listaDireccioninen;
+    /*
 	 * Variable que almacena varios Formapagos
-	 */
-	private List<Formapago> listaFormapagos;
-	/*
+     */
+    private List<Formapago> listaFormapagos;
+    /*
 	 * Variable que almacena varios Terminales
-	 */
-	private List<Terminal> listaTerminales;
+     */
+    private List<Terminal> listaTerminales;
 
-	private List<Listaprecio> listaListaprecios;
+    private List<Listaprecio> listaListaprecios;
 
-	private List<ObjetoNivel1> listaTipoclientes;
-	/*
+    private List<ObjetoNivel1> listaTipoclientes;
+    /*
 	 * Variable que almacena los supervisors Zonales
-	 */
-	private List<Usuario> listaSupervisorZonal;
-	/*
+     */
+    private List<Usuario> listaSupervisorZonal;
+    /*
 	 * Objeto formapago
-	 */
-	private Formapago formapago;
-	/*
+     */
+    private Formapago formapago;
+    /*
 	 * Variable que almacena varios Bancos
-	 */
-	private List<Banco> listaBancos;
-	/*
+     */
+    private List<Banco> listaBancos;
+    /*
 	 * Objeto banco
-	 */
-	private Banco banco;
+     */
+    private Banco banco;
 
-	private Terminal terminal;
+    private Terminal terminal;
 
-	private Listaprecio listaprecio;
-	/*
+    private Listaprecio listaprecio;
+    /*
 	 * Variable para validar si es guardar o editar
-	 */
-	private boolean editarCliente;
-	/*
+     */
+    private boolean editarCliente;
+    /*
 	 * Variable que establece true or false para el estado del Banco
-	 */
-	private boolean estadoCliente;
-	private String esContribuyente;
-	private boolean controlaGarantia;
-	private boolean controlaProrroga;
-	private boolean aplicaSubsidio;
-	/*
+     */
+    private boolean estadoCliente;
+    private String esContribuyente;
+    private boolean controlaGarantia;
+    private boolean controlaProrroga;
+    private boolean aplicaSubsidio;
+    /*
 	 * Variable para almacenar el código de la comercializadora
-	 */
-	private String codComer;
+     */
+    private String codComer;
 
-	/*
+    /*
 	 * Objeto Usuario
-	 */
-	private Usuario supervisorZonal;
-	
-	/**
-	 * Constructor por defecto
-	 */
-	public ClienteGDBean() {
-	}
+     */
+    private Usuario supervisorZonal;
 
-	@PostConstruct
-	/**
-	 * Funcion para inicializar variables
-	 */
-	public void init() {
-		// x = (Usuario)
-		// FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
-		// direccion =
-		// "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.cliente";
-		direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.cliente";
-		editarCliente = false;
-		esContribuyente = "";
-		codComer = "";
-		controlaGarantia = false;
-		aplicaSubsidio = false;
-		soloLectura = false;
-		cliente = new Cliente();
-		cliente.setClientePK(new ClientePK());
-		formapago = new Formapago();
-		banco = new Banco();
-		terminal = new Terminal();
-		listaprecio = new Listaprecio();
-		direccioninen = new Direccioninen();
-		listaprecioPK = new ListaprecioPK();
-		supervisorZonal = new Usuario();
-		// obtenerClientes();
-		obtenerListaComercializadora();
-		obtenerDireccioninen();
-		obtenerFormapago();
-		obtenerBanco();
-		obtenerTerminal();
-		obtenerTipocliente();
-                obtenerSupervisorZonal();
-		habilitarBusqueda();
-		// obtenerPrecio();
-		// getURL();
-		
-	}
+    /**
+     * Constructor por defecto
+     */
+    public ClienteGDBean() {
+    }
 
-	public void obtenerClientes() {
-		listaClientes = new ArrayList<>();
-		listaClientes = this.clienteServicio.obtenerClientesPorComercializadora(comercializadora.getCodigo());
-	}
+    @PostConstruct
+    /**
+     * Funcion para inicializar variables
+     */
+    public void init() {
+        // x = (Usuario)
+        // FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
+        // direccion =
+        // "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.cliente";
+        direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.cliente";
+        editarCliente = false;
+        esContribuyente = "";
+        codComer = "";
+        controlaGarantia = false;
+        aplicaSubsidio = false;
+        soloLectura = false;
+        cliente = new Cliente();
+        cliente.setClientePK(new ClientePK());
+        formapago = new Formapago();
+        banco = new Banco();
+        terminal = new Terminal();
+        listaprecio = new Listaprecio();
+        direccioninen = new Direccioninen();
+        listaprecioPK = new ListaprecioPK();
+        supervisorZonal = new Usuario();
+        // obtenerClientes();
+        obtenerListaComercializadora();
+        obtenerDireccioninen();
+        obtenerFormapago();
+        obtenerBanco();
+        obtenerTerminal();
+        obtenerTipocliente();
+        habilitarBusqueda();
+        obtenerSupervisorZonal();
+        // obtenerPrecio();
+        // getURL();
 
-	public void obtenerListaComercializadora() {
-		listaComercializadora = new ArrayList<>();
-		listaComercializadora = this.comercializadoraServicio.obtenerComercializadorasActivas();
-		// comercializadora = this.comercializadoraServicio.getComercializadora();
-	}
+    }
 
-	public void obtenerDireccioninen() {
-		listaDireccioninen = new ArrayList<>();
-		listaDireccioninen = this.direccioninenServicio.obtenerDireccioninen();
-	}
+    public void obtenerClientes() {
+        listaClientes = new ArrayList<>();
+        listaClientes = this.clienteServicio.obtenerClientesPorComercializadora(comercializadora.getCodigo());
+    }
 
-	public void obtenerFormapago() {
-		listaFormapagos = new ArrayList<>();
-		listaFormapagos = this.formapagoServicio.obtenerFormapago();
-	}
+    public void obtenerListaComercializadora() {
+        listaComercializadora = new ArrayList<>();
+        listaComercializadora = this.comercializadoraServicio.obtenerComercializadorasActivas();
+        // comercializadora = this.comercializadoraServicio.getComercializadora();
+    }
 
-	public void obtenerBanco() {
-		listaBancos = new ArrayList<>();
-		listaBancos = this.bancoServicio.obtenerBanco();
-	}
+    public void obtenerDireccioninen() {
+        listaDireccioninen = new ArrayList<>();
+        listaDireccioninen = this.direccioninenServicio.obtenerDireccioninen();
+    }
 
-	public void obtenerTerminal() {
-		listaTerminales = new ArrayList<>();
-		listaTerminales = this.terminalServicio.obtenerTerminal();
-	}
+    public void obtenerFormapago() {
+        listaFormapagos = new ArrayList<>();
+        listaFormapagos = this.formapagoServicio.obtenerFormapago();
+    }
 
-	public void obtenerPrecio() {
-		if (comercializadora != null) {
-			codComer = comercializadora.getCodigo();
-			listaListaprecios = new ArrayList<>();
-			listaListaprecios = this.listaPrecioServicio.obtenerListaprecioEstado(codComer, true);
-		}
-	}
+    public void obtenerBanco() {
+        listaBancos = new ArrayList<>();
+        listaBancos = this.bancoServicio.obtenerBanco();
+    }
 
-	public void obtenerSupervisorZonal() {
-                listaSupervisorZonal = new ArrayList<>();
-		listaSupervisorZonal = this.usuarioServicio.obtenerUsuarioPorComercializadora(codComer);
-	}
-	
-	public void seleccionarComercializadora() {
-		if (comercializadora != null) {
-			codComer = comercializadora.getCodigo();
-			cliente.getClientePK().setCodigocomercializadora(codComer);
-			listaListaprecios = new ArrayList<>();
-			listaListaprecios = this.listaPrecioServicio.getListaprecioPorComer(codComer);
-			habilitarBusqueda();
-			obtenerSupervisorZonal();
-		}
-	}
+    public void obtenerTerminal() {
+        listaTerminales = new ArrayList<>();
+        listaTerminales = this.terminalServicio.obtenerTerminal();
+    }
 
-	public void seleccionarComerParaBusqueda() {
-		if (comercializadora != null) {
-			listaClientes = new ArrayList<>();
-			listaClientes = this.clienteServicio.obtenerClientesPorComercializadora(comercializadora.getCodigo());
-		}
-	}
+    public void obtenerPrecio() {
+        if (comercializadora != null) {
+            codComer = comercializadora.getCodigo();
+            listaListaprecios = new ArrayList<>();
+            listaListaprecios = this.listaPrecioServicio.obtenerListaprecioEstado(codComer, true);
+        }
+    }
 
-	public void obtenerTipocliente() {
-		try {
-			String token = "Infinity eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwYXVsIiwiaXNzIjoiZWMuY29tLmluZmluaXR5b25lIiwiaWF0IjoxNjI1ODUyOTIyLCJleHAiOjE2MjU4NTY1MjJ9.zlpXPvsZeHrmnPdQ_cINdd6SBPoNqF0Sq6Wuin3P6HdriDHoPRkhCYcJNYlfnAb8yUTrCPc9OHFIVjF35wTcaw";
-			// byte[] bytes = token.getBytes();
-			// String basicAuth = "Basic : " + new
-			// String(Base64.getEncoder().encode(bytes));
-			url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.tipocliente");
-			System.out.println("FT:: obtenerTipocliente() URL del servicio: " + url.getPath());
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			connection.setDoInput(true);
-			connection.setRequestMethod("GET");
-			connection.setRequestProperty("Accept", "application/json");
-			// connection.setRequestProperty("Authorization", token);
-			// connection.setRequestProperty("Access-Control-Allow-Headers",
-			// "Authorization");
-			// connection.setRequestProperty("Accept-Charset", "utf-8");
-			// connection.setRequestProperty("Accept-Encoding", "gzip");
-			// connection.setRequestProperty("Accept-Language", "en-US");
-			// connection.setRequestProperty("Access-Control-Allow-Origin", "*");
+    public void obtenerSupervisorZonal() {
+        listaSupervisorZonal = new ArrayList<>();
+        //listaSupervisorZonal = this.usuarioServicio.obtenerUsuarioPorComercializadora(codComer);
+        if (null == this.comercializadora) {
+            listaSupervisorZonal = this.usuarioServicio.obtenerUsuarioPorComercializadora(codComer);
+        } else {
+            listaSupervisorZonal = this.usuarioServicio.obtenerUsuarioPorComercializadora(this.comercializadora.getCodigo().trim());
+        }
 
-			listaTipoclientes = new ArrayList<>();
-			objeto = new ObjetoNivel1();
-			InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+    }
 
-			BufferedReader br = new BufferedReader(reader);
-			String tmp = null;
-			String respuesta = "";
-			
-			while ((tmp = br.readLine()) != null) {
-				System.out.println("FT:: obtenerTipocliente() dentro del while SI HAY DATOS " + url.getPath());
-				respuesta += tmp;
-			}
-			
-			JSONObject objetoJson = new JSONObject(respuesta);
-			JSONArray retorno = objetoJson.getJSONArray("retorno");
-			System.out.println("FT:: obtenerTipocliente() json retorno: " + retorno.length());
-			
-			for (int indice = 0; indice < retorno.length(); indice++) {
-				JSONObject areaM = retorno.getJSONObject(indice);
-				objeto.setCodigo(areaM.getString("codigo"));
-				objeto.setNombre(areaM.getString("nombre"));
-				
-				if (areaM.getBoolean("activo") == true) {
-					objeto.setActivo("S");
-				} else {
-					objeto.setActivo("N");
-				}
-				
-				objeto.setUsuario(areaM.getString("usuarioactual"));
-				listaTipoclientes.add(objeto);
-				objeto = new ObjetoNivel1();
-			}
+    public void seleccionarComercializadora() {
+        if (comercializadora != null) {
+            codComer = comercializadora.getCodigo();
+            cliente.getClientePK().setCodigocomercializadora(codComer);
+            listaListaprecios = new ArrayList<>();
+            listaListaprecios = this.listaPrecioServicio.getListaprecioPorComer(codComer);
+            habilitarBusqueda();
+            obtenerSupervisorZonal();
+        }
+    }
 
-			if (connection.getResponseCode() != 200) {
-				System.out.println(connection.getResponseCode());
-				System.out.println(connection.getResponseMessage());
-			}
-		} catch (IOException ioex) {
-			System.out.println("FT:: Error al obtener tipos de clientes: " + ioex.getMessage());
-			ioex.printStackTrace();
-		}
-	}
+    public void seleccionarComerParaBusqueda() {
+        if (comercializadora != null) {
+            listaClientes = new ArrayList<>();
+            listaClientes = this.clienteServicio.obtenerClientesPorComercializadora(comercializadora.getCodigo());
+        }
+    }
 
-	public void save() {
-		if (editarCliente) {
-			editItems();
-			seleccionarComerParaBusqueda();
-		} else {
-			addItems();
-			seleccionarComerParaBusqueda();
-		}
-	}
+    public void obtenerTipocliente() {
+        try {
+            String token = "Infinity eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwYXVsIiwiaXNzIjoiZWMuY29tLmluZmluaXR5b25lIiwiaWF0IjoxNjI1ODUyOTIyLCJleHAiOjE2MjU4NTY1MjJ9.zlpXPvsZeHrmnPdQ_cINdd6SBPoNqF0Sq6Wuin3P6HdriDHoPRkhCYcJNYlfnAb8yUTrCPc9OHFIVjF35wTcaw";
+            // byte[] bytes = token.getBytes();
+            // String basicAuth = "Basic : " + new
+            // String(Base64.getEncoder().encode(bytes));
+            url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.tipocliente");
+            System.out.println("FT:: obtenerTipocliente() URL del servicio: " + url.getPath());
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+            // connection.setRequestProperty("Authorization", token);
+            // connection.setRequestProperty("Access-Control-Allow-Headers",
+            // "Authorization");
+            // connection.setRequestProperty("Accept-Charset", "utf-8");
+            // connection.setRequestProperty("Accept-Encoding", "gzip");
+            // connection.setRequestProperty("Accept-Language", "en-US");
+            // connection.setRequestProperty("Access-Control-Allow-Origin", "*");
 
-	public void setearCampos() {
-		this.cliente.setCodigoformapago(formapago);
-		this.cliente.setCodigobancodebito(banco.getCodigo());
-		this.cliente.setCodigoterminaldefecto(terminal);
-		this.cliente.setCodigolistaprecio(listaprecio.getListaprecioPK().getCodigo());
-		this.cliente.setCodigodireccioninen(direccioninen.getCodigo());
-		this.cliente.setUsuarioactual(dataUser.getUser().getNombrever());
-		this.cliente.setCodigosupervisorzonal(supervisorZonal != null ? supervisorZonal.getCodigo():null);
- 
-	}
+            listaTipoclientes = new ArrayList<>();
+            objeto = new ObjetoNivel1();
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
-	public void addItems() {
-		try {
-			setearCampos();
-			String respuesta;
-			url = new URL(direccion);
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			connection.setConnectTimeout(1000 * 60);
-			connection.setReadTimeout(1000 * 60);
-			connection.setDoOutput(true);
-			connection.setRequestMethod("POST");
-			connection.setRequestProperty("Content-type", "application/json");
-			// connection.setFixedLengthStreamingMode(1000000000);
+            BufferedReader br = new BufferedReader(reader);
+            String tmp = null;
+            String respuesta = "";
 
-			OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-			ObjectMapper mapper = new ObjectMapper();
-			String jsonStr = mapper.writeValueAsString(this.cliente);
-			Gson gson = new Gson();
-			String JSON = gson.toJson(this.cliente);
-			
-			DataOutputStream out = new DataOutputStream(connection.getOutputStream());
-			out.write(jsonStr.getBytes());
-			out.flush();
-			out.close();
-			
-			if (connection.getResponseCode() == 200) {
-				PrimeFaces.current().executeScript("PF('nuevo').hide()");
-				this.dialogo(FacesMessage.SEVERITY_INFO, "CLIENTE REGISTRADO EXITOSAMENTE");
-			} else {
-				this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
-			}
+            while ((tmp = br.readLine()) != null) {
+                System.out.println("FT:: obtenerTipocliente() dentro del while SI HAY DATOS " + url.getPath());
+                respuesta += tmp;
+            }
 
-			System.out.println(connection.getResponseCode());
-			System.out.println(connection.getResponseMessage());
-		} catch (IOException ioex) {
-			ioex.printStackTrace();
-		}
-	}
+            JSONObject objetoJson = new JSONObject(respuesta);
+            JSONArray retorno = objetoJson.getJSONArray("retorno");
+            System.out.println("FT:: obtenerTipocliente() json retorno: " + retorno.length());
 
-	public void editItems() {
-		try {
-			setearCampos();
-			String respuesta;
-			url = new URL(direccion + "/porId");
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			connection.setConnectTimeout(1000 * 60);
-			connection.setReadTimeout(1000 * 60);
-			connection.setDoOutput(true);
-			connection.setRequestMethod("PUT");
-			connection.setRequestProperty("Content-type", "application/json");
-			// connection.setFixedLengthStreamingMode(1000000000);
+            for (int indice = 0; indice < retorno.length(); indice++) {
+                JSONObject areaM = retorno.getJSONObject(indice);
+                objeto.setCodigo(areaM.getString("codigo"));
+                objeto.setNombre(areaM.getString("nombre"));
 
-			OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-			ObjectMapper mapper = new ObjectMapper();
-			String jsonStr = mapper.writeValueAsString(this.cliente);
-			Gson gson = new Gson();
-			String JSON = gson.toJson(this.cliente);
-			
-			DataOutputStream out = new DataOutputStream(connection.getOutputStream());
-			out.write(jsonStr.getBytes());
-			out.flush();
-			out.close();
-			
-			if (connection.getResponseCode() == 200) {
-				PrimeFaces.current().executeScript("PF('nuevo').hide()");
-				this.dialogo(FacesMessage.SEVERITY_INFO, "CLIENTE ACUTALIZADO EXITOSAMENTE");
-			} else {
-				this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ACTUALIZAR");
-			}
-			
-			System.out.println(connection.getResponseCode());
-			System.out.println(connection.getResponseMessage());
-		} catch (IOException ioex) {
-			ioex.printStackTrace();
-		}
-	}
+                if (areaM.getBoolean("activo") == true) {
+                    objeto.setActivo("S");
+                } else {
+                    objeto.setActivo("N");
+                }
 
-	public void deleteItems() {
-		try {
-			String respuesta;
-			url = new URL(direccion + "/porId?codigo=" + cliente.getClientePK().getCodigo());
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			connection.setDoOutput(true);
-			connection.setRequestMethod("DELETE");
-			connection.setRequestProperty("Content-type", "application/json");
-			connection.connect();
+                objeto.setUsuario(areaM.getString("usuarioactual"));
+                listaTipoclientes.add(objeto);
+                objeto = new ObjetoNivel1();
+            }
 
-			if (connection.getResponseCode() == 200) {
-				PrimeFaces.current().executeScript("PF('nuevo').hide()");
-				this.dialogo(FacesMessage.SEVERITY_INFO, "CLIENTE ELIMINADO EXITOSAMENTE");
-				this.comercializadoraServicio.obtenerComercializadoras();
-				obtenerClientes();
-			} else {
-				this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ELIMINAR");
-			}
-			
-			System.out.println(connection.getResponseCode());
-			System.out.println(connection.getResponseMessage());
-		} catch (IOException ioex) {
-			ioex.printStackTrace();
-		}
-	}
+            if (connection.getResponseCode() != 200) {
+                System.out.println(connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
+            }
+        } catch (IOException ioex) {
+            System.out.println("FT:: Error al obtener tipos de clientes: " + ioex.getMessage());
+            ioex.printStackTrace();
+        }
+    }
 
-	public void habilitarBusqueda() {
-		if (dataUser.getUser() != null) {
-			if (dataUser.getUser().getNiveloperacion().equals("cero")) {
-				habilitarComer = true;
-			} else if (dataUser.getUser().getNiveloperacion().equals("adco")) {
-				habilitarComer = false;
-				// editarCliente = false;
-				for (int i = 0; i < listaComercializadora.size(); i++) {
-					if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
-						this.comercializadora = listaComercializadora.get(i);
-						cliente.getClientePK().setCodigocomercializadora(listaComercializadora.get(i).getCodigo());
-						listaListaprecios = new ArrayList<>();
-						listaListaprecios = this.listaPrecioServicio.obtenerListaprecioEstado(cliente.getClientePK().getCodigocomercializadora(), true);
-					}
-				}
-			} else if (dataUser.getUser().getNiveloperacion().equals("usac")) {
-				habilitarComer = false;
-				for (int i = 0; i < listaComercializadora.size(); i++) {
-					if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
-						cliente.getClientePK().setCodigocomercializadora(listaComercializadora.get(i).getCodigo());
-						listaListaprecios = new ArrayList<>();
-						listaListaprecios = this.listaPrecioServicio.obtenerListaprecioEstado(cliente.getClientePK().getCodigocomercializadora(), true);
-					}
-				}
-			}
-		}
-	}
+    public void save() {
+        if (editarCliente) {
+            editItems();
+            seleccionarComerParaBusqueda();
+        } else {
+            addItems();
+            seleccionarComerParaBusqueda();
+        }
+    }
 
-	public void seleccionarComer() {
-		if (comercializadora != null) {
-			codComer = comercializadora.getCodigo();
-		}
-	}
+    public void setearCampos() {
+        this.cliente.setCodigoformapago(formapago);
+        this.cliente.setCodigobancodebito(banco.getCodigo());
+        this.cliente.setCodigoterminaldefecto(terminal);
+        this.cliente.setCodigolistaprecio(listaprecio.getListaprecioPK().getCodigo());
+        this.cliente.setCodigodireccioninen(direccioninen.getCodigo());
+        this.cliente.setUsuarioactual(dataUser.getUser().getNombrever());
+        this.cliente.setCodigosupervisorzonal(supervisorZonal != null ? supervisorZonal.getCodigo() : null);
 
-	public void nuevoCliente() {
-		estadoCliente = true;
-		editarCliente = false;
-		soloLectura = false;
-		cliente = new Cliente();
-		habilitarBusqueda();
-		
-		if (habilitarComer) {
-			comercializadora = new ComercializadoraBean();
-		}
-		
-		direccioninen = new Direccioninen();
-		cliente.setClavestc("");
-		cliente.setCodigostc("");
-		cliente.setEstado(true);
-		PrimeFaces.current().executeScript("PF('nuevo').show()");
-	}
+    }
 
-	public Cliente editarCliente(Cliente obj) {
-		listaListaprecios = new ArrayList<>();
-		listaListaprecios = this.listaPrecioServicio.obtenerListaprecioEstado(obj.getClientePK().getCodigocomercializadora(), true);
-		soloLectura = false;
-		editarCliente = true;
-		cliente = obj;
-		
-		habilitarBusqueda();
-		
-		if (cliente != null) {
-			estadoCliente = cliente.isEstado();
-			esContribuyente = cliente.getEscontribuyenteespacial();
-			controlaGarantia = cliente.getControlagarantia();
-			controlaProrroga = cliente.getControlaprorroga();
-			aplicaSubsidio = cliente.getAplicasubsidio2();
-			formapago = cliente.getCodigoformapago();
-			banco.setCodigo(cliente.getCodigobancodebito());
-			terminal = cliente.getCodigoterminaldefecto();
-                        supervisorZonal.setCodigo(cliente.getCodigosupervisorzonal().trim());
- //                       supervisorZonal.setCodigo(cliente.getCodigosupervisorzonal().trim());
+    public void addItems() {
+        try {
+            setearCampos();
+            String respuesta;
+            url = new URL(direccion);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setConnectTimeout(1000 * 60);
+            connection.setReadTimeout(1000 * 60);
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-type", "application/json");
+            // connection.setFixedLengthStreamingMode(1000000000);
+
+            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonStr = mapper.writeValueAsString(this.cliente);
+            Gson gson = new Gson();
+            String JSON = gson.toJson(this.cliente);
+
+            DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+            out.write(jsonStr.getBytes());
+            out.flush();
+            out.close();
+
+            if (connection.getResponseCode() == 200) {
+                PrimeFaces.current().executeScript("PF('nuevo').hide()");
+                this.dialogo(FacesMessage.SEVERITY_INFO, "CLIENTE REGISTRADO EXITOSAMENTE");
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
+            }
+
+            System.out.println(connection.getResponseCode());
+            System.out.println(connection.getResponseMessage());
+        } catch (IOException ioex) {
+            ioex.printStackTrace();
+        }
+    }
+
+    public void editItems() {
+        try {
+            setearCampos();
+            String respuesta;
+            url = new URL(direccion + "/porId");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setConnectTimeout(1000 * 60);
+            connection.setReadTimeout(1000 * 60);
+            connection.setDoOutput(true);
+            connection.setRequestMethod("PUT");
+            connection.setRequestProperty("Content-type", "application/json");
+            // connection.setFixedLengthStreamingMode(1000000000);
+
+            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonStr = mapper.writeValueAsString(this.cliente);
+            Gson gson = new Gson();
+            String JSON = gson.toJson(this.cliente);
+
+            DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+            out.write(jsonStr.getBytes());
+            out.flush();
+            out.close();
+
+            if (connection.getResponseCode() == 200) {
+                PrimeFaces.current().executeScript("PF('nuevo').hide()");
+                this.dialogo(FacesMessage.SEVERITY_INFO, "CLIENTE ACUTALIZADO EXITOSAMENTE");
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ACTUALIZAR");
+            }
+
+            System.out.println(connection.getResponseCode());
+            System.out.println(connection.getResponseMessage());
+        } catch (IOException ioex) {
+            ioex.printStackTrace();
+        }
+    }
+
+    public void deleteItems() {
+        try {
+            String respuesta;
+            url = new URL(direccion + "/porId?codigo=" + cliente.getClientePK().getCodigo());
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("DELETE");
+            connection.setRequestProperty("Content-type", "application/json");
+            connection.connect();
+
+            if (connection.getResponseCode() == 200) {
+                PrimeFaces.current().executeScript("PF('nuevo').hide()");
+                this.dialogo(FacesMessage.SEVERITY_INFO, "CLIENTE ELIMINADO EXITOSAMENTE");
+                this.comercializadoraServicio.obtenerComercializadoras();
+                obtenerClientes();
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL ELIMINAR");
+            }
+
+            System.out.println(connection.getResponseCode());
+            System.out.println(connection.getResponseMessage());
+        } catch (IOException ioex) {
+            ioex.printStackTrace();
+        }
+    }
+
+    public void habilitarBusqueda() {
+        if (dataUser.getUser() != null) {
+            if (dataUser.getUser().getNiveloperacion().equals("cero")) {
+                habilitarComer = true;
+            } else if (dataUser.getUser().getNiveloperacion().equals("adco")) {
+                habilitarComer = false;
+                // editarCliente = false;
+                for (int i = 0; i < listaComercializadora.size(); i++) {
+                    if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
+                        this.comercializadora = listaComercializadora.get(i);
+                        cliente.getClientePK().setCodigocomercializadora(listaComercializadora.get(i).getCodigo());
+                        listaListaprecios = new ArrayList<>();
+                        listaListaprecios = this.listaPrecioServicio.obtenerListaprecioEstado(cliente.getClientePK().getCodigocomercializadora(), true);
+                    }
+                }
+            } else if (dataUser.getUser().getNiveloperacion().equals("usac")) {
+                habilitarComer = false;
+                for (int i = 0; i < listaComercializadora.size(); i++) {
+                    if (listaComercializadora.get(i).getCodigo().equals(dataUser.getUser().getCodigocomercializadora())) {
+                        cliente.getClientePK().setCodigocomercializadora(listaComercializadora.get(i).getCodigo());
+                        listaListaprecios = new ArrayList<>();
+                        listaListaprecios = this.listaPrecioServicio.obtenerListaprecioEstado(cliente.getClientePK().getCodigocomercializadora(), true);
+                    }
+                }
+            }
+        }
+    }
+
+    public void seleccionarComer() {
+        if (comercializadora != null) {
+            codComer = comercializadora.getCodigo();
+        }
+    }
+
+    public void nuevoCliente() {
+        estadoCliente = true;
+        editarCliente = false;
+        soloLectura = false;
+        cliente = new Cliente();
+        habilitarBusqueda();
+
+        if (habilitarComer) {
+            comercializadora = new ComercializadoraBean();
+        }
+
+        direccioninen = new Direccioninen();
+        cliente.setClavestc("");
+        cliente.setCodigostc("");
+        cliente.setEstado(true);
+        PrimeFaces.current().executeScript("PF('nuevo').show()");
+    }
+
+    public Cliente editarCliente(Cliente obj) {
+        listaListaprecios = new ArrayList<>();
+        listaListaprecios = this.listaPrecioServicio.obtenerListaprecioEstado(obj.getClientePK().getCodigocomercializadora(), true);
+        soloLectura = false;
+        editarCliente = true;
+        cliente = obj;
+
+        habilitarBusqueda();
+
+        if (cliente != null) {
+            estadoCliente = cliente.isEstado();
+            esContribuyente = cliente.getEscontribuyenteespacial();
+            controlaGarantia = cliente.getControlagarantia();
+            controlaProrroga = cliente.getControlaprorroga();
+            aplicaSubsidio = cliente.getAplicasubsidio2();
+            formapago = cliente.getCodigoformapago();
+            banco.setCodigo(cliente.getCodigobancodebito());
+            terminal = cliente.getCodigoterminaldefecto();
+
+
+//ftftf recordar            supervisorZonal.setCodigo(cliente.getCodigosupervisorzonal().trim());
+            //                       supervisorZonal.setCodigo(cliente.getCodigosupervisorzonal().trim());
 //        listaprecioPK.setCodigo(cliente.getCodigolistaprecio());
 //        listaprecio.setListaprecioPK(listaprecioPK);
-			
-			if (!listaDireccioninen.isEmpty()) {
-				for (int i = 0; i < listaDireccioninen.size(); i++) {
-					if (listaDireccioninen.get(i).getCodigo().equals(cliente.getCodigodireccioninen())) {
-						this.direccioninen = listaDireccioninen.get(i);
-						break;
-					}
-				}
-			}
-			
-			if (!listaListaprecios.isEmpty()) {
-				for (int i = 0; i < listaListaprecios.size(); i++) {
-					if (listaListaprecios.get(i).getListaprecioPK().getCodigo() == cliente.getCodigolistaprecio()) {
-						this.listaprecio = listaListaprecios.get(i);
-						break;
-					}
-				}
-			}
-                if (!listaSupervisorZonal.isEmpty()) {
-                for (int i = 0; i < listaSupervisorZonal.size(); i++) {
-                    if (listaSupervisorZonal.get(i).getCodigo().trim().equalsIgnoreCase(cliente.getCodigosupervisorzonal().trim())) {
-                        this.supervisorZonal = listaSupervisorZonal.get(i);
+
+            if (!listaDireccioninen.isEmpty()) {
+                for (int i = 0; i < listaDireccioninen.size(); i++) {
+                    if (listaDireccioninen.get(i).getCodigo().equals(cliente.getCodigodireccioninen())) {
+                        this.direccioninen = listaDireccioninen.get(i);
                         break;
                     }
                 }
             }
-		}
 
-		PrimeFaces.current().executeScript("PF('nuevo').show()");
-		return cliente;
-	}
-
-	public Cliente lecturaDatos(Cliente obj) {
-		listaListaprecios = new ArrayList<>();
-		listaListaprecios = this.listaPrecioServicio.getListaprecioPorComer(obj.getClientePK().getCodigocomercializadora());
-		soloLectura = true;
-		cliente = obj;
-		estadoCliente = cliente.isEstado();
-		esContribuyente = cliente.getEscontribuyenteespacial();
-		controlaGarantia = cliente.getControlagarantia();
-		controlaProrroga = cliente.getControlaprorroga();
-		aplicaSubsidio = cliente.getAplicasubsidio2();
-		formapago = cliente.getCodigoformapago();
-		banco.setCodigo(cliente.getCodigobancodebito());
-		terminal = cliente.getCodigoterminaldefecto();
-                supervisorZonal.setCodigo(cliente.getCodigosupervisorzonal().trim());
-//        listaprecioPK.setCodigo(cliente.getCodigolistaprecio());
-//        listaprecio.setListaprecioPK(listaprecioPK);
-		
-		for (int i = 0; i < listaDireccioninen.size(); i++) {
-			if (listaDireccioninen.get(i).getCodigo().equals(cliente.getCodigodireccioninen())) {
-				this.direccioninen = listaDireccioninen.get(i);
-			}
-		}
-		
-		for (int i = 0; i < listaListaprecios.size(); i++) {
-			if (listaListaprecios.get(i).getListaprecioPK().getCodigo() == cliente.getCodigolistaprecio()) {
-				this.listaprecio = listaListaprecios.get(i);
-			}
-		}
-                if (!listaSupervisorZonal.isEmpty()) {
-                for (int i = 0; i < listaSupervisorZonal.size(); i++) {
-                    if (listaSupervisorZonal.get(i).getCodigo().trim().equalsIgnoreCase(cliente.getCodigosupervisorzonal().trim())) {
-                        this.supervisorZonal = listaSupervisorZonal.get(i);
+            if (!listaListaprecios.isEmpty()) {
+                for (int i = 0; i < listaListaprecios.size(); i++) {
+                    if (listaListaprecios.get(i).getListaprecioPK().getCodigo() == cliente.getCodigolistaprecio()) {
+                        this.listaprecio = listaListaprecios.get(i);
                         break;
                     }
                 }
             }
-		
-		PrimeFaces.current().executeScript("PF('nuevo').show()");
-		
-		return cliente;
-	}
+            if (!listaSupervisorZonal.isEmpty()) {
+                for (int i = 0; i < listaSupervisorZonal.size(); i++) {
+                    if (listaSupervisorZonal.get(i).getCodigo().trim().equalsIgnoreCase(cliente.getCodigosupervisorzonal().trim())) {
+                        this.supervisorZonal = listaSupervisorZonal.get(i);
+                        System.out.println("FT::. REVISANDO EDITCLIENTE:. "+this.supervisorZonal.getCodigo()+"-"+this.supervisorZonal.getNombre());
+                        break;
+                    }
+                }
+            }
+        }
 
-	public void controlaGarantia() {
-		if (cliente.getControlagarantia() == true) {
-			this.dialogo(FacesMessage.SEVERITY_INFO, "Control de garantía acaba de ser encendido, verificar la \n"
-				+ "inicialización adecuada de información en el módulo TOTAL GARANTIZADO. Recordar que desde este momento la faturación será contolada por lo valores que se ingresen,\n"
-				+ "y se modifiquen en este módulo");
-		} else {
-			this.dialogo(FacesMessage.SEVERITY_INFO, "Control de garantía acaba de ser apagado, ningun valor de garntías, facturación o pagos serán controlados\n"
-					+ "para este cliente");
-		}
-	}
+        PrimeFaces.current().executeScript("PF('nuevo').show()");
+        return cliente;
+    }
 
-	public void controlaProrroga() {
-		if (cliente.getControlaprorroga() == true) {
-			this.dialogo(FacesMessage.SEVERITY_INFO, "Control de Facturas Prorrogadas acaba de ser encendido. \n"
-				+ "No se permitirá facturar y retirar producto en Petroecuador a Clientes con Facturas prorrogadas-vencidas-y-NO pagadas!\n"
-				+ "Considere este control con todos las Sucursales");
-		} else {
-			this.dialogo(FacesMessage.SEVERITY_INFO, "Control de Facturas Prorrogadas acaba de ser apagado para este cliente. \n"
-				+ "No se controlará las Facturas prorrogadas-vencidas-No pagadas");
-		}
-	}
+    public Cliente lecturaDatos(Cliente obj) {
+        listaListaprecios = new ArrayList<>();
+        listaListaprecios = this.listaPrecioServicio.getListaprecioPorComer(obj.getClientePK().getCodigocomercializadora());
+        soloLectura = true;
+        cliente = obj;
+        estadoCliente = cliente.isEstado();
+        esContribuyente = cliente.getEscontribuyenteespacial();
+        controlaGarantia = cliente.getControlagarantia();
+        controlaProrroga = cliente.getControlaprorroga();
+        aplicaSubsidio = cliente.getAplicasubsidio2();
+        formapago = cliente.getCodigoformapago();
+        banco.setCodigo(cliente.getCodigobancodebito());
+        terminal = cliente.getCodigoterminaldefecto();
+        supervisorZonal.setCodigo(cliente.getCodigosupervisorzonal().trim());
+//        listaprecioPK.setCodigo(cliente.getCodigolistaprecio());
+//        listaprecio.setListaprecioPK(listaprecioPK);
 
-	public Direccioninen getDireccioninen() {
-		return direccioninen;
-	}
+        for (int i = 0; i < listaDireccioninen.size(); i++) {
+            if (listaDireccioninen.get(i).getCodigo().equals(cliente.getCodigodireccioninen())) {
+                this.direccioninen = listaDireccioninen.get(i);
+            }
+        }
 
-	public void setDireccioninen(Direccioninen direccioninen) {
-		this.direccioninen = direccioninen;
-	}
+        for (int i = 0; i < listaListaprecios.size(); i++) {
+            if (listaListaprecios.get(i).getListaprecioPK().getCodigo() == cliente.getCodigolistaprecio()) {
+                this.listaprecio = listaListaprecios.get(i);
+            }
+        }
+        if (!listaSupervisorZonal.isEmpty()) {
+            for (int i = 0; i < listaSupervisorZonal.size(); i++) {
+                if (listaSupervisorZonal.get(i).getCodigo().trim().equalsIgnoreCase(cliente.getCodigosupervisorzonal().trim())) {
+                    this.supervisorZonal = listaSupervisorZonal.get(i);
+                    break;
+                }
+            }
+        }
 
-	public Listaprecio getListaprecio() {
-		return listaprecio;
-	}
+        PrimeFaces.current().executeScript("PF('nuevo').show()");
 
-	public void setListaprecio(Listaprecio listaprecio) {
-		this.listaprecio = listaprecio;
-	}
+        return cliente;
+    }
 
-	public Terminal getTerminal() {
-		return terminal;
-	}
+    public void controlaGarantia() {
+        if (cliente.getControlagarantia() == true) {
+            this.dialogo(FacesMessage.SEVERITY_INFO, "Control de garantía acaba de ser encendido, verificar la \n"
+                    + "inicialización adecuada de información en el módulo TOTAL GARANTIZADO. Recordar que desde este momento la faturación será contolada por lo valores que se ingresen,\n"
+                    + "y se modifiquen en este módulo");
+        } else {
+            this.dialogo(FacesMessage.SEVERITY_INFO, "Control de garantía acaba de ser apagado, ningun valor de garntías, facturación o pagos serán controlados\n"
+                    + "para este cliente");
+        }
+    }
 
-	public void setTerminal(Terminal terminal) {
-		this.terminal = terminal;
-	}
+    public void controlaProrroga() {
+        if (cliente.getControlaprorroga() == true) {
+            this.dialogo(FacesMessage.SEVERITY_INFO, "Control de Facturas Prorrogadas acaba de ser encendido. \n"
+                    + "No se permitirá facturar y retirar producto en Petroecuador a Clientes con Facturas prorrogadas-vencidas-y-NO pagadas!\n"
+                    + "Considere este control con todos las Sucursales");
+        } else {
+            this.dialogo(FacesMessage.SEVERITY_INFO, "Control de Facturas Prorrogadas acaba de ser apagado para este cliente. \n"
+                    + "No se controlará las Facturas prorrogadas-vencidas-No pagadas");
+        }
+    }
 
-	public Banco getBanco() {
-		return banco;
-	}
+    public Direccioninen getDireccioninen() {
+        return direccioninen;
+    }
 
-	public void setBanco(Banco banco) {
-		this.banco = banco;
-	}
+    public void setDireccioninen(Direccioninen direccioninen) {
+        this.direccioninen = direccioninen;
+    }
 
-	public Formapago getFormapago() {
-		return formapago;
-	}
+    public Listaprecio getListaprecio() {
+        return listaprecio;
+    }
 
-	public void setFormapago(Formapago formapago) {
-		this.formapago = formapago;
-	}
+    public void setListaprecio(Listaprecio listaprecio) {
+        this.listaprecio = listaprecio;
+    }
 
-	public List<Listaprecio> getListaListaprecios() {
-		return listaListaprecios;
-	}
+    public Terminal getTerminal() {
+        return terminal;
+    }
 
-	public void setListaListaprecios(List<Listaprecio> listaListaprecios) {
-		this.listaListaprecios = listaListaprecios;
-	}
+    public void setTerminal(Terminal terminal) {
+        this.terminal = terminal;
+    }
 
-	public List<Terminal> getListaTerminales() {
-		return listaTerminales;
-	}
+    public Banco getBanco() {
+        return banco;
+    }
 
-	public void setListaTerminales(List<Terminal> listaTerminales) {
-		this.listaTerminales = listaTerminales;
-	}
+    public void setBanco(Banco banco) {
+        this.banco = banco;
+    }
 
-	public List<Banco> getListaBancos() {
-		return listaBancos;
-	}
+    public Formapago getFormapago() {
+        return formapago;
+    }
 
-	public void setListaBancos(List<Banco> listaBancos) {
-		this.listaBancos = listaBancos;
-	}
+    public void setFormapago(Formapago formapago) {
+        this.formapago = formapago;
+    }
 
-	public List<Formapago> getListaFormapagos() {
-		return listaFormapagos;
-	}
+    public List<Listaprecio> getListaListaprecios() {
+        return listaListaprecios;
+    }
 
-	public void setListaFormapagos(List<Formapago> listaFormapagos) {
-		this.listaFormapagos = listaFormapagos;
-	}
+    public void setListaListaprecios(List<Listaprecio> listaListaprecios) {
+        this.listaListaprecios = listaListaprecios;
+    }
 
-	public List<Direccioninen> getListaDireccioninen() {
-		return listaDireccioninen;
-	}
+    public List<Terminal> getListaTerminales() {
+        return listaTerminales;
+    }
 
-	public void setListaDireccioninen(List<Direccioninen> listaDireccioninen) {
-		this.listaDireccioninen = listaDireccioninen;
-	}
+    public void setListaTerminales(List<Terminal> listaTerminales) {
+        this.listaTerminales = listaTerminales;
+    }
 
-	public List<ComercializadoraBean> getListaComercializadora() {
-		return listaComercializadora;
-	}
+    public List<Banco> getListaBancos() {
+        return listaBancos;
+    }
 
-	public void setListaComercializadora(List<ComercializadoraBean> listaComercializadora) {
-		this.listaComercializadora = listaComercializadora;
-	}
+    public void setListaBancos(List<Banco> listaBancos) {
+        this.listaBancos = listaBancos;
+    }
 
-	public List<Cliente> getListaClientes() {
-		return listaClientes;
-	}
+    public List<Formapago> getListaFormapagos() {
+        return listaFormapagos;
+    }
 
-	public void setListaClientes(List<Cliente> listaClientes) {
-		this.listaClientes = listaClientes;
-	}
+    public void setListaFormapagos(List<Formapago> listaFormapagos) {
+        this.listaFormapagos = listaFormapagos;
+    }
 
-	public boolean isEditarCliente() {
-		return editarCliente;
-	}
+    public List<Direccioninen> getListaDireccioninen() {
+        return listaDireccioninen;
+    }
 
-	public void setEditarCliente(boolean editarCliente) {
-		this.editarCliente = editarCliente;
-	}
+    public void setListaDireccioninen(List<Direccioninen> listaDireccioninen) {
+        this.listaDireccioninen = listaDireccioninen;
+    }
 
-	public boolean isEstadoCliente() {
-		return estadoCliente;
-	}
+    public List<ComercializadoraBean> getListaComercializadora() {
+        return listaComercializadora;
+    }
 
-	public void setEstadoCliente(boolean estadoCliente) {
-		this.estadoCliente = estadoCliente;
-	}
+    public void setListaComercializadora(List<ComercializadoraBean> listaComercializadora) {
+        this.listaComercializadora = listaComercializadora;
+    }
 
-	public Cliente getCliente() {
-		return cliente;
-	}
+    public List<Cliente> getListaClientes() {
+        return listaClientes;
+    }
 
-	public void setCliente(Cliente cliente) {
-		this.cliente = cliente;
-	}
+    public void setListaClientes(List<Cliente> listaClientes) {
+        this.listaClientes = listaClientes;
+    }
 
-	public ComercializadoraBean getComercializadora() {
-		return comercializadora;
-	}
+    public boolean isEditarCliente() {
+        return editarCliente;
+    }
 
-	public void setComercializadora(ComercializadoraBean comercializadora) {
-		this.comercializadora = comercializadora;
-	}
+    public void setEditarCliente(boolean editarCliente) {
+        this.editarCliente = editarCliente;
+    }
 
-	public List<ObjetoNivel1> getListaTipoclientes() {
-		return listaTipoclientes;
-	}
+    public boolean isEstadoCliente() {
+        return estadoCliente;
+    }
 
-	public void setListaTipoclientes(List<ObjetoNivel1> listaTipoclientes) {
-		this.listaTipoclientes = listaTipoclientes;
-	}
-	
-	public List<Usuario> getListaSupervisorZonal() {
-		return listaSupervisorZonal;
-	}
-	
-	public void setListaSupervisorZonal(List<Usuario> listaSupervisorZonal) {
-		this.listaSupervisorZonal = listaSupervisorZonal;
-	}
-	
-	public Usuario getSupervisorZonal() {
-		return supervisorZonal;
-	}
-	
-	public void setSupervisorZonal(Usuario supervisorZonal) {
-		this.supervisorZonal = supervisorZonal;
-	}
+    public void setEstadoCliente(boolean estadoCliente) {
+        this.estadoCliente = estadoCliente;
+    }
+
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
+
+    public ComercializadoraBean getComercializadora() {
+        return comercializadora;
+    }
+
+    public void setComercializadora(ComercializadoraBean comercializadora) {
+        this.comercializadora = comercializadora;
+    }
+
+    public List<ObjetoNivel1> getListaTipoclientes() {
+        return listaTipoclientes;
+    }
+
+    public void setListaTipoclientes(List<ObjetoNivel1> listaTipoclientes) {
+        this.listaTipoclientes = listaTipoclientes;
+    }
+
+    public List<Usuario> getListaSupervisorZonal() {
+        return listaSupervisorZonal;
+    }
+
+    public void setListaSupervisorZonal(List<Usuario> listaSupervisorZonal) {
+        this.listaSupervisorZonal = listaSupervisorZonal;
+    }
+
+    public Usuario getSupervisorZonal() {
+        return supervisorZonal;
+    }
+
+    public void setSupervisorZonal(Usuario supervisorZonal) {
+        this.supervisorZonal = supervisorZonal;
+    }
 }

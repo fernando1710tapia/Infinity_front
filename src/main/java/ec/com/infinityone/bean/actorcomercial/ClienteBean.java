@@ -183,8 +183,8 @@ public class ClienteBean extends ReusableBean implements Serializable {
         obtenerBanco();
         obtenerTerminal();
         obtenerTipocliente();
-        obtenerSupervisorZonal();
         habilitarBusqueda();
+        obtenerSupervisorZonal();
         //obtenerPrecio();
         //getURL();
 
@@ -208,7 +208,12 @@ public class ClienteBean extends ReusableBean implements Serializable {
 
         public void obtenerSupervisorZonal() {
         listaSupervisorZonal = new ArrayList<>();
+        //listaSupervisorZonal = this.usuarioServicio.obtenerUsuarioPorComercializadora(codComer);
+        if (null == this.comercializadora){
         listaSupervisorZonal = this.usuarioServicio.obtenerUsuarioPorComercializadora(codComer);
+        }else{
+        listaSupervisorZonal = this.usuarioServicio.obtenerUsuarioPorComercializadora(this.comercializadora.getCodigo().trim());
+        }
 	}
 
     
@@ -489,7 +494,7 @@ public class ClienteBean extends ReusableBean implements Serializable {
             aplicaSubsidio = cliente.getAplicasubsidio2();
             formapago = cliente.getCodigoformapago();
             banco.setCodigo(cliente.getCodigobancodebito());
-            supervisorZonal.setCodigo(cliente.getCodigosupervisorzonal().trim());
+//FTFT RECORDAR            supervisorZonal.setCodigo(cliente.getCodigosupervisorzonal().trim());
             terminal = cliente.getCodigoterminaldefecto();
 //        listaprecioPK.setCodigo(cliente.getCodigolistaprecio());
 //        listaprecio.setListaprecioPK(listaprecioPK);
@@ -510,10 +515,11 @@ public class ClienteBean extends ReusableBean implements Serializable {
                 }
             }
             
-            if (!listaSupervisorZonal.isEmpty()) {
+                if (!listaSupervisorZonal.isEmpty()) {
                 for (int i = 0; i < listaSupervisorZonal.size(); i++) {
                     if (listaSupervisorZonal.get(i).getCodigo().trim().equalsIgnoreCase(cliente.getCodigosupervisorzonal().trim())) {
-                        this.supervisorZonal = listaSupervisorZonal.get(i);
+                        this.supervisorZonal = listaSupervisorZonal.get(i); 
+                        System.out.println("FT::. REVISANDO EDITCLIENTE:. "+this.supervisorZonal.getCodigo()+"-"+this.supervisorZonal.getNombre());
                         break;
                     }
                 }
