@@ -331,7 +331,10 @@ public class AutorizacionGestionDirectaJefaturaFinancieraBean extends ReusableBe
             Formapago formapago3 = new Formapago();
             formapago3.setCodigo("03");
             this.cliente.setCodigoformapago(formapago3);
+            
+            
             if (editItems()) {
+            //if (Boolean.TRUE) {//
                 if (enviarEmail()) {
                     this.dialogo(FacesMessage.SEVERITY_INFO, "CLIENTE ACTUALIZADO EXITOSAMENTE Y EMAIL ENVIADO");
                 }
@@ -393,7 +396,8 @@ public class AutorizacionGestionDirectaJefaturaFinancieraBean extends ReusableBe
         Date fechaVencimientoContrato = cliente.getFehavencimientocontrato();
         String observacionGD = cliente.getObservaciongd();
         String destinatario = obtenerDestinatarioTerminal(this.cliente);
-        return EnviarMail.sendEmailSincrono(codigoNombreCliente, fechaVencimientoContrato, observacionGD, dataUser.getUser().getNombrever(), destinatario); //generateAndSendEmailSincrono();
+        boolean NOENVIARCORREOaPE = true;
+        return EnviarMail.sendEmailSincrono(codigoNombreCliente, fechaVencimientoContrato, observacionGD, dataUser.getUser().getNombrever(), destinatario,NOENVIARCORREOaPE); //generateAndSendEmailSincrono();
     }
 
     public Boolean esMenorFechaHoy(Date fecha) throws Exception {

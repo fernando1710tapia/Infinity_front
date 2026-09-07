@@ -118,6 +118,16 @@ public class Comercializadora implements Serializable {
     private List<Numeracion> numeracionList;
    
     private List<Notapedido> notapedidoList;
+    
+    // campos para nueva comercializadora privada
+    private boolean generasolicitud;
+    private String codigocomercializadora1;
+
+    private String prefijonpcom1;
+
+    private String establecimientofaccom1;
+
+    private String puntoventafaccom1;
 
     public Comercializadora() {
     }
@@ -489,5 +499,46 @@ public class Comercializadora implements Serializable {
     public void setTipoemision(Character tipoemision) {
         this.tipoemision = tipoemision;
     }
+
+    public boolean isGenerasolicitud() {
+        return generasolicitud;
+    }
+
+    public void setGenerasolicitud(boolean generasolicitud) {
+        this.generasolicitud = generasolicitud;
+    }
+
+    public String getCodigocomercializadora1() {
+        return codigocomercializadora1;
+    }
+
+    public void setCodigocomercializadora1(String codigocomercializadora1) {
+        this.codigocomercializadora1 = codigocomercializadora1;
+    }
+
+    public String getPrefijonpcom1() {
+        return prefijonpcom1;
+    }
+
+    public void setPrefijonpcom1(String prefijonpcom1) {
+        this.prefijonpcom1 = prefijonpcom1;
+    }
+
+    public String getEstablecimientofaccom1() {
+        return establecimientofaccom1;
+    }
+
+    public void setEstablecimientofaccom1(String establecimientofaccom1) {
+        this.establecimientofaccom1 = establecimientofaccom1;
+    }
+
+    public String getPuntoventafaccom1() {
+        return puntoventafaccom1;
+    }
+
+    public void setPuntoventafaccom1(String puntoventafaccom1) {
+        this.puntoventafaccom1 = puntoventafaccom1;
+    }
+    
     
 }

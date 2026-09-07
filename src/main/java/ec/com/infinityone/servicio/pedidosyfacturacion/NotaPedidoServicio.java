@@ -11,6 +11,13 @@ import ec.com.infinityone.modelo.Banco;
 import ec.com.infinityone.modelo.Cliente;
 import ec.com.infinityone.modelo.ClientePK;
 import ec.com.infinityone.modelo.Comercializadora;
+import ec.com.infinityone.modelo.Detallefactura;
+import ec.com.infinityone.modelo.DetallefacturaPK;
+import ec.com.infinityone.modelo.Detallenotapedido;
+import ec.com.infinityone.modelo.EnvioFactura;
+import ec.com.infinityone.modelo.EnvioPedido;
+import ec.com.infinityone.modelo.Factura;
+import ec.com.infinityone.modelo.FacturaPK;
 import ec.com.infinityone.modelo.Formapago;
 import ec.com.infinityone.modelo.Notapedido;
 import ec.com.infinityone.modelo.NotapedidoPK;
@@ -23,7 +30,9 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import org.primefaces.shaded.json.JSONArray;
@@ -55,6 +64,19 @@ public class NotaPedidoServicio {
     private Terminal terminalT;
 
     private Banco banco;
+    
+    private ArrayList listenvNP;
+    private ArrayList listNP;
+    private ArrayList listDetNP; 
+    
+    private JSONObject NPJson;
+    private JSONObject DetNPJson; 
+    private JSONObject envPedidoJson; 
+  
+//    Notapedido np; 
+  //  NotapedidoPK npPK; 
+    Detallenotapedido detNP; 
+    Detallenotapedido detNPPK; 
 
     public Notapedido obtenerNotaPedidos(String codAbas, String codComer, String numero) throws ParseException {
         try {
@@ -237,6 +259,57 @@ public class NotaPedidoServicio {
             return null;
         }
         return np;
+    }
+    
+        public JSONArray obtenerNotaPedidosReporte(Date fechaI, Date fechaf, String codComer, String codAbas) throws ParseException {
+        
+            JSONArray retorno = null;
+            try {
+            
+            DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
+            String fechaS = date.format(fechaI);
+            String fechaF = date.format(fechaf);
+            
+            //SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'11:00:00'Z'");
+            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.notapedido/reportepedidoscomer?";
+
+            URL url = new URL(direcc + "codigoabastecedora=" + codAbas + "&codigocomercializadora=" + codComer 
+                    + "&fechaI=" + fechaS + "&fechaF=" + fechaF);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+
+            listenvNP = new ArrayList<>();
+            listNP = new ArrayList();
+            listDetNP = new ArrayList<>();
+ 
+            EnvioPedido envNP = new EnvioPedido();
+           
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+
+            BufferedReader br = new BufferedReader(reader);
+            String tmp = null;
+            String respuesta = "";
+            while ((tmp = br.readLine()) != null) {
+                respuesta += tmp;
+            }
+            JSONObject objetoJson = new JSONObject(respuesta);
+            retorno = objetoJson.getJSONArray("retorno");
+ 
+            if (connection.getResponseCode() != 200) {
+                System.out.println(connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
+                return null;
+            }
+
+        } catch (IOException e) {
+            System.out.println("FT:: ERROR EN obtenerNotaPedidos " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+//        return listNP;
+        return retorno;
     }
 
 }

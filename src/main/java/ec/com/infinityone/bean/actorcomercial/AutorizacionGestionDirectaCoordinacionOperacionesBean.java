@@ -334,7 +334,7 @@ public class AutorizacionGestionDirectaCoordinacionOperacionesBean extends Reusa
                 this.cliente.setCodigoformapago(formapago3);
  
                if (editItems()) {  
-               //    if (Boolean.TRUE) {//
+             //      if (Boolean.TRUE) {//
                     // Ejecutamos el envío de email de forma segura
                     boolean emailEnviado = enviarEmail();
 
@@ -418,8 +418,9 @@ public class AutorizacionGestionDirectaCoordinacionOperacionesBean extends Reusa
         String observacionGD = cliente.getObservaciongd();
 
        String destinatario = obtenerDestinatarioTerminal(this.cliente);
+       boolean NOENVIARCORREOaPE = true;
 
-        return EnviarMail.sendEmailSincrono(codigoNombreCliente, fechaVencimientoContrato, observacionGD, dataUser.getUser().getNombrever(),destinatario); //generateAndSendEmailSincrono();
+        return EnviarMail.sendEmailSincrono(codigoNombreCliente, fechaVencimientoContrato, observacionGD, dataUser.getUser().getNombrever(),destinatario,NOENVIARCORREOaPE); //generateAndSendEmailSincrono();
     }
 
     public Boolean esMenorFechaHoy(Date fecha) throws Exception {

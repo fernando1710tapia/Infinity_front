@@ -323,7 +323,10 @@ public class AutorizacionGestionDirectaPresidenciaEjecutivaBean extends Reusable
             Formapago formapago3 = new Formapago();
             formapago3.setCodigo("03");
             this.cliente.setCodigoformapago(formapago3);
+            
             if (editItems()) {
+                
+           // if (Boolean.TRUE) {//    
                 if (enviarEmail()) {
                     this.dialogo(FacesMessage.SEVERITY_INFO, "CLIENTE ACTUALIZADO EXITOSAMENTE Y EMAIL ENVIADO");
                 }
@@ -388,6 +391,8 @@ public class AutorizacionGestionDirectaPresidenciaEjecutivaBean extends Reusable
         Date fechaVencimientoContrato = cliente.getFehavencimientocontrato();
         String observacionGD = cliente.getObservaciongd();
         String destinatario = obtenerDestinatarioTerminal(this.cliente);
+        
+        // 2026-09-02 SE DEJA EL METODO ORIGINAL DE CORREO, ENVIANDO A TODOS LOS CORREOS, INCLUIDO LA P.E.
         return EnviarMail.sendEmailSincrono(codigoNombreCliente, fechaVencimientoContrato, observacionGD, dataUser.getUser().getNombrever(), destinatario); //generateAndSendEmailSincrono();
     }
 

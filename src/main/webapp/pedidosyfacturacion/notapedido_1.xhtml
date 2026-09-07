@@ -5,10 +5,10 @@
                 xmlns:p="http://primefaces.org/ui"
                 template="/WEB-INF/template.xhtml">
 
-    <ui:define name="title">Nota Pedido</ui:define>
+    <ui:define name="title">PEDIDO HACIA ABASTEC</ui:define>
 
     <ui:define name="viewname">
-        <li>Nota Pedido</li>        
+        <li>PEDIDO HACIA ABASTEC</li>        
     </ui:define>
 
     <ui:define name="content">
@@ -393,16 +393,17 @@
                     </div> 
                     <div class="p-field p-col-12 p-md-2">
                         <span class="ui-float-label">
-                            <p:inputText id="sI" value="#{notapedidoBean1.detNP.selloinicial}" maxlength="50" required="true" requiredMessage="Ingrese el sello incial">
+                            <p:inputText id="sI" value="#{notapedidoBean1.detNP.selloinicial}" maxlength="50">
                                 <p:ajax event="change" /> 
                             </p:inputText>
                             <p:outputLabel for="sI">Sello Inicial</p:outputLabel>
                         </span>
                     </div>
+                    <!-- required="true" requiredMessage="Ingrese el sello final" -->
                     <div class="p-field p-col-12 p-md-2">
                         <span class="ui-float-label">
-                            <p:inputText id="sF" value="#{notapedidoBean1.detNP.sellofinal}" maxlength="50" required="true" requiredMessage="Ingrese el sello final">
-                                <p:ajax event="change" listener="#{notapedidoBean1.calcularCantidadSellos(notapedidoBean1)}" update="formNuevo cantidadSellos" />
+                            <p:inputText id="sF" value="#{notapedidoBean1.detNP.sellofinal}" maxlength="50" >
+                            <p:ajax event="change" listener="#{notapedidoBean1.calcularCantidadSellos(notapedidoBean1)}" update="formNuevo cantidadSellos" /> 
                             </p:inputText>
                             <p:outputLabel for="sF">Sello Final</p:outputLabel>
                         </span>

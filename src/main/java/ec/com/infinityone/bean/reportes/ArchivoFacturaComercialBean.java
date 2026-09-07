@@ -124,6 +124,11 @@ public class ArchivoFacturaComercialBean extends ReusableBean implements Seriali
      */
     private List<FacturaComercialDto> listFacturaComercialDto;
 
+    /*
+    Variable para guardar una listda de Factura y Detalle Factura
+     */
+    private List<FacturaComercialDto> listFacturaComercialDtoAbastec;
+
     /**
      * Constructor por defecto
      */
@@ -170,6 +175,7 @@ public class ArchivoFacturaComercialBean extends ReusableBean implements Seriali
 
     public void generarArchivo() throws ParseException, IOException, Throwable {
         listFacturaComercialDto = new ArrayList<>();
+        listFacturaComercialDtoAbastec = new ArrayList<>();
         /*fechas para comparar entre las dos y establecer un rango de 30 dias*/
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
         String dateI = sdf.format(fechaI);
@@ -185,8 +191,61 @@ public class ArchivoFacturaComercialBean extends ReusableBean implements Seriali
             this.dialogo(FacesMessage.SEVERITY_ERROR, "LA FECHA DE FIN NO PUEDE SER MAYOR A 30 DÍAS A LA FECHA DE INICIO");
         } else {
             listFacturaComercialDto = facturaComercialServicio.obtenerFacturas(fechaI, fechaf, codComer);
-            if (!listFacturaComercialDto.isEmpty()) {
-                crearArchivo(dateI, dateF, listFacturaComercialDto);
+            // FILTRADO DE FACTURAS SOLO ABASTEC
+
+            for (FacturaComercialDto facturaComercialDto : listFacturaComercialDto) {
+                System.out.println("FT: VERIFICAR FACTURAS PARA PETROECUADOR:. " + 
+                facturaComercialDto.getFacturaComercialPKDto().getNumeroOrden() );
+                if (("15".equalsIgnoreCase(facturaComercialDto.getFacturaComercialPKDto().getNumeroOrden().substring(0, 2)))
+                        ||
+                    ("80".equalsIgnoreCase(facturaComercialDto.getFacturaComercialPKDto().getNumeroOrden().substring(0, 2)))) {
+                    listFacturaComercialDtoAbastec.add(facturaComercialDto);
+                }
+
+            }
+            //
+
+            if (!listFacturaComercialDtoAbastec.isEmpty()) {
+                crearArchivo(dateI, dateF, listFacturaComercialDtoAbastec);
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_INFO, "NO SE ENCONTRARON DOCUMENTOS");
+            }
+
+        }
+    }
+
+    public void generarArchivoAbastec() throws ParseException, IOException, Throwable {
+        listFacturaComercialDto = new ArrayList<>();
+        listFacturaComercialDtoAbastec = new ArrayList<>();
+        /*fechas para comparar entre las dos y establecer un rango de 30 dias*/
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
+        String dateI = sdf.format(fechaI);
+        String dateF = sdf.format(fechaf);
+
+        Date firstDate = sdf.parse(dateI);
+        Date secondDate = sdf.parse(dateF);
+
+        long diff = secondDate.getTime() - firstDate.getTime();
+        TimeUnit time = TimeUnit.DAYS;
+        long diffrence = time.convert(diff, TimeUnit.MILLISECONDS);
+        if (diffrence > 30) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "LA FECHA DE FIN NO PUEDE SER MAYOR A 30 DÍAS A LA FECHA DE INICIO");
+        } else {
+            listFacturaComercialDto = facturaComercialServicio.obtenerFacturas(fechaI, fechaf, codComer);
+
+            // FILTRADO DE FACTURAS SOLO ABASTEC
+            for (FacturaComercialDto facturaComercialDto : listFacturaComercialDto) {
+                System.out.println("FT: VERIFICAR FACTURAS PARA ABASTEC:. " + 
+                facturaComercialDto.getFacturaComercialPKDto().getNumeroOrden() );
+                if ("58".equalsIgnoreCase(facturaComercialDto.getFacturaComercialPKDto().getNumeroOrden().substring(0, 2))) {
+                    listFacturaComercialDtoAbastec.add(facturaComercialDto);
+                }
+
+            }
+            //
+
+            if (!listFacturaComercialDtoAbastec.isEmpty()) {
+                crearArchivo(dateI, dateF, listFacturaComercialDtoAbastec);
             } else {
                 this.dialogo(FacesMessage.SEVERITY_INFO, "NO SE ENCONTRARON DOCUMENTOS");
             }
@@ -204,144 +263,144 @@ public class ArchivoFacturaComercialBean extends ReusableBean implements Seriali
     }
 
     public String crearArchivo(String fechaDesde, String fechaHasta, List<FacturaComercialDto> listFacturaComercialDto) throws Throwable {
-    FileWriter flwriter = null;
-    String nombreArchivo = "";
-    String lineaCabecera = "";
-    String lineaCabeceraAux = "";
-    try {
-      nombreArchivo = "ARCHIVO_" + fechaDesde.replace("/", "") + "_" + fechaHasta.replace("/", "") + ".txt";
-      flwriter = new FileWriter(Fichero.getCARPETAREPORTES() + nombreArchivo);
-      String linea = "";
-      long contadorFacturas = 0L;
-      BufferedWriter bfwriter = new BufferedWriter(flwriter);
-      for (FacturaComercialDto facturaComercialDto : listFacturaComercialDto) {
-          System.out.println("FT: VERIFICAR DATOS DE LINEA DETALLE FAC:. "+ facturaComercialDto.getFacturaComercialPKDto().getNumeroOrden() +" - PROD -"+facturaComercialDto.getDcodigoproducto() +" VALOR_ "+ facturaComercialDto.getDtotal());
-        contadorFacturas++;
-        lineaCabecera = generarLineaCabecera(facturaComercialDto.getFacturaComercialPKDto());
-        //if (!facturaComercialDto.getDcodigoproducto().equalsIgnoreCase("0002") ){  
-         System.out.println("FT: ANTES DE IF :. !facturaComercialDto.getDtotal().equalsIgnoreCase(\"000000000000.00\")){"+ facturaComercialDto.getFacturaComercialPKDto().getNumeroOrden() +" - PROD -"+facturaComercialDto.getDcodigoproducto() +" VALOR_ "+ facturaComercialDto.getDtotal());
-        if(!facturaComercialDto.getDtotal().equalsIgnoreCase("000000000000.00")){
-            System.out.println("FT: ENTRÓ EN EL IF :. !facturaComercialDto.getDtotal().equalsIgnoreCase(\"000000000000.00\")){"+ facturaComercialDto.getFacturaComercialPKDto().getNumeroOrden() +" - PROD -"+facturaComercialDto.getDcodigoproducto() +" VALOR_ "+ facturaComercialDto.getDtotal());
-          System.out.println("FT: ANTES DE IF :. (!lineaCabecera.equals(lineaCabeceraAux)lineaCabecera:. "+ lineaCabecera +" - lineaCabeceraAux - "+lineaCabeceraAux);
-            if (!lineaCabecera.equals(lineaCabeceraAux)) {
-                System.out.println("FT: ENTRÓ EN EL IF --escribe linea cabecera:. (!lineaCabecera.equals(lineaCabeceraAux)lineaCabecera:. "+ lineaCabecera +" - lineaCabeceraAux - "+lineaCabeceraAux);
-                bfwriter.write(lineaCabecera + "\n");
-          lineaCabeceraAux = "";
-          lineaCabeceraAux = lineaCabecera;
-        } 
-        linea = linea + facturaComercialDto.getDcodigocomercializadora() + ";";
-        linea = linea + facturaComercialDto.getDcodigobanco() + ";";
-        linea = linea + facturaComercialDto.getDtiporegistro() + ";";
-        linea = linea + facturaComercialDto.getDnumeroorden() + ";";
-        linea = linea + facturaComercialDto.getDcodigocliente() + ";";
-        linea = linea + facturaComercialDto.getDcodigoestablecimiento() + ";";
-        System.out.println("FT: IMPRIMIENDO LINEA VIENE UN switch (facturaComercialDto.getDcodigoproducto()):. "+ linea+" - facturaComercialDto.getDcodigoproducto() - "+facturaComercialDto.getDcodigoproducto());
-        switch (facturaComercialDto.getDcodigoproducto()) {
-          case "0001":
-            linea = linea + "  IV;";
-            break;
-          case "0002":
-            linea = linea + "  IP;";
-            break;
-          case "0003":
-            linea = linea + "  I3;";
-            break;
-          default:
-            linea = linea + facturaComercialDto.getDcodigoproducto() + ";";
-            break;
-        } 
-        
-        System.out.println("FT: IMPRIMIENDO LINEA SALE DEL switch (facturaComercialDto.getDcodigoproducto()):. "+ linea+" - facturaComercialDto.getDcodigoproducto() - "+facturaComercialDto.getDcodigoproducto());
-        String[] partesCantidad = facturaComercialDto.getDcantidad().split("\\.");
-        if (partesCantidad[1].length() == 3) {
-          linea = linea + "0" + partesCantidad[0] + "." + partesCantidad[1].substring(0, 2) + ";";
-        } else {
-          linea = linea + facturaComercialDto.getDcantidad() + ";";
-        } 
-        linea = linea + facturaComercialDto.getDunidadmedida() + ";";
-        String[] partesPUnitario = facturaComercialDto.getDpreciounitario().split("\\.");
-        if (partesPUnitario[1].length() < 6) {
-          linea = linea + partesPUnitario[0].substring(4) + "." + String.format("%-6s", new Object[] { partesPUnitario[1] }).replace(' ', '0') + ";";
-        } else {
-          linea = linea + facturaComercialDto.getDpreciounitario() + ";";
-        } 
-        linea = linea + facturaComercialDto.getDtotal() + ";";
-        linea = linea + facturaComercialDto.getDtiporubro() + ";";
-        bfwriter.write(linea + "\n");
-        linea = "";
-      //}
-      }  //FT endif eliminar linea IP para clientes propios  
-      } 
-      bfwriter.close();
-      dialogo(FacesMessage.SEVERITY_INFO, "Archivo creado satisfactoriamente..");
-      System.out.println("Archivo creado satisfactoriamente..");
-      descargar(nombreArchivo);
-      return nombreArchivo;
-    } catch (Throwable e) {
-      System.out.println("FT:: error capturado " + getClass() + "::" + e.getMessage());
-      e.printStackTrace(System.out);
-    } finally {
-      if (flwriter != null)
+        FileWriter flwriter = null;
+        String nombreArchivo = "";
+        String lineaCabecera = "";
+        String lineaCabeceraAux = "";
         try {
-          flwriter.close();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }  
-    } 
-    return nombreArchivo;
-  }
-  
-  public String generarLineaCabecera(FacturaComercialPKDto facturaComercialPKDto) throws Throwable {
-    String lineaCabecera = "";
-    try {
-        System.out.println("FT: ENTRA EN generarLineaCabecera:. "+ facturaComercialPKDto.getNumeroOrden() +" - TIPOREG -"+facturaComercialPKDto.getTipoRegistro());
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getCodigoComercializadora() + ";";
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getCodigoBanco() + ";";
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getTipoRegistro() + ";";
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getNumeroOrden() + ";";
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getCodigoCliente() + ";";
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getCodigoEstablecimiento() + ";";
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getFechaVenta() + ";";
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getAgencia() + ";";
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getCodigoTerminal() + ";";
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getValorTotal() + ";";
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getFechaEmision() + ";";
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getFechaVencimiento() + ";";
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getFechaPostergacion() + ";";
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getNumeroSri() + ";";
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getEstadoFactura() + ";";
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getClaveAcceso() + ";";
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getNumeroAutorizacionsri() + ";";
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getFechaVigencia() + ";";
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getFechaCaducidad() + ";";
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getFormaPago1() + ";";
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getDescripcionFormapago1() + ";";
-      if (!facturaComercialPKDto.getNumeroCuentaformapago1().isEmpty()) {
-        String[] parts = facturaComercialPKDto.getCodigoBancoformapago1().split("-");
-        lineaCabecera = lineaCabecera + String.format("%18s", new Object[] { parts[1] }) + ";";
-        lineaCabecera = lineaCabecera + String.format("%10s", new Object[] { parts[2] }) + ";";
-        lineaCabecera = lineaCabecera + String.format("%3s", new Object[] { parts[0] }) + ";";
-        lineaCabecera = lineaCabecera + String.format("%30s", new Object[] { parts[0] }) + ";";
-      } else {
-        lineaCabecera = lineaCabecera + String.format("%18s", new Object[] { " " }) + ";";
-        lineaCabecera = lineaCabecera + String.format("%10s", new Object[] { " " }) + ";";
-        lineaCabecera = lineaCabecera + String.format("%3s", new Object[] { " " }) + ";";
-        lineaCabecera = lineaCabecera + String.format("%30s", new Object[] { " " }) + ";";
-      } 
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getFormaPago2() + ";";
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getDescripcionBancoformapago2() + ";";
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getNumeroCuentaformapago2() + ";";
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getNumeroChequeformapago2() + ";";
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getCodigoBancoformapago2() + ";";
-      lineaCabecera = lineaCabecera + facturaComercialPKDto.getDescripcionBancoformapago2() + ";";
-      return lineaCabecera;
-    } catch (Throwable t) {
-      System.out.println("FT:: error capturado " + getClass() + "::" + t.getMessage());
-      t.printStackTrace(System.out);
-      return lineaCabecera;
-    } 
-  }
-    
+            nombreArchivo = "ARCHIVO_" + fechaDesde.replace("/", "") + "_" + fechaHasta.replace("/", "") + ".txt";
+            flwriter = new FileWriter(Fichero.getCARPETAREPORTES() + nombreArchivo);
+            String linea = "";
+            long contadorFacturas = 0L;
+            BufferedWriter bfwriter = new BufferedWriter(flwriter);
+            for (FacturaComercialDto facturaComercialDto : listFacturaComercialDto) {
+                System.out.println("FT: VERIFICAR DATOS DE LINEA DETALLE FAC:. " + facturaComercialDto.getFacturaComercialPKDto().getNumeroOrden() + " - PROD -" + facturaComercialDto.getDcodigoproducto() + " VALOR_ " + facturaComercialDto.getDtotal());
+                contadorFacturas++;
+                lineaCabecera = generarLineaCabecera(facturaComercialDto.getFacturaComercialPKDto());
+                //if (!facturaComercialDto.getDcodigoproducto().equalsIgnoreCase("0002") ){  
+                System.out.println("FT: ANTES DE IF :. !facturaComercialDto.getDtotal().equalsIgnoreCase(\"000000000000.00\")){" + facturaComercialDto.getFacturaComercialPKDto().getNumeroOrden() + " - PROD -" + facturaComercialDto.getDcodigoproducto() + " VALOR_ " + facturaComercialDto.getDtotal());
+                if (!facturaComercialDto.getDtotal().equalsIgnoreCase("000000000000.00")) {
+                    System.out.println("FT: ENTRÓ EN EL IF :. !facturaComercialDto.getDtotal().equalsIgnoreCase(\"000000000000.00\")){" + facturaComercialDto.getFacturaComercialPKDto().getNumeroOrden() + " - PROD -" + facturaComercialDto.getDcodigoproducto() + " VALOR_ " + facturaComercialDto.getDtotal());
+                    System.out.println("FT: ANTES DE IF :. (!lineaCabecera.equals(lineaCabeceraAux)lineaCabecera:. " + lineaCabecera + " - lineaCabeceraAux - " + lineaCabeceraAux);
+                    if (!lineaCabecera.equals(lineaCabeceraAux)) {
+                        System.out.println("FT: ENTRÓ EN EL IF --escribe linea cabecera:. (!lineaCabecera.equals(lineaCabeceraAux)lineaCabecera:. " + lineaCabecera + " - lineaCabeceraAux - " + lineaCabeceraAux);
+                        bfwriter.write(lineaCabecera + "\n");
+                        lineaCabeceraAux = "";
+                        lineaCabeceraAux = lineaCabecera;
+                    }
+                    linea = linea + facturaComercialDto.getDcodigocomercializadora() + ";";
+                    linea = linea + facturaComercialDto.getDcodigobanco() + ";";
+                    linea = linea + facturaComercialDto.getDtiporegistro() + ";";
+                    linea = linea + facturaComercialDto.getDnumeroorden() + ";";
+                    linea = linea + facturaComercialDto.getDcodigocliente() + ";";
+                    linea = linea + facturaComercialDto.getDcodigoestablecimiento() + ";";
+                    System.out.println("FT: IMPRIMIENDO LINEA VIENE UN switch (facturaComercialDto.getDcodigoproducto()):. " + linea + " - facturaComercialDto.getDcodigoproducto() - " + facturaComercialDto.getDcodigoproducto());
+                    switch (facturaComercialDto.getDcodigoproducto()) {
+                        case "0001":
+                            linea = linea + "  IV;";
+                            break;
+                        case "0002":
+                            linea = linea + "  IP;";
+                            break;
+                        case "0003":
+                            linea = linea + "  I3;";
+                            break;
+                        default:
+                            linea = linea + facturaComercialDto.getDcodigoproducto() + ";";
+                            break;
+                    }
+
+                    System.out.println("FT: IMPRIMIENDO LINEA SALE DEL switch (facturaComercialDto.getDcodigoproducto()):. " + linea + " - facturaComercialDto.getDcodigoproducto() - " + facturaComercialDto.getDcodigoproducto());
+                    String[] partesCantidad = facturaComercialDto.getDcantidad().split("\\.");
+                    if (partesCantidad[1].length() == 3) {
+                        linea = linea + "0" + partesCantidad[0] + "." + partesCantidad[1].substring(0, 2) + ";";
+                    } else {
+                        linea = linea + facturaComercialDto.getDcantidad() + ";";
+                    }
+                    linea = linea + facturaComercialDto.getDunidadmedida() + ";";
+                    String[] partesPUnitario = facturaComercialDto.getDpreciounitario().split("\\.");
+                    if (partesPUnitario[1].length() < 6) {
+                        linea = linea + partesPUnitario[0].substring(4) + "." + String.format("%-6s", new Object[]{partesPUnitario[1]}).replace(' ', '0') + ";";
+                    } else {
+                        linea = linea + facturaComercialDto.getDpreciounitario() + ";";
+                    }
+                    linea = linea + facturaComercialDto.getDtotal() + ";";
+                    linea = linea + facturaComercialDto.getDtiporubro() + ";";
+                    bfwriter.write(linea + "\n");
+                    linea = "";
+                    //}
+                }  //FT endif eliminar linea IP para clientes propios  
+            }
+            bfwriter.close();
+            dialogo(FacesMessage.SEVERITY_INFO, "Archivo creado satisfactoriamente..");
+            System.out.println("Archivo creado satisfactoriamente..");
+            descargar(nombreArchivo);
+            return nombreArchivo;
+        } catch (Throwable e) {
+            System.out.println("FT:: error capturado " + getClass() + "::" + e.getMessage());
+            e.printStackTrace(System.out);
+        } finally {
+            if (flwriter != null)
+        try {
+                flwriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return nombreArchivo;
+    }
+
+    public String generarLineaCabecera(FacturaComercialPKDto facturaComercialPKDto) throws Throwable {
+        String lineaCabecera = "";
+        try {
+            System.out.println("FT: ENTRA EN generarLineaCabecera:. " + facturaComercialPKDto.getNumeroOrden() + " - TIPOREG -" + facturaComercialPKDto.getTipoRegistro());
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getCodigoComercializadora() + ";";
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getCodigoBanco() + ";";
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getTipoRegistro() + ";";
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getNumeroOrden() + ";";
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getCodigoCliente() + ";";
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getCodigoEstablecimiento() + ";";
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getFechaVenta() + ";";
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getAgencia() + ";";
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getCodigoTerminal() + ";";
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getValorTotal() + ";";
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getFechaEmision() + ";";
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getFechaVencimiento() + ";";
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getFechaPostergacion() + ";";
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getNumeroSri() + ";";
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getEstadoFactura() + ";";
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getClaveAcceso() + ";";
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getNumeroAutorizacionsri() + ";";
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getFechaVigencia() + ";";
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getFechaCaducidad() + ";";
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getFormaPago1() + ";";
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getDescripcionFormapago1() + ";";
+            if (!facturaComercialPKDto.getNumeroCuentaformapago1().isEmpty()) {
+                String[] parts = facturaComercialPKDto.getCodigoBancoformapago1().split("-");
+                lineaCabecera = lineaCabecera + String.format("%18s", new Object[]{parts[1]}) + ";";
+                lineaCabecera = lineaCabecera + String.format("%10s", new Object[]{parts[2]}) + ";";
+                lineaCabecera = lineaCabecera + String.format("%3s", new Object[]{parts[0]}) + ";";
+                lineaCabecera = lineaCabecera + String.format("%30s", new Object[]{parts[0]}) + ";";
+            } else {
+                lineaCabecera = lineaCabecera + String.format("%18s", new Object[]{" "}) + ";";
+                lineaCabecera = lineaCabecera + String.format("%10s", new Object[]{" "}) + ";";
+                lineaCabecera = lineaCabecera + String.format("%3s", new Object[]{" "}) + ";";
+                lineaCabecera = lineaCabecera + String.format("%30s", new Object[]{" "}) + ";";
+            }
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getFormaPago2() + ";";
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getDescripcionBancoformapago2() + ";";
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getNumeroCuentaformapago2() + ";";
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getNumeroChequeformapago2() + ";";
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getCodigoBancoformapago2() + ";";
+            lineaCabecera = lineaCabecera + facturaComercialPKDto.getDescripcionBancoformapago2() + ";";
+            return lineaCabecera;
+        } catch (Throwable t) {
+            System.out.println("FT:: error capturado " + getClass() + "::" + t.getMessage());
+            t.printStackTrace(System.out);
+            return lineaCabecera;
+        }
+    }
+
     /* FT: 20231205 cambio POR CÓDIGO DESDE .CLASS DE PETROLRIOS
     
     public String crearArchivo(String fechaDesde, String fechaHasta, List<FacturaComercialDto> listFacturaComercialDto) throws Throwable {
@@ -494,8 +553,7 @@ public class ArchivoFacturaComercialBean extends ReusableBean implements Seriali
         }
     }
 
-    */
-    
+     */
     public void descargar(String nombre) throws FileNotFoundException {
         File initialFile = new File(Fichero.getCARPETAREPORTES() + nombre);
         InputStream targetStream = new FileInputStream(initialFile);

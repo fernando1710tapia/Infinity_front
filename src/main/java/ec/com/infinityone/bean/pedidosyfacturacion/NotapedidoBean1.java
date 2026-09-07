@@ -611,11 +611,26 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
     public void seleccionarComercializdora() {
         if (comercializadora != null) {
             if (comercializadora.getActivo().equals("S")) {
-                prefijo = comercializadora.getPrefijoNpe();
+                
+                if (comercializadora.getCodigocomercializadora1()!= null) {
+                
+                    System.out.println("FT: Notapedidobean1::seleccionarComercializdora::comercializadora.getCodigocomercializadora1()!= null");
+                     prefijo = comercializadora.getPrefijonpcom1(); 
+
+                } else {
+                    System.out.println("FT: CREANDO getCodigocomercializadora1() == null. ");
+                    prefijo = comercializadora.getPrefijoNpe();
+                    
+                }
+                     
                 codComer = comercializadora.getCodigo();
                 codAbas = comercializadora.getAbastecedora();
                 abas.setCodigo(codAbas);
                 comerc.setCodigo(codComer);
+                comerc.setCodigocomercializadora1(comercializadora.getCodigocomercializadora1());
+                comerc.setPrefijonpcom1(comercializadora.getPrefijonpcom1());
+                comerc.setEstablecimientofaccom1(comercializadora.getEstablecimientofaccom1());
+                comerc.setPuntoventafaccom1(comercializadora.getPuntoventafaccom1());
                 npPK.setCodigoabastecedora(codAbas);
                 npPK.setCodigocomercializadora(codComer);
                 np.setNotapedidoPK(npPK);
@@ -716,7 +731,7 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
             codCliente = cliente.getClientePK().getCodigo();
             listaProductos = new ArrayList<>();
             listaProductos = cliProdServicio.obtenerProductos(codComer, codCliente);
-            np.setCodigocliente(cliente);
+            np.setCodigocliente(cliente);            
             if (cliente.getCodigoterminaldefecto() != null) {
 //                for (int i = 0; i < listaTermianles.size(); i++) {
 //                    if (cliente.getCodigoterminaldefecto().equals(listaTermianles.get(i).getCodigo())) {
@@ -1045,6 +1060,7 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
                 np.setCodigoterminal(terminal);
                 np.setActiva(true);
                 np.setFacturada("NO");
+                np.setCodigoclienteId(cliente.getClientePK().getCodigo());
                 np.setFechaventa(fechV.format(fechaVenta));
                 np.setFechadespacho(fechD.format(fechaDespacho));
                 np.setCodigoautotanque("");
@@ -1082,8 +1098,8 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
                 detNP.setCompartimento8(compartimento8);
                 detNP.setCompartimento9(compartimento9);
                 detNP.setCompartimento10(compartimento10);
-//                detNP.setSelloinicial(selloinicial);
-//                detNP.setSellofinal(sellofinal);
+                detNP.setSelloinicial(0);
+                detNP.setSellofinal(0);
 
                 envNP.setNotapedido(np);
                 envNP.setDetalle(detNP);
@@ -1135,7 +1151,7 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
             numeroNotaPedio = objetoJson.getString("developerMessage");
 
             if (connection.getResponseCode() == 200) {
-                this.dialogo(FacesMessage.SEVERITY_INFO, "NOTA DE PEDIDO REGISTRADA EXITOSAMENTE");
+                this.dialogo(FacesMessage.SEVERITY_INFO, "PEDIDO GENERADO PARA ABASTEC");
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR");
                 System.out.println("FT:: ERROR EN addItems RESPONSECODE " + connection.getResponseCode());

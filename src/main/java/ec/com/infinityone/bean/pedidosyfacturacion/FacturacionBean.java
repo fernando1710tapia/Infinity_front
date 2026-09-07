@@ -1463,7 +1463,6 @@ public class FacturacionBean extends ReusableBean implements Serializable {
 
                         /*----Objeto Cliente----*/
 //////ftftf                        clienteNP.setCodigo(cli.getString("codigo"));
-                        
                         clienteNP.setClientePK(new ClientePK());
                         clienteNP.getClientePK().setCodigo(cliPK.getString("codigo"));
                         clienteNP.getClientePK().setCodigocomercializadora(cliPK.getString("codigocomercializadora"));
@@ -1904,7 +1903,20 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         }
                     }
                     this.dialogo(FacesMessage.SEVERITY_INFO, "FACTURA REGISTRADA EXITOSAMENTE");
-                    enviarOrdenPetro(envNP, numeroFactura);
+
+                    if ((comercializadora.getCodigo().trim().equalsIgnoreCase("0008")
+                            && numeroFactura.substring(0, 6).equalsIgnoreCase("001058"))
+                        || 
+                        (comercializadora.getCodigo().trim().equalsIgnoreCase("0002")
+                            && numeroFactura.substring(0, 6).equalsIgnoreCase("001022"))
+                            ) {
+                        System.out.println("FT: FacturacionBean.generarFacturaParametros::comercializadora.getCodigocomercializadora1()!= null");
+                        this.dialogo(FacesMessage.SEVERITY_INFO, "FACTURA GENERADA POR PEDIDO A ABASTEC");
+                    } else {
+                        System.out.println("FT: FacturacionBean.generarFacturaParametros::comercializadora.getCodigocomercializadora1() == null");
+                        enviarOrdenPetro(envNP, numeroFactura);
+
+                    }
 
                 } else if (connection.getResponseCode() == 299) {
                     for (int indice = 0; indice < retorno.length(); indice++) {
@@ -2456,8 +2468,8 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                 envioPedido.getNotapedido().setNumerofacturasri(numFact);
                 envioPedido.getNotapedido().setActiva(true);
                 editarNotaPedido(envioPedido.getNotapedido());
-                
-                System.out.println("FT:. ENVIANDO ORIGINALMENTE getTrama:. envioPedido.getNotapedido().getCodigocliente().getControlaprorroga(). "+envioPedido.getNotapedido().getCodigocliente().getControlaprorroga());
+
+                System.out.println("FT:. ENVIANDO ORIGINALMENTE getTrama:. envioPedido.getNotapedido().getCodigocliente().getControlaprorroga(). " + envioPedido.getNotapedido().getCodigocliente().getControlaprorroga());
                 if (envioPedido.getNotapedido().getCodigocliente().getControlaprorroga()) {
                     facturasProrrogadasCaidas = controlarProrroga(envioPedido.getNotapedido().getNotapedidoPK().getCodigocomercializadora(), envioPedido.getNotapedido().getCodigocliente().getClientePK().getCodigo());
                 } else {
@@ -2668,8 +2680,8 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             url = new URL(direcc + "codigoabastecedora=" + envioFactura.getFactura().getFacturaPK().getCodigoabastecedora()
                     + "&codigocomercializadora=" + envioFactura.getFactura().getFacturaPK().getCodigocomercializadora()
                     + "&numero=" + envioFactura.getFactura().getFacturaPK().getNumeronotapedido());
-            
-            System.out.println("FT:. dialogoReenvioOrdenPetro:. servicio de consulta "+url.toString());
+
+            System.out.println("FT:. dialogoReenvioOrdenPetro:. servicio de consulta " + url.toString());
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
@@ -2698,7 +2710,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         JSONObject abastecedora = nt.getJSONObject("abastecedora");
                         JSONObject cliente = nt.getJSONObject("codigocliente");
                         JSONObject clientePK = cliente.getJSONObject("clientePK");
-                        System.out.println("FT:. dialogoReenvioOrdenPetro:. JSONObject cliente "+cliente.toString());
+                        System.out.println("FT:. dialogoReenvioOrdenPetro:. JSONObject cliente " + cliente.toString());
                         /*----Objeto Abastecedora----*/
                         abas.setCodigo(abastecedora.getString("codigo"));
 
@@ -2716,8 +2728,8 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                         unCliente.setClientePK(new ClientePK());
                         unCliente.getClientePK().setCodigo(clientePK.getString("codigo"));
                         unCliente.setControlaprorroga(cliente.getBoolean("controlaprorroga"));
-                        System.out.println("FT:. dialogoReenvioOrdenPetro:. unCliente.setControlaprorroga "+unCliente.getClientePK().getCodigo() +" - "+unCliente.getControlaprorroga());
-                        
+                        System.out.println("FT:. dialogoReenvioOrdenPetro:. unCliente.setControlaprorroga " + unCliente.getClientePK().getCodigo() + " - " + unCliente.getControlaprorroga());
+
                         np.setNumerofacturasri(nt.getString("numerofacturasri"));
                         np.setActiva(nt.getBoolean("activa"));
                         np.setCodigocliente(unCliente);
@@ -2750,14 +2762,13 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         int facturasProrrogadasCaidas = 0;
         if (envioPedidoAuxiliar != null) {
             try {
-                System.out.println("FT:. reenvioOrdenPetro:. envioPedidoAuxiliar.getNotapedido().getCodigocliente().getControlaprorroga() "+envioPedidoAuxiliar.getNotapedido().getCodigocliente().getControlaprorroga());
+                System.out.println("FT:. reenvioOrdenPetro:. envioPedidoAuxiliar.getNotapedido().getCodigocliente().getControlaprorroga() " + envioPedidoAuxiliar.getNotapedido().getCodigocliente().getControlaprorroga());
                 if (envioPedidoAuxiliar.getNotapedido().getCodigocliente().getControlaprorroga()) {
                     facturasProrrogadasCaidas = controlarProrroga(envioPedidoAuxiliar.getNotapedido().getNotapedidoPK().getCodigocomercializadora(), envioPedidoAuxiliar.getNotapedido().getCodigocliente().getClientePK().getCodigo());
                 } else {
                     facturasProrrogadasCaidas = 0;
                 }
 
-                
 //ff
                 if (0 == facturasProrrogadasCaidas) {
                     enviarOrdenEntreEpp(envioPedidoAuxiliar, envioPedidoAuxiliar.getNotapedido().getTramaenviadagoe());
@@ -2970,19 +2981,44 @@ public class FacturacionBean extends ReusableBean implements Serializable {
         //WPE CLAENV	char(8)  agregar ceros al inicio o al final 
         //FL	X(18)
         //360002021234560000AAAA000000000000000000
+        boolean facturaEsAbastec = false;
         String fl = "000000000000000000";
         Factura esAnulacionRefactura = new Factura();
         esAnulacionRefactura.setFacturaPK(new FacturaPK());
-
-        String cadena = facturaauxiliar.getCodigobanco().trim() + facturaauxiliar.getFacturaPK().getCodigocomercializadora().trim()
-                + facturaauxiliar.getFacturaPK().getNumeronotapedido().trim() + comercializadora.getClaveWsepp().trim() + fl;
-        try {
-            String codigoanulacion = "";
-            String respuesta = "";
-            //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.notapedido/cancelacion";
+        String codigoanulacion = "";
+        String respuesta = "";
+        HttpURLConnection connection; 
+        OutputStreamWriter writer = null; 
+        Gson gson = new Gson();
+        String JSON = "";
+        DataOutputStream out = null;
+        try {    
             String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.notapedido/cancelacion";
             url = new URL(direcc);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
+            if (
+             (fac.getFacturaPK().getCodigocomercializadora().trim().equalsIgnoreCase("0008")
+                    && fac.getFacturaPK().getNumero().substring(0, 6).
+                            equalsIgnoreCase("001058"))
+            ||
+            (fac.getFacturaPK().getCodigocomercializadora().trim().equalsIgnoreCase("0002")
+                    && fac.getFacturaPK().getNumero().substring(0, 6).
+                            equalsIgnoreCase("001022"))
+                    
+                ) 
+        {
+                System.out.println("FT: FacturacionBean.verificarAnulacion::Factura de de ABASTEC;. ");
+                this.dialogo(FacesMessage.SEVERITY_INFO, "FACTURA ORIENTADA HACIA ABASTEC -> SE PROCEDE CON SU ANULACIÓN DIRECTA");
+                facturaEsAbastec = true;
+                codigoanulacion = "00";
+        }else{
+        
+        String cadena = facturaauxiliar.getCodigobanco().trim() + facturaauxiliar.getFacturaPK().getCodigocomercializadora().trim()
+                + facturaauxiliar.getFacturaPK().getNumeronotapedido().trim() + comercializadora.getClaveWsepp().trim() + fl;
+        
+            
+            //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.notapedido/cancelacion";
+            
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-type", "application/json");
@@ -2992,10 +3028,10 @@ public class FacturacionBean extends ReusableBean implements Serializable {
             anulacion.setNumero(facturaauxiliar.getFacturaPK().getNumeronotapedido().trim());
             anulacion.setCadena(cadena);
 
-            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-            Gson gson = new Gson();
-            String JSON = gson.toJson(anulacion);
-            DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+            writer = new OutputStreamWriter(connection.getOutputStream());
+            
+            JSON = gson.toJson(anulacion);
+            out = new DataOutputStream(connection.getOutputStream());
             out.write(JSON.getBytes());
             out.flush();
             out.close();
@@ -3020,8 +3056,9 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     // FT:SOLO PRUEBA DE 2023-06-12
                 }
             }
-
-            if (connection.getResponseCode() == 200) {
+        }// fin del if que controla factura de ABASTEC
+                          
+            if (connection.getResponseCode() == 200 || facturaEsAbastec) {
                 System.out.println("FT:: codigoanulacion.substring(0, 2)" + codigoanulacion.substring(0, 2) + "SE DEBE VALIDAR SI ES 08 PARA ANULAR UNA REFACTURACION");
                 if (codigoanulacion.substring(0, 2).equals("08")) {
                     System.out.println("FT:: codigoanulacion.substring(0, 2)" + codigoanulacion.substring(0, 2) + "está dentro del IF para REFACTURACIÓN");
@@ -3422,6 +3459,20 @@ public class FacturacionBean extends ReusableBean implements Serializable {
 
     public void verificarAnulacion(EnvioFactura envioFactura) {
         try {
+
+            if (
+                    (envioFactura.getFactura().getFacturaPK().getCodigocomercializadora().trim().equalsIgnoreCase("0008")
+                    && envioFactura.getFactura().getFacturaPK().getNumero().substring(0, 6).equalsIgnoreCase("001058"))
+                    
+                ||
+                    (envioFactura.getFactura().getFacturaPK().getCodigocomercializadora().trim().equalsIgnoreCase("0002")
+                    && envioFactura.getFactura().getFacturaPK().getNumero().substring(0, 6).equalsIgnoreCase("001022"))
+                    ) {
+                System.out.println("FT: FacturacionBean.verificarAnulacion::Factura de de ABASTEC;. ");
+                this.dialogo(FacesMessage.SEVERITY_INFO, "FACTURA ORIENTADA HACIA ABASTEC -> SE PROCEDE CON SU ANULACIÓN DIRECTA");
+                return;
+            }
+
             String respuestaAnulacion = "";
             //String direcc = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.notapedido/porId?";
             String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.notapedido/porId?";
@@ -3550,9 +3601,9 @@ public class FacturacionBean extends ReusableBean implements Serializable {
 
             Map parametro = new HashMap();
 /// ftftf 20251001 cambiar el nombre del logo por el ruc de la comer.jpeg   BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/"+env.getFactura().getRuccomercializadora().trim()+".jpeg"));  
-            
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo"+env.getFactura().getFacturaPK().getCodigocomercializadora()+".jpeg"));
-            
+
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo" + env.getFactura().getFacturaPK().getCodigocomercializadora() + ".jpeg"));
+
             BufferedImage imageBar = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/barras.jpeg"));
 
 //            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
@@ -3603,10 +3654,9 @@ public class FacturacionBean extends ReusableBean implements Serializable {
 
             JasperReport reporte = JasperCompileManager.compileReport(file);
             JasperReport subreporte = JasperCompileManager.compileReport(subreport);
-            
-////ftftft 20251001 cambio de nombre de ruc por el ruc de la comer            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo"+envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora()+".jpeg"));
-            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo"+envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora()+".jpeg"));
 
+////ftftft 20251001 cambio de nombre de ruc por el ruc de la comer            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo"+envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora()+".jpeg"));
+            BufferedImage image = ImageIO.read(new File(Fichero.getCARPETAREPORTES() + "/logo" + envP.getNotapedido().getNotapedidoPK().getCodigocomercializadora() + ".jpeg"));
 
 //            BufferedImage image = ImageIO.read(new File("C:\\archivos\\Template\\logo.jpg"));
             Map parametro = new HashMap();
@@ -4299,7 +4349,7 @@ public class FacturacionBean extends ReusableBean implements Serializable {
                     + "&codigocliente=" + codigoCliente
                     + "&fechaacreditacionprorrogada=" + fechafinal);
 
-            System.out.println("FT:. controlarProrroga:. url de servicio de consulta "+url.toString());
+            System.out.println("FT:. controlarProrroga:. url de servicio de consulta " + url.toString());
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);

@@ -176,6 +176,25 @@ public class ComercializadoraServicio {
                     if (!comer.isNull("generapedidodirecto")) {
                         comercializadora.setGenerapedidodirecto(comer.getBoolean("generapedidodirecto"));
                     }
+                    if (!comer.isNull("generasolicitud")) {
+                        comercializadora.setGenerasolicitud(comer.getBoolean("generasolicitud"));
+                    }
+                    
+                    if (!comer.isNull("codigocomercializadora1")) {
+                        comercializadora.setCodigocomercializadora1(comer.getString("codigocomercializadora1"));
+                    }
+                    
+                    if (!comer.isNull("prefijonpcom1")) {
+                        comercializadora.setPrefijonpcom1(comer.getString("prefijonpcom1"));
+                    }
+                    
+                    if (!comer.isNull("establecimientofaccom1")) {
+                        comercializadora.setEstablecimientofaccom1(comer.getString("establecimientofaccom1"));
+                    }
+                    
+                    if (!comer.isNull("puntoventafaccom1")) {
+                        comercializadora.setPuntoventafaccom1(comer.getString("puntoventafaccom1"));
+                    }
                     comercializadora.setUsuario(comer.getString("usuarioactual"));
                     comercializadora.setPrefijoNpe(comer.getString("prefijonpe"));
                     comercializadora.setClaveWsepp(comer.getString("clavewsepp"));
@@ -338,6 +357,30 @@ public class ComercializadoraServicio {
                     if (!comer.isNull("leyendaagenteretencion")) {
                         comercializadora.setLeyendaAgRetencion(comer.getString("leyendaagenteretencion"));
                     }
+                    if (!comer.isNull("generapedidodirecto")) {
+                        comercializadora.setGenerapedidodirecto(comer.getBoolean("generapedidodirecto"));
+                    }
+                    if (!comer.isNull("generasolicitud")) {
+                        comercializadora.setGenerasolicitud(comer.getBoolean("generasolicitud"));
+                    }
+                    
+                    if (!comer.isNull("codigocomercializadora1")) {
+                        comercializadora.setCodigocomercializadora1(comer.getString("codigocomercializadora1"));
+                    }
+                    
+                    if (!comer.isNull("prefijonpcom1")) {
+                        comercializadora.setPrefijonpcom1(comer.getString("prefijonpcom1"));
+                    }
+                    
+                    if (!comer.isNull("establecimientofaccom1")) {
+                        comercializadora.setEstablecimientofaccom1(comer.getString("establecimientofaccom1"));
+                    }
+                    
+                    if (!comer.isNull("puntoventafaccom1")) {
+                        comercializadora.setPuntoventafaccom1(comer.getString("puntoventafaccom1"));
+                    }
+
+                    
                     comercializadora.setUsuario(comer.getString("usuarioactual"));
                     comercializadora.setPrefijoNpe(comer.getString("prefijonpe"));
                     comercializadora.setClaveWsepp(comer.getString("clavewsepp"));
@@ -498,6 +541,28 @@ public class ComercializadoraServicio {
                     if (!comer.isNull("leyendaagenteretencion")) {
                         comercializadora.setLeyendaAgRetencion(comer.getString("leyendaagenteretencion"));
                     }
+                    if (!comer.isNull("generapedidodirecto")) {
+                        comercializadora.setGenerapedidodirecto(comer.getBoolean("generapedidodirecto"));
+                    }
+                    if (!comer.isNull("generasolicitud")) {
+                        comercializadora.setGenerasolicitud(comer.getBoolean("generasolicitud"));
+                    }
+                    
+                    if (!comer.isNull("codigocomercializadora1")) {
+                        comercializadora.setCodigocomercializadora1(comer.getString("codigocomercializadora1"));
+                    }
+                    
+                    if (!comer.isNull("prefijonpcom1")) {
+                        comercializadora.setPrefijonpcom1(comer.getString("prefijonpcom1"));
+                    }
+                    
+                    if (!comer.isNull("establecimientofaccom1")) {
+                        comercializadora.setEstablecimientofaccom1(comer.getString("establecimientofaccom1"));
+                    }
+                    
+                    if (!comer.isNull("puntoventafaccom1")) {
+                        comercializadora.setPuntoventafaccom1(comer.getString("puntoventafaccom1"));
+                    }
                     comercializadora.setUsuario(comer.getString("usuarioactual"));
                     comercializadora.setPrefijoNpe(comer.getString("prefijonpe"));
                     comercializadora.setClaveWsepp(comer.getString("clavewsepp"));
@@ -655,6 +720,28 @@ public class ComercializadoraServicio {
                     }
                     if (!comer.isNull("leyendaagenteretencion")) {
                         comercializadora.setLeyendaAgRetencion(comer.getString("leyendaagenteretencion"));
+                    }
+                    if (!comer.isNull("generapedidodirecto")) {
+                        comercializadora.setGenerapedidodirecto(comer.getBoolean("generapedidodirecto"));
+                    }
+                    if (!comer.isNull("generasolicitud")) {
+                        comercializadora.setGenerasolicitud(comer.getBoolean("generasolicitud"));
+                    }
+                    
+                    if (!comer.isNull("codigocomercializadora1")) {
+                        comercializadora.setCodigocomercializadora1(comer.getString("codigocomercializadora1"));
+                    }
+                    
+                    if (!comer.isNull("prefijonpcom1")) {
+                        comercializadora.setPrefijonpcom1(comer.getString("prefijonpcom1"));
+                    }
+                    
+                    if (!comer.isNull("establecimientofaccom1")) {
+                        comercializadora.setEstablecimientofaccom1(comer.getString("establecimientofaccom1"));
+                    }
+                    
+                    if (!comer.isNull("puntoventafaccom1")) {
+                        comercializadora.setPuntoventafaccom1(comer.getString("puntoventafaccom1"));
                     }
                     comercializadora.setUsuario(comer.getString("usuarioactual"));
                     comercializadora.setPrefijoNpe(comer.getString("prefijonpe"));

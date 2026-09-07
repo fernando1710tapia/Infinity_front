@@ -211,14 +211,23 @@ public class ComercializadoraBean extends ReusableBean implements Serializable {
     Variable para validar si es guardar o editar
      */
     private boolean editarComercializadora;
-    
+
     /*
     Variable que establece true or false para el generapedidodirecto
      */
     private boolean generapedidodirecto;
-    
-    
+
     private String xcodigoComer;
+
+    // campos para nueva comercializadora privada
+    private boolean generasolicitud;
+    private String codigocomercializadora1;
+
+    private String prefijonpcom1;
+
+    private String establecimientofaccom1;
+
+    private String puntoventafaccom1;
 
     public ComercializadoraBean() {
     }
@@ -230,7 +239,7 @@ public class ComercializadoraBean extends ReusableBean implements Serializable {
     public void init() {
 
         x = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
-        xcodigoComer=x.getCodigocomercializadora();
+        xcodigoComer = x.getCodigocomercializadora();
 
         //direccion = "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.comercializadora";
         direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.comercializadora";
@@ -249,7 +258,7 @@ public class ComercializadoraBean extends ReusableBean implements Serializable {
         } else {
             listaComercializadora = this.comercializadoraServicio.obtenerComercializadoraId(xcodigoComer);
         }
-        
+
         comercializadora = this.comercializadoraServicio.getComercializadora();
     }
 
@@ -534,7 +543,7 @@ public class ComercializadoraBean extends ReusableBean implements Serializable {
             connection.setDoOutput(true);
             connection.setRequestMethod("DELETE");
             connection.setRequestProperty("Content-type", "application/json");
-            connection.connect();            
+            connection.connect();
             if (connection.getResponseCode() == 200) {
                 this.dialogo(FacesMessage.SEVERITY_INFO, "COMERCIALIZADORA ELIMINADA EXITOSAMENTE");
                 PrimeFaces.current().executeScript("PF('nuevo').hide()");
@@ -923,7 +932,46 @@ public class ComercializadoraBean extends ReusableBean implements Serializable {
     public void setGenerapedidodirecto(boolean generapedidodirecto) {
         this.generapedidodirecto = generapedidodirecto;
     }
-    
-    
 
+    public boolean isGenerasolicitud() {
+        return generasolicitud;
+    }
+
+    public void setGenerasolicitud(boolean generasolicitud) {
+        this.generasolicitud = generasolicitud;
+    }
+
+    public String getCodigocomercializadora1() {
+        return codigocomercializadora1;
+    }
+
+    public void setCodigocomercializadora1(String codigocomercializadora1) {
+        this.codigocomercializadora1 = codigocomercializadora1;
+    }
+
+    public String getPrefijonpcom1() {
+        return prefijonpcom1;
+    }
+
+    public void setPrefijonpcom1(String prefijonpcom1) {
+        this.prefijonpcom1 = prefijonpcom1;
+    }
+
+    public String getEstablecimientofaccom1() {
+        return establecimientofaccom1;
+    }
+
+    public void setEstablecimientofaccom1(String establecimientofaccom1) {
+        this.establecimientofaccom1 = establecimientofaccom1;
+    }
+
+    public String getPuntoventafaccom1() {
+        return puntoventafaccom1;
+    }
+
+    public void setPuntoventafaccom1(String puntoventafaccom1) {
+        this.puntoventafaccom1 = puntoventafaccom1;
+    }
+
+    
 }
