@@ -1725,12 +1725,14 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
 
     public static class FilaGenerarNota {
         private PrepedidoSolicitud prepedidoSolicitud;
+        private ec.com.infinityone.modelo.Detalleprepedido detalle;
         private String codigoProductoClienteSeleccionado;
         private java.util.List<Producto> listaProductosFiltrada;
         private String numeroNotaPedidoGenerada;
 
-        public FilaGenerarNota(PrepedidoSolicitud ps) {
+        public FilaGenerarNota(PrepedidoSolicitud ps, ec.com.infinityone.modelo.Detalleprepedido det) {
             this.prepedidoSolicitud = ps;
+            this.detalle = det;
             this.listaProductosFiltrada = new java.util.ArrayList<>();
             if (ps != null && ps.getNumeroNotaPedidoGenerada() != null
                     && !ps.getNumeroNotaPedidoGenerada().trim().isEmpty()
@@ -1739,6 +1741,14 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             } else {
                 this.numeroNotaPedidoGenerada = "00";
             }
+        }
+
+        public ec.com.infinityone.modelo.Detalleprepedido getDetalle() {
+            return detalle;
+        }
+
+        public void setDetalle(ec.com.infinityone.modelo.Detalleprepedido detalle) {
+            this.detalle = detalle;
         }
 
         public String getNumeroNotaPedidoGenerada() {
@@ -1778,11 +1788,10 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                     && !"0".equals(numeroNotaPedidoGenerada)) {
                 return true;
             }
-            if (prepedidoSolicitud == null || prepedidoSolicitud.getDetalle() == null
-                    || prepedidoSolicitud.getDetalle().isEmpty()) {
+            if (detalle == null) {
                 return true;
             }
-            java.math.BigDecimal volAutorizado = prepedidoSolicitud.getDetalle().get(0).getVolumennaturalautorizado();
+            java.math.BigDecimal volAutorizado = detalle.getVolumennaturalautorizado();
             return volAutorizado == null || volAutorizado.compareTo(java.math.BigDecimal.ZERO) <= 0;
         }
     }
@@ -1862,35 +1871,24 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
 
         // Cargar todos los detalles del mismo prepedido para el modal
         listaDetallesGenerar = new java.util.ArrayList<>();
-        if (listPrepedido != null && envNP != null && envNP.getPrepedido() != null) {
-            String targetNumero = envNP.getPrepedido().getPrepedidoPK().getNumero();
-            if (targetNumero != null) {
-                targetNumero = targetNumero.trim();
-                for (PrepedidoSolicitud ps : listPrepedido) {
-                    if (ps.getPrepedido() != null && ps.getPrepedido().getPrepedidoPK() != null) {
-                        String currentNumero = ps.getPrepedido().getPrepedidoPK().getNumero();
-                        if (currentNumero != null && targetNumero.equals(currentNumero.trim())) {
-                            if (!ps.isRegistroActivo()) {
-                                continue;
-                            }
-                            FilaGenerarNota fila = new FilaGenerarNota(ps);
+        if (envNP != null && envNP.getPrepedido() != null && envNP.getDetalle() != null) {
+            for (ec.com.infinityone.modelo.Detalleprepedido det : envNP.getDetalle()) {
+                if (det == null || det.getProducto() == null) {
+                    continue;
+                }
+                
+                FilaGenerarNota fila = new FilaGenerarNota(envNP, det);
 
-                            java.util.List<Producto> filtrada = new java.util.ArrayList<>();
-                            if (ps.getDetalle() != null && !ps.getDetalle().isEmpty()
-                                    && ps.getDetalle().get(0).getProducto() != null) {
-                                String prodRef = ps.getDetalle().get(0).getProducto().getCodigo();
-                                for (Producto p : listaProductosClienteModal) {
-                                    if (prodRef != null && prodRef.equals(p.getProductogenerico())) {
-                                        filtrada.add(p);
-                                    }
-                                }
-                            }
-                            fila.setListaProductosFiltrada(filtrada);
-
-                            listaDetallesGenerar.add(fila);
-                        }
+                java.util.List<Producto> filtrada = new java.util.ArrayList<>();
+                String prodRef = det.getProducto().getCodigo();
+                for (Producto p : listaProductosClienteModal) {
+                    if (prodRef != null && prodRef.equals(p.getProductogenerico())) {
+                        filtrada.add(p);
                     }
                 }
+                fila.setListaProductosFiltrada(filtrada);
+
+                listaDetallesGenerar.add(fila);
             }
         }
 
@@ -1912,7 +1910,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
 
         PrepedidoSolicitud ps = fila.getPrepedidoSolicitud();
         Prepedido prep = ps.getPrepedido();
-        Detalleprepedido detPrep = ps.getDetalle().get(0);
+        Detalleprepedido detPrep = fila.getDetalle();
 
         try {
             ec.com.infinityone.modelo.Notapedido np = new ec.com.infinityone.modelo.Notapedido();

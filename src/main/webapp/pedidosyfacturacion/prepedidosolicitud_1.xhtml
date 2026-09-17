@@ -422,10 +422,14 @@
                                     </p:row>
                                     <!-- Fila de totales PyS: celdas con width exacto igual al header -->
                                     <p:row>
-                                        <p:column style="background:#1a3050; border:none; width:65px; min-width:65px; max-width:65px;" />
-                                        <p:column style="background:#1a3050; border:none; width:100px; min-width:100px; max-width:100px;" />
-                                        <p:column style="background:#1a3050; border:none; width:100px; min-width:100px; max-width:100px;" />
-                                        <p:column style="background:#1a3050; border:none; width:80px; min-width:80px; max-width:80px;" />
+                                        <p:column
+                                            style="background:#1a3050; border:none; width:65px; min-width:65px; max-width:65px;" />
+                                        <p:column
+                                            style="background:#1a3050; border:none; width:100px; min-width:100px; max-width:100px;" />
+                                        <p:column
+                                            style="background:#1a3050; border:none; width:100px; min-width:100px; max-width:100px;" />
+                                        <p:column
+                                            style="background:#1a3050; border:none; width:80px; min-width:80px; max-width:80px;" />
                                         <p:column
                                             style="text-align:right; background:#1a3050; color:#8ab4d8; font-weight:bold; padding-right:8px; border:none; width:200px; min-width:200px; max-width:200px;">
                                             <f:facet name="footer">
@@ -937,15 +941,14 @@
                 actionListener="#{prepedidoSolicitudBean1.cancelarAutorizacion()}" update=":form" />
         </p:confirmDialog>
 
-        <p:dialog widgetVar="generarDialog" header="Generar Solicitud" width="70%" modal="true" showEffect="fade"
-            responsive="true">
+        <p:dialog widgetVar="generarDialog" header="Generar Nota Pedido Infinity" width="70%" modal="true"
+            showEffect="fade" responsive="true">
             <h:form id="formGenerar">
                 <p:dataTable value="#{prepedidoSolicitudBean1.listaDetallesGenerar}" var="filaItem"
                     emptyMessage="No hay detalles para este prepedido.">
 
                     <p:column headerText="Producto" width="15%">
-                        <h:outputText
-                            value="#{not empty filaItem.prepedidoSolicitud.detalle ? filaItem.prepedidoSolicitud.detalle[0].producto.nombre : ''}" />
+                        <h:outputText value="#{filaItem.detalle.producto.nombre}" />
                     </p:column>
 
                     <p:column headerText="Prod. Cliente" width="25%">
@@ -958,9 +961,9 @@
                     </p:column>
 
                     <p:column headerText="Vol. Autorizado" width="20%">
-                        <p:inputNumber value="#{filaItem.prepedidoSolicitud.detalle[0].volumennaturalautorizado}"
-                            decimalPlaces="2" emptyValue="zero" minValue="0" style="width: 100%;"
-                            inputStyle="width: 100%;" disabled="#{filaItem.bloqueado}" />
+                        <p:inputNumber value="#{filaItem.detalle.volumennaturalautorizado}" decimalPlaces="2"
+                            emptyValue="zero" minValue="0" style="width: 100%;" inputStyle="width: 100%;"
+                            disabled="#{filaItem.bloqueado}" />
                     </p:column>
 
                     <p:column headerText="# Solicitud" width="15%" style="text-align: center;">

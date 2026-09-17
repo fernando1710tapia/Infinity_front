@@ -762,7 +762,7 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
             long diffrence = time.convert(diff, TimeUnit.MILLISECONDS);
             if (diffrence > 7) {
                 this.dialogo(FacesMessage.SEVERITY_ERROR,
-                        "LA FECHA DE FIN NO PUEDE SER MAYOR A 7 DÃƒÆ’Ã‚ÂAS A LA FECHA DE INICIO");
+                        "LA FECHA DE FIN NO PUEDE SER MAYOR A 7 DÍAS A LA FECHA DE INICIO");
             } else {
                 // String direcc =
                 // "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.prepedido/paraFactura?";
@@ -803,13 +803,14 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                     }
                     String respuesta = content.toString();
                     LOG.info("API Response (Comerterminal) para fecha " + fechaStr + ": " + respuesta);
-                    
+
                     try {
                         if (connection.getResponseCode() != 200) {
                             System.out.println(connection.getResponseCode());
                             System.out.println(connection.getResponseMessage());
                         }
-                    } catch (Exception e) {}
+                    } catch (Exception e) {
+                    }
 
                     if (respuesta != null && !respuesta.isEmpty() && respuesta.startsWith("{")) {
                         JSONObject objetoJson = new JSONObject(respuesta);
@@ -817,354 +818,370 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                             JSONArray retorno = objetoJson.getJSONArray("retorno");
                             if (!retorno.isEmpty()) {
                                 for (int indice = 0; indice < retorno.length(); indice++) {
-                        if (!retorno.isNull(indice)) {
-                            JSONObject nt = retorno.getJSONObject(indice);
-                            JSONObject ntPK = nt.getJSONObject("prepedidoPK");
-                            JSONObject cli = nt.getJSONObject("codigocliente");
+                                    if (!retorno.isNull(indice)) {
+                                        JSONObject nt = retorno.getJSONObject(indice);
+                                        JSONObject ntPK = nt.getJSONObject("prepedidoPK");
+                                        JSONObject cli = nt.getJSONObject("codigocliente");
 
-                            JSONObject cliPK = cli.getJSONObject("clientePK");
-                            
-                            if (codCliente != null && !codCliente.trim().isEmpty()) {
-                                String currentClienteCodigo = cliPK.optString("codigo", "");
-                                if (!codCliente.trim().equals(currentClienteCodigo.trim())) {
-                                    continue;
-                                }
-                            }
+                                        JSONObject cliPK = cli.getJSONObject("clientePK");
 
-                            JSONObject term = nt.getJSONObject("codigoterminal");
-                            JSONObject ban = nt.getJSONObject("codigobanco");
-                            JSONObject formPago = cli.getJSONObject("codigoformapago");
-                            JSONObject com = nt.getJSONObject("comercializadora");
-                            JSONObject abastecedora = nt.getJSONObject("abastecedora");
-
-                            /*----Varaibles para transformar formate json en fechas-----*/
-                            Long dateStrFV = nt.getLong("fechaventa");
-                            Long dateStrFD = nt.getLong("fechadespacho");
-                            Date dateFV = new Date(dateStrFV);
-                            Date dateFD = new Date(dateStrFD);
-                            String fechaDescpacho = date.format(dateFD);
-                            String fechaVencimiento = date.format(dateFV);
-                            /*----Objeto Abastecedora----*/
-                            Abastecedora parseAbas = new Abastecedora();
-                            parseAbas.setCodigo(abastecedora.getString("codigo"));
-
-                            /*----Objeto comercializadora----*/
-                            Comercializadora parseComerc = new Comercializadora();
-                            parseComerc.setCodigo(com.getString("codigo"));
-                            parseComerc.setNombre(com.getString("nombre"));
-                            parseComerc.setRuc(com.getString("ruc"));
-                            parseComerc.setDireccion(com.getString("direccion"));
-                            parseComerc.setAmbientesri(com.getString("ambientesri").charAt(0));
-                            parseComerc.setEsagenteretencion(com.getBoolean("esagenteretencion"));
-                            parseComerc.setEscontribuyenteespacial(com.getString("escontribuyenteespacial"));
-                            parseComerc.setTipoemision(com.getString("tipoemision").charAt(0));
-                            parseComerc.setObligadocontabilidad(com.getString("obligadocontabilidad"));
-                            parseComerc.setEstablecimientofac(com.getString("establecimientofac"));
-                            parseComerc.setPuntoventafac(com.getString("puntoventafac"));
-                            parseComerc.setClavewsepp(com.getString("clavewsepp"));
-                            if (!com.isNull("generapedidodirecto")) {
-                                parseComerc.setGenerapedidodirecto(com.getBoolean("generapedidodirecto"));
-                            }
-
-                            /*----Objeto Fromapago----*/
-                            Formapago parseFormap = new Formapago();
-                            parseFormap.setCodigo(formPago.getString("codigo"));
-
-                            /*----Objeto Cliente----*/
-                            Cliente parseCliente = new Cliente();
-                            parseCliente.setClientePK(new ClientePK());
-                            parseCliente.getClientePK().setCodigocomercializadora(cliPK.getString("codigocomercializadora"));
-                            parseCliente.getClientePK().setCodigo(cliPK.getString("codigo"));
-
-                            parseCliente.setNombre(cli.getString("nombre"));
-                            parseCliente.setNombrecomercial(cli.getString("nombrecomercial"));
-                            parseCliente.setRuc(cli.getString("ruc"));
-                            parseCliente.setCorreo1(cli.getString("correo1"));
-                            parseCliente.setTelefono1(cli.getString("telefono1"));
-                            parseCliente.setDireccion(cli.getString("direccion"));
-                            if (!cli.isNull("tipoplazocredito")) {
-                                parseCliente.setTipoplazocredito(cli.getString("tipoplazocredito"));
-                            }
-                            parseCliente.setCodigolistaprecio(cli.getLong("codigolistaprecio"));
-                            parseCliente.setCodigoformapago(parseFormap);
-
-                            /*----Objeto Terminal----*/
-                            Terminal parseTerminal = new Terminal();
-                            parseTerminal.setCodigo(term.getString("codigo"));
-
-                            /*----Objeto Banco----*/
-                            Banco parseBanco = new Banco();
-                            parseBanco.setCodigo(ban.getString("codigo"));
-
-                            /*----Guardando el cliente, termina y banco en Nota pedido---*/
-                            Prepedido parseNp = new Prepedido();
-                            parseNp.setCodigocliente(parseCliente);
-                            parseNp.setCodigoclienteId(parseCliente.getClientePK().getCodigo().trim());
-                            parseNp.setCodigoterminal(parseTerminal);
-                            parseNp.setCodigobanco(parseBanco);
-                            parseNp.setComercializadora(parseComerc);
-                            parseNp.setAbastecedora(parseAbas);
-
-                            if (!nt.isNull("tramaenviadagoe")) {
-                                parseNp.setTramaenviadagoe(nt.getString("tramaenviadagoe"));
-                            } else {
-                                parseNp.setTramaenviadagoe("");
-                            }
-
-                            if (!nt.isNull("tramarecibidagoe")) {
-                                parseNp.setTramarecibidagoe(nt.getString("tramarecibidagoe"));
-                            } else {
-                                parseNp.setTramarecibidagoe("");
-                            }
-
-                            if (!nt.isNull("tramarenviadaaoe")) {
-                                parseNp.setTramarenviadaaoe(nt.getString("tramarenviadaaoe"));
-                            } else {
-                                parseNp.setTramarenviadaaoe("");
-                            }
-
-                            if (!nt.isNull("tramarecibidaaoe")) {
-                                parseNp.setTramarecibidaaoe(nt.getString("tramarecibidaaoe"));
-                            } else {
-                                parseNp.setTramarecibidaaoe("");
-                            }
-
-                            parseNp.setNumerofacturasri(nt.getString("numerofacturasri"));
-                            parseNp.setActiva(nt.getBoolean("activa"));
-                            parseNp.setFacturada(nt.getString("facturada"));
-                            String respGen = nt.optString("respuestageneracionoeepp", "");
-                            String respAnu = nt.optString("respuestaanulacionoeepp", "");
-                            parseNp.setRespuestageneracionoeepp(respGen);
-                            parseNp.setRespuestaanulacionoeepp(respAnu);
-                            parseNp.setOeenpetro(respGen);
-                            parseNp.setOeanuladaenpetro(respAnu);
-                            
-                            PrepedidoPK parseNpPK = new PrepedidoPK();
-                            parseNpPK.setNumero(ntPK.getString("numero"));
-                            parseNpPK.setCodigoabastecedora(ntPK.getString("codigoabastecedora"));
-                            parseNpPK.setCodigocomercializadora(ntPK.getString("codigocomercializadora"));
-                            parseNp.setFechaventa(fechaVencimiento);
-                            parseNp.setFechadespacho(fechaDescpacho);
-                            parseNp.setPrepedidoPK(parseNpPK);
-                            parseNp.setUsuarioactual(nt.getString("usuarioactual"));
-                            if (!nt.isNull("observacion")) {
-                                parseNp.setObservacion(nt.getString("observacion"));
-                            } else {
-                                parseNp.setObservacion("");
-                            }
-
-                            if (!nt.isNull("prefijo")) {
-                                parseNp.setPrefijo(nt.getString("prefijo"));
-                            } else {
-                                parseNp.setPrefijo("");
-                            }
-                            if (!nt.isNull("codigoautotanque")) {
-                                parseNp.setCodigoautotanque(nt.getString("codigoautotanque"));
-                            } else {
-                                parseNp.setCodigoautotanque("");
-                            }
-                            if (!nt.isNull("cedulaconductor")) {
-                                parseNp.setCedulaconductor(nt.getString("cedulaconductor"));
-                            } else {
-                                parseNp.setCedulaconductor("");
-                            }
-
-                            /*----Parse Detail if exists for Producto and Volume columns----*/
-                            List<Detalleprepedido> detallesParseados = new ArrayList<>();
-                            JSONArray detList = null;
-                            if (!nt.isNull("detallesNP")) {
-                                detList = nt.getJSONArray("detallesNP");
-                            } else if (!nt.isNull("detalleprepedidoList")) {
-                                detList = nt.getJSONArray("detalleprepedidoList");
-                            }
-
-                            if (detList != null) {
-                                for (int d = 0; d < detList.length(); d++) {
-                                    if (!detList.isNull(d)) {
-                                        JSONObject det = detList.getJSONObject(d);
-                                        Detalleprepedido dp = new Detalleprepedido();
-                                        if (!det.isNull("detalleprepedidoPK")) {
-                                            JSONObject pkJson = det.getJSONObject("detalleprepedidoPK");
-                                            DetalleprepedidoPK pk = new DetalleprepedidoPK();
-                                            pk.setCodigoabastecedora(pkJson.optString("codigoabastecedora", ""));
-                                            pk.setCodigocomercializadora(
-                                                    pkJson.optString("codigocomercializadora", ""));
-                                            pk.setNumero(pkJson.optString("numero", ""));
-                                            pk.setCodigoproducto(pkJson.optString("codigoproducto", ""));
-                                            pk.setCodigomedida(pkJson.optString("codigomedida", ""));
-                                            dp.setDetalleprepedidoPK(pk);
-                                        }
-                                        if (!det.isNull("producto")) {
-                                            JSONObject prodJson = det.getJSONObject("producto");
-                                            Producto p = new Producto();
-                                            p.setCodigo(prodJson.optString("codigo", ""));
-                                            p.setNombre(prodJson.optString("nombre", ""));
-                                            dp.setProducto(p);
-                                        } else if (!det.isNull("nombreproducto")) {
-                                            Producto p = new Producto();
-                                            p.setCodigo(det.optString("codigoproducto", ""));
-                                            p.setNombre(det.optString("nombreproducto", ""));
-                                            dp.setProducto(p);
+                                        if (codCliente != null && !codCliente.trim().isEmpty()) {
+                                            String currentClienteCodigo = cliPK.optString("codigo", "");
+                                            if (!codCliente.trim().equals(currentClienteCodigo.trim())) {
+                                                continue;
+                                            }
                                         }
 
-                                        if (!det.isNull("volumennaturalrequerido")) {
-                                            dp.setVolumennaturalrequerido(det.getBigDecimal("volumennaturalrequerido"));
+                                        JSONObject term = nt.getJSONObject("codigoterminal");
+                                        JSONObject ban = nt.getJSONObject("codigobanco");
+                                        JSONObject formPago = cli.getJSONObject("codigoformapago");
+                                        JSONObject com = nt.getJSONObject("comercializadora");
+                                        JSONObject abastecedora = nt.getJSONObject("abastecedora");
+
+                                        /*----Varaibles para transformar formate json en fechas-----*/
+                                        Long dateStrFV = nt.getLong("fechaventa");
+                                        Long dateStrFD = nt.getLong("fechadespacho");
+                                        Date dateFV = new Date(dateStrFV);
+                                        Date dateFD = new Date(dateStrFD);
+                                        String fechaDescpacho = date.format(dateFD);
+                                        String fechaVencimiento = date.format(dateFV);
+                                        /*----Objeto Abastecedora----*/
+                                        Abastecedora parseAbas = new Abastecedora();
+                                        parseAbas.setCodigo(abastecedora.getString("codigo"));
+
+                                        /*----Objeto comercializadora----*/
+                                        Comercializadora parseComerc = new Comercializadora();
+                                        parseComerc.setCodigo(com.getString("codigo"));
+                                        parseComerc.setNombre(com.getString("nombre"));
+                                        parseComerc.setRuc(com.getString("ruc"));
+                                        parseComerc.setDireccion(com.getString("direccion"));
+                                        parseComerc.setAmbientesri(com.getString("ambientesri").charAt(0));
+                                        parseComerc.setEsagenteretencion(com.getBoolean("esagenteretencion"));
+                                        parseComerc
+                                                .setEscontribuyenteespacial(com.getString("escontribuyenteespacial"));
+                                        parseComerc.setTipoemision(com.getString("tipoemision").charAt(0));
+                                        parseComerc.setObligadocontabilidad(com.getString("obligadocontabilidad"));
+                                        parseComerc.setEstablecimientofac(com.getString("establecimientofac"));
+                                        parseComerc.setPuntoventafac(com.getString("puntoventafac"));
+                                        parseComerc.setClavewsepp(com.getString("clavewsepp"));
+                                        if (!com.isNull("generapedidodirecto")) {
+                                            parseComerc.setGenerapedidodirecto(com.getBoolean("generapedidodirecto"));
                                         }
-                                        if (!det.isNull("volumennaturalautorizado")) {
-                                            dp.setVolumennaturalautorizado(
-                                                    det.getBigDecimal("volumennaturalautorizado"));
+
+                                        /*----Objeto Fromapago----*/
+                                        Formapago parseFormap = new Formapago();
+                                        parseFormap.setCodigo(formPago.getString("codigo"));
+
+                                        /*----Objeto Cliente----*/
+                                        Cliente parseCliente = new Cliente();
+                                        parseCliente.setClientePK(new ClientePK());
+                                        parseCliente.getClientePK()
+                                                .setCodigocomercializadora(cliPK.getString("codigocomercializadora"));
+                                        parseCliente.getClientePK().setCodigo(cliPK.getString("codigo"));
+
+                                        parseCliente.setNombre(cli.getString("nombre"));
+                                        parseCliente.setNombrecomercial(cli.getString("nombrecomercial"));
+                                        parseCliente.setRuc(cli.getString("ruc"));
+                                        parseCliente.setCorreo1(cli.getString("correo1"));
+                                        parseCliente.setTelefono1(cli.getString("telefono1"));
+                                        parseCliente.setDireccion(cli.getString("direccion"));
+                                        if (!cli.isNull("tipoplazocredito")) {
+                                            parseCliente.setTipoplazocredito(cli.getString("tipoplazocredito"));
+                                        }
+                                        parseCliente.setCodigolistaprecio(cli.getLong("codigolistaprecio"));
+                                        parseCliente.setCodigoformapago(parseFormap);
+
+                                        /*----Objeto Terminal----*/
+                                        Terminal parseTerminal = new Terminal();
+                                        parseTerminal.setCodigo(term.getString("codigo"));
+
+                                        /*----Objeto Banco----*/
+                                        Banco parseBanco = new Banco();
+                                        parseBanco.setCodigo(ban.getString("codigo"));
+
+                                        /*----Guardando el cliente, termina y banco en Nota pedido---*/
+                                        Prepedido parseNp = new Prepedido();
+                                        parseNp.setCodigocliente(parseCliente);
+                                        parseNp.setCodigoclienteId(parseCliente.getClientePK().getCodigo().trim());
+                                        parseNp.setCodigoterminal(parseTerminal);
+                                        parseNp.setCodigobanco(parseBanco);
+                                        parseNp.setComercializadora(parseComerc);
+                                        parseNp.setAbastecedora(parseAbas);
+
+                                        if (!nt.isNull("tramaenviadagoe")) {
+                                            parseNp.setTramaenviadagoe(nt.getString("tramaenviadagoe"));
                                         } else {
-                                            dp.setVolumennaturalautorizado(BigDecimal.ZERO);
+                                            parseNp.setTramaenviadagoe("");
                                         }
-                                        if (det.has("activo") && !det.isNull("activo")) {
-                                            dp.setActivo(det.getBoolean("activo"));
+
+                                        if (!nt.isNull("tramarecibidagoe")) {
+                                            parseNp.setTramarecibidagoe(nt.getString("tramarecibidagoe"));
+                                        } else {
+                                            parseNp.setTramarecibidagoe("");
                                         }
-                                        detallesParseados.add(dp);
-                                    }
-                                }
-                            } else if (!nt.isNull("detalle")) {
-                                JSONObject det = nt.getJSONObject("detalle");
-                                Detalleprepedido dp = new Detalleprepedido();
-                                if (!det.isNull("detalleprepedidoPK")) {
-                                    JSONObject pkJson = det.getJSONObject("detalleprepedidoPK");
-                                    DetalleprepedidoPK pk = new DetalleprepedidoPK();
-                                    pk.setCodigoabastecedora(pkJson.optString("codigoabastecedora", ""));
-                                    pk.setCodigocomercializadora(pkJson.optString("codigocomercializadora", ""));
-                                    pk.setNumero(pkJson.optString("numero", ""));
-                                    pk.setCodigoproducto(pkJson.optString("codigoproducto", ""));
-                                    pk.setCodigomedida(pkJson.optString("codigomedida", ""));
-                                    dp.setDetalleprepedidoPK(pk);
-                                }
-                                if (!det.isNull("producto")) {
-                                    JSONObject prodJson = det.getJSONObject("producto");
-                                    Producto p = new Producto();
-                                    p.setCodigo(prodJson.optString("codigo", ""));
-                                    p.setNombre(prodJson.optString("nombre", ""));
-                                    dp.setProducto(p);
-                                } else if (!det.isNull("nombreproducto")) {
-                                    Producto p = new Producto();
-                                    p.setCodigo(det.optString("codigoproducto", ""));
-                                    p.setNombre(det.optString("nombreproducto", ""));
-                                    dp.setProducto(p);
-                                }
-                                if (!det.isNull("volumennaturalrequerido")) {
-                                    dp.setVolumennaturalrequerido(det.getBigDecimal("volumennaturalrequerido"));
-                                }
-                                if (!det.isNull("volumennaturalautorizado")) {
-                                    dp.setVolumennaturalautorizado(det.getBigDecimal("volumennaturalautorizado"));
-                                } else {
-                                    dp.setVolumennaturalautorizado(BigDecimal.ZERO);
-                                }
-                                if (det.has("activo") && !det.isNull("activo")) {
-                                    dp.setActivo(det.getBoolean("activo"));
-                                }
-                                detallesParseados.add(dp);
-                            } else {
-                                // Check for flat structure in nt directly
-                                if (!nt.isNull("nombreproducto") || !nt.isNull("volumennaturalautorizado")) {
-                                    Detalleprepedido dp = new Detalleprepedido();
-                                    Producto p = new Producto();
-                                    p.setCodigo(nt.optString("codigoproducto", ""));
-                                    p.setNombre(nt.optString("nombreproducto", ""));
-                                    dp.setProducto(p);
-                                    if (!nt.isNull("volumennaturalrequerido")) {
-                                        dp.setVolumennaturalrequerido(nt.getBigDecimal("volumennaturalrequerido"));
-                                    }
-                                    if (!nt.isNull("volumennaturalautorizado")) {
-                                        dp.setVolumennaturalautorizado(nt.getBigDecimal("volumennaturalautorizado"));
-                                    } else {
-                                        dp.setVolumennaturalautorizado(BigDecimal.ZERO);
-                                    }
-                                    if (nt.has("activo") && !nt.isNull("activo")) {
-                                        dp.setActivo(nt.getBoolean("activo"));
-                                    }
-                                    detallesParseados.add(dp);
-                                }
-                            }
 
-                            String numNotaBackend = "0";
-                            try {
-                                if (nt.has("numeronotapedidogenerada") && !nt.isNull("numeronotapedidogenerada")) {
-                                    numNotaBackend = nt.optString("numeronotapedidogenerada", "0");
-                                } else if (nt.has("numeroNotaPedidoGenerada")
-                                        && !nt.isNull("numeroNotaPedidoGenerada")) {
-                                    numNotaBackend = nt.optString("numeroNotaPedidoGenerada", "0");
-                                } else if (nt.has("numeronotapedido") && !nt.isNull("numeronotapedido")) {
-                                    numNotaBackend = nt.optString("numeronotapedido", "0");
-                                } else if (nt.has("notapedido") && !nt.isNull("notapedido")) {
-                                    Object objNp = nt.get("notapedido");
-                                    if (objNp instanceof String) {
-                                        numNotaBackend = (String) objNp;
-                                    } else if (objNp instanceof JSONObject) {
-                                        JSONObject joNp = (JSONObject) objNp;
-                                        if (joNp.has("notapedidoPK") && !joNp.isNull("notapedidoPK")) {
-                                            numNotaBackend = joNp.getJSONObject("notapedidoPK").optString("numero",
-                                                    "0");
-                                        } else if (joNp.has("numero") && !joNp.isNull("numero")) {
-                                            numNotaBackend = joNp.optString("numero", "0");
+                                        if (!nt.isNull("tramarenviadaaoe")) {
+                                            parseNp.setTramarenviadaaoe(nt.getString("tramarenviadaaoe"));
+                                        } else {
+                                            parseNp.setTramarenviadaaoe("");
                                         }
-                                    }
-                                } else if (nt.has("notapedidogenerada") && !nt.isNull("notapedidogenerada")) {
-                                    numNotaBackend = nt.optString("notapedidogenerada", "0");
-                                }
-                                if (numNotaBackend == null || numNotaBackend.trim().isEmpty()
-                                        || numNotaBackend.equals("null")) {
-                                    numNotaBackend = "0";
-                                }
-                            } catch (Exception e) {
-                                LOG.log(java.util.logging.Level.WARNING, "Error parseando nota pedido generada", e);
-                            }
 
-                            if (!detallesParseados.isEmpty()) {
-                                int idx = 0;
-                                JSONArray arr = nt.optJSONArray("detalleprepedidoList");
-                                for (Detalleprepedido dpParsed : detallesParseados) {
-                                    PrepedidoSolicitud row = new PrepedidoSolicitud();
-                                    row.setPrepedido(parseNp);
-                                    java.util.List<Detalleprepedido> singleList = new java.util.ArrayList<>();
-                                    singleList.add(dpParsed);
-                                    row.setDetalle(singleList);
-                                    row.setEstadoForzado(row.getEstadoAutorizado());
+                                        if (!nt.isNull("tramarecibidaaoe")) {
+                                            parseNp.setTramarecibidaaoe(nt.getString("tramarecibidaaoe"));
+                                        } else {
+                                            parseNp.setTramarecibidaaoe("");
+                                        }
 
-                                    String finalNumNp = numNotaBackend;
-                                    try {
-                                        if (arr != null && idx < arr.length()) {
-                                            JSONObject detJson = arr.getJSONObject(idx);
-                                            if (detJson.has("numeronp") && !detJson.isNull("numeronp")) {
-                                                String val = detJson.optString("numeronp", "0");
-                                                if (val != null && !val.trim().isEmpty() && !val.equals("null")
-                                                        && !val.equals("0")) {
-                                                    finalNumNp = val;
+                                        parseNp.setNumerofacturasri(nt.getString("numerofacturasri"));
+                                        parseNp.setActiva(nt.getBoolean("activa"));
+                                        parseNp.setFacturada(nt.getString("facturada"));
+                                        String respGen = nt.optString("respuestageneracionoeepp", "");
+                                        String respAnu = nt.optString("respuestaanulacionoeepp", "");
+                                        parseNp.setRespuestageneracionoeepp(respGen);
+                                        parseNp.setRespuestaanulacionoeepp(respAnu);
+                                        parseNp.setOeenpetro(respGen);
+                                        parseNp.setOeanuladaenpetro(respAnu);
+
+                                        PrepedidoPK parseNpPK = new PrepedidoPK();
+                                        parseNpPK.setNumero(ntPK.getString("numero"));
+                                        parseNpPK.setCodigoabastecedora(ntPK.getString("codigoabastecedora"));
+                                        parseNpPK.setCodigocomercializadora(ntPK.getString("codigocomercializadora"));
+                                        parseNp.setFechaventa(fechaVencimiento);
+                                        parseNp.setFechadespacho(fechaDescpacho);
+                                        parseNp.setPrepedidoPK(parseNpPK);
+                                        parseNp.setUsuarioactual(nt.getString("usuarioactual"));
+                                        if (!nt.isNull("observacion")) {
+                                            parseNp.setObservacion(nt.getString("observacion"));
+                                        } else {
+                                            parseNp.setObservacion("");
+                                        }
+
+                                        if (!nt.isNull("prefijo")) {
+                                            parseNp.setPrefijo(nt.getString("prefijo"));
+                                        } else {
+                                            parseNp.setPrefijo("");
+                                        }
+                                        if (!nt.isNull("codigoautotanque")) {
+                                            parseNp.setCodigoautotanque(nt.getString("codigoautotanque"));
+                                        } else {
+                                            parseNp.setCodigoautotanque("");
+                                        }
+                                        if (!nt.isNull("cedulaconductor")) {
+                                            parseNp.setCedulaconductor(nt.getString("cedulaconductor"));
+                                        } else {
+                                            parseNp.setCedulaconductor("");
+                                        }
+
+                                        /*----Parse Detail if exists for Producto and Volume columns----*/
+                                        List<Detalleprepedido> detallesParseados = new ArrayList<>();
+                                        JSONArray detList = null;
+                                        if (!nt.isNull("detallesNP")) {
+                                            detList = nt.getJSONArray("detallesNP");
+                                        } else if (!nt.isNull("detalleprepedidoList")) {
+                                            detList = nt.getJSONArray("detalleprepedidoList");
+                                        }
+
+                                        if (detList != null) {
+                                            for (int d = 0; d < detList.length(); d++) {
+                                                if (!detList.isNull(d)) {
+                                                    JSONObject det = detList.getJSONObject(d);
+                                                    Detalleprepedido dp = new Detalleprepedido();
+                                                    if (!det.isNull("detalleprepedidoPK")) {
+                                                        JSONObject pkJson = det.getJSONObject("detalleprepedidoPK");
+                                                        DetalleprepedidoPK pk = new DetalleprepedidoPK();
+                                                        pk.setCodigoabastecedora(
+                                                                pkJson.optString("codigoabastecedora", ""));
+                                                        pk.setCodigocomercializadora(
+                                                                pkJson.optString("codigocomercializadora", ""));
+                                                        pk.setNumero(pkJson.optString("numero", ""));
+                                                        pk.setCodigoproducto(pkJson.optString("codigoproducto", ""));
+                                                        pk.setCodigomedida(pkJson.optString("codigomedida", ""));
+                                                        dp.setDetalleprepedidoPK(pk);
+                                                    }
+                                                    if (!det.isNull("producto")) {
+                                                        JSONObject prodJson = det.getJSONObject("producto");
+                                                        Producto p = new Producto();
+                                                        p.setCodigo(prodJson.optString("codigo", ""));
+                                                        p.setNombre(prodJson.optString("nombre", ""));
+                                                        dp.setProducto(p);
+                                                    } else if (!det.isNull("nombreproducto")) {
+                                                        Producto p = new Producto();
+                                                        p.setCodigo(det.optString("codigoproducto", ""));
+                                                        p.setNombre(det.optString("nombreproducto", ""));
+                                                        dp.setProducto(p);
+                                                    }
+
+                                                    if (!det.isNull("volumennaturalrequerido")) {
+                                                        dp.setVolumennaturalrequerido(
+                                                                det.getBigDecimal("volumennaturalrequerido"));
+                                                    }
+                                                    if (!det.isNull("volumennaturalautorizado")) {
+                                                        dp.setVolumennaturalautorizado(
+                                                                det.getBigDecimal("volumennaturalautorizado"));
+                                                    } else {
+                                                        dp.setVolumennaturalautorizado(BigDecimal.ZERO);
+                                                    }
+                                                    if (det.has("activo") && !det.isNull("activo")) {
+                                                        dp.setActivo(det.getBoolean("activo"));
+                                                    }
+                                                    detallesParseados.add(dp);
                                                 }
                                             }
-                                        } else if (nt.has("detalle") && !nt.isNull("detalle")) {
-                                            JSONObject detJson = nt.getJSONObject("detalle");
-                                            if (detJson.has("numeronp") && !detJson.isNull("numeronp")) {
-                                                String val = detJson.optString("numeronp", "0");
-                                                if (val != null && !val.trim().isEmpty() && !val.equals("null")
-                                                        && !val.equals("0")) {
-                                                    finalNumNp = val;
+                                        } else if (!nt.isNull("detalle")) {
+                                            JSONObject det = nt.getJSONObject("detalle");
+                                            Detalleprepedido dp = new Detalleprepedido();
+                                            if (!det.isNull("detalleprepedidoPK")) {
+                                                JSONObject pkJson = det.getJSONObject("detalleprepedidoPK");
+                                                DetalleprepedidoPK pk = new DetalleprepedidoPK();
+                                                pk.setCodigoabastecedora(pkJson.optString("codigoabastecedora", ""));
+                                                pk.setCodigocomercializadora(
+                                                        pkJson.optString("codigocomercializadora", ""));
+                                                pk.setNumero(pkJson.optString("numero", ""));
+                                                pk.setCodigoproducto(pkJson.optString("codigoproducto", ""));
+                                                pk.setCodigomedida(pkJson.optString("codigomedida", ""));
+                                                dp.setDetalleprepedidoPK(pk);
+                                            }
+                                            if (!det.isNull("producto")) {
+                                                JSONObject prodJson = det.getJSONObject("producto");
+                                                Producto p = new Producto();
+                                                p.setCodigo(prodJson.optString("codigo", ""));
+                                                p.setNombre(prodJson.optString("nombre", ""));
+                                                dp.setProducto(p);
+                                            } else if (!det.isNull("nombreproducto")) {
+                                                Producto p = new Producto();
+                                                p.setCodigo(det.optString("codigoproducto", ""));
+                                                p.setNombre(det.optString("nombreproducto", ""));
+                                                dp.setProducto(p);
+                                            }
+                                            if (!det.isNull("volumennaturalrequerido")) {
+                                                dp.setVolumennaturalrequerido(
+                                                        det.getBigDecimal("volumennaturalrequerido"));
+                                            }
+                                            if (!det.isNull("volumennaturalautorizado")) {
+                                                dp.setVolumennaturalautorizado(
+                                                        det.getBigDecimal("volumennaturalautorizado"));
+                                            } else {
+                                                dp.setVolumennaturalautorizado(BigDecimal.ZERO);
+                                            }
+                                            if (det.has("activo") && !det.isNull("activo")) {
+                                                dp.setActivo(det.getBoolean("activo"));
+                                            }
+                                            detallesParseados.add(dp);
+                                        } else {
+                                            // Check for flat structure in nt directly
+                                            if (!nt.isNull("nombreproducto")
+                                                    || !nt.isNull("volumennaturalautorizado")) {
+                                                Detalleprepedido dp = new Detalleprepedido();
+                                                Producto p = new Producto();
+                                                p.setCodigo(nt.optString("codigoproducto", ""));
+                                                p.setNombre(nt.optString("nombreproducto", ""));
+                                                dp.setProducto(p);
+                                                if (!nt.isNull("volumennaturalrequerido")) {
+                                                    dp.setVolumennaturalrequerido(
+                                                            nt.getBigDecimal("volumennaturalrequerido"));
                                                 }
+                                                if (!nt.isNull("volumennaturalautorizado")) {
+                                                    dp.setVolumennaturalautorizado(
+                                                            nt.getBigDecimal("volumennaturalautorizado"));
+                                                } else {
+                                                    dp.setVolumennaturalautorizado(BigDecimal.ZERO);
+                                                }
+                                                if (nt.has("activo") && !nt.isNull("activo")) {
+                                                    dp.setActivo(nt.getBoolean("activo"));
+                                                }
+                                                detallesParseados.add(dp);
                                             }
                                         }
-                                    } catch (Exception e) {
-                                    }
 
-                                    row.setNumeroNotaPedidoGenerada(finalNumNp);
-                                    listPrepedido.add(row);
-                                    idx++;
+                                        String numNotaBackend = "0";
+                                        try {
+                                            if (nt.has("numeronotapedidogenerada")
+                                                    && !nt.isNull("numeronotapedidogenerada")) {
+                                                numNotaBackend = nt.optString("numeronotapedidogenerada", "0");
+                                            } else if (nt.has("numeroNotaPedidoGenerada")
+                                                    && !nt.isNull("numeroNotaPedidoGenerada")) {
+                                                numNotaBackend = nt.optString("numeroNotaPedidoGenerada", "0");
+                                            } else if (nt.has("numeronotapedido") && !nt.isNull("numeronotapedido")) {
+                                                numNotaBackend = nt.optString("numeronotapedido", "0");
+                                            } else if (nt.has("notapedido") && !nt.isNull("notapedido")) {
+                                                Object objNp = nt.get("notapedido");
+                                                if (objNp instanceof String) {
+                                                    numNotaBackend = (String) objNp;
+                                                } else if (objNp instanceof JSONObject) {
+                                                    JSONObject joNp = (JSONObject) objNp;
+                                                    if (joNp.has("notapedidoPK") && !joNp.isNull("notapedidoPK")) {
+                                                        numNotaBackend = joNp.getJSONObject("notapedidoPK").optString(
+                                                                "numero",
+                                                                "0");
+                                                    } else if (joNp.has("numero") && !joNp.isNull("numero")) {
+                                                        numNotaBackend = joNp.optString("numero", "0");
+                                                    }
+                                                }
+                                            } else if (nt.has("notapedidogenerada")
+                                                    && !nt.isNull("notapedidogenerada")) {
+                                                numNotaBackend = nt.optString("notapedidogenerada", "0");
+                                            }
+                                            if (numNotaBackend == null || numNotaBackend.trim().isEmpty()
+                                                    || numNotaBackend.equals("null")) {
+                                                numNotaBackend = "0";
+                                            }
+                                        } catch (Exception e) {
+                                            LOG.log(java.util.logging.Level.WARNING,
+                                                    "Error parseando nota pedido generada", e);
+                                        }
+
+                                        if (!detallesParseados.isEmpty()) {
+                                            int idx = 0;
+                                            JSONArray arr = nt.optJSONArray("detalleprepedidoList");
+                                            for (Detalleprepedido dpParsed : detallesParseados) {
+                                                PrepedidoSolicitud row = new PrepedidoSolicitud();
+                                                row.setPrepedido(parseNp);
+                                                java.util.List<Detalleprepedido> singleList = new java.util.ArrayList<>();
+                                                singleList.add(dpParsed);
+                                                row.setDetalle(singleList);
+                                                row.setEstadoForzado(row.getEstadoAutorizado());
+
+                                                String finalNumNp = numNotaBackend;
+                                                try {
+                                                    if (arr != null && idx < arr.length()) {
+                                                        JSONObject detJson = arr.getJSONObject(idx);
+                                                        if (detJson.has("numeronp") && !detJson.isNull("numeronp")) {
+                                                            String val = detJson.optString("numeronp", "0");
+                                                            if (val != null && !val.trim().isEmpty()
+                                                                    && !val.equals("null")
+                                                                    && !val.equals("0")) {
+                                                                finalNumNp = val;
+                                                            }
+                                                        }
+                                                    } else if (nt.has("detalle") && !nt.isNull("detalle")) {
+                                                        JSONObject detJson = nt.getJSONObject("detalle");
+                                                        if (detJson.has("numeronp") && !detJson.isNull("numeronp")) {
+                                                            String val = detJson.optString("numeronp", "0");
+                                                            if (val != null && !val.trim().isEmpty()
+                                                                    && !val.equals("null")
+                                                                    && !val.equals("0")) {
+                                                                finalNumNp = val;
+                                                            }
+                                                        }
+                                                    }
+                                                } catch (Exception e) {
+                                                }
+
+                                                row.setNumeroNotaPedidoGenerada(finalNumNp);
+                                                listPrepedido.add(row);
+                                                idx++;
+                                            }
+                                        } else {
+                                            PrepedidoSolicitud envioPedido = new PrepedidoSolicitud();
+                                            envioPedido.setPrepedido(parseNp);
+                                            envioPedido.setEstadoForzado(envioPedido.getEstadoAutorizado());
+                                            envioPedido.setNumeroNotaPedidoGenerada(numNotaBackend);
+                                            listPrepedido.add(envioPedido);
+                                        }
+
+                                        listDetNP = new ArrayList<>();
+                                    }
                                 }
-                            } else {
-                                PrepedidoSolicitud envioPedido = new PrepedidoSolicitud();
-                                envioPedido.setPrepedido(parseNp);
-                                envioPedido.setEstadoForzado(envioPedido.getEstadoAutorizado());
-                                envioPedido.setNumeroNotaPedidoGenerada(numNotaBackend);
-                                listPrepedido.add(envioPedido);
-                            }
-                            
-                            listDetNP = new ArrayList<>();
-                        }
-                    }
                             }
                         }
                     }
@@ -1553,7 +1570,9 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
         public FilaGenerarNota(PrepedidoSolicitud ps) {
             this.prepedidoSolicitud = ps;
             this.listaProductosFiltrada = new java.util.ArrayList<>();
-            if (ps != null && ps.getNumeroNotaPedidoGenerada() != null && !ps.getNumeroNotaPedidoGenerada().trim().isEmpty() && !ps.getNumeroNotaPedidoGenerada().equals("0")) {
+            if (ps != null && ps.getNumeroNotaPedidoGenerada() != null
+                    && !ps.getNumeroNotaPedidoGenerada().trim().isEmpty()
+                    && !ps.getNumeroNotaPedidoGenerada().equals("0")) {
                 this.numeroNotaPedidoGenerada = ps.getNumeroNotaPedidoGenerada();
             } else {
                 this.numeroNotaPedidoGenerada = "00";
@@ -2418,15 +2437,18 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                             JSONObject npJson = envioPedidoJson.getJSONObject("notapedido");
                             if (npJson.has("codigocliente") && !npJson.isNull("codigocliente")) {
                                 JSONObject cliJson = npJson.getJSONObject("codigocliente");
-                                
+
                                 if (cliJson.optJSONObject("codigodireccioninen") != null) {
-                                    cliJson.put("codigodireccioninen", cliJson.getJSONObject("codigodireccioninen").optString("codigo"));
+                                    cliJson.put("codigodireccioninen",
+                                            cliJson.getJSONObject("codigodireccioninen").optString("codigo"));
                                 }
                                 if (cliJson.optJSONObject("codigotipocliente") != null) {
-                                    cliJson.put("codigotipocliente", cliJson.getJSONObject("codigotipocliente").optString("codigo"));
+                                    cliJson.put("codigotipocliente",
+                                            cliJson.getJSONObject("codigotipocliente").optString("codigo"));
                                 }
                                 if (cliJson.optJSONObject("codigobancodebito") != null) {
-                                    cliJson.put("codigobancodebito", cliJson.getJSONObject("codigobancodebito").optString("codigo"));
+                                    cliJson.put("codigobancodebito",
+                                            cliJson.getJSONObject("codigobancodebito").optString("codigo"));
                                 }
                             }
                         }
@@ -2436,16 +2458,19 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                             if (detalleJson.has("producto") && !detalleJson.isNull("producto")) {
                                 JSONObject prodJson = detalleJson.getJSONObject("producto");
                                 if (prodJson.optJSONObject("codigoareamercadeo") != null) {
-                                    prodJson.put("codigoareamercadeo", prodJson.getJSONObject("codigoareamercadeo").optString("codigo"));
+                                    prodJson.put("codigoareamercadeo",
+                                            prodJson.getJSONObject("codigoareamercadeo").optString("codigo"));
                                 }
                                 if (prodJson.optJSONObject("codigostc") != null) {
                                     prodJson.put("codigostc", prodJson.getJSONObject("codigostc").optString("codigo"));
                                 }
                                 if (prodJson.optJSONObject("codigoarch") != null) {
-                                    prodJson.put("codigoarch", prodJson.getJSONObject("codigoarch").optString("codigo"));
+                                    prodJson.put("codigoarch",
+                                            prodJson.getJSONObject("codigoarch").optString("codigo"));
                                 }
                                 if (prodJson.optJSONObject("productogenerico") != null) {
-                                    prodJson.put("productogenerico", prodJson.getJSONObject("productogenerico").optString("codigo"));
+                                    prodJson.put("productogenerico",
+                                            prodJson.getJSONObject("productogenerico").optString("codigo"));
                                 }
                             }
                         }
@@ -2478,7 +2503,8 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
             FacesContext facesContext = FacesContext.getCurrentInstance();
             ExternalContext externalContext = facesContext.getExternalContext();
             externalContext.setResponseContentType("application/pdf");
-            externalContext.setResponseHeader("Content-Disposition", "inline; filename=\"" + pdfStream.getName() + "\"");
+            externalContext.setResponseHeader("Content-Disposition",
+                    "inline; filename=\"" + pdfStream.getName() + "\"");
             try {
                 InputStream is = pdfStream.getStream();
                 java.io.OutputStream os = externalContext.getResponseOutputStream();
