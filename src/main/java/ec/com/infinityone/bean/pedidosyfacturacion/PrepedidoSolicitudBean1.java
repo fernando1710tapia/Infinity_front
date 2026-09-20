@@ -1177,6 +1177,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                                                                     && !val.equals("null")
                                                                     && !val.equals("0")) {
                                                                 finalNumNp = val;
+                                                                dpParsed.setNumeronp(val);
                                                             }
                                                         }
                                                     } else if (nt.has("detalle") && !nt.isNull("detalle")) {
@@ -1187,6 +1188,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                                                                     && !val.equals("null")
                                                                     && !val.equals("0")) {
                                                                 finalNumNp = val;
+                                                                dpParsed.setNumeronp(val);
                                                             }
                                                         }
                                                     }
@@ -1734,10 +1736,10 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             this.prepedidoSolicitud = ps;
             this.detalle = det;
             this.listaProductosFiltrada = new java.util.ArrayList<>();
-            if (ps != null && ps.getNumeroNotaPedidoGenerada() != null
-                    && !ps.getNumeroNotaPedidoGenerada().trim().isEmpty()
-                    && !ps.getNumeroNotaPedidoGenerada().equals("0")) {
-                this.numeroNotaPedidoGenerada = ps.getNumeroNotaPedidoGenerada();
+            if (det != null && det.getNumeronp() != null
+                    && !det.getNumeronp().trim().isEmpty()
+                    && !det.getNumeronp().equals("0")) {
+                this.numeroNotaPedidoGenerada = det.getNumeronp();
             } else {
                 this.numeroNotaPedidoGenerada = "00";
             }
@@ -1887,6 +1889,9 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                     }
                 }
                 fila.setListaProductosFiltrada(filtrada);
+                if (!filtrada.isEmpty()) {
+                    fila.setCodigoProductoClienteSeleccionado(filtrada.get(0).getCodigo());
+                }
 
                 listaDetallesGenerar.add(fila);
             }
@@ -2100,6 +2105,9 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                     && !numeroNotaPedio.isEmpty()) {
                 fila.setNumeroNotaPedidoGenerada(numeroNotaPedio);
                 fila.getPrepedidoSolicitud().setNumeroNotaPedidoGenerada(numeroNotaPedio);
+                if (fila.getDetalle() != null) {
+                    fila.getDetalle().setNumeronp(numeroNotaPedio);
+                }
                 this.dialogo(FacesMessage.SEVERITY_INFO, "NOTA DE PEDIDO REGISTRADA EXITOSAMENTE: " + numeroNotaPedio);
 
                 if (prep.getComercializadora() != null

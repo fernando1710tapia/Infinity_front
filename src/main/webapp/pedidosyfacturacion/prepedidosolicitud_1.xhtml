@@ -29,11 +29,13 @@
 
             th.action-col.ac-expanded,
             td.action-col.ac-expanded {
-                max-width: 65px !important;
-                width: 55px !important;
+                max-width: 85px !important;
+                width: 75px !important;
                 padding-left: 6px !important;
                 padding-right: 6px !important;
                 opacity: 1;
+                white-space: normal;
+                line-height: 1.2;
             }
 
             /* BotÃ³n toggle de la cortina */
@@ -94,12 +96,6 @@
                                         actionListener="#{prepedidoSolicitudBean1.nuevaPrepedido()}"
                                         update="form :formNuevo" styleClass="ui-button-success"
                                         style="margin-right: .5rem" />
-                                </p:toolbarGroup>
-                                <p:toolbarGroup>
-                                    <p:commandButton value="Export" icon="pi pi-upload" styleClass="ui-button-help"
-                                        ajax="false">
-                                        <p:dataExporter type="pdf" target="dt-products" fileName="products" />
-                                    </p:commandButton>
                                 </p:toolbarGroup>
                             </p:toolbar>
                             <div class="ui-fluid p-formgrid p-grid">
@@ -208,15 +204,20 @@
                                 <p:columnGroup type="header">
                                     <p:row>
                                         <p:column rowspan="2" headerText="# Sol."
-                                            style="text-align:center; min-width:65px;" />
+                                            style="text-align:center; min-width:65px;"
+                                            sortBy="#{prepedidoItem.prepedido.prepedidoPK.numero}" />
                                         <p:column rowspan="2" headerText="Fecha Solicitud"
-                                            style="text-align:center; min-width:100px;" />
+                                            style="text-align:center; min-width:100px;"
+                                            sortBy="#{prepedidoItem.prepedido.fechaventa}" />
                                         <p:column rowspan="2" headerText="Fecha Despacho"
-                                            style="text-align:center; min-width:100px;" />
+                                            style="text-align:center; min-width:100px;"
+                                            sortBy="#{prepedidoItem.prepedido.fechadespacho}" />
                                         <p:column rowspan="2" headerText="Terminal"
-                                            style="text-align:center; min-width:80px;" />
+                                            style="text-align:center; min-width:80px;"
+                                            sortBy="#{prepedidoItem.prepedido.codigoterminal.codigo}" />
                                         <p:column rowspan="2" headerText="Cliente"
-                                            style="text-align:center; min-width:200px;" />
+                                            style="text-align:center; min-width:200px;"
+                                            sortBy="#{prepedidoItem.prepedido.codigocliente.nombrecomercial}" />
                                         <p:column colspan="2" headerText="EXTRA"
                                             style="text-align:center; background:#1e3a5f; color:#fff; min-width:160px;" />
                                         <p:column colspan="2" headerText="DIESEL"
@@ -238,20 +239,49 @@
                                             </f:facet>
                                         </p:column>
                                         <!-- Columnas colapsables (cortina) -->
-                                        <p:column rowspan="2" headerText="G.NP.Inf" styleClass="action-col"
-                                            style="text-align:center; min-width:55px;" />
-                                        <p:column rowspan="2" headerText="G.NP.BCO" styleClass="action-col"
-                                            style="text-align:center; min-width:55px;" />
-                                        <p:column rowspan="2" headerText="Imp. Pedido" styleClass="action-col"
-                                            style="text-align:center; min-width:55px;" />
-                                        <p:column rowspan="2" headerText="G.FAC.Inf" styleClass="action-col"
-                                            style="text-align:center; min-width:55px;" />
-                                        <p:column rowspan="2" headerText="Imp. Factura" styleClass="action-col"
-                                            style="text-align:center; min-width:55px;" />
-                                        <p:column rowspan="2" headerText="Sellos" styleClass="action-col"
-                                            style="text-align:center; min-width:50px;" />
-                                        <p:column rowspan="2" headerText="Imp. Sellos" styleClass="action-col"
-                                            style="text-align:center; min-width:55px;" />
+                                        <p:column rowspan="2" styleClass="action-col"
+                                            style="text-align:center; min-width:75px;">
+                                            <f:facet name="header">
+                                                <h:outputText value="Generar&lt;br/&gt;NP Infinity" escape="false" />
+                                            </f:facet>
+                                        </p:column>
+                                        <p:column rowspan="2" styleClass="action-col"
+                                            style="text-align:center; min-width:75px;">
+                                            <f:facet name="header">
+                                                <h:outputText value="Generar&lt;br/&gt;NP Banco" escape="false" />
+                                            </f:facet>
+                                        </p:column>
+                                        <p:column rowspan="2" styleClass="action-col"
+                                            style="text-align:center; min-width:75px;">
+                                            <f:facet name="header">
+                                                <h:outputText value="Imprimir&lt;br/&gt;Pedido" escape="false" />
+                                            </f:facet>
+                                        </p:column>
+                                        <p:column rowspan="2" styleClass="action-col"
+                                            style="text-align:center; min-width:75px;">
+                                            <f:facet name="header">
+                                                <h:outputText value="Generar&lt;br/&gt;Factura Infinity"
+                                                    escape="false" />
+                                            </f:facet>
+                                        </p:column>
+                                        <p:column rowspan="2" styleClass="action-col"
+                                            style="text-align:center; min-width:75px;">
+                                            <f:facet name="header">
+                                                <h:outputText value="Imprimir&lt;br/&gt;Factura" escape="false" />
+                                            </f:facet>
+                                        </p:column>
+                                        <p:column rowspan="2" styleClass="action-col"
+                                            style="text-align:center; min-width:65px;">
+                                            <f:facet name="header">
+                                                <h:outputText value="Sellos" escape="false" />
+                                            </f:facet>
+                                        </p:column>
+                                        <p:column rowspan="2" styleClass="action-col"
+                                            style="text-align:center; min-width:75px;">
+                                            <f:facet name="header">
+                                                <h:outputText value="Imprimir&lt;br/&gt;Sellos" escape="false" />
+                                            </f:facet>
+                                        </p:column>
                                     </p:row>
                                     <p:row>
                                         <p:column headerText="Vol.Sol"
@@ -306,6 +336,7 @@
                                     <ui:repeat value="#{prepedidoItem.detalle}" var="det">
                                         <p:inputText value="#{det.volumennaturalautorizado}"
                                             rendered="#{det.producto.nombre.equalsIgnoreCase('EXTRA')}"
+                                            disabled="#{det.autorizado eq 'SI'}"
                                             style="width:72px; text-align:center; padding:2px 4px; font-size:0.85rem;" />
                                     </ui:repeat>
                                 </p:column>
@@ -321,6 +352,7 @@
                                     <ui:repeat value="#{prepedidoItem.detalle}" var="det">
                                         <p:inputText value="#{det.volumennaturalautorizado}"
                                             rendered="#{det.producto.nombre.equalsIgnoreCase('DIESEL')}"
+                                            disabled="#{det.autorizado eq 'SI'}"
                                             style="width:72px; text-align:center; padding:2px 4px; font-size:0.85rem;" />
                                     </ui:repeat>
                                 </p:column>
@@ -336,6 +368,7 @@
                                     <ui:repeat value="#{prepedidoItem.detalle}" var="det">
                                         <p:inputText value="#{det.volumennaturalautorizado}"
                                             rendered="#{det.producto.nombre.equalsIgnoreCase('SUPER')}"
+                                            disabled="#{det.autorizado eq 'SI'}"
                                             style="width:72px; text-align:center; padding:2px 4px; font-size:0.85rem;" />
                                     </ui:repeat>
                                 </p:column>
@@ -345,9 +378,7 @@
                                     <p:commandButton icon="pi pi-times" styleClass="rounded-button ui-button-warning"
                                         process="@form"
                                         actionListener="#{prepedidoSolicitudBean1.dialogoAnulacionPrepedido(prepedidoItem)}"
-                                        update=":form"
-                                        disabled="#{prepedidoItem.numeroNotaPedidoGenerada ne '0' or not prepedidoItem.registroActivo}"
-                                        title="Anular">
+                                        update=":form" disabled="#{not prepedidoItem.registroActivo}" title="Anular">
                                         <f:setPropertyActionListener value="#{prepedidoItem}"
                                             target="#{prepedidoSolicitudBean1.envNP}" />
                                     </p:commandButton>
@@ -358,7 +389,7 @@
                                     <p:commandButton icon="pi pi-check" styleClass="rounded-button ui-button-success"
                                         process="@form" update="form :formAutorizar"
                                         actionListener="#{prepedidoSolicitudBean1.dialogoAutorizacionPrepedido(prepedidoItem)}"
-                                        disabled="#{prepedidoItem.numeroNotaPedidoGenerada ne '0' or not prepedidoItem.registroActivo}"
+                                        disabled="#{prepedidoItem.todosProductosAutorizados or not prepedidoItem.registroActivo}"
                                         title="Autorizar" />
                                 </p:column>
 
@@ -367,19 +398,19 @@
 
                                 <!-- G. NP.Infinity: cÃ­rculo gris "Pi" -->
                                 <p:column exportable="false" styleClass="action-col" style="text-align:center;">
-                                    <p:commandButton value="Pi" styleClass="ui-button-secondary rounded-button"
+                                    <p:commandButton icon="pi pi-file" styleClass="ui-button-secondary rounded-button"
                                         process="@form" update="form"
                                         actionListener="#{prepedidoSolicitudBean1.generarNotaPedido(prepedidoItem)}"
-                                        disabled="#{prepedidoItem.numeroNotaPedidoGenerada ne '0' or not prepedidoItem.registroActivo}"
-                                        title="Generar NP Infinity"
-                                        style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.65rem;" />
+                                        disabled="#{not prepedidoItem.registroActivo}" title="Generar NP Infinity"
+                                        style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
                                 </p:column>
 
                                 <!-- G.NP.BCO: cÃ­rculo gris "Pb" -->
                                 <p:column exportable="false" styleClass="action-col" style="text-align:center;">
-                                    <p:commandButton value="Pb" styleClass="ui-button-secondary rounded-button"
-                                        disabled="true" title="Generar NP Banco"
-                                        style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.65rem;" />
+                                    <p:commandButton icon="pi pi-building"
+                                        styleClass="ui-button-secondary rounded-button" disabled="true"
+                                        title="Generar NP Banco"
+                                        style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
                                 </p:column>
 
                                 <!-- Impresión pedido -->
@@ -391,9 +422,10 @@
 
                                 <!-- G.FAC.Infinity: cÃ­rculo gris "Fi" -->
                                 <p:column exportable="false" styleClass="action-col" style="text-align:center;">
-                                    <p:commandButton value="Fi" styleClass="ui-button-secondary rounded-button"
-                                        disabled="true" title="Generar Factura Infinity"
-                                        style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.65rem;" />
+                                    <p:commandButton icon="pi pi-money-bill"
+                                        styleClass="ui-button-secondary rounded-button" disabled="true"
+                                        title="Generar Factura Infinity"
+                                        style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
                                 </p:column>
 
                                 <!-- Impresión factura -->
@@ -405,9 +437,9 @@
 
                                 <!-- Sellos: cÃ­rculo gris "Si" -->
                                 <p:column exportable="false" styleClass="action-col" style="text-align:center;">
-                                    <p:commandButton value="Si" styleClass="ui-button-secondary rounded-button"
+                                    <p:commandButton icon="pi pi-tag" styleClass="ui-button-secondary rounded-button"
                                         disabled="true" title="Sellos"
-                                        style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.65rem;" />
+                                        style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
                                 </p:column>
 
                                 <!-- Impresión sellos -->
@@ -422,57 +454,49 @@
                                     </p:row>
                                     <!-- Fila de totales PyS: celdas con width exacto igual al header -->
                                     <p:row>
-                                        <p:column
-                                            style="background:#1a3050; border:none; width:65px; min-width:65px; max-width:65px;" />
-                                        <p:column
-                                            style="background:#1a3050; border:none; width:100px; min-width:100px; max-width:100px;" />
-                                        <p:column
-                                            style="background:#1a3050; border:none; width:100px; min-width:100px; max-width:100px;" />
-                                        <p:column
-                                            style="background:#1a3050; border:none; width:80px; min-width:80px; max-width:80px;" />
-                                        <p:column
-                                            style="text-align:right; background:#1a3050; color:#8ab4d8; font-weight:bold; padding-right:8px; border:none; width:200px; min-width:200px; max-width:200px;">
+                                        <p:column colspan="5"
+                                            style="text-align:left; padding-left:20px; background:#1a3050; color:#8ab4d8; font-weight:bold; padding-right:8px; border:none;">
                                             <f:facet name="footer">
                                                 <h:outputText value="(A) Programa despachos PyS" />
                                             </f:facet>
                                         </p:column>
                                         <p:column
-                                            style="text-align:center; width:80px; min-width:80px; max-width:80px; background:#1a3050; color:#fff; font-weight:bold;">
+                                            style="text-align:center; background:#1a3050; color:#fff; font-weight:bold;">
                                             <f:facet name="footer">
                                                 <h:outputText
                                                     value="#{prepedidoSolicitudBean1.getTotalVolSol('EXTRA')}" />
                                             </f:facet>
                                         </p:column>
                                         <p:column
-                                            style="text-align:center; width:80px; min-width:80px; max-width:80px; background:#1a3050; color:#fff; font-weight:bold;">
+                                            style="text-align:center; background:#1a3050; color:#fff; font-weight:bold;">
                                             <f:facet name="footer">
                                                 <h:outputText
                                                     value="#{prepedidoSolicitudBean1.getTotalVolAuto('EXTRA')}" />
                                             </f:facet>
                                         </p:column>
                                         <p:column
-                                            style="text-align:center; width:80px; min-width:80px; max-width:80px; background:#1a3050; color:#fff; font-weight:bold;">
+                                            style="text-align:center; background:#1a3050; color:#fff; font-weight:bold;">
                                             <f:facet name="footer">
                                                 <h:outputText
                                                     value="#{prepedidoSolicitudBean1.getTotalVolSol('DIESEL')}" />
                                             </f:facet>
                                         </p:column>
                                         <p:column
-                                            style="text-align:center; width:80px; min-width:80px; max-width:80px; background:#1a3050; color:#fff; font-weight:bold;">
+                                            style="text-align:center; background:#1a3050; color:#fff; font-weight:bold;">
                                             <f:facet name="footer">
                                                 <h:outputText
                                                     value="#{prepedidoSolicitudBean1.getTotalVolAuto('DIESEL')}" />
                                             </f:facet>
                                         </p:column>
                                         <p:column
-                                            style="text-align:center; width:80px; min-width:80px; max-width:80px; background:#1a3050; color:#fff; font-weight:bold;">
+                                            style="text-align:center; background:#1a3050; color:#fff; font-weight:bold;">
                                             <f:facet name="footer">
                                                 <h:outputText
                                                     value="#{prepedidoSolicitudBean1.getTotalVolSol('SUPER')}" />
                                             </f:facet>
                                         </p:column>
                                         <p:column
-                                            style="text-align:center; width:80px; min-width:80px; max-width:80px; background:#1a3050; color:#fff; font-weight:bold;">
+                                            style="text-align:center; background:#1a3050; color:#fff; font-weight:bold;">
                                             <f:facet name="footer">
                                                 <h:outputText
                                                     value="#{prepedidoSolicitudBean1.getTotalVolAuto('SUPER')}" />
@@ -485,51 +509,51 @@
                                     <!-- EPP asignación Inicial -->
                                     <p:row>
                                         <p:column
-                                            style="background:#162840; border-top:1px solid #2a5080; border-left:none; border-right:none; border-bottom:none; width:65px; min-width:65px; max-width:65px;" />
+                                            style="background:#162840; border-top:1px solid #2a5080; border-left:none; border-right:none; border-bottom:none;" />
                                         <p:column
-                                            style="background:#162840; border-top:1px solid #2a5080; border-left:none; border-right:none; border-bottom:none; width:100px; min-width:100px; max-width:100px;" />
+                                            style="background:#162840; border-top:1px solid #2a5080; border-left:none; border-right:none; border-bottom:none;" />
                                         <p:column
-                                            style="background:#162840; border-top:1px solid #2a5080; border-left:none; border-right:none; border-bottom:none; width:100px; min-width:100px; max-width:100px;" />
+                                            style="background:#162840; border-top:1px solid #2a5080; border-left:none; border-right:none; border-bottom:none;" />
                                         <p:column
-                                            style="background:#162840; border-top:1px solid #2a5080; border-left:none; border-right:none; border-bottom:none; width:80px; min-width:80px; max-width:80px;" />
+                                            style="background:#162840; border-top:1px solid #2a5080; border-left:none; border-right:none; border-bottom:none;" />
                                         <p:column
-                                            style="text-align:right; background:#162840; color:#cdd9e8; border-top:1px solid #2a5080; padding-right:8px; border-left:none; border-right:none; border-bottom:none; width:200px; min-width:200px; max-width:200px;">
+                                            style="text-align:right; background:#162840; color:#cdd9e8; border-top:1px solid #2a5080; padding-right:8px; border-left:none; border-right:none; border-bottom:none;">
                                             <f:facet name="footer">
                                                 <h:outputText value="EPP asignación Inicial" />
                                             </f:facet>
                                         </p:column>
                                         <p:column
-                                            style="text-align:center; width:80px; min-width:80px; max-width:80px; background:#162840; color:#8ab4d8; border-top:1px solid #2a5080;">
+                                            style="text-align:center; background:#162840; color:#8ab4d8; border-top:1px solid #2a5080;">
                                             <f:facet name="footer">
                                                 <h:outputText value="-" />
                                             </f:facet>
                                         </p:column>
                                         <p:column
-                                            style="text-align:center; width:80px; min-width:80px; max-width:80px; background:#162840; color:#fff; font-weight:bold; border-top:1px solid #2a5080;">
+                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; border-top:1px solid #2a5080;">
                                             <f:facet name="footer">
                                                 <h:outputText value="0" />
                                             </f:facet>
                                         </p:column>
                                         <p:column
-                                            style="text-align:center; width:80px; min-width:80px; max-width:80px; background:#162840; color:#8ab4d8; border-top:1px solid #2a5080;">
+                                            style="text-align:center; background:#162840; color:#8ab4d8; border-top:1px solid #2a5080;">
                                             <f:facet name="footer">
                                                 <h:outputText value="-" />
                                             </f:facet>
                                         </p:column>
                                         <p:column
-                                            style="text-align:center; width:80px; min-width:80px; max-width:80px; background:#162840; color:#fff; font-weight:bold; border-top:1px solid #2a5080;">
+                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; border-top:1px solid #2a5080;">
                                             <f:facet name="footer">
                                                 <h:outputText value="0" />
                                             </f:facet>
                                         </p:column>
                                         <p:column
-                                            style="text-align:center; width:80px; min-width:80px; max-width:80px; background:#162840; color:#8ab4d8; border-top:1px solid #2a5080;">
+                                            style="text-align:center; background:#162840; color:#8ab4d8; border-top:1px solid #2a5080;">
                                             <f:facet name="footer">
                                                 <h:outputText value="-" />
                                             </f:facet>
                                         </p:column>
                                         <p:column
-                                            style="text-align:center; width:80px; min-width:80px; max-width:80px; background:#162840; color:#fff; font-weight:bold; border-top:1px solid #2a5080;">
+                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; border-top:1px solid #2a5080;">
                                             <f:facet name="footer">
                                                 <h:outputText value="0" />
                                             </f:facet>
@@ -541,51 +565,51 @@
                                     <!-- EPP asignación ADICIONAL -->
                                     <p:row>
                                         <p:column
-                                            style="background:#162840; border-top:1px solid #1e3a5f; border-left:none; border-right:none; border-bottom:none; width:65px; min-width:65px; max-width:65px;" />
+                                            style="background:#162840; border-top:1px solid #1e3a5f; border-left:none; border-right:none; border-bottom:none;" />
                                         <p:column
-                                            style="background:#162840; border-top:1px solid #1e3a5f; border-left:none; border-right:none; border-bottom:none; width:100px; min-width:100px; max-width:100px;" />
+                                            style="background:#162840; border-top:1px solid #1e3a5f; border-left:none; border-right:none; border-bottom:none;" />
                                         <p:column
-                                            style="background:#162840; border-top:1px solid #1e3a5f; border-left:none; border-right:none; border-bottom:none; width:100px; min-width:100px; max-width:100px;" />
+                                            style="background:#162840; border-top:1px solid #1e3a5f; border-left:none; border-right:none; border-bottom:none;" />
                                         <p:column
-                                            style="background:#162840; border-top:1px solid #1e3a5f; border-left:none; border-right:none; border-bottom:none; width:80px; min-width:80px; max-width:80px;" />
+                                            style="background:#162840; border-top:1px solid #1e3a5f; border-left:none; border-right:none; border-bottom:none;" />
                                         <p:column
-                                            style="text-align:right; background:#162840; color:#cdd9e8; border-top:1px solid #1e3a5f; padding-right:8px; border-left:none; border-right:none; border-bottom:none; width:200px; min-width:200px; max-width:200px;">
+                                            style="text-align:right; background:#162840; color:#cdd9e8; border-top:1px solid #1e3a5f; padding-right:8px; border-left:none; border-right:none; border-bottom:none;">
                                             <f:facet name="footer">
                                                 <h:outputText value="EPP asignación ADICIONAL" />
                                             </f:facet>
                                         </p:column>
                                         <p:column
-                                            style="text-align:center; width:80px; min-width:80px; max-width:80px; background:#162840; color:#8ab4d8; border-top:1px solid #2a5080;">
+                                            style="text-align:center; background:#162840; color:#8ab4d8; border-top:1px solid #2a5080;">
                                             <f:facet name="footer">
                                                 <h:outputText value="-" />
                                             </f:facet>
                                         </p:column>
                                         <p:column
-                                            style="text-align:center; width:80px; min-width:80px; max-width:80px; background:#162840; color:#fff; font-weight:bold; border-top:1px solid #2a5080;">
+                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; border-top:1px solid #2a5080;">
                                             <f:facet name="footer">
                                                 <h:outputText value="0" />
                                             </f:facet>
                                         </p:column>
                                         <p:column
-                                            style="text-align:center; width:80px; min-width:80px; max-width:80px; background:#162840; color:#8ab4d8; border-top:1px solid #2a5080;">
+                                            style="text-align:center; background:#162840; color:#8ab4d8; border-top:1px solid #2a5080;">
                                             <f:facet name="footer">
                                                 <h:outputText value="-" />
                                             </f:facet>
                                         </p:column>
                                         <p:column
-                                            style="text-align:center; width:80px; min-width:80px; max-width:80px; background:#162840; color:#fff; font-weight:bold; border-top:1px solid #2a5080;">
+                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; border-top:1px solid #2a5080;">
                                             <f:facet name="footer">
                                                 <h:outputText value="0" />
                                             </f:facet>
                                         </p:column>
                                         <p:column
-                                            style="text-align:center; width:80px; min-width:80px; max-width:80px; background:#162840; color:#8ab4d8; border-top:1px solid #2a5080;">
+                                            style="text-align:center; background:#162840; color:#8ab4d8; border-top:1px solid #2a5080;">
                                             <f:facet name="footer">
                                                 <h:outputText value="-" />
                                             </f:facet>
                                         </p:column>
                                         <p:column
-                                            style="text-align:center; width:80px; min-width:80px; max-width:80px; background:#162840; color:#fff; font-weight:bold; border-top:1px solid #2a5080;">
+                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; border-top:1px solid #2a5080;">
                                             <f:facet name="footer">
                                                 <h:outputText value="0" />
                                             </f:facet>
@@ -597,51 +621,51 @@
                                     <!-- EPP asignación TOTAL -->
                                     <p:row>
                                         <p:column
-                                            style="background:#162840; border-top:2px solid #2a5080; border-left:none; border-right:none; border-bottom:none; width:65px; min-width:65px; max-width:65px;" />
+                                            style="background:#162840; border-top:2px solid #2a5080; border-left:none; border-right:none; border-bottom:none;" />
                                         <p:column
-                                            style="background:#162840; border-top:2px solid #2a5080; border-left:none; border-right:none; border-bottom:none; width:100px; min-width:100px; max-width:100px;" />
+                                            style="background:#162840; border-top:2px solid #2a5080; border-left:none; border-right:none; border-bottom:none;" />
                                         <p:column
-                                            style="background:#162840; border-top:2px solid #2a5080; border-left:none; border-right:none; border-bottom:none; width:100px; min-width:100px; max-width:100px;" />
+                                            style="background:#162840; border-top:2px solid #2a5080; border-left:none; border-right:none; border-bottom:none;" />
                                         <p:column
-                                            style="background:#162840; border-top:2px solid #2a5080; border-left:none; border-right:none; border-bottom:none; width:80px; min-width:80px; max-width:80px;" />
+                                            style="background:#162840; border-top:2px solid #2a5080; border-left:none; border-right:none; border-bottom:none;" />
                                         <p:column
-                                            style="text-align:right; background:#162840; color:#cdd9e8; border-top:2px solid #2a5080; font-weight:bold; padding-right:8px; border-left:none; border-right:none; border-bottom:none; width:200px; min-width:200px; max-width:200px;">
+                                            style="text-align:right; background:#162840; color:#cdd9e8; border-top:2px solid #2a5080; font-weight:bold; padding-right:8px; border-left:none; border-right:none; border-bottom:none;">
                                             <f:facet name="footer">
                                                 <h:outputText value="EPP asignación TOTAL" />
                                             </f:facet>
                                         </p:column>
                                         <p:column
-                                            style="text-align:center; width:80px; min-width:80px; max-width:80px; background:#162840; color:#8ab4d8; border-top:2px solid #2a5080;">
+                                            style="text-align:center; background:#162840; color:#8ab4d8; border-top:2px solid #2a5080;">
                                             <f:facet name="footer">
                                                 <h:outputText value="-" />
                                             </f:facet>
                                         </p:column>
                                         <p:column
-                                            style="text-align:center; width:80px; min-width:80px; max-width:80px; background:#162840; color:#fff; font-weight:bold; border-top:2px solid #2a5080;">
+                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; border-top:2px solid #2a5080;">
                                             <f:facet name="footer">
                                                 <h:outputText value="0" />
                                             </f:facet>
                                         </p:column>
                                         <p:column
-                                            style="text-align:center; width:80px; min-width:80px; max-width:80px; background:#162840; color:#8ab4d8; border-top:2px solid #2a5080;">
+                                            style="text-align:center; background:#162840; color:#8ab4d8; border-top:2px solid #2a5080;">
                                             <f:facet name="footer">
                                                 <h:outputText value="-" />
                                             </f:facet>
                                         </p:column>
                                         <p:column
-                                            style="text-align:center; width:80px; min-width:80px; max-width:80px; background:#162840; color:#fff; font-weight:bold; border-top:2px solid #2a5080;">
+                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; border-top:2px solid #2a5080;">
                                             <f:facet name="footer">
                                                 <h:outputText value="0" />
                                             </f:facet>
                                         </p:column>
                                         <p:column
-                                            style="text-align:center; width:80px; min-width:80px; max-width:80px; background:#162840; color:#8ab4d8; border-top:2px solid #2a5080;">
+                                            style="text-align:center; background:#162840; color:#8ab4d8; border-top:2px solid #2a5080;">
                                             <f:facet name="footer">
                                                 <h:outputText value="-" />
                                             </f:facet>
                                         </p:column>
                                         <p:column
-                                            style="text-align:center; width:80px; min-width:80px; max-width:80px; background:#162840; color:#fff; font-weight:bold; border-top:2px solid #2a5080;">
+                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; border-top:2px solid #2a5080;">
                                             <f:facet name="footer">
                                                 <h:outputText value="0" />
                                             </f:facet>
@@ -1020,9 +1044,7 @@
                     <p:column headerText="Autorizar" style="width:15%; text-align:center;">
                         <p:commandButton value="Autorizar" icon="pi pi-check" styleClass="ui-button-success"
                             actionListener="#{prepedidoSolicitudBean1.autorizarProductoDetalle(det)}" process="@form"
-                            update="@form :form"
-                            disabled="#{det.autorizado eq 'SI' or det.volumennaturalautorizado eq null or det.volumennaturalautorizado eq 0}"
-                            title="Autorizar este producto" />
+                            update="@form :form" disabled="#{det.autorizado eq 'SI'}" title="Autorizar este producto" />
                     </p:column>
 
                 </p:dataTable>

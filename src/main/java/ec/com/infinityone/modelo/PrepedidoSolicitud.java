@@ -95,6 +95,36 @@ public class PrepedidoSolicitud {
     }
 
     @JsonIgnore
+    public boolean isTodasNotasPedidoGeneradas() {
+        if (detalle == null || detalle.isEmpty()) {
+            return false;
+        }
+        boolean hasAuthorized = false;
+        for (Detalleprepedido d : detalle) {
+            if (d.getVolumennaturalautorizado() != null && d.getVolumennaturalautorizado().compareTo(java.math.BigDecimal.ZERO) > 0) {
+                hasAuthorized = true;
+                if (d.getNumeronp() == null || d.getNumeronp().equals("0") || d.getNumeronp().trim().isEmpty()) {
+                    return false;
+                }
+            }
+        }
+        return hasAuthorized;
+    }
+
+    @JsonIgnore
+    public boolean isTodosProductosAutorizados() {
+        if (detalle == null || detalle.isEmpty()) {
+            return false;
+        }
+        for (Detalleprepedido d : detalle) {
+            if (d.getAutorizado() == null || !d.getAutorizado().equals("SI")) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @JsonIgnore
     public boolean isRegistroActivo() {
         if (detalle != null && !detalle.isEmpty() && detalle.get(0) != null) {
             Boolean act = detalle.get(0).getActivo();
