@@ -49,6 +49,8 @@ public class Detalleprepedido implements Serializable {
     private String autorizado = "NO";
     private String numeronp = "0";
     
+    private Boolean notapedidobco = false;
+    
     public Detalleprepedido() {
     }
 
@@ -249,6 +251,14 @@ public class Detalleprepedido implements Serializable {
 
     public void setNumeronp(String numeronp) {
         this.numeronp = numeronp;
+    }
+    
+    public Boolean getNotapedidobco() {
+        return notapedidobco;
+    }
+
+    public void setNotapedidobco(Boolean notapedidobco) {
+        this.notapedidobco = notapedidobco;
     }
     
     @Override

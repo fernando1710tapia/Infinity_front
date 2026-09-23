@@ -112,6 +112,28 @@ public class PrepedidoSolicitud {
     }
 
     @JsonIgnore
+    public boolean isGeneradaNpInfinity() {
+        if (detalle == null || detalle.isEmpty()) return false;
+        for (Detalleprepedido d : detalle) {
+            if (d.getNumeronp() != null && !d.getNumeronp().equals("0") && !d.getNumeronp().trim().isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @JsonIgnore
+    public boolean isGeneradaNpBanco() {
+        if (detalle == null || detalle.isEmpty()) return false;
+        for (Detalleprepedido d : detalle) {
+            if (Boolean.TRUE.equals(d.getNotapedidobco())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @JsonIgnore
     public boolean isTodosProductosAutorizados() {
         if (detalle == null || detalle.isEmpty()) {
             return false;

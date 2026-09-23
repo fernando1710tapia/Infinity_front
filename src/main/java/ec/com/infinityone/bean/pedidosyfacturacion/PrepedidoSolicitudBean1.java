@@ -1725,6 +1725,40 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         procesarAutorizacion();
     }
 
+    public void autorizarPrepedidoDirecto(PrepedidoSolicitud envNP) {
+        if (envNP == null || envNP.getDetalle() == null) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "No hay prepedido seleccionado o detalles vacíos.");
+            return;
+        }
+
+        boolean hasGreaterThanZero = false;
+        for (ec.com.infinityone.modelo.Detalleprepedido det : envNP.getDetalle()) {
+            if (det.getVolumennaturalautorizado() != null
+                    && det.getVolumennaturalautorizado().compareTo(BigDecimal.ZERO) > 0) {
+                hasGreaterThanZero = true;
+                break;
+            }
+        }
+
+        if (!hasGreaterThanZero) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "Debe ingresar al menos un volumen mayor a cero para autorizar.");
+            return;
+        }
+
+        // Limpiar cualquier marcador previo
+        if (listPrepedido != null) {
+            for (PrepedidoSolicitud p : listPrepedido) {
+                p.setAutorizar(false);
+            }
+        }
+
+        this.envNP = envNP;
+        this.envNP.setAutorizar(true);
+        this.detalleAAutorizar = null; // null significa autorizar todos los detalles de este prepedido
+
+        procesarAutorizacion();
+    }
+
     public static class FilaGenerarNota {
         private PrepedidoSolicitud prepedidoSolicitud;
         private ec.com.infinityone.modelo.Detalleprepedido detalle;
@@ -1916,6 +1950,12 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         PrepedidoSolicitud ps = fila.getPrepedidoSolicitud();
         Prepedido prep = ps.getPrepedido();
         Detalleprepedido detPrep = fila.getDetalle();
+
+        if (detPrep.getVolumennaturalautorizado() == null
+                || detPrep.getVolumennaturalautorizado().compareTo(BigDecimal.ZERO) <= 0) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "No se puede generar una Nota de Pedido con volumen cero.");
+            return;
+        }
 
         try {
             ec.com.infinityone.modelo.Notapedido np = new ec.com.infinityone.modelo.Notapedido();
@@ -2274,6 +2314,67 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         } catch (Exception e) {
             e.printStackTrace();
             this.dialogo(FacesMessage.SEVERITY_ERROR, "Error al anular: " + e.getMessage());
+        }
+    }
+
+    public void generarNpBanco(PrepedidoSolicitud envNP) {
+        if (envNP == null || envNP.getDetalle() == null || envNP.getDetalle().isEmpty()) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "No se encontró el detalle del prepedido para el banco.");
+            return;
+        }
+
+        try {
+            boolean allSuccess = true;
+            for (ec.com.infinityone.modelo.Detalleprepedido detalle : envNP.getDetalle()) {
+                detalle.setNotapedidobco(true);
+                
+                if (detalle.getCompartimento1() == null) detalle.setCompartimento1(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento2() == null) detalle.setCompartimento2(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento3() == null) detalle.setCompartimento3(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento4() == null) detalle.setCompartimento4(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento5() == null) detalle.setCompartimento5(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento6() == null) detalle.setCompartimento6(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento7() == null) detalle.setCompartimento7(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento8() == null) detalle.setCompartimento8(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento9() == null) detalle.setCompartimento9(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento10() == null) detalle.setCompartimento10(java.math.BigDecimal.ZERO);
+                if (detalle.getSelloinicial() == null) detalle.setSelloinicial(0);
+                if (detalle.getSellofinal() == null) detalle.setSellofinal(0);
+                if (detalle.getUsuarioactual() == null || detalle.getUsuarioactual().isEmpty()) {
+                    detalle.setUsuarioactual(dataUser != null && dataUser.getUser() != null ? dataUser.getUser().getNombrever() : "ADMIN");
+                }
+
+                String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.detalleprepedido/porId";
+                URL url = new URL(direcc);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setDoOutput(true);
+                connection.setRequestMethod("PUT");
+                connection.setRequestProperty("Content-type", "application/json");
+
+                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                String jsonStr = mapper.writeValueAsString(detalle);
+
+                try (java.io.OutputStreamWriter out = new java.io.OutputStreamWriter(connection.getOutputStream(), "UTF-8")) {
+                    out.write(jsonStr);
+                    out.flush();
+                }
+
+                if (connection.getResponseCode() != 200 && connection.getResponseCode() != 204) {
+                    allSuccess = false;
+                    String errorInfo = getErrorStreamContent(connection);
+                    System.out.println("FT:: ERROR EN generarNpBanco RESPONSECODE " + connection.getResponseCode() + " " + errorInfo);
+                }
+            }
+
+            if (allSuccess) {
+                org.primefaces.PrimeFaces.current().executeScript("PF('modalNpBanco').show();");
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "Hubo un error al procesar uno o más detalles con el banco.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "Error al generar NP Banco: " + e.getMessage());
         }
     }
 
@@ -3214,10 +3315,11 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                                 if (this.detalleAAutorizar != null && !det.equals(this.detalleAAutorizar)) {
                                     continue;
                                 }
-                                if (det.getVolumennaturalautorizado() == null
-                                        || det.getVolumennaturalautorizado().compareTo(BigDecimal.ZERO) <= 0) {
-                                    // Simplemente ignoramos los productos a los que no se les asignó volumen, no es
-                                    // un error
+                                if (det.getVolumennaturalautorizado() == null) {
+                                    det.setVolumennaturalautorizado(BigDecimal.ZERO);
+                                }
+                                if (det.getVolumennaturalautorizado().compareTo(BigDecimal.ZERO) < 0) {
+                                    // Simplemente ignoramos los productos a los que se les asignó volumen negativo
                                     continue;
                                 }
                                 String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
