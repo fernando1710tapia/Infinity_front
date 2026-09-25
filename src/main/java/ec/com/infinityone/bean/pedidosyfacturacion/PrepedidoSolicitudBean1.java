@@ -318,6 +318,12 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
 
     private boolean todosClientes;
 
+    /*
+     * Variable que indica si la terminal seleccionada está cerrada para recibir solicitudes.
+     * true = terminal CERRADA (recibirsolicitud=false), false = terminal ABIERTA.
+     */
+    private boolean terminalCerrada;
+
     private String nomBanco;
 
     private String numCuenta;
@@ -352,6 +358,12 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     }
 
     public void nuevaPrepedido() {
+        // Validar si la terminal está cerrada antes de permitir crear
+        if (terminalCerrada) {
+            this.dialogo(FacesMessage.SEVERITY_WARN,
+                    "La terminal seleccionada está CERRADA para recibir solicitudes. Active la terminal antes de continuar.");
+            return;
+        }
         reestablecer();
         habilitarBusqueda(2);
         obtenerBanco();
@@ -506,6 +518,8 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     public void seleccionarTerminal(int busqueda) {
         if (terminal != null) {
             codTerminal = terminal.getCodigo();
+            // Sincronizar estado del switch con el campo recibirsolicitud de la terminal
+            terminalCerrada = !terminal.isRecibirsolicitud();
             List<Cliente> listaClientesAux = new ArrayList<>();
             listaClientes = new ArrayList<>();
             if (busqueda == 1) {
@@ -563,6 +577,33 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             seleccionarTerminal(busqueda);
         }
 
+    }
+
+    /**
+     * Invocado por el p:toggleSwitch de la vista.
+     * Invierte el campo recibirsolicitud de la terminal seleccionada via PUT.
+     */
+    public void toggleCierreTerminal() {
+        if (terminal == null) {
+            this.dialogo(FacesMessage.SEVERITY_WARN, "Seleccione una terminal primero.");
+            terminalCerrada = false;
+            return;
+        }
+        // terminalCerrada ya fue actualizado por el toggle del switch en la vista.
+        // Calculamos el nuevo valor de recibirsolicitud (inverso de terminalCerrada)
+        boolean nuevoRecibirSolicitud = !terminalCerrada;
+        int httpCode = termServicio.actualizarRecibirSolicitud(terminal, nuevoRecibirSolicitud);
+        if (httpCode == 200) {
+            terminal.setRecibirsolicitud(nuevoRecibirSolicitud);
+            String estado = nuevoRecibirSolicitud ? "ABIERTA" : "CERRADA";
+            this.dialogo(FacesMessage.SEVERITY_INFO,
+                    terminal.getNombre() + " " + estado + " correctamente.");
+        } else {
+            // Revertir el switch si falla
+            terminalCerrada = !terminalCerrada;
+            this.dialogo(FacesMessage.SEVERITY_ERROR,
+                    "Error al actualizar el estado de la terminal. Código HTTP: " + httpCode);
+        }
     }
 
     public void seleccionarCliente() {
@@ -772,9 +813,8 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                         "LA FECHA DE FIN NO PUEDE SER MAYOR A 7 DÃƒÆ’Ã‚ÂAS A LA FECHA DE INICIO");
             } else {
                 // String direcc =
-                // "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.prepedido/paraFactura?";
                 String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
-                        + "ec.com.infinity.modelo.prepedido/paraFactura?";
+                        + "ec.com.infinity.modelo.prepedido/buscarprepedidosgestionintegral?";
                 listPrepedido = new ArrayList<>();
                 listDetNP = new ArrayList<>();
 
@@ -782,17 +822,14 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                 cal.setTime(firstDate);
                 while (cal.getTime().compareTo(secondDate) <= 0) {
                     String fechaStr = date.format(cal.getTime());
+                    String pClienteStr = (codCliente == null || codCliente.trim().isEmpty()) ? "-1" : codCliente;
+                    String baseUrl = direcc + "pcodigocomercializadora=" + codComer
+                            + "&pcodigocliente=" + pClienteStr
+                            + "&pcodigoterminal=" + codTerminal
+                            + "&pfechadespacho=" + fechaStr.replace("/", "%2F");
 
-                    if (codCliente == null || codCliente.isEmpty()) {
-                        url = new URL(direcc + "codigoabastecedora=" + codAbas + "&codigocomercializadora=" + codComer
-                                + "&codigoterminal=" + codTerminal
-                                + "&tipofecha=" + tipoFecha + "&fecha=" + fechaStr);
-                    } else {
-                        url = new URL(direcc + "codigoabastecedora=" + codAbas + "&codigocomercializadora=" + codComer
-                                + "&codigoterminal=" + codTerminal
-                                + "&tipofecha=" + tipoFecha + "&fecha=" + fechaStr + "&codigocliente="
-                                + this.codCliente);
-                    }
+                    url = new URL(baseUrl);
+
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setDoInput(true);
                     connection.setRequestMethod("GET");
@@ -801,418 +838,126 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                     connection.setReadTimeout(30000);
 
                     StringBuilder content = new StringBuilder();
-                    try (InputStreamReader isr = new InputStreamReader(connection.getInputStream());
-                            BufferedReader br = new BufferedReader(isr)) {
-                        String tmp;
-                        while ((tmp = br.readLine()) != null) {
-                            content.append(tmp);
-                        }
-                    }
-                    String respuesta = content.toString();
-                    LOG.info("API Response (Comerterminal) para fecha " + fechaStr + ": " + respuesta);
-
                     try {
-                        if (connection.getResponseCode() != 200) {
-                            System.out.println(connection.getResponseCode());
-                            System.out.println(connection.getResponseMessage());
+                        if (connection.getResponseCode() >= 400) {
+                            try (java.io.InputStreamReader isr = new java.io.InputStreamReader(connection.getErrorStream());
+                                 java.io.BufferedReader br = new java.io.BufferedReader(isr)) {
+                                String tmp;
+                                while ((tmp = br.readLine()) != null) {
+                                    content.append(tmp);
+                                }
+                            }
+                            LOG.info("API ERROR Response: " + content.toString());
+                        } else {
+                            try (java.io.InputStreamReader isr = new java.io.InputStreamReader(connection.getInputStream());
+                                 java.io.BufferedReader br = new java.io.BufferedReader(isr)) {
+                                String tmp;
+                                while ((tmp = br.readLine()) != null) {
+                                    content.append(tmp);
+                                }
+                            }
                         }
                     } catch (Exception e) {
+                        e.printStackTrace();
                     }
+
+                    String respuesta = content.toString();
+                    LOG.info("API Response Integral para fecha " + fechaStr + ": " + respuesta);
 
                     if (respuesta != null && !respuesta.isEmpty() && respuesta.startsWith("{")) {
                         JSONObject objetoJson = new JSONObject(respuesta);
-                        if (objetoJson.has("retorno")) {
+                        if (objetoJson.has("retorno") && !objetoJson.isNull("retorno")) {
                             JSONArray retorno = objetoJson.getJSONArray("retorno");
                             if (!retorno.isEmpty()) {
                                 for (int indice = 0; indice < retorno.length(); indice++) {
                                     if (!retorno.isNull(indice)) {
                                         JSONObject nt = retorno.getJSONObject(indice);
-                                        JSONObject ntPK = nt.getJSONObject("prepedidoPK");
-                                        JSONObject cli = nt.getJSONObject("codigocliente");
+                                        
+                                        Prepedido parseNp = new Prepedido();
+                                        PrepedidoPK parseNpPK = new PrepedidoPK();
+                                        parseNpPK.setNumero(nt.optString("numeroPrepedido", ""));
+                                        parseNpPK.setCodigocomercializadora(nt.optString("codigoComercializadora", ""));
+                                        parseNpPK.setCodigoabastecedora(codAbas);
+                                        parseNp.setPrepedidoPK(parseNpPK);
 
-                                        JSONObject cliPK = cli.getJSONObject("clientePK");
-
-                                        if (codCliente != null && !codCliente.trim().isEmpty()) {
-                                            String currentClienteCodigo = cliPK.optString("codigo", "");
-                                            if (!codCliente.trim().equals(currentClienteCodigo.trim())) {
-                                                continue;
-                                            }
-                                        }
-
-                                        JSONObject term = nt.getJSONObject("codigoterminal");
-                                        JSONObject ban = nt.getJSONObject("codigobanco");
-                                        JSONObject formPago = cli.getJSONObject("codigoformapago");
-                                        JSONObject com = nt.getJSONObject("comercializadora");
-                                        JSONObject abastecedora = nt.getJSONObject("abastecedora");
-
-                                        /*----Varaibles para transformar formate json en fechas-----*/
-                                        Long dateStrFV = nt.getLong("fechaventa");
-                                        Long dateStrFD = nt.getLong("fechadespacho");
-                                        Date dateFV = new Date(dateStrFV);
-                                        Date dateFD = new Date(dateStrFD);
-                                        String fechaDescpacho = date.format(dateFD);
-                                        String fechaVencimiento = date.format(dateFV);
-                                        /*----Objeto Abastecedora----*/
-                                        Abastecedora parseAbas = new Abastecedora();
-                                        parseAbas.setCodigo(abastecedora.getString("codigo"));
-
-                                        /*----Objeto comercializadora----*/
                                         Comercializadora parseComerc = new Comercializadora();
-                                        parseComerc.setCodigo(com.getString("codigo"));
-                                        parseComerc.setNombre(com.getString("nombre"));
-                                        parseComerc.setRuc(com.getString("ruc"));
-                                        parseComerc.setDireccion(com.getString("direccion"));
-                                        parseComerc.setAmbientesri(com.getString("ambientesri").charAt(0));
-                                        parseComerc.setEsagenteretencion(com.getBoolean("esagenteretencion"));
-                                        parseComerc
-                                                .setEscontribuyenteespacial(com.getString("escontribuyenteespacial"));
-                                        parseComerc.setTipoemision(com.getString("tipoemision").charAt(0));
-                                        parseComerc.setObligadocontabilidad(com.getString("obligadocontabilidad"));
-                                        parseComerc.setEstablecimientofac(com.getString("establecimientofac"));
-                                        parseComerc.setPuntoventafac(com.getString("puntoventafac"));
-                                        parseComerc.setClavewsepp(com.getString("clavewsepp"));
-                                        if (!com.isNull("generapedidodirecto")) {
-                                            parseComerc.setGenerapedidodirecto(com.getBoolean("generapedidodirecto"));
+                                        parseComerc.setCodigo(nt.optString("codigoComercializadora", ""));
+                                        parseNp.setComercializadora(parseComerc);
+
+                                        String terminalFull = nt.optString("terminal", "");
+                                        Terminal parseTerminal = new Terminal();
+                                        if (terminalFull.contains("-")) {
+                                            parseTerminal.setCodigo(terminalFull.substring(0, terminalFull.indexOf("-")));
+                                            parseTerminal.setNombre(terminalFull.substring(terminalFull.indexOf("-") + 1));
+                                        } else {
+                                            parseTerminal.setCodigo(terminalFull);
                                         }
+                                        parseNp.setCodigoterminal(parseTerminal);
 
-                                        /*----Objeto Fromapago----*/
-                                        Formapago parseFormap = new Formapago();
-                                        parseFormap.setCodigo(formPago.getString("codigo"));
-
-                                        /*----Objeto Cliente----*/
+                                        String clienteFull = nt.optString("cliente", "");
                                         Cliente parseCliente = new Cliente();
                                         parseCliente.setClientePK(new ClientePK());
-                                        parseCliente.getClientePK()
-                                                .setCodigocomercializadora(cliPK.getString("codigocomercializadora"));
-                                        parseCliente.getClientePK().setCodigo(cliPK.getString("codigo"));
-
-                                        parseCliente.setNombre(cli.getString("nombre"));
-                                        parseCliente.setNombrecomercial(cli.getString("nombrecomercial"));
-                                        parseCliente.setRuc(cli.getString("ruc"));
-                                        parseCliente.setCorreo1(cli.getString("correo1"));
-                                        parseCliente.setTelefono1(cli.getString("telefono1"));
-                                        parseCliente.setDireccion(cli.getString("direccion"));
-                                        if (!cli.isNull("tipoplazocredito")) {
-                                            parseCliente.setTipoplazocredito(cli.getString("tipoplazocredito"));
+                                        if (clienteFull.contains("-")) {
+                                            parseCliente.getClientePK().setCodigo(clienteFull.substring(0, clienteFull.indexOf("-")));
+                                            parseCliente.setNombrecomercial(clienteFull.substring(clienteFull.indexOf("-") + 1));
+                                        } else {
+                                            parseCliente.getClientePK().setCodigo(clienteFull);
                                         }
-                                        parseCliente.setCodigolistaprecio(cli.getLong("codigolistaprecio"));
-                                        parseCliente.setCodigoformapago(parseFormap);
-
-                                        /*----Objeto Terminal----*/
-                                        Terminal parseTerminal = new Terminal();
-                                        parseTerminal.setCodigo(term.getString("codigo"));
-
-                                        /*----Objeto Banco----*/
-                                        Banco parseBanco = new Banco();
-                                        parseBanco.setCodigo(ban.getString("codigo"));
-
-                                        /*----Guardando el cliente, termina y banco en Nota pedido---*/
-                                        Prepedido parseNp = new Prepedido();
                                         parseNp.setCodigocliente(parseCliente);
-                                        parseNp.setCodigoclienteId(parseCliente.getClientePK().getCodigo().trim());
-                                        parseNp.setCodigoterminal(parseTerminal);
-                                        parseNp.setCodigobanco(parseBanco);
-                                        parseNp.setComercializadora(parseComerc);
-                                        parseNp.setAbastecedora(parseAbas);
+                                        parseNp.setCodigoclienteId(parseCliente.getClientePK().getCodigo());
 
-                                        if (!nt.isNull("tramaenviadagoe")) {
-                                            parseNp.setTramaenviadagoe(nt.getString("tramaenviadagoe"));
+                                        String fVenta = nt.optString("fechaVenta", "").replace("-", "/");
+                                        String fDespacho = nt.optString("fechaDespacho", "").replace("-", "/");
+                                        parseNp.setFechaventa(fVenta);
+                                        parseNp.setFechadespacho(fDespacho);
+                                        parseNp.setActiva(nt.optBoolean("activa", true));
+                                        parseNp.setCodigoautotanque(nt.optString("codigoAutotanque", "").trim());
+                                        parseNp.setCedulaconductor(nt.optString("cedulaConductor", "").trim());
+                                        parseNp.setUsuarioactual("");
+
+                                        Detalleprepedido dp = new Detalleprepedido();
+                                        String prodFull = nt.optString("producto", "");
+                                        Producto p = new Producto();
+                                        if (prodFull.contains("-")) {
+                                            p.setCodigo(prodFull.substring(0, prodFull.indexOf("-")));
+                                            p.setNombre(prodFull.substring(prodFull.indexOf("-") + 1));
                                         } else {
-                                            parseNp.setTramaenviadagoe("");
+                                            p.setCodigo(prodFull);
                                         }
+                                        dp.setProducto(p);
 
-                                        if (!nt.isNull("tramarecibidagoe")) {
-                                            parseNp.setTramarecibidagoe(nt.getString("tramarecibidagoe"));
-                                        } else {
-                                            parseNp.setTramarecibidagoe("");
-                                        }
-
-                                        if (!nt.isNull("tramarenviadaaoe")) {
-                                            parseNp.setTramarenviadaaoe(nt.getString("tramarenviadaaoe"));
-                                        } else {
-                                            parseNp.setTramarenviadaaoe("");
-                                        }
-
-                                        if (!nt.isNull("tramarecibidaaoe")) {
-                                            parseNp.setTramarecibidaaoe(nt.getString("tramarecibidaaoe"));
-                                        } else {
-                                            parseNp.setTramarecibidaaoe("");
-                                        }
-
-                                        parseNp.setNumerofacturasri(nt.getString("numerofacturasri"));
-                                        parseNp.setActiva(nt.getBoolean("activa"));
-                                        parseNp.setFacturada(nt.getString("facturada"));
-                                        String respGen = nt.optString("respuestageneracionoeepp", "");
-                                        String respAnu = nt.optString("respuestaanulacionoeepp", "");
-                                        parseNp.setRespuestageneracionoeepp(respGen);
-                                        parseNp.setRespuestaanulacionoeepp(respAnu);
-                                        parseNp.setOeenpetro(respGen);
-                                        parseNp.setOeanuladaenpetro(respAnu);
-
-                                        PrepedidoPK parseNpPK = new PrepedidoPK();
-                                        parseNpPK.setNumero(ntPK.getString("numero"));
-                                        parseNpPK.setCodigoabastecedora(ntPK.getString("codigoabastecedora"));
-                                        parseNpPK.setCodigocomercializadora(ntPK.getString("codigocomercializadora"));
-                                        parseNp.setFechaventa(fechaVencimiento);
-                                        parseNp.setFechadespacho(fechaDescpacho);
-                                        parseNp.setPrepedidoPK(parseNpPK);
-                                        parseNp.setUsuarioactual(nt.getString("usuarioactual"));
-                                        if (!nt.isNull("observacion")) {
-                                            parseNp.setObservacion(nt.getString("observacion"));
-                                        } else {
-                                            parseNp.setObservacion("");
-                                        }
-
-                                        if (!nt.isNull("prefijo")) {
-                                            parseNp.setPrefijo(nt.getString("prefijo"));
-                                        } else {
-                                            parseNp.setPrefijo("");
-                                        }
-                                        if (!nt.isNull("codigoautotanque")) {
-                                            parseNp.setCodigoautotanque(nt.getString("codigoautotanque"));
-                                        } else {
-                                            parseNp.setCodigoautotanque("");
-                                        }
-                                        if (!nt.isNull("cedulaconductor")) {
-                                            parseNp.setCedulaconductor(nt.getString("cedulaconductor"));
-                                        } else {
-                                            parseNp.setCedulaconductor("");
-                                        }
-
-                                        /*----Parse Detail if exists for Producto and Volume columns----*/
-                                        List<Detalleprepedido> detallesParseados = new ArrayList<>();
-                                        JSONArray detList = null;
-                                        if (!nt.isNull("detallesNP")) {
-                                            detList = nt.getJSONArray("detallesNP");
-                                        } else if (!nt.isNull("detalleprepedidoList")) {
-                                            detList = nt.getJSONArray("detalleprepedidoList");
-                                        }
-
-                                        if (detList != null) {
-                                            for (int d = 0; d < detList.length(); d++) {
-                                                if (!detList.isNull(d)) {
-                                                    JSONObject det = detList.getJSONObject(d);
-                                                    Detalleprepedido dp = new Detalleprepedido();
-                                                    if (!det.isNull("detalleprepedidoPK")) {
-                                                        JSONObject pkJson = det.getJSONObject("detalleprepedidoPK");
-                                                        DetalleprepedidoPK pk = new DetalleprepedidoPK();
-                                                        pk.setCodigoabastecedora(
-                                                                pkJson.optString("codigoabastecedora", ""));
-                                                        pk.setCodigocomercializadora(
-                                                                pkJson.optString("codigocomercializadora", ""));
-                                                        pk.setNumero(pkJson.optString("numero", ""));
-                                                        pk.setCodigoproducto(pkJson.optString("codigoproducto", ""));
-                                                        pk.setCodigomedida(pkJson.optString("codigomedida", ""));
-                                                        dp.setDetalleprepedidoPK(pk);
-                                                    }
-                                                    if (!det.isNull("producto")) {
-                                                        JSONObject prodJson = det.getJSONObject("producto");
-                                                        Producto p = new Producto();
-                                                        p.setCodigo(prodJson.optString("codigo", ""));
-                                                        p.setNombre(prodJson.optString("nombre", ""));
-                                                        dp.setProducto(p);
-                                                    } else if (!det.isNull("nombreproducto")) {
-                                                        Producto p = new Producto();
-                                                        p.setCodigo(det.optString("codigoproducto", ""));
-                                                        p.setNombre(det.optString("nombreproducto", ""));
-                                                        dp.setProducto(p);
-                                                    }
-
-                                                    if (!det.isNull("volumennaturalrequerido")) {
-                                                        dp.setVolumennaturalrequerido(
-                                                                det.getBigDecimal("volumennaturalrequerido"));
-                                                    }
-                                                    if (!det.isNull("volumennaturalautorizado")) {
-                                                        dp.setVolumennaturalautorizado(
-                                                                det.getBigDecimal("volumennaturalautorizado"));
-                                                    } else {
-                                                        dp.setVolumennaturalautorizado(BigDecimal.ZERO);
-                                                    }
-                                                    if (det.has("activo") && !det.isNull("activo")) {
-                                                        dp.setActivo(det.getBoolean("activo"));
-                                                    }
-                                                    if (dp.getVolumennaturalautorizado() != null && dp
-                                                            .getVolumennaturalautorizado()
-                                                            .compareTo(BigDecimal.ZERO) > 0) {
-                                                        dp.setAutorizado("SI");
-                                                    } else {
-                                                        dp.setAutorizado("NO");
-                                                    }
-                                                    detallesParseados.add(dp);
-                                                }
-                                            }
-                                        } else if (!nt.isNull("detalle")) {
-                                            JSONObject det = nt.getJSONObject("detalle");
-                                            Detalleprepedido dp = new Detalleprepedido();
-                                            if (!det.isNull("detalleprepedidoPK")) {
-                                                JSONObject pkJson = det.getJSONObject("detalleprepedidoPK");
-                                                DetalleprepedidoPK pk = new DetalleprepedidoPK();
-                                                pk.setCodigoabastecedora(pkJson.optString("codigoabastecedora", ""));
-                                                pk.setCodigocomercializadora(
-                                                        pkJson.optString("codigocomercializadora", ""));
-                                                pk.setNumero(pkJson.optString("numero", ""));
-                                                pk.setCodigoproducto(pkJson.optString("codigoproducto", ""));
-                                                pk.setCodigomedida(pkJson.optString("codigomedida", ""));
-                                                dp.setDetalleprepedidoPK(pk);
-                                            }
-                                            if (!det.isNull("producto")) {
-                                                JSONObject prodJson = det.getJSONObject("producto");
-                                                Producto p = new Producto();
-                                                p.setCodigo(prodJson.optString("codigo", ""));
-                                                p.setNombre(prodJson.optString("nombre", ""));
-                                                dp.setProducto(p);
-                                            } else if (!det.isNull("nombreproducto")) {
-                                                Producto p = new Producto();
-                                                p.setCodigo(det.optString("codigoproducto", ""));
-                                                p.setNombre(det.optString("nombreproducto", ""));
-                                                dp.setProducto(p);
-                                            }
-                                            if (!det.isNull("volumennaturalrequerido")) {
-                                                dp.setVolumennaturalrequerido(
-                                                        det.getBigDecimal("volumennaturalrequerido"));
-                                            }
-                                            if (!det.isNull("volumennaturalautorizado")) {
-                                                dp.setVolumennaturalautorizado(
-                                                        det.getBigDecimal("volumennaturalautorizado"));
-                                            } else {
-                                                dp.setVolumennaturalautorizado(BigDecimal.ZERO);
-                                            }
-                                            if (det.has("activo") && !det.isNull("activo")) {
-                                                dp.setActivo(det.getBoolean("activo"));
-                                            }
-                                            if (dp.getVolumennaturalautorizado() != null && dp
-                                                    .getVolumennaturalautorizado().compareTo(BigDecimal.ZERO) > 0) {
-                                                dp.setAutorizado("SI");
-                                            } else {
-                                                dp.setAutorizado("NO");
-                                            }
-                                            detallesParseados.add(dp);
-                                        } else {
-                                            // Check for flat structure in nt directly
-                                            if (!nt.isNull("nombreproducto")
-                                                    || !nt.isNull("volumennaturalautorizado")) {
-                                                Detalleprepedido dp = new Detalleprepedido();
-                                                Producto p = new Producto();
-                                                p.setCodigo(nt.optString("codigoproducto", ""));
-                                                p.setNombre(nt.optString("nombreproducto", ""));
-                                                dp.setProducto(p);
-                                                if (!nt.isNull("volumennaturalrequerido")) {
-                                                    dp.setVolumennaturalrequerido(
-                                                            nt.getBigDecimal("volumennaturalrequerido"));
-                                                }
-                                                if (!nt.isNull("volumennaturalautorizado")) {
-                                                    dp.setVolumennaturalautorizado(
-                                                            nt.getBigDecimal("volumennaturalautorizado"));
-                                                } else {
-                                                    dp.setVolumennaturalautorizado(BigDecimal.ZERO);
-                                                }
-                                                if (nt.has("activo") && !nt.isNull("activo")) {
-                                                    dp.setActivo(nt.getBoolean("activo"));
-                                                }
-                                                if (dp.getVolumennaturalautorizado() != null && dp
-                                                        .getVolumennaturalautorizado().compareTo(BigDecimal.ZERO) > 0) {
-                                                    dp.setAutorizado("SI");
-                                                } else {
-                                                    dp.setAutorizado("NO");
-                                                }
-                                                detallesParseados.add(dp);
-                                            }
-                                        }
-
-                                        String numNotaBackend = "0";
                                         try {
-                                            if (nt.has("numeronotapedidogenerada")
-                                                    && !nt.isNull("numeronotapedidogenerada")) {
-                                                numNotaBackend = nt.optString("numeronotapedidogenerada", "0");
-                                            } else if (nt.has("numeroNotaPedidoGenerada")
-                                                    && !nt.isNull("numeroNotaPedidoGenerada")) {
-                                                numNotaBackend = nt.optString("numeroNotaPedidoGenerada", "0");
-                                            } else if (nt.has("numeronotapedido") && !nt.isNull("numeronotapedido")) {
-                                                numNotaBackend = nt.optString("numeronotapedido", "0");
-                                            } else if (nt.has("notapedido") && !nt.isNull("notapedido")) {
-                                                Object objNp = nt.get("notapedido");
-                                                if (objNp instanceof String) {
-                                                    numNotaBackend = (String) objNp;
-                                                } else if (objNp instanceof JSONObject) {
-                                                    JSONObject joNp = (JSONObject) objNp;
-                                                    if (joNp.has("notapedidoPK") && !joNp.isNull("notapedidoPK")) {
-                                                        numNotaBackend = joNp.getJSONObject("notapedidoPK").optString(
-                                                                "numero",
-                                                                "0");
-                                                    } else if (joNp.has("numero") && !joNp.isNull("numero")) {
-                                                        numNotaBackend = joNp.optString("numero", "0");
-                                                    }
-                                                }
-                                            } else if (nt.has("notapedidogenerada")
-                                                    && !nt.isNull("notapedidogenerada")) {
-                                                numNotaBackend = nt.optString("notapedidogenerada", "0");
-                                            }
-                                            if (numNotaBackend == null || numNotaBackend.trim().isEmpty()
-                                                    || numNotaBackend.equals("null")) {
-                                                numNotaBackend = "0";
-                                            }
-                                        } catch (Exception e) {
-                                            LOG.log(java.util.logging.Level.WARNING,
-                                                    "Error parseando nota pedido generada", e);
+                                            dp.setVolumennaturalrequerido(new java.math.BigDecimal(nt.optString("volumenNaturalRequerido", "0").trim()));
+                                        } catch(Exception e) { dp.setVolumennaturalrequerido(java.math.BigDecimal.ZERO); }
+                                        
+                                        try {
+                                            dp.setVolumennaturalautorizado(new java.math.BigDecimal(nt.optString("volumenNaturalAutorizado", "0").trim()));
+                                        } catch(Exception e) { dp.setVolumennaturalautorizado(java.math.BigDecimal.ZERO); }
+                                        
+                                        dp.setAutorizado(nt.optString("autorizado", ""));
+                                        dp.setActivo(nt.optBoolean("activo", true));
+                                        
+                                        String numNP = nt.optString("numeroNP", "0");
+                                        if (numNP == null || numNP.trim().isEmpty() || numNP.equals("null")) {
+                                            numNP = "0";
                                         }
+                                        dp.setNumeronp(numNP);
 
-                                        if (!detallesParseados.isEmpty()) {
-                                            int idx = 0;
-                                            JSONArray arr = nt.optJSONArray("detalleprepedidoList");
-                                            for (Detalleprepedido dpParsed : detallesParseados) {
-                                                PrepedidoSolicitud row = new PrepedidoSolicitud();
-                                                row.setPrepedido(parseNp);
-                                                java.util.List<Detalleprepedido> singleList = new java.util.ArrayList<>();
-                                                singleList.add(dpParsed);
-                                                row.setDetalle(singleList);
-                                                row.setEstadoForzado(row.getEstadoAutorizado());
-
-                                                String finalNumNp = numNotaBackend;
-                                                try {
-                                                    if (arr != null && idx < arr.length()) {
-                                                        JSONObject detJson = arr.getJSONObject(idx);
-                                                        if (detJson.has("numeronp") && !detJson.isNull("numeronp")) {
-                                                            String val = detJson.optString("numeronp", "0");
-                                                            if (val != null && !val.trim().isEmpty()
-                                                                    && !val.equals("null")
-                                                                    && !val.equals("0")) {
-                                                                finalNumNp = val;
-                                                                dpParsed.setNumeronp(val);
-                                                            }
-                                                        }
-                                                    } else if (nt.has("detalle") && !nt.isNull("detalle")) {
-                                                        JSONObject detJson = nt.getJSONObject("detalle");
-                                                        if (detJson.has("numeronp") && !detJson.isNull("numeronp")) {
-                                                            String val = detJson.optString("numeronp", "0");
-                                                            if (val != null && !val.trim().isEmpty()
-                                                                    && !val.equals("null")
-                                                                    && !val.equals("0")) {
-                                                                finalNumNp = val;
-                                                                dpParsed.setNumeronp(val);
-                                                            }
-                                                        }
-                                                    }
-                                                } catch (Exception e) {
-                                                }
-
-                                                row.setNumeroNotaPedidoGenerada(finalNumNp);
-                                                listPrepedido.add(row);
-                                                idx++;
-                                            }
-                                        } else {
-                                            PrepedidoSolicitud envioPedido = new PrepedidoSolicitud();
-                                            envioPedido.setPrepedido(parseNp);
-                                            envioPedido.setEstadoForzado(envioPedido.getEstadoAutorizado());
-                                            envioPedido.setNumeroNotaPedidoGenerada(numNotaBackend);
-                                            listPrepedido.add(envioPedido);
-                                        }
-
-                                        listDetNP = new ArrayList<>();
+                                        PrepedidoSolicitud row = new PrepedidoSolicitud();
+                                        row.setPrepedido(parseNp);
+                                        java.util.List<Detalleprepedido> singleList = new java.util.ArrayList<>();
+                                        singleList.add(dp);
+                                        row.setDetalle(singleList);
+                                        row.setEstadoForzado(dp.getAutorizado());
+                                        row.setNumeroNotaPedidoGenerada(numNP);
+                                        
+                                        listPrepedido.add(row);
                                     }
                                 }
                             }
                         }
                     }
+
                     cal.add(Calendar.DATE, 1);
                 }
 
@@ -3430,5 +3175,13 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             e.printStackTrace();
             this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL PROCESAR");
         }
+    }
+
+    public boolean isTerminalCerrada() {
+        return terminalCerrada;
+    }
+
+    public void setTerminalCerrada(boolean terminalCerrada) {
+        this.terminalCerrada = terminalCerrada;
     }
 }

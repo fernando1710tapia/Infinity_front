@@ -12,7 +12,9 @@ import ec.com.infinityone.modelo.Terminal;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +67,9 @@ public class TerminalServicio {
                     JSONObject terminal = retorno.getJSONObject(indice);
                     term.setCodigo(terminal.getString("codigo"));
                     term.setNombre(terminal.getString("nombre"));
-                    //term.setObjRelacionado(terminal.getString("codigo") + " - " + terminal.getString("nombre"));
+                    term.setActivo(terminal.optBoolean("activo", false));
+                    term.setUsuarioactual(terminal.optString("usuarioactual", ""));
+                    term.setRecibirsolicitud(terminal.optBoolean("recibirsolicitud", true));
                     listaTerminales.add(term);
                     term = new Terminal();
                 }
@@ -129,4 +133,44 @@ public class TerminalServicio {
         return listaTerminalesActivos;
     }
 
+    /**
+     * Actualiza el campo recibirsolicitud de una terminal via PUT.
+     * @param terminal objeto Terminal con todos los campos necesarios
+     * @param recibirSolicitud nuevo valor del campo
+     * @return código de respuesta HTTP (200 = éxito)
+     */
+    public int actualizarRecibirSolicitud(Terminal terminal, boolean recibirSolicitud) {
+        String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.terminal/porId";
+        final int SUCCESS_CODE = 200;
+        int respuesta = -1;
+        try {
+            URI uri = new URI(direcc);
+            URL url = uri.toURL();
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("PUT");
+            connection.setRequestProperty("Content-type", "application/json");
+
+            JSONObject body = new JSONObject();
+            body.put("codigo", terminal.getCodigo());
+            body.put("nombre", terminal.getNombre());
+            body.put("activo", terminal.isActivo());
+            body.put("usuarioactual", terminal.getUsuarioactual() != null ? terminal.getUsuarioactual() : "");
+            body.put("recibirsolicitud", recibirSolicitud);
+
+            try (OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())) {
+                writer.write(body.toString());
+            }
+
+            respuesta = connection.getResponseCode();
+            if (respuesta != SUCCESS_CODE) {
+                System.out.println("Error al actualizar recibirsolicitud: HTTP " + respuesta);
+            }
+        } catch (Throwable e) {
+            System.out.println("Error al actualizar recibirsolicitud en terminal " + (terminal != null ? terminal.getCodigo() : "null"));
+            e.printStackTrace(System.out);
+        }
+        return respuesta;
+    }
 }

@@ -1,4 +1,4 @@
-<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+﻿<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
     xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
 
@@ -98,6 +98,14 @@
                 transform: rotate(180deg);
                 background: #1a5f9f;
             }
+
+            .status-cerrada {
+                color: #ff6b6b !important;
+            }
+
+            .status-abierta {
+                color: #6bcb77 !important;
+            }
         </style>
 
         <script>
@@ -126,14 +134,16 @@
 
                             <p:toolbar styleClass="p-mb-4">
                                 <p:toolbarGroup>
-                                    <p:commandButton value="Crear" icon="pi pi-plus"
+                                    <p:commandButton id="btnCrear" value="Crear" icon="pi pi-plus"
                                         actionListener="#{prepedidoSolicitudBean1.nuevaPrepedido()}"
                                         update="form :formNuevo" styleClass="ui-button-success"
-                                        style="margin-right: .5rem" />
+                                        style="margin-right: .5rem"
+                                        disabled="#{prepedidoSolicitudBean1.terminalCerrada}"
+                                        title="#{prepedidoSolicitudBean1.terminalCerrada ? 'La terminal está cerrada. Active el switch para habilitarla.' : 'Crear nueva solicitud'}" />
                                 </p:toolbarGroup>
                             </p:toolbar>
                             <div class="ui-fluid p-formgrid p-grid">
-                                <div class="p-field p-col-12 p-md-4">
+                                <div class="p-field p-col-12 p-md-3">
                                     <div class="ui-inputgroup">
                                         <span class="ui-inputgroup-addon">
                                             <i class="fa fa-shopping-cart"></i>
@@ -168,8 +178,22 @@
                                                 itemLabel="#{ter.codigo} - #{ter.nombre}" itemValue="#{ter}" />
                                             <p:ajax event="change"
                                                 listener="#{prepedidoSolicitudBean1.seleccionarTerminal(1)}"
-                                                update="cli" />
+                                                update="cli switchFiltroTipo terminalStatusBadge btnCrear" />
                                         </p:selectOneMenu>
+                                    </div>
+                                </div>
+                                <div class="p-field p-col-12 p-md-1"
+                                    style="display:flex; align-items:center; justify-content:center; margin-top: 0; padding: 0;">
+                                    <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                                        <p:toggleSwitch id="switchFiltroTipo"
+                                            value="#{prepedidoSolicitudBean1.terminalCerrada}">
+                                            <p:ajax listener="#{prepedidoSolicitudBean1.toggleCierreTerminal()}"
+                                                update="messages switchFiltroTipo terminalStatusBadge btnCrear" />
+                                        </p:toggleSwitch>
+                                        <p:outputLabel id="terminalStatusBadge"
+                                            value="#{prepedidoSolicitudBean1.terminalCerrada ? 'CERRADA' : 'ABIERTA'}"
+                                            styleClass="#{prepedidoSolicitudBean1.terminalCerrada ? 'status-cerrada' : 'status-abierta'}"
+                                            style="font-size:0.6rem; font-weight:bold; letter-spacing:0.03em; margin-top:1px;" />
                                     </div>
                                 </div>
                                 <div class="p-field p-col-12 p-md-4">
@@ -498,109 +522,243 @@
                                     <p:row>
                                         <p:column colspan="18" style="height:20px; background:#162840; border:none;" />
                                     </p:row>
-                                    
+
                                     <!-- (A) Programa despachos PyS -->
                                     <p:row>
-                                        <p:column style="background:#1a3050; border-top:2px solid #2a5f8f; border-left:none; border-right:none; border-bottom:none; position:relative; overflow:visible; padding:8px 0;">
+                                        <p:column
+                                            style="background:#1a3050; border-top:2px solid #2a5f8f; border-left:none; border-right:none; border-bottom:none; padding:8px 0; overflow:visible;">
                                             <f:facet name="footer">
-                                                <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); white-space:nowrap; color:#8ab4d8; font-weight:bold; font-size:1.05rem; z-index:5;">
-                                                    (A) Programa despachos PyS
-                                                </span>
+                                                <span
+                                                    style="white-space:nowrap; color:#8ab4d8; font-weight:bold; font-size:1.05rem; padding-left:12px;">(A)
+                                                    Programa despachos PyS</span>
                                             </f:facet>
                                         </p:column>
-                                        <p:column style="background:#1a3050; border-top:2px solid #2a5f8f; border-left:none; border-right:none; border-bottom:none;" />
-                                        <p:column style="background:#1a3050; border-top:2px solid #2a5f8f; border-left:none; border-right:none; border-bottom:none;" />
-                                        <p:column style="background:#1a3050; border-top:2px solid #2a5f8f; border-left:none; border-right:none; border-bottom:none;" />
-                                        
-                                        <p:column style="text-align:center; background:#1a3050; color:#fff; font-weight:bold; padding:8px 0;">
-                                            <f:facet name="footer"><h:outputText value="#{prepedidoSolicitudBean1.getTotalVolSol('EXTRA')}" /></f:facet>
+                                        <p:column
+                                            style="background:#1a3050; border-top:2px solid #2a5f8f; border-left:none; border-right:none; border-bottom:none; padding:8px 0;">
+                                            <f:facet name="footer"><span
+                                                    style="color:transparent; user-select:none;">-</span></f:facet>
                                         </p:column>
-                                        <p:column style="text-align:center; background:#1a3050; color:#fff; font-weight:bold; padding:8px 0;">
-                                            <f:facet name="footer"><h:outputText value="#{prepedidoSolicitudBean1.getTotalVolAuto('EXTRA')}" /></f:facet>
+                                        <p:column
+                                            style="background:#1a3050; border-top:2px solid #2a5f8f; border-left:none; border-right:none; border-bottom:none; padding:8px 0;">
+                                            <f:facet name="footer"><span
+                                                    style="color:transparent; user-select:none;">-</span></f:facet>
                                         </p:column>
-                                        <p:column style="text-align:center; background:#1a3050; color:#fff; font-weight:bold; padding:8px 0;">
-                                            <f:facet name="footer"><h:outputText value="#{prepedidoSolicitudBean1.getTotalVolSol('DIESEL')}" /></f:facet>
+                                        <p:column
+                                            style="background:#1a3050; border-top:2px solid #2a5f8f; border-left:none; border-right:none; border-bottom:none; padding:8px 0;">
+                                            <f:facet name="footer"><span
+                                                    style="color:transparent; user-select:none;">-</span></f:facet>
                                         </p:column>
-                                        <p:column style="text-align:center; background:#1a3050; color:#fff; font-weight:bold; padding:8px 0;">
-                                            <f:facet name="footer"><h:outputText value="#{prepedidoSolicitudBean1.getTotalVolAuto('DIESEL')}" /></f:facet>
+
+                                        <p:column
+                                            style="text-align:center; background:#1a3050; color:#fff; font-weight:bold; padding:8px 0;">
+                                            <f:facet name="footer">
+                                                <h:outputText
+                                                    value="#{prepedidoSolicitudBean1.getTotalVolSol('EXTRA')}" />
+                                            </f:facet>
                                         </p:column>
-                                        <p:column style="text-align:center; background:#1a3050; color:#fff; font-weight:bold; padding:8px 0;">
-                                            <f:facet name="footer"><h:outputText value="#{prepedidoSolicitudBean1.getTotalVolSol('SUPER')}" /></f:facet>
+                                        <p:column
+                                            style="text-align:center; background:#1a3050; color:#fff; font-weight:bold; padding:8px 0;">
+                                            <f:facet name="footer">
+                                                <h:outputText
+                                                    value="#{prepedidoSolicitudBean1.getTotalVolAuto('EXTRA')}" />
+                                            </f:facet>
                                         </p:column>
-                                        <p:column style="text-align:center; background:#1a3050; color:#fff; font-weight:bold; padding:8px 0;">
-                                            <f:facet name="footer"><h:outputText value="#{prepedidoSolicitudBean1.getTotalVolAuto('SUPER')}" /></f:facet>
+                                        <p:column
+                                            style="text-align:center; background:#1a3050; color:#fff; font-weight:bold; padding:8px 0;">
+                                            <f:facet name="footer">
+                                                <h:outputText
+                                                    value="#{prepedidoSolicitudBean1.getTotalVolSol('DIESEL')}" />
+                                            </f:facet>
                                         </p:column>
-                                        
-                                        <p:column colspan="8" style="background:#1a3050; border-top:2px solid #2a5f8f;" />
+                                        <p:column
+                                            style="text-align:center; background:#1a3050; color:#fff; font-weight:bold; padding:8px 0;">
+                                            <f:facet name="footer">
+                                                <h:outputText
+                                                    value="#{prepedidoSolicitudBean1.getTotalVolAuto('DIESEL')}" />
+                                            </f:facet>
+                                        </p:column>
+                                        <p:column
+                                            style="text-align:center; background:#1a3050; color:#fff; font-weight:bold; padding:8px 0;">
+                                            <f:facet name="footer">
+                                                <h:outputText
+                                                    value="#{prepedidoSolicitudBean1.getTotalVolSol('SUPER')}" />
+                                            </f:facet>
+                                        </p:column>
+                                        <p:column
+                                            style="text-align:center; background:#1a3050; color:#fff; font-weight:bold; padding:8px 0;">
+                                            <f:facet name="footer">
+                                                <h:outputText
+                                                    value="#{prepedidoSolicitudBean1.getTotalVolAuto('SUPER')}" />
+                                            </f:facet>
+                                        </p:column>
+
+                                        <p:column colspan="8"
+                                            style="background:#1a3050; border-top:2px solid #2a5f8f;" />
                                     </p:row>
 
                                     <!-- EPP asignación Inicial -->
                                     <p:row>
-                                        <p:column style="background:#162840; border-top:1px solid #2a5080; border-left:none; border-right:none; border-bottom:none; position:relative; overflow:visible; padding:6px 0;">
+                                        <p:column
+                                            style="background:#162840; border-top:1px solid #2a5080; border-left:none; border-right:none; border-bottom:none; padding:8px 0; overflow:visible;">
                                             <f:facet name="footer">
-                                                <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); white-space:nowrap; color:#cdd9e8; font-size:1.05rem; z-index:5;">
-                                                    EPP asignación Inicial
-                                                </span>
+                                                <span
+                                                    style="white-space:nowrap; color:#cdd9e8; font-weight:bold; font-size:1.05rem; padding-left:12px;">EPP
+                                                    asignación Inicial</span>
                                             </f:facet>
                                         </p:column>
-                                        <p:column style="background:#162840; border-top:1px solid #2a5080; border-left:none; border-right:none; border-bottom:none;" />
-                                        <p:column style="background:#162840; border-top:1px solid #2a5080; border-left:none; border-right:none; border-bottom:none;" />
-                                        <p:column style="background:#162840; border-top:1px solid #2a5080; border-left:none; border-right:none; border-bottom:none;" />
-                                        
-                                        <p:column style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;"><f:facet name="footer">-</f:facet></p:column>
-                                        <p:column style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;"><f:facet name="footer">0</f:facet></p:column>
-                                        <p:column style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;"><f:facet name="footer">-</f:facet></p:column>
-                                        <p:column style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;"><f:facet name="footer">0</f:facet></p:column>
-                                        <p:column style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;"><f:facet name="footer">-</f:facet></p:column>
-                                        <p:column style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;"><f:facet name="footer">0</f:facet></p:column>
-                                        
-                                        <p:column colspan="8" style="background:#162840; border-top:1px solid #2a5080;" />
+                                        <p:column
+                                            style="background:#162840; border-top:1px solid #2a5080; border-left:none; border-right:none; border-bottom:none; padding:8px 0;">
+                                            <f:facet name="footer"><span
+                                                    style="color:transparent; user-select:none;">-</span></f:facet>
+                                        </p:column>
+                                        <p:column
+                                            style="background:#162840; border-top:1px solid #2a5080; border-left:none; border-right:none; border-bottom:none; padding:8px 0;">
+                                            <f:facet name="footer"><span
+                                                    style="color:transparent; user-select:none;">-</span></f:facet>
+                                        </p:column>
+                                        <p:column
+                                            style="background:#162840; border-top:1px solid #2a5080; border-left:none; border-right:none; border-bottom:none; padding:8px 0;">
+                                            <f:facet name="footer"><span
+                                                    style="color:transparent; user-select:none;">-</span></f:facet>
+                                        </p:column>
+
+                                        <p:column
+                                            style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;">
+                                            <f:facet name="footer">-</f:facet>
+                                        </p:column>
+                                        <p:column
+                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;">
+                                            <f:facet name="footer">0</f:facet>
+                                        </p:column>
+                                        <p:column
+                                            style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;">
+                                            <f:facet name="footer">-</f:facet>
+                                        </p:column>
+                                        <p:column
+                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;">
+                                            <f:facet name="footer">0</f:facet>
+                                        </p:column>
+                                        <p:column
+                                            style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;">
+                                            <f:facet name="footer">-</f:facet>
+                                        </p:column>
+                                        <p:column
+                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;">
+                                            <f:facet name="footer">0</f:facet>
+                                        </p:column>
+
+                                        <p:column colspan="8"
+                                            style="background:#162840; border-top:1px solid #2a5080;" />
                                     </p:row>
 
                                     <!-- EPP asignación ADICIONAL -->
                                     <p:row>
-                                        <p:column style="background:#162840; border-top:1px solid #1e3a5f; border-left:none; border-right:none; border-bottom:none; position:relative; overflow:visible; padding:6px 0;">
+                                        <p:column
+                                            style="background:#162840; border-top:1px solid #1e3a5f; border-left:none; border-right:none; border-bottom:none; padding:8px 0; overflow:visible;">
                                             <f:facet name="footer">
-                                                <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); white-space:nowrap; color:#cdd9e8; font-size:1.05rem; z-index:5;">
-                                                    EPP asignación ADICIONAL
-                                                </span>
+                                                <span
+                                                    style="white-space:nowrap; color:#cdd9e8; font-weight:bold; font-size:1.05rem; padding-left:12px;">EPP
+                                                    asignación ADICIONAL</span>
                                             </f:facet>
                                         </p:column>
-                                        <p:column style="background:#162840; border-top:1px solid #1e3a5f; border-left:none; border-right:none; border-bottom:none;" />
-                                        <p:column style="background:#162840; border-top:1px solid #1e3a5f; border-left:none; border-right:none; border-bottom:none;" />
-                                        <p:column style="background:#162840; border-top:1px solid #1e3a5f; border-left:none; border-right:none; border-bottom:none;" />
-                                        
-                                        <p:column style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;"><f:facet name="footer">-</f:facet></p:column>
-                                        <p:column style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;"><f:facet name="footer">0</f:facet></p:column>
-                                        <p:column style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;"><f:facet name="footer">-</f:facet></p:column>
-                                        <p:column style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;"><f:facet name="footer">0</f:facet></p:column>
-                                        <p:column style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;"><f:facet name="footer">-</f:facet></p:column>
-                                        <p:column style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;"><f:facet name="footer">0</f:facet></p:column>
-                                        
-                                        <p:column colspan="8" style="background:#162840; border-top:1px solid #1e3a5f;" />
+                                        <p:column
+                                            style="background:#162840; border-top:1px solid #1e3a5f; border-left:none; border-right:none; border-bottom:none; padding:8px 0;">
+                                            <f:facet name="footer"><span
+                                                    style="color:transparent; user-select:none;">-</span></f:facet>
+                                        </p:column>
+                                        <p:column
+                                            style="background:#162840; border-top:1px solid #1e3a5f; border-left:none; border-right:none; border-bottom:none; padding:8px 0;">
+                                            <f:facet name="footer"><span
+                                                    style="color:transparent; user-select:none;">-</span></f:facet>
+                                        </p:column>
+                                        <p:column
+                                            style="background:#162840; border-top:1px solid #1e3a5f; border-left:none; border-right:none; border-bottom:none; padding:8px 0;">
+                                            <f:facet name="footer"><span
+                                                    style="color:transparent; user-select:none;">-</span></f:facet>
+                                        </p:column>
+
+                                        <p:column
+                                            style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;">
+                                            <f:facet name="footer">-</f:facet>
+                                        </p:column>
+                                        <p:column
+                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;">
+                                            <f:facet name="footer">0</f:facet>
+                                        </p:column>
+                                        <p:column
+                                            style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;">
+                                            <f:facet name="footer">-</f:facet>
+                                        </p:column>
+                                        <p:column
+                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;">
+                                            <f:facet name="footer">0</f:facet>
+                                        </p:column>
+                                        <p:column
+                                            style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;">
+                                            <f:facet name="footer">-</f:facet>
+                                        </p:column>
+                                        <p:column
+                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;">
+                                            <f:facet name="footer">0</f:facet>
+                                        </p:column>
+
+                                        <p:column colspan="8"
+                                            style="background:#162840; border-top:1px solid #1e3a5f;" />
                                     </p:row>
 
                                     <!-- EPP asignación TOTAL -->
                                     <p:row>
-                                        <p:column style="background:#162840; border-top:2px solid #2a5080; border-left:none; border-right:none; border-bottom:none; position:relative; overflow:visible; padding:6px 0;">
+                                        <p:column
+                                            style="background:#162840; border-top:2px solid #2a5080; border-left:none; border-right:none; border-bottom:none; padding:8px 0; overflow:visible;">
                                             <f:facet name="footer">
-                                                <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); white-space:nowrap; color:#cdd9e8; font-weight:bold; font-size:1.05rem; z-index:5;">
-                                                    EPP asignación TOTAL
-                                                </span>
+                                                <span
+                                                    style="white-space:nowrap; color:#cdd9e8; font-weight:bold; font-size:1.05rem; padding-left:12px;">EPP
+                                                    asignación TOTAL</span>
                                             </f:facet>
                                         </p:column>
-                                        <p:column style="background:#162840; border-top:2px solid #2a5080; border-left:none; border-right:none; border-bottom:none;" />
-                                        <p:column style="background:#162840; border-top:2px solid #2a5080; border-left:none; border-right:none; border-bottom:none;" />
-                                        <p:column style="background:#162840; border-top:2px solid #2a5080; border-left:none; border-right:none; border-bottom:none;" />
-                                        
-                                        <p:column style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;"><f:facet name="footer">-</f:facet></p:column>
-                                        <p:column style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;"><f:facet name="footer">0</f:facet></p:column>
-                                        <p:column style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;"><f:facet name="footer">-</f:facet></p:column>
-                                        <p:column style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;"><f:facet name="footer">0</f:facet></p:column>
-                                        <p:column style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;"><f:facet name="footer">-</f:facet></p:column>
-                                        <p:column style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;"><f:facet name="footer">0</f:facet></p:column>
-                                        
-                                        <p:column colspan="8" style="background:#162840; border-top:2px solid #2a5080;" />
+                                        <p:column
+                                            style="background:#162840; border-top:2px solid #2a5080; border-left:none; border-right:none; border-bottom:none; padding:8px 0;">
+                                            <f:facet name="footer"><span
+                                                    style="color:transparent; user-select:none;">-</span></f:facet>
+                                        </p:column>
+                                        <p:column
+                                            style="background:#162840; border-top:2px solid #2a5080; border-left:none; border-right:none; border-bottom:none; padding:8px 0;">
+                                            <f:facet name="footer"><span
+                                                    style="color:transparent; user-select:none;">-</span></f:facet>
+                                        </p:column>
+                                        <p:column
+                                            style="background:#162840; border-top:2px solid #2a5080; border-left:none; border-right:none; border-bottom:none; padding:8px 0;">
+                                            <f:facet name="footer"><span
+                                                    style="color:transparent; user-select:none;">-</span></f:facet>
+                                        </p:column>
+
+                                        <p:column
+                                            style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;">
+                                            <f:facet name="footer">-</f:facet>
+                                        </p:column>
+                                        <p:column
+                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;">
+                                            <f:facet name="footer">0</f:facet>
+                                        </p:column>
+                                        <p:column
+                                            style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;">
+                                            <f:facet name="footer">-</f:facet>
+                                        </p:column>
+                                        <p:column
+                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;">
+                                            <f:facet name="footer">0</f:facet>
+                                        </p:column>
+                                        <p:column
+                                            style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;">
+                                            <f:facet name="footer">-</f:facet>
+                                        </p:column>
+                                        <p:column
+                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;">
+                                            <f:facet name="footer">0</f:facet>
+                                        </p:column>
+
+                                        <p:column colspan="8"
+                                            style="background:#162840; border-top:2px solid #2a5080;" />
                                     </p:row>
                                 </p:columnGroup>
                             </p:dataTable>
