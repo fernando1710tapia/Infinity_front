@@ -1,4 +1,4 @@
-﻿<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
     xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
 
@@ -517,252 +517,161 @@
                                         style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
                                 </p:column>
 
-                                <!-- ===== FOOTER SUMMARY INTEGRADO ===== -->
-                                <p:columnGroup type="footer">
-                                    <p:row>
-                                        <p:column colspan="18" style="height:20px; background:#162840; border:none;" />
-                                    </p:row>
 
-                                    <!-- (A) Programa despachos PyS -->
-                                    <p:row>
-                                        <p:column
-                                            style="background:#1a3050; border-top:2px solid #2a5f8f; border-left:none; border-right:none; border-bottom:none; padding:8px 0; overflow:visible;">
-                                            <f:facet name="footer">
-                                                <span
-                                                    style="white-space:nowrap; color:#8ab4d8; font-weight:bold; font-size:1.05rem; padding-left:12px;">(A)
-                                                    Programa despachos PyS</span>
-                                            </f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="background:#1a3050; border-top:2px solid #2a5f8f; border-left:none; border-right:none; border-bottom:none; padding:8px 0;">
-                                            <f:facet name="footer"><span
-                                                    style="color:transparent; user-select:none;">-</span></f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="background:#1a3050; border-top:2px solid #2a5f8f; border-left:none; border-right:none; border-bottom:none; padding:8px 0;">
-                                            <f:facet name="footer"><span
-                                                    style="color:transparent; user-select:none;">-</span></f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="background:#1a3050; border-top:2px solid #2a5f8f; border-left:none; border-right:none; border-bottom:none; padding:8px 0;">
-                                            <f:facet name="footer"><span
-                                                    style="color:transparent; user-select:none;">-</span></f:facet>
-                                        </p:column>
-
-                                        <p:column
-                                            style="text-align:center; background:#1a3050; color:#fff; font-weight:bold; padding:8px 0;">
-                                            <f:facet name="footer">
-                                                <h:outputText
-                                                    value="#{prepedidoSolicitudBean1.getTotalVolSol('EXTRA')}" />
-                                            </f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="text-align:center; background:#1a3050; color:#fff; font-weight:bold; padding:8px 0;">
-                                            <f:facet name="footer">
-                                                <h:outputText
-                                                    value="#{prepedidoSolicitudBean1.getTotalVolAuto('EXTRA')}" />
-                                            </f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="text-align:center; background:#1a3050; color:#fff; font-weight:bold; padding:8px 0;">
-                                            <f:facet name="footer">
-                                                <h:outputText
-                                                    value="#{prepedidoSolicitudBean1.getTotalVolSol('DIESEL')}" />
-                                            </f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="text-align:center; background:#1a3050; color:#fff; font-weight:bold; padding:8px 0;">
-                                            <f:facet name="footer">
-                                                <h:outputText
-                                                    value="#{prepedidoSolicitudBean1.getTotalVolAuto('DIESEL')}" />
-                                            </f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="text-align:center; background:#1a3050; color:#fff; font-weight:bold; padding:8px 0;">
-                                            <f:facet name="footer">
-                                                <h:outputText
-                                                    value="#{prepedidoSolicitudBean1.getTotalVolSol('SUPER')}" />
-                                            </f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="text-align:center; background:#1a3050; color:#fff; font-weight:bold; padding:8px 0;">
-                                            <f:facet name="footer">
-                                                <h:outputText
-                                                    value="#{prepedidoSolicitudBean1.getTotalVolAuto('SUPER')}" />
-                                            </f:facet>
-                                        </p:column>
-
-                                        <p:column colspan="8"
-                                            style="background:#1a3050; border-top:2px solid #2a5f8f;" />
-                                    </p:row>
-
-                                    <!-- EPP asignación Inicial -->
-                                    <p:row>
-                                        <p:column
-                                            style="background:#162840; border-top:1px solid #2a5080; border-left:none; border-right:none; border-bottom:none; padding:8px 0; overflow:visible;">
-                                            <f:facet name="footer">
-                                                <span
-                                                    style="white-space:nowrap; color:#cdd9e8; font-weight:bold; font-size:1.05rem; padding-left:12px;">EPP
-                                                    asignación Inicial</span>
-                                            </f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="background:#162840; border-top:1px solid #2a5080; border-left:none; border-right:none; border-bottom:none; padding:8px 0;">
-                                            <f:facet name="footer"><span
-                                                    style="color:transparent; user-select:none;">-</span></f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="background:#162840; border-top:1px solid #2a5080; border-left:none; border-right:none; border-bottom:none; padding:8px 0;">
-                                            <f:facet name="footer"><span
-                                                    style="color:transparent; user-select:none;">-</span></f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="background:#162840; border-top:1px solid #2a5080; border-left:none; border-right:none; border-bottom:none; padding:8px 0;">
-                                            <f:facet name="footer"><span
-                                                    style="color:transparent; user-select:none;">-</span></f:facet>
-                                        </p:column>
-
-                                        <p:column
-                                            style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;">
-                                            <f:facet name="footer">-</f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;">
-                                            <f:facet name="footer">0</f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;">
-                                            <f:facet name="footer">-</f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;">
-                                            <f:facet name="footer">0</f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;">
-                                            <f:facet name="footer">-</f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;">
-                                            <f:facet name="footer">0</f:facet>
-                                        </p:column>
-
-                                        <p:column colspan="8"
-                                            style="background:#162840; border-top:1px solid #2a5080;" />
-                                    </p:row>
-
-                                    <!-- EPP asignación ADICIONAL -->
-                                    <p:row>
-                                        <p:column
-                                            style="background:#162840; border-top:1px solid #1e3a5f; border-left:none; border-right:none; border-bottom:none; padding:8px 0; overflow:visible;">
-                                            <f:facet name="footer">
-                                                <span
-                                                    style="white-space:nowrap; color:#cdd9e8; font-weight:bold; font-size:1.05rem; padding-left:12px;">EPP
-                                                    asignación ADICIONAL</span>
-                                            </f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="background:#162840; border-top:1px solid #1e3a5f; border-left:none; border-right:none; border-bottom:none; padding:8px 0;">
-                                            <f:facet name="footer"><span
-                                                    style="color:transparent; user-select:none;">-</span></f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="background:#162840; border-top:1px solid #1e3a5f; border-left:none; border-right:none; border-bottom:none; padding:8px 0;">
-                                            <f:facet name="footer"><span
-                                                    style="color:transparent; user-select:none;">-</span></f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="background:#162840; border-top:1px solid #1e3a5f; border-left:none; border-right:none; border-bottom:none; padding:8px 0;">
-                                            <f:facet name="footer"><span
-                                                    style="color:transparent; user-select:none;">-</span></f:facet>
-                                        </p:column>
-
-                                        <p:column
-                                            style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;">
-                                            <f:facet name="footer">-</f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;">
-                                            <f:facet name="footer">0</f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;">
-                                            <f:facet name="footer">-</f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;">
-                                            <f:facet name="footer">0</f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;">
-                                            <f:facet name="footer">-</f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;">
-                                            <f:facet name="footer">0</f:facet>
-                                        </p:column>
-
-                                        <p:column colspan="8"
-                                            style="background:#162840; border-top:1px solid #1e3a5f;" />
-                                    </p:row>
-
-                                    <!-- EPP asignación TOTAL -->
-                                    <p:row>
-                                        <p:column
-                                            style="background:#162840; border-top:2px solid #2a5080; border-left:none; border-right:none; border-bottom:none; padding:8px 0; overflow:visible;">
-                                            <f:facet name="footer">
-                                                <span
-                                                    style="white-space:nowrap; color:#cdd9e8; font-weight:bold; font-size:1.05rem; padding-left:12px;">EPP
-                                                    asignación TOTAL</span>
-                                            </f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="background:#162840; border-top:2px solid #2a5080; border-left:none; border-right:none; border-bottom:none; padding:8px 0;">
-                                            <f:facet name="footer"><span
-                                                    style="color:transparent; user-select:none;">-</span></f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="background:#162840; border-top:2px solid #2a5080; border-left:none; border-right:none; border-bottom:none; padding:8px 0;">
-                                            <f:facet name="footer"><span
-                                                    style="color:transparent; user-select:none;">-</span></f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="background:#162840; border-top:2px solid #2a5080; border-left:none; border-right:none; border-bottom:none; padding:8px 0;">
-                                            <f:facet name="footer"><span
-                                                    style="color:transparent; user-select:none;">-</span></f:facet>
-                                        </p:column>
-
-                                        <p:column
-                                            style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;">
-                                            <f:facet name="footer">-</f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;">
-                                            <f:facet name="footer">0</f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;">
-                                            <f:facet name="footer">-</f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;">
-                                            <f:facet name="footer">0</f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="text-align:center; background:#162840; color:#8ab4d8; padding:6px 0;">
-                                            <f:facet name="footer">-</f:facet>
-                                        </p:column>
-                                        <p:column
-                                            style="text-align:center; background:#162840; color:#fff; font-weight:bold; padding:6px 0;">
-                                            <f:facet name="footer">0</f:facet>
-                                        </p:column>
-
-                                        <p:column colspan="8"
-                                            style="background:#162840; border-top:2px solid #2a5080;" />
-                                    </p:row>
-                                </p:columnGroup>
                             </p:dataTable>
 
+                            <style>
+                                .hide-scrollbar::-webkit-scrollbar { display: none; }
+                                .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+                            </style>
+
+                            <div class="summary-wrapper hide-scrollbar" style="overflow-x: auto; overflow-y: hidden; margin-top: 20px; margin-bottom: 20px; width: 100%;">
+                                <div style="display: flex; flex-direction: column; width: max-content; min-width: 100%;">
+                                    
+                                    <!-- Fila 1: (A) Programa despachos PyS -->
+                                    <div class="sum-row" style="display: flex; background: #1a3050; border-top: 2px solid #2a5f8f;">
+                                        <div class="sum-col-sticky" style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; background: #1a3050; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
+                                            <span style="color:#8ab4d8; font-weight:bold; font-size:1.05rem;">(A) Programa despachos PyS</span>
+                                        </div>
+                                        <div class="sum-col-scrollable" style="width: 264px; min-width: 264px; background: #1a3050; box-sizing: border-box;"></div>
+                                        
+                                        <div class="sum-val sum-col-4" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                            <h:outputText value="#{prepedidoSolicitudBean1.getTotalVolSol('EXTRA')}" />
+                                        </div>
+                                        <div class="sum-val sum-col-5" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                            <h:outputText value="#{prepedidoSolicitudBean1.getTotalVolAuto('EXTRA')}" />
+                                        </div>
+                                        <div class="sum-val sum-col-6" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                            <h:outputText value="#{prepedidoSolicitudBean1.getTotalVolSol('DIESEL')}" />
+                                        </div>
+                                        <div class="sum-val sum-col-7" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                            <h:outputText value="#{prepedidoSolicitudBean1.getTotalVolAuto('DIESEL')}" />
+                                        </div>
+                                        <div class="sum-val sum-col-8" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                            <h:outputText value="#{prepedidoSolicitudBean1.getTotalVolSol('SUPER')}" />
+                                        </div>
+                                        <div class="sum-val sum-col-9" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                            <h:outputText value="#{prepedidoSolicitudBean1.getTotalVolAuto('SUPER')}" />
+                                        </div>
+                                        <div style="flex-grow: 1; min-width: 550px; background: #1a3050;"></div>
+                                    </div>
+                                    
+                                    <!-- Fila 2: EPP asignación Inicial -->
+                                    <div class="sum-row" style="display: flex; background: #162840; border-top: 1px solid #2a5080;">
+                                        <div class="sum-col-sticky" style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
+                                            <span style="color:#cdd9e8; font-weight:bold; font-size:1.05rem;">EPP asignación Inicial</span>
+                                        </div>
+                                        <div class="sum-col-scrollable" style="width: 264px; min-width: 264px; background: #162840; box-sizing: border-box;"></div>
+
+                                        <div class="sum-val sum-col-4" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">-</div>
+                                        <div class="sum-val sum-col-5" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">0</div>
+                                        <div class="sum-val sum-col-6" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">-</div>
+                                        <div class="sum-val sum-col-7" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">0</div>
+                                        <div class="sum-val sum-col-8" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">-</div>
+                                        <div class="sum-val sum-col-9" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">0</div>
+                                        <div style="flex-grow: 1; min-width: 550px; background: #162840;"></div>
+                                    </div>
+
+                                    <!-- Fila 3: EPP asignación ADICIONAL -->
+                                    <div class="sum-row" style="display: flex; background: #162840; border-top: 1px solid #1e3a5f;">
+                                        <div class="sum-col-sticky" style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
+                                            <span style="color:#cdd9e8; font-weight:bold; font-size:1.05rem;">EPP asignación ADICIONAL</span>
+                                        </div>
+                                        <div class="sum-col-scrollable" style="width: 264px; min-width: 264px; background: #162840; box-sizing: border-box;"></div>
+
+                                        <div class="sum-val sum-col-4" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">-</div>
+                                        <div class="sum-val sum-col-5" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">0</div>
+                                        <div class="sum-val sum-col-6" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">-</div>
+                                        <div class="sum-val sum-col-7" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">0</div>
+                                        <div class="sum-val sum-col-8" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">-</div>
+                                        <div class="sum-val sum-col-9" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">0</div>
+                                        <div style="flex-grow: 1; min-width: 550px; background: #162840;"></div>
+                                    </div>
+
+                                    <!-- Fila 4: EPP asignación TOTAL -->
+                                    <div class="sum-row" style="display: flex; background: #162840; border-top: 2px solid #2a5080; border-bottom: 2px solid #2a5080;">
+                                        <div class="sum-col-sticky" style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
+                                            <span style="color:#cdd9e8; font-weight:bold; font-size:1.05rem;">EPP asignación TOTAL</span>
+                                        </div>
+                                        <div class="sum-col-scrollable" style="width: 264px; min-width: 264px; background: #162840; box-sizing: border-box;"></div>
+
+                                        <div class="sum-val sum-col-4" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">-</div>
+                                        <div class="sum-val sum-col-5" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">0</div>
+                                        <div class="sum-val sum-col-6" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">-</div>
+                                        <div class="sum-val sum-col-7" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">0</div>
+                                        <div class="sum-val sum-col-8" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">-</div>
+                                        <div class="sum-val sum-col-9" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">0</div>
+                                        <div style="flex-grow: 1; min-width: 550px; background: #162840;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h:outputScript>
+                                //<![CDATA[
+                                function syncSummaryScrollAndWidths() {
+                                    var topScrolls = document.querySelectorAll('.ui-datatable-scrollable-body');
+                                    var topScroll = topScrolls.length > 0 ? topScrolls[0] : null;
+                                    var bottomScroll = document.querySelector('.summary-wrapper');
+                                    
+                                    if (topScroll && bottomScroll) {
+                                        // 1) Sincronizar Anchos dinamicamente
+                                        var topRow = topScroll.querySelector('.ui-datatable-data tr.ui-widget-content:not(.ui-datatable-empty-message)');
+                                        if (topRow) {
+                                            var cells = topRow.children;
+                                            var visibleCells = [];
+                                            for (var k = 0; k < cells.length; k++) {
+                                                if (cells[k].offsetWidth > 0 && window.getComputedStyle(cells[k]).display !== 'none') {
+                                                    visibleCells.push(cells[k]);
+                                                }
+                                            }
+                                            
+                                            if (visibleCells.length >= 10) {
+                                                var w0 = visibleCells[0].offsetWidth;
+                                                var w1 = visibleCells[1].offsetWidth;
+                                                var w2 = visibleCells[2].offsetWidth;
+                                                var w3 = visibleCells[3].offsetWidth;
+                                                
+                                                var stickyWidth = w0 + w1;
+                                                var scrollableWidth = w2 + w3;
+                                                
+                                                document.querySelectorAll('.sum-col-sticky').forEach(function(el) {
+                                                    el.style.minWidth = stickyWidth + 'px';
+                                                    el.style.width = stickyWidth + 'px';
+                                                });
+                                                
+                                                document.querySelectorAll('.sum-col-scrollable').forEach(function(el) {
+                                                    el.style.minWidth = scrollableWidth + 'px';
+                                                    el.style.width = scrollableWidth + 'px';
+                                                });
+                                                
+                                                for (var i = 4; i <= 9; i++) {
+                                                    var w = visibleCells[i].offsetWidth;
+                                                    document.querySelectorAll('.sum-col-' + i).forEach(function(el) {
+                                                        el.style.minWidth = w + 'px';
+                                                        el.style.width = w + 'px';
+                                                    });
+                                                }
+                                            }
+                                        }
+
+                                        // 2) Sincronizar Scroll
+                                        topScroll.addEventListener('scroll', function() { 
+                                            bottomScroll.scrollLeft = topScroll.scrollLeft; 
+                                        });
+                                        bottomScroll.addEventListener('scroll', function() { 
+                                            topScroll.scrollLeft = bottomScroll.scrollLeft; 
+                                        });
+                                        bottomScroll.scrollLeft = topScroll.scrollLeft;
+                                    }
+                                }
+                                
+                                $(document).ready(function(){
+                                    setTimeout(syncSummaryScrollAndWidths, 300);
+                                    // Doble check por si los datos tardan un poco en renderizar
+                                    setTimeout(syncSummaryScrollAndWidths, 1000); 
+                                });
+                                //]]>
+                            </h:outputScript>
 
                         </div>
                     </div>
