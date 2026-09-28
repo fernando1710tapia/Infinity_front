@@ -30,24 +30,28 @@ import org.primefaces.shaded.json.JSONObject;
 public class ClienteProductoServicio {
 
     /*
-    Varible Producto
-    */
+     * Varible Producto
+     */
     private Producto producto;
     /*
-    Lista Productos
-    */
+     * Lista Productos
+     */
     private List<Producto> listaProductos;
-    
+
     private Clienteproducto cliProd;
-    
+
     private ClienteproductoPK clienteproductoPK;
-    
+
     private List<Clienteproducto> listacliProd;
-    
+
     public List<Producto> obtenerProductos(String codigoComercializadora, String codigoCliente) {
         try {
-            //URL url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.clienteproducto/porCliente?codigocliente=" + codigoCliente);
-            URL url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.clienteproducto/porCliente?codigocomercializadora="+codigoComercializadora+"&codigocliente=" + codigoCliente);
+            // URL url = new
+            // URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.clienteproducto/porCliente?codigocliente="
+            // + codigoCliente);
+            URL url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
+                    + "ec.com.infinity.modelo.clienteproducto/porCliente?codigocomercializadora="
+                    + codigoComercializadora + "&codigocliente=" + codigoCliente);
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
@@ -72,9 +76,14 @@ public class ClienteProductoServicio {
                 producto.setCodigo(prod.getString("codigo"));
                 producto.setNombre(prod.getString("nombre"));
                 if (!prod.isNull("productogenerico")) {
-                    producto.setProductogenerico(prod.getString("productogenerico"));
+                    Object pgObj = prod.get("productogenerico");
+                    if (pgObj instanceof JSONObject) {
+                        producto.setProductogenerico(((JSONObject) pgObj).optString("codigo"));
+                    } else {
+                        producto.setProductogenerico(prod.getString("productogenerico"));
+                    }
                 }
-                listaProductos.add(producto);      
+                listaProductos.add(producto);
                 producto = new Producto();
             }
             return listaProductos;
@@ -83,11 +92,15 @@ public class ClienteProductoServicio {
         }
         return listaProductos;
     }
-    
+
     public List<Clienteproducto> obtenerClienteProductos(String codigoComercializadora, String codigoCliente) {
         try {
-            //URL url = new URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.clienteproducto/porCliente?codigocliente=" + codigoCliente);
-            URL url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.clienteproducto/porCliente?codigocomercializadora="+codigoComercializadora+"&codigocliente=" + codigoCliente);
+            // URL url = new
+            // URL("https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.clienteproducto/porCliente?codigocliente="
+            // + codigoCliente);
+            URL url = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
+                    + "ec.com.infinity.modelo.clienteproducto/porCliente?codigocomercializadora="
+                    + codigoComercializadora + "&codigocliente=" + codigoCliente);
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
@@ -112,7 +125,7 @@ public class ClienteProductoServicio {
                 JSONObject clienteProd = retorno.getJSONObject(indice);
                 JSONObject prod = clienteProd.getJSONObject("producto");
                 JSONObject prodPK = clienteProd.getJSONObject("clienteproductoPK");
-                
+
                 producto.setCodigo(prod.getString("codigo"));
                 producto.setNombre(prod.getString("nombre"));
                 producto.setCodigoarch(prod.getString("codigoarch"));
@@ -127,8 +140,8 @@ public class ClienteProductoServicio {
                 cliProd.setClienteproductoPK(clienteproductoPK);
                 cliProd.setActivo(clienteProd.getBoolean("activo"));
                 cliProd.setUsuarioactual(clienteProd.getString("usuarioactual"));
-                //cliProd.setCodigo(areaM.getString("codigo"));
-                //cliProd.setNombre(areaM.getString("nombre"));
+                // cliProd.setCodigo(areaM.getString("codigo"));
+                // cliProd.setNombre(areaM.getString("nombre"));
                 listacliProd.add(cliProd);
                 producto = new Producto();
                 cliProd = new Clienteproducto();
@@ -144,6 +157,5 @@ public class ClienteProductoServicio {
         }
         return listacliProd;
     }
-    
-    
+
 }

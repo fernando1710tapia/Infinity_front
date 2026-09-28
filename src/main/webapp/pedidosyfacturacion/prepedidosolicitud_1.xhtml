@@ -72,7 +72,7 @@
                 line-height: 1.2;
             }
 
-            /* BotÃ³n toggle de la cortina */
+            /* BotÃƒÂ³n toggle de la cortina */
             .toggle-curtain-btn {
                 display: inline-flex;
                 align-items: center;
@@ -137,9 +137,7 @@
                                     <p:commandButton id="btnCrear" value="Crear" icon="pi pi-plus"
                                         actionListener="#{prepedidoSolicitudBean1.nuevaPrepedido()}"
                                         update="form :formNuevo" styleClass="ui-button-success"
-                                        style="margin-right: .5rem"
-                                        disabled="#{prepedidoSolicitudBean1.terminalCerrada}"
-                                        title="#{prepedidoSolicitudBean1.terminalCerrada ? 'La terminal está cerrada. Active el switch para habilitarla.' : 'Crear nueva solicitud'}" />
+                                        style="margin-right: .5rem" title="Crear nueva solicitud" />
                                 </p:toolbarGroup>
                             </p:toolbar>
                             <div class="ui-fluid p-formgrid p-grid">
@@ -186,13 +184,13 @@
                                     style="display:flex; align-items:center; justify-content:center; margin-top: 0; padding: 0;">
                                     <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
                                         <p:toggleSwitch id="switchFiltroTipo"
-                                            value="#{prepedidoSolicitudBean1.terminalCerrada}">
+                                            value="#{prepedidoSolicitudBean1.terminalAbierta}">
                                             <p:ajax listener="#{prepedidoSolicitudBean1.toggleCierreTerminal()}"
                                                 update="messages switchFiltroTipo terminalStatusBadge btnCrear" />
                                         </p:toggleSwitch>
                                         <p:outputLabel id="terminalStatusBadge"
-                                            value="#{prepedidoSolicitudBean1.terminalCerrada ? 'CERRADA' : 'ABIERTA'}"
-                                            styleClass="#{prepedidoSolicitudBean1.terminalCerrada ? 'status-cerrada' : 'status-abierta'}"
+                                            value="#{prepedidoSolicitudBean1.terminalAbierta ? 'ABIERTA' : 'CERRADA'}"
+                                            styleClass="#{prepedidoSolicitudBean1.terminalAbierta ? 'status-abierta' : 'status-cerrada'}"
                                             style="font-size:0.6rem; font-weight:bold; letter-spacing:0.03em; margin-top:1px;" />
                                     </div>
                                 </div>
@@ -291,7 +289,7 @@
                                             <f:facet name="header">
                                                 <button id="toggleCurtainBtn" type="button" class="toggle-curtain-btn"
                                                     onclick="toggleActionCols()"
-                                                    title="Mostrar/ocultar acciones de generaciÃ³n">
+                                                    title="Mostrar/ocultar acciones de generación">
                                                     &#x276F;
                                                 </button>
                                             </f:facet>
@@ -386,53 +384,71 @@
 
                                 <!-- EXTRA: Vol.Sol -->
                                 <p:column style="text-align:center; width:80px;">
-                                    <h:outputText
-                                        value="#{prepedidoSolicitudBean1.getVolSol(prepedidoItem, 'EXTRA')}" />
+                                    <h:outputText value="#{prepedidoSolicitudBean1.getVolSol(prepedidoItem, 'EXTRA')}">
+                                        <f:convertNumber pattern="0" />
+                                    </h:outputText>
                                 </p:column>
 
                                 <!-- EXTRA: Vol.Auto -->
                                 <p:column style="text-align:center; width:80px;">
                                     <ui:repeat value="#{prepedidoItem.detalle}" var="det">
-                                        <p:inputText value="#{det.volumennaturalautorizado}"
+                                        <p:inputNumber value="#{det.volumennaturalautorizado}"
                                             rendered="#{det.producto.nombre.equalsIgnoreCase('EXTRA')}"
-                                            disabled="#{det.autorizado eq 'SI'}"
-                                            style="width:72px; text-align:center; padding:2px 4px; font-size:0.85rem;" />
+                                            disabled="#{det.autorizado eq 'SI'}" decimalPlaces="0" thousandSeparator=""
+                                            emptyValue="zero"
+                                            inputStyle="width:72px; text-align:center; padding:2px 4px; font-size:0.85rem;"
+                                            style="width:72px;">
+                                            <p:ajax event="keyup" process="@this" update=":form:totalesPanel"
+                                                delay="300" />
+                                        </p:inputNumber>
                                     </ui:repeat>
                                 </p:column>
 
                                 <!-- DIESEL: Vol.Sol -->
                                 <p:column style="text-align:center; width:80px;">
-                                    <h:outputText
-                                        value="#{prepedidoSolicitudBean1.getVolSol(prepedidoItem, 'DIESEL')}" />
+                                    <h:outputText value="#{prepedidoSolicitudBean1.getVolSol(prepedidoItem, 'DIESEL')}">
+                                        <f:convertNumber pattern="0" />
+                                    </h:outputText>
                                 </p:column>
 
                                 <!-- DIESEL: Vol.Auto -->
                                 <p:column style="text-align:center; width:80px;">
                                     <ui:repeat value="#{prepedidoItem.detalle}" var="det">
-                                        <p:inputText value="#{det.volumennaturalautorizado}"
+                                        <p:inputNumber value="#{det.volumennaturalautorizado}"
                                             rendered="#{det.producto.nombre.equalsIgnoreCase('DIESEL')}"
-                                            disabled="#{det.autorizado eq 'SI'}"
-                                            style="width:72px; text-align:center; padding:2px 4px; font-size:0.85rem;" />
+                                            disabled="#{det.autorizado eq 'SI'}" decimalPlaces="0" thousandSeparator=""
+                                            emptyValue="zero"
+                                            inputStyle="width:72px; text-align:center; padding:2px 4px; font-size:0.85rem;"
+                                            style="width:72px;">
+                                            <p:ajax event="keyup" process="@this" update=":form:totalesPanel"
+                                                delay="300" />
+                                        </p:inputNumber>
                                     </ui:repeat>
                                 </p:column>
 
                                 <!-- SUPER: Vol.Sol -->
                                 <p:column style="text-align:center; width:80px;">
-                                    <h:outputText
-                                        value="#{prepedidoSolicitudBean1.getVolSol(prepedidoItem, 'SUPER')}" />
+                                    <h:outputText value="#{prepedidoSolicitudBean1.getVolSol(prepedidoItem, 'SUPER')}">
+                                        <f:convertNumber pattern="0" />
+                                    </h:outputText>
                                 </p:column>
 
                                 <!-- SUPER: Vol.Auto -->
                                 <p:column style="text-align:center; width:80px;">
                                     <ui:repeat value="#{prepedidoItem.detalle}" var="det">
-                                        <p:inputText value="#{det.volumennaturalautorizado}"
+                                        <p:inputNumber value="#{det.volumennaturalautorizado}"
                                             rendered="#{det.producto.nombre.equalsIgnoreCase('SUPER')}"
-                                            disabled="#{det.autorizado eq 'SI'}"
-                                            style="width:72px; text-align:center; padding:2px 4px; font-size:0.85rem;" />
+                                            disabled="#{det.autorizado eq 'SI'}" decimalPlaces="0" thousandSeparator=""
+                                            emptyValue="zero"
+                                            inputStyle="width:72px; text-align:center; padding:2px 4px; font-size:0.85rem;"
+                                            style="width:72px;">
+                                            <p:ajax event="keyup" process="@this" update=":form:totalesPanel"
+                                                delay="300" />
+                                        </p:inputNumber>
                                     </ui:repeat>
                                 </p:column>
 
-                                <!-- Anular: cÃ­rculo AMARILLO con X -->
+                                <!-- Anular: cÃƒÂ­rculo AMARILLO con X -->
                                 <p:column exportable="false" style="text-align:center; width:55px;">
                                     <p:commandButton icon="pi pi-times" styleClass="rounded-button ui-button-warning"
                                         process="@form"
@@ -443,7 +459,7 @@
                                     </p:commandButton>
                                 </p:column>
 
-                                <!-- Autorizar: cÃ­rculo VERDE con check -->
+                                <!-- Autorizar: cÃƒÂ­rculo VERDE con check -->
                                 <p:column exportable="false" style="text-align:center; width:60px;">
                                     <p:commandButton icon="pi pi-check" styleClass="rounded-button ui-button-success"
                                         process="@form" update="form"
@@ -456,25 +472,25 @@
                                     </p:commandButton>
                                 </p:column>
 
-                                <!-- Columna alineaciÃ³n botÃ³n toggle (vacÃ­a en el cuerpo) -->
+                                <!-- Columna alineación botón toggle (vacía en el cuerpo) -->
                                 <p:column exportable="false" style="text-align:center; width:30px; padding:2px;" />
 
-                                <!-- G. NP.Infinity: cÃ­rculo gris "Pi" -->
+                                <!-- G. NP.Infinity: círculo gris "Pi" -->
                                 <p:column exportable="false" styleClass="action-col" style="text-align:center;">
                                     <p:commandButton icon="pi pi-file" styleClass="ui-button-secondary rounded-button"
-                                        process="@form" update="form"
+                                        process="@this"
                                         actionListener="#{prepedidoSolicitudBean1.generarNotaPedido(prepedidoItem)}"
                                         disabled="#{not prepedidoItem.registroActivo or prepedidoItem.generadaNpBanco}"
                                         title="Generar NP Infinity"
                                         style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
                                 </p:column>
 
-                                <!-- G.NP.BCO: cÃ­rculo gris "Pb" -->
+                                <!-- G.NP.BCO: cÃƒÂ­rculo gris "Pb" -->
                                 <p:column exportable="false" styleClass="action-col" style="text-align:center;">
                                     <p:commandButton icon="pi pi-briefcase"
                                         styleClass="ui-button-secondary rounded-button"
                                         disabled="#{not prepedidoItem.registroActivo or prepedidoItem.generadaNpInfinity}"
-                                        process="@form" update="form"
+                                        process="@this"
                                         actionListener="#{prepedidoSolicitudBean1.generarNpBanco(prepedidoItem)}"
                                         title="Generar NP Banco"
                                         style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
@@ -482,12 +498,15 @@
 
                                 <!-- Impresión pedido -->
                                 <p:column exportable="false" styleClass="action-col" style="text-align:center;">
-                                    <p:commandButton icon="pi pi-print" styleClass="ui-button-secondary rounded-button"
-                                        disabled="true" title="Impresión pedido"
+                                    <p:commandButton icon="pi pi-print"
+                                        styleClass="#{prepedidoItem.generadaNpInfinity ? 'ui-button-info rounded-button' : 'ui-button-secondary rounded-button'}"
+                                        disabled="#{not prepedidoItem.generadaNpInfinity}" ajax="false"
+                                        actionListener="#{prepedidoSolicitudBean1.imprimirNotaPedido(prepedidoItem)}"
+                                        title="Imprimir NP Infinity"
                                         style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
                                 </p:column>
 
-                                <!-- G.FAC.Infinity: cÃ­rculo gris "Fi" -->
+                                <!-- G.FAC.Infinity: cÃƒÂ­rculo gris "Fi" -->
                                 <p:column exportable="false" styleClass="action-col" style="text-align:center;">
                                     <p:commandButton icon="pi pi-money-bill"
                                         styleClass="ui-button-secondary rounded-button"
@@ -496,24 +515,24 @@
                                         style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
                                 </p:column>
 
-                                <!-- Impresión factura -->
+                                <!-- ImpresiÃ³n factura -->
                                 <p:column exportable="false" styleClass="action-col" style="text-align:center;">
                                     <p:commandButton icon="pi pi-print" styleClass="ui-button-secondary rounded-button"
-                                        disabled="true" title="Impresión factura"
+                                        disabled="true" title="ImpresiÃ³n factura"
                                         style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
                                 </p:column>
 
-                                <!-- Sellos: cÃ­rculo gris "Si" -->
+                                <!-- Sellos: cÃƒÂ­rculo gris "Si" -->
                                 <p:column exportable="false" styleClass="action-col" style="text-align:center;">
                                     <p:commandButton icon="pi pi-tag" styleClass="ui-button-secondary rounded-button"
                                         disabled="true" title="Sellos"
                                         style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
                                 </p:column>
 
-                                <!-- Impresión sellos -->
+                                <!-- ImpresiÃ³n sellos -->
                                 <p:column exportable="false" styleClass="action-col" style="text-align:center;">
                                     <p:commandButton icon="pi pi-print" styleClass="ui-button-secondary rounded-button"
-                                        disabled="true" title="Impresión sellos"
+                                        disabled="true" title="ImpresiÃ³n sellos"
                                         style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
                                 </p:column>
 
@@ -521,93 +540,184 @@
                             </p:dataTable>
 
                             <style>
-                                .hide-scrollbar::-webkit-scrollbar { display: none; }
-                                .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+                                .hide-scrollbar::-webkit-scrollbar {
+                                    display: none;
+                                }
+
+                                .hide-scrollbar {
+                                    -ms-overflow-style: none;
+                                    scrollbar-width: none;
+                                }
                             </style>
 
-                            <div class="summary-wrapper hide-scrollbar" style="overflow-x: auto; overflow-y: hidden; margin-top: 20px; margin-bottom: 20px; width: 100%;">
-                                <div style="display: flex; flex-direction: column; width: max-content; min-width: 100%;">
-                                    
-                                    <!-- Fila 1: (A) Programa despachos PyS -->
-                                    <div class="sum-row" style="display: flex; background: #1a3050; border-top: 2px solid #2a5f8f;">
-                                        <div class="sum-col-sticky" style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; background: #1a3050; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
-                                            <span style="color:#8ab4d8; font-weight:bold; font-size:1.05rem;">(A) Programa despachos PyS</span>
-                                        </div>
-                                        <div class="sum-col-scrollable" style="width: 264px; min-width: 264px; background: #1a3050; box-sizing: border-box;"></div>
-                                        
-                                        <div class="sum-val sum-col-4" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
-                                            <h:outputText value="#{prepedidoSolicitudBean1.getTotalVolSol('EXTRA')}" />
-                                        </div>
-                                        <div class="sum-val sum-col-5" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
-                                            <h:outputText value="#{prepedidoSolicitudBean1.getTotalVolAuto('EXTRA')}" />
-                                        </div>
-                                        <div class="sum-val sum-col-6" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
-                                            <h:outputText value="#{prepedidoSolicitudBean1.getTotalVolSol('DIESEL')}" />
-                                        </div>
-                                        <div class="sum-val sum-col-7" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
-                                            <h:outputText value="#{prepedidoSolicitudBean1.getTotalVolAuto('DIESEL')}" />
-                                        </div>
-                                        <div class="sum-val sum-col-8" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
-                                            <h:outputText value="#{prepedidoSolicitudBean1.getTotalVolSol('SUPER')}" />
-                                        </div>
-                                        <div class="sum-val sum-col-9" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
-                                            <h:outputText value="#{prepedidoSolicitudBean1.getTotalVolAuto('SUPER')}" />
-                                        </div>
-                                        <div style="flex-grow: 1; min-width: 550px; background: #1a3050;"></div>
-                                    </div>
-                                    
-                                    <!-- Fila 2: EPP asignación Inicial -->
-                                    <div class="sum-row" style="display: flex; background: #162840; border-top: 1px solid #2a5080;">
-                                        <div class="sum-col-sticky" style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
-                                            <span style="color:#cdd9e8; font-weight:bold; font-size:1.05rem;">EPP asignación Inicial</span>
-                                        </div>
-                                        <div class="sum-col-scrollable" style="width: 264px; min-width: 264px; background: #162840; box-sizing: border-box;"></div>
+                            <p:outputPanel id="totalesPanel">
+                                <div class="summary-wrapper hide-scrollbar"
+                                    style="overflow-x: auto; overflow-y: hidden; margin-top: 20px; margin-bottom: 20px; width: 100%;">
+                                    <div
+                                        style="display: flex; flex-direction: column; width: max-content; min-width: 100%;">
 
-                                        <div class="sum-val sum-col-4" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">-</div>
-                                        <div class="sum-val sum-col-5" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">0</div>
-                                        <div class="sum-val sum-col-6" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">-</div>
-                                        <div class="sum-val sum-col-7" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">0</div>
-                                        <div class="sum-val sum-col-8" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">-</div>
-                                        <div class="sum-val sum-col-9" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">0</div>
-                                        <div style="flex-grow: 1; min-width: 550px; background: #162840;"></div>
-                                    </div>
+                                        <!-- Fila 1: (A) Programa despachos PyS -->
+                                        <div class="sum-row"
+                                            style="display: flex; background: #1a3050; border-top: 2px solid #2a5f8f;">
+                                            <div class="sum-col-sticky"
+                                                style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; background: #1a3050; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
+                                                <span style="color:#8ab4d8; font-weight:bold; font-size:1.05rem;">(A)
+                                                    Programa despachos PyS</span>
+                                            </div>
+                                            <div class="sum-col-scrollable"
+                                                style="width: 264px; min-width: 264px; background: #1a3050; box-sizing: border-box;">
+                                            </div>
 
-                                    <!-- Fila 3: EPP asignación ADICIONAL -->
-                                    <div class="sum-row" style="display: flex; background: #162840; border-top: 1px solid #1e3a5f;">
-                                        <div class="sum-col-sticky" style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
-                                            <span style="color:#cdd9e8; font-weight:bold; font-size:1.05rem;">EPP asignación ADICIONAL</span>
+                                            <div class="sum-val sum-col-4"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                                <h:outputText
+                                                    value="#{prepedidoSolicitudBean1.getTotalVolSol('EXTRA')}">
+                                                    <f:convertNumber pattern="0" />
+                                                </h:outputText>
+                                            </div>
+                                            <div class="sum-val sum-col-5"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                                <h:outputText
+                                                    value="#{prepedidoSolicitudBean1.getTotalVolAuto('EXTRA')}">
+                                                    <f:convertNumber pattern="0" />
+                                                </h:outputText>
+                                            </div>
+                                            <div class="sum-val sum-col-6"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                                <h:outputText
+                                                    value="#{prepedidoSolicitudBean1.getTotalVolSol('DIESEL')}">
+                                                    <f:convertNumber pattern="0" />
+                                                </h:outputText>
+                                            </div>
+                                            <div class="sum-val sum-col-7"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                                <h:outputText
+                                                    value="#{prepedidoSolicitudBean1.getTotalVolAuto('DIESEL')}">
+                                                    <f:convertNumber pattern="0" />
+                                                </h:outputText>
+                                            </div>
+                                            <div class="sum-val sum-col-8"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                                <h:outputText
+                                                    value="#{prepedidoSolicitudBean1.getTotalVolSol('SUPER')}">
+                                                    <f:convertNumber pattern="0" />
+                                                </h:outputText>
+                                            </div>
+                                            <div class="sum-val sum-col-9"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                                <h:outputText
+                                                    value="#{prepedidoSolicitudBean1.getTotalVolAuto('SUPER')}">
+                                                    <f:convertNumber pattern="0" />
+                                                </h:outputText>
+                                            </div>
+                                            <div style="flex-grow: 1; min-width: 550px; background: #1a3050;"></div>
                                         </div>
-                                        <div class="sum-col-scrollable" style="width: 264px; min-width: 264px; background: #162840; box-sizing: border-box;"></div>
 
-                                        <div class="sum-val sum-col-4" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">-</div>
-                                        <div class="sum-val sum-col-5" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">0</div>
-                                        <div class="sum-val sum-col-6" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">-</div>
-                                        <div class="sum-val sum-col-7" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">0</div>
-                                        <div class="sum-val sum-col-8" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">-</div>
-                                        <div class="sum-val sum-col-9" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">0</div>
-                                        <div style="flex-grow: 1; min-width: 550px; background: #162840;"></div>
-                                    </div>
+                                        <!-- Fila 2: EPP asignaciÃ³n Inicial -->
+                                        <div class="sum-row"
+                                            style="display: flex; background: #162840; border-top: 1px solid #2a5080;">
+                                            <div class="sum-col-sticky"
+                                                style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
+                                                <span style="color:#cdd9e8; font-weight:bold; font-size:1.05rem;">EPP
+                                                    asignación Inicial</span>
+                                            </div>
+                                            <div class="sum-col-scrollable"
+                                                style="width: 264px; min-width: 264px; background: #162840; box-sizing: border-box;">
+                                            </div>
 
-                                    <!-- Fila 4: EPP asignación TOTAL -->
-                                    <div class="sum-row" style="display: flex; background: #162840; border-top: 2px solid #2a5080; border-bottom: 2px solid #2a5080;">
-                                        <div class="sum-col-sticky" style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
-                                            <span style="color:#cdd9e8; font-weight:bold; font-size:1.05rem;">EPP asignación TOTAL</span>
+                                            <div class="sum-val sum-col-4"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                -</div>
+                                            <div class="sum-val sum-col-5"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                0</div>
+                                            <div class="sum-val sum-col-6"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                -</div>
+                                            <div class="sum-val sum-col-7"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                0</div>
+                                            <div class="sum-val sum-col-8"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                -</div>
+                                            <div class="sum-val sum-col-9"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                0</div>
+                                            <div style="flex-grow: 1; min-width: 550px; background: #162840;"></div>
                                         </div>
-                                        <div class="sum-col-scrollable" style="width: 264px; min-width: 264px; background: #162840; box-sizing: border-box;"></div>
 
-                                        <div class="sum-val sum-col-4" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">-</div>
-                                        <div class="sum-val sum-col-5" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">0</div>
-                                        <div class="sum-val sum-col-6" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">-</div>
-                                        <div class="sum-val sum-col-7" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">0</div>
-                                        <div class="sum-val sum-col-8" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">-</div>
-                                        <div class="sum-val sum-col-9" style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">0</div>
-                                        <div style="flex-grow: 1; min-width: 550px; background: #162840;"></div>
+                                        <!-- Fila 3: EPP asignaciÃ³n ADICIONAL -->
+                                        <div class="sum-row"
+                                            style="display: flex; background: #162840; border-top: 1px solid #1e3a5f;">
+                                            <div class="sum-col-sticky"
+                                                style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
+                                                <span style="color:#cdd9e8; font-weight:bold; font-size:1.05rem;">EPP
+                                                    asignación ADICIONAL</span>
+                                            </div>
+                                            <div class="sum-col-scrollable"
+                                                style="width: 264px; min-width: 264px; background: #162840; box-sizing: border-box;">
+                                            </div>
+
+                                            <div class="sum-val sum-col-4"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                -</div>
+                                            <div class="sum-val sum-col-5"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                0</div>
+                                            <div class="sum-val sum-col-6"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                -</div>
+                                            <div class="sum-val sum-col-7"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                0</div>
+                                            <div class="sum-val sum-col-8"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                -</div>
+                                            <div class="sum-val sum-col-9"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                0</div>
+                                            <div style="flex-grow: 1; min-width: 550px; background: #162840;"></div>
+                                        </div>
+
+                                        <!-- Fila 4: EPP asignaciÃ³n TOTAL -->
+                                        <div class="sum-row"
+                                            style="display: flex; background: #162840; border-top: 2px solid #2a5080; border-bottom: 2px solid #2a5080;">
+                                            <div class="sum-col-sticky"
+                                                style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
+                                                <span style="color:#cdd9e8; font-weight:bold; font-size:1.05rem;">EPP
+                                                    asignación TOTAL</span>
+                                            </div>
+                                            <div class="sum-col-scrollable"
+                                                style="width: 264px; min-width: 264px; background: #162840; box-sizing: border-box;">
+                                            </div>
+
+                                            <div class="sum-val sum-col-4"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                -</div>
+                                            <div class="sum-val sum-col-5"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                0</div>
+                                            <div class="sum-val sum-col-6"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                -</div>
+                                            <div class="sum-val sum-col-7"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                0</div>
+                                            <div class="sum-val sum-col-8"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                -</div>
+                                            <div class="sum-val sum-col-9"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                0</div>
+                                            <div style="flex-grow: 1; min-width: 550px; background: #162840;"></div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </p:outputPanel>
 
                             <h:outputScript>
-                                //<![CDATA[
+                                //
+                                <![CDATA[
                                 function syncSummaryScrollAndWidths() {
                                     var topScrolls = document.querySelectorAll('.ui-datatable-scrollable-body');
                                     var topScroll = topScrolls.length > 0 ? topScrolls[0] : null;
@@ -654,21 +764,57 @@
                                             }
                                         }
 
-                                        // 2) Sincronizar Scroll
-                                        topScroll.addEventListener('scroll', function() { 
-                                            bottomScroll.scrollLeft = topScroll.scrollLeft; 
-                                        });
-                                        bottomScroll.addEventListener('scroll', function() { 
-                                            topScroll.scrollLeft = bottomScroll.scrollLeft; 
-                                        });
-                                        bottomScroll.scrollLeft = topScroll.scrollLeft;
+                                        // 2) Sincronizar Scroll sin Glitch usando flags
+                                        if (!topScroll.dataset.scrollSynced) {
+                                            topScroll.addEventListener('scroll', function() { 
+                                                if (topScroll.dataset.ignoreScroll === 'true') {
+                                                    topScroll.dataset.ignoreScroll = 'false';
+                                                    return;
+                                                }
+                                                var currentBottom = document.querySelector('.summary-wrapper');
+                                                if (currentBottom && currentBottom.scrollLeft !== topScroll.scrollLeft) {
+                                                    currentBottom.dataset.ignoreScroll = 'true';
+                                                    currentBottom.scrollLeft = topScroll.scrollLeft; 
+                                                }
+                                            }, { passive: true });
+                                            topScroll.dataset.scrollSynced = 'true';
+                                        }
+                                        
+                                        if (!bottomScroll.dataset.scrollSynced) {
+                                            bottomScroll.addEventListener('scroll', function() { 
+                                                if (bottomScroll.dataset.ignoreScroll === 'true') {
+                                                    bottomScroll.dataset.ignoreScroll = 'false';
+                                                    return;
+                                                }
+                                                var currentTop = document.querySelectorAll('.ui-datatable-scrollable-body')[0];
+                                                if (currentTop && currentTop.scrollLeft !== bottomScroll.scrollLeft) {
+                                                    currentTop.dataset.ignoreScroll = 'true';
+                                                    currentTop.scrollLeft = bottomScroll.scrollLeft; 
+                                                }
+                                            }, { passive: true });
+                                            bottomScroll.dataset.scrollSynced = 'true';
+                                        }
+                                        
+                                        // Forzar sincronización inicial si están desincronizados
+                                        var currentBottom = document.querySelector('.summary-wrapper');
+                                        if (currentBottom && currentBottom.scrollLeft !== topScroll.scrollLeft) {
+                                            currentBottom.dataset.ignoreScroll = 'true';
+                                            currentBottom.scrollLeft = topScroll.scrollLeft;
+                                        }
                                     }
                                 }
                                 
                                 $(document).ready(function(){
                                     setTimeout(syncSummaryScrollAndWidths, 300);
-                                    // Doble check por si los datos tardan un poco en renderizar
                                     setTimeout(syncSummaryScrollAndWidths, 1000); 
+                                });
+                                $(document).on('pfAjaxComplete', function() {
+                                    // Forzar a PrimeFaces a recalcular anchos ocultos que rompen el scroll
+                                    setTimeout(function() {
+                                        $(window).trigger('resize');
+                                    }, 50);
+                                    setTimeout(syncSummaryScrollAndWidths, 150);
+                                    setTimeout(syncSummaryScrollAndWidths, 500);
                                 });
                                 //]]>
                             </h:outputScript>
@@ -874,8 +1020,8 @@
                     <div class="p-field p-col-12 p-md-4">
                         <span class="ui-float-label">
                             <p:inputNumber id="volNatural1"
-                                value="#{prepedidoSolicitudBean1.detNP1.volumennaturalrequerido}" decimalPlaces="2"
-                                emptyValue="zero" minValue="0" />
+                                value="#{prepedidoSolicitudBean1.detNP1.volumennaturalrequerido}" decimalPlaces="0"
+                                thousandSeparator="" emptyValue="zero" minValue="0" />
                             <p:outputLabel for="volNatural1">Vol. Natural</p:outputLabel>
                         </span>
                     </div>
@@ -897,8 +1043,8 @@
                     <div class="p-field p-col-12 p-md-4">
                         <span class="ui-float-label">
                             <p:inputNumber id="volNatural2"
-                                value="#{prepedidoSolicitudBean1.detNP2.volumennaturalrequerido}" decimalPlaces="2"
-                                emptyValue="zero" minValue="0" />
+                                value="#{prepedidoSolicitudBean1.detNP2.volumennaturalrequerido}" decimalPlaces="0"
+                                thousandSeparator="" emptyValue="zero" minValue="0" />
                             <p:outputLabel for="volNatural2">Vol. Natural</p:outputLabel>
                         </span>
                     </div>
@@ -920,8 +1066,8 @@
                     <div class="p-field p-col-12 p-md-4">
                         <span class="ui-float-label">
                             <p:inputNumber id="volNatural3"
-                                value="#{prepedidoSolicitudBean1.detNP3.volumennaturalrequerido}" decimalPlaces="2"
-                                emptyValue="zero" minValue="0" />
+                                value="#{prepedidoSolicitudBean1.detNP3.volumennaturalrequerido}" decimalPlaces="0"
+                                thousandSeparator="" emptyValue="zero" minValue="0" />
                             <p:outputLabel for="volNatural3">Vol. Natural</p:outputLabel>
                         </span>
                     </div>
@@ -953,7 +1099,7 @@
         </p:confirmDialog>
 
         <p:confirmDialog widgetVar="autorizarDialog" showEffect="fade" width="300"
-            message="Â¿Autorizar #{prepedidoSolicitudBean1.tituloPantalla}?" header="ConfirmaciÃ³n" severity="info"
+            message="Ã‚Â¿Autorizar #{prepedidoSolicitudBean1.tituloPantalla}?" header="ConfirmaciÃƒÂ³n" severity="info"
             closable="false">
             <p:commandButton value="Si" icon="pi pi-check"
                 actionListener="#{prepedidoSolicitudBean1.autorizarPrepedido()}" process="@this" update=":form" />
@@ -982,19 +1128,26 @@
                     </p:column>
 
                     <p:column headerText="Vol. Autorizado" width="20%">
-                        <p:inputNumber value="#{filaItem.detalle.volumennaturalautorizado}" decimalPlaces="2"
-                            emptyValue="zero" minValue="0" style="width: 100%;" inputStyle="width: 100%;"
-                            disabled="#{filaItem.bloqueado}" />
+                        <p:inputNumber value="#{filaItem.detalle.volumennaturalautorizado}" decimalPlaces="0"
+                            thousandSeparator="" emptyValue="zero" minValue="0" style="width: 100%;"
+                            inputStyle="width: 100%;" disabled="#{filaItem.bloqueado}" />
                     </p:column>
 
                     <p:column headerText="# NotaPedido" width="15%" style="text-align: center;">
                         <h:outputText value="#{filaItem.numeroNotaPedidoGenerada}" />
                     </p:column>
 
-                    <p:column headerText="Generar" width="15%" style="text-align: center;">
+                    <p:column headerText="Generar" width="10%" style="text-align: center;">
                         <p:commandButton value="Generar" icon="pi pi-cog" styleClass="ui-button-primary"
                             actionListener="#{prepedidoSolicitudBean1.procesarGenerarNotaFila(filaItem)}"
                             process="@form" update="@form :form" disabled="#{filaItem.bloqueado}" />
+                    </p:column>
+
+                    <p:column headerText="Imprimir pedido" width="10%" style="text-align: center;">
+                        <p:commandButton icon="pi pi-print"
+                            styleClass="#{filaItem.generado ? 'ui-button-info rounded-button' : 'ui-button-secondary rounded-button'}"
+                            action="#{prepedidoSolicitudBean1.imprimirNotaPedidoPreviewFila(filaItem)}" ajax="false"
+                            disabled="#{not filaItem.generado}" />
                     </p:column>
 
                 </p:dataTable>
@@ -1013,7 +1166,7 @@
         <p:dialog widgetVar="modalNpBanco" header="Aviso" width="400" modal="true" closable="false" showEffect="fade"
             responsive="true">
             <div style="text-align: center; margin: 20px 0;">
-                <h3>ESTA SOLICITUD SERÁ ATENDIDA POR EL BANCO</h3>
+                <h3>ESTA SOLICITUD SERÃ ATENDIDA POR EL BANCO</h3>
             </div>
             <div style="text-align: center;">
                 <p:commandButton value="OK" styleClass="ui-button-primary" onclick="PF('modalNpBanco').hide();"
