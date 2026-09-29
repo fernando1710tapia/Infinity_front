@@ -197,9 +197,14 @@ public class ComercializadoraServicio {
                     }
                     comercializadora.setUsuario(comer.getString("usuarioactual"));
                     comercializadora.setPrefijoNpe(comer.getString("prefijonpe"));
+                    
                     comercializadora.setClaveWsepp(comer.getString("clavewsepp"));
+                    
                     comercializadora.setAmbienteSri(comer.getString("ambientesri"));
                     comercializadora.setTipoEmision(comer.getString("tipoemision"));
+                    if (!comer.isNull("menuapp")) {
+                    comercializadora.setMenuapp(comer.getString("menuapp"));
+                    }
                     comercializadora.setObjRelacionado(comer.getString("codigo") + " - " + comer.getString("nombre"));
                     comercializadora.setAbastecedora(abas.getString("codigo"));
 
@@ -384,6 +389,9 @@ public class ComercializadoraServicio {
                     comercializadora.setUsuario(comer.getString("usuarioactual"));
                     comercializadora.setPrefijoNpe(comer.getString("prefijonpe"));
                     comercializadora.setClaveWsepp(comer.getString("clavewsepp"));
+                    if (!comer.isNull("menuapp")){
+                    comercializadora.setMenuapp(comer.getString("menuapp"));
+                    }
                     comercializadora.setAmbienteSri(comer.getString("ambientesri"));
                     comercializadora.setTipoEmision(comer.getString("tipoemision"));
                     comercializadora.setObjRelacionado(comer.getString("codigo") + " - " + comer.getString("nombre"));
@@ -568,6 +576,9 @@ public class ComercializadoraServicio {
                     comercializadora.setClaveWsepp(comer.getString("clavewsepp"));
                     comercializadora.setAmbienteSri(comer.getString("ambientesri"));
                     comercializadora.setTipoEmision(comer.getString("tipoemision"));
+                    if (!comer.isNull("menuapp")) {
+                    comercializadora.setMenuapp(comer.getString("menuapp"));
+                    } 
                     comercializadora.setObjRelacionado(comer.getString("codigo") + " - " + comer.getString("nombre"));
                     comercializadora.setAbastecedora(abas.getString("codigo"));
                     listaComercializadora.add(comercializadora);
@@ -748,6 +759,9 @@ public class ComercializadoraServicio {
                     comercializadora.setClaveWsepp(comer.getString("clavewsepp"));
                     comercializadora.setAmbienteSri(comer.getString("ambientesri"));
                     comercializadora.setTipoEmision(comer.getString("tipoemision"));
+                    if (!comer.isNull( "menuapp")) {
+                    comercializadora.setMenuapp(comer.getString("menuapp"));
+                    }
                     comercializadora.setObjRelacionado(comer.getString("codigo") + " - " + comer.getString("nombre"));
                     comercializadora.setAbastecedora(abas.getString("codigo"));
                 }

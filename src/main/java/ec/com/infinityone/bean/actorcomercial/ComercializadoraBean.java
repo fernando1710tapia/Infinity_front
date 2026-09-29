@@ -228,6 +228,8 @@ public class ComercializadoraBean extends ReusableBean implements Serializable {
     private String establecimientofaccom1;
 
     private String puntoventafaccom1;
+    
+    private String menuapp;
 
     public ComercializadoraBean() {
     }
@@ -518,6 +520,46 @@ public class ComercializadoraBean extends ReusableBean implements Serializable {
             obj.put("tipoemision", comercializadora.getTipoEmision());
             obj.put("usuarioactual", x.getNombrever());
             obj.put("generapedidodirecto", comercializadora.isGenerapedidodirecto());
+            
+            switch (comercializadora.getCodigo()) {
+    case "0002":
+        // instrucciones
+        obj.put("codigocomercializadora1", comercializadora.getCodigocomercializadora1());
+            obj.put("prefijonpcom1", comercializadora.getPrefijonpcom1());
+            obj.put("establecimientofaccom1", comercializadora.getEstablecimientofaccom1());
+            obj.put("puntoventafaccom1", comercializadora.getPuntoventafaccom1());
+        break;
+
+    case "0008":
+        // instrucciones
+            obj.put("codigocomercializadora1", comercializadora.getCodigocomercializadora1());
+            obj.put("prefijonpcom1", comercializadora.getPrefijonpcom1());
+            obj.put("establecimientofaccom1", comercializadora.getEstablecimientofaccom1());
+            obj.put("puntoventafaccom1", comercializadora.getPuntoventafaccom1());
+        break;
+
+    case "0061":
+        // instrucciones
+                obj.put("codigocomercializadora1", comercializadora.getCodigocomercializadora1());
+            obj.put("prefijonpcom1", comercializadora.getPrefijonpcom1());
+            obj.put("establecimientofaccom1", comercializadora.getEstablecimientofaccom1());
+            obj.put("puntoventafaccom1", comercializadora.getPuntoventafaccom1());
+        break;
+
+    default:
+        // si no coincide ningún caso
+                obj.put("codigocomercializadora1", comercializadora.getCodigocomercializadora1());
+            obj.put("prefijonpcom1", comercializadora.getPrefijonpcom1());
+            obj.put("establecimientofaccom1", comercializadora.getEstablecimientofaccom1());
+            obj.put("puntoventafaccom1", comercializadora.getPuntoventafaccom1());
+        break;
+}
+            
+            if (comercializadora.getMenuapp() != null) {
+                obj.put("menuapp", comercializadora.getMenuapp().trim());
+            }
+            
+            
             respuesta = obj.toString();
             writer.write(respuesta);
             writer.close();
@@ -973,5 +1015,14 @@ public class ComercializadoraBean extends ReusableBean implements Serializable {
         this.puntoventafaccom1 = puntoventafaccom1;
     }
 
+    public String getMenuapp() {
+        return menuapp;
+    }
+
+    public void setMenuapp(String menuapp) {
+        this.menuapp = menuapp;
+    }
+
+    
     
 }

@@ -480,6 +480,7 @@ public class ClienteServicio {
             fpago = new Formapago();
             banco = new Banco();
             dinen = new Direccioninen();
+            usuario = new Usuario();
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
             BufferedReader br = new BufferedReader(reader);
@@ -648,6 +649,7 @@ public class ClienteServicio {
                 termi = new Terminal();
                 fpago = new Formapago();
                 banco = new Banco();
+                usuario = new Usuario();
                 dinen = new Direccioninen();
             }
 
@@ -677,6 +679,7 @@ public class ClienteServicio {
             termi = new Terminal();
             fpago = new Formapago();
             banco = new Banco();
+            usuario = new Usuario();
             dinen = new Direccioninen();
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
@@ -846,6 +849,7 @@ public class ClienteServicio {
                 termi = new Terminal();
                 fpago = new Formapago();
                 banco = new Banco();
+                usuario = new Usuario();
                 dinen = new Direccioninen();
             }
 
@@ -874,7 +878,9 @@ public class ClienteServicio {
             termi = new Terminal();
             fpago = new Formapago();
             banco = new Banco();
+            usuario = new Usuario();
             dinen = new Direccioninen();
+            
             InputStreamReader reader = new InputStreamReader(connection.getInputStream());
 
             BufferedReader br = new BufferedReader(reader);
@@ -1043,6 +1049,7 @@ public class ClienteServicio {
                 termi = new Terminal();
                 fpago = new Formapago();
                 banco = new Banco();
+                usuario = new Usuario();
                 dinen = new Direccioninen();
             }
 

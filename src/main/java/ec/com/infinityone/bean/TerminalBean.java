@@ -47,6 +47,11 @@ public class TerminalBean extends ReusableBean implements Serializable{
     Variable que establece true or false para el estado del Terminal
      */
     private boolean estadoTerm;
+    
+    /*
+    Variable que establece true or false para recibir o no solicitudes en la app
+     */
+    private boolean recibirsolicitud;
     /**
      * Constructor por defecto
      */
@@ -105,6 +110,9 @@ public class TerminalBean extends ReusableBean implements Serializable{
                     objeto.setActivo("N");
                 }
                 objeto.setUsuario(areaM.getString("usuarioactual"));
+                //setRecibirsolicitud(areaM.getBoolean("recibirsolicitud"));
+                objeto.setObjRelacionado( String.valueOf(areaM.getBoolean("recibirsolicitud")));
+                
                 listaTerminales.add(objeto);
                 objeto = new ObjetoNivel1();
             }
@@ -143,6 +151,7 @@ public class TerminalBean extends ReusableBean implements Serializable{
             obj.put("nombre", objeto.getNombre());
             obj.put("activo", estadoTerm);
             obj.put("usuarioactual", dataUser.getUser().getNombrever());
+            obj.put("recibirsolicitud", Boolean.TRUE.booleanValue());
             respuesta = obj.toString();
             writer.write(respuesta);
             writer.close();
@@ -176,6 +185,7 @@ public class TerminalBean extends ReusableBean implements Serializable{
             obj.put("nombre", objeto.getNombre());
             obj.put("activo", estadoTerm);
             obj.put("usuarioactual", dataUser.getUser().getNombrever());
+            obj.put("recibirsolicitud",Boolean.parseBoolean(objeto.getObjRelacionado())); 
             respuesta = obj.toString();
             writer.write(respuesta);
             writer.close();
@@ -260,6 +270,14 @@ public class TerminalBean extends ReusableBean implements Serializable{
 
     public void setEstadoTerm(boolean estadoTerm) {
         this.estadoTerm = estadoTerm;
+    }
+
+    public boolean isRecibirsolicitud() {
+        return recibirsolicitud;
+    }
+
+    public void setRecibirsolicitud(boolean recibirsolicitud) {
+        this.recibirsolicitud = recibirsolicitud;
     }
     
     

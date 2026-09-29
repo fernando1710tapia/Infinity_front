@@ -52,6 +52,9 @@ public class Fichero {
     private static String PUERTO;
     private static String SERVERCORREO;
  
+    // VARIABLE TIEMPO DE CONSULTA SOLICITUDES PYS
+    private static String TIEMPOBUSQUEDASOLICITUDES;
+    
 
     public static void propiedades() {
         InputStream in = null;
@@ -96,7 +99,7 @@ public class Fichero {
             CLAVECORREO = (String) propiedades.get("CLAVECORREO");
             PUERTO = (String) propiedades.get("PUERTO");
             SERVERCORREO = (String) propiedades.get("SERVERCORREO");
-            
+            TIEMPOBUSQUEDASOLICITUDES = (String) propiedades.get("TIEMPOBUSQUEDASOLICITUDES");
             
 
             //LOG.log(Level.INFO, "Ruta Reporte", RUTAREPORTE);
@@ -298,6 +301,14 @@ public class Fichero {
 
     public static void setSERVERCORREO(String SERVERCORREO) {
         Fichero.SERVERCORREO = SERVERCORREO;
+    }
+
+    public static String getTIEMPOBUSQUEDASOLICITUDES() {
+        return TIEMPOBUSQUEDASOLICITUDES;
+    }
+
+    public static void setTIEMPOBUSQUEDASOLICITUDES(String TIEMPOBUSQUEDASOLICITUDES) {
+        Fichero.TIEMPOBUSQUEDASOLICITUDES = TIEMPOBUSQUEDASOLICITUDES;
     }
     
     
