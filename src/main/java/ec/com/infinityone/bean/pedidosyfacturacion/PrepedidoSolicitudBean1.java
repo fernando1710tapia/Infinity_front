@@ -514,8 +514,23 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     public void seleccionarTerminal(int busqueda) {
         if (terminal != null) {
             codTerminal = terminal.getCodigo();
-            // Sincronizar estado del switch con el campo recibirsolicitud de la terminal
-            terminalCerrada = !terminal.isRecibirsolicitud();
+            // El converter JSF reconstruye el objeto Terminal pero NO preserva recibirsolicitud.
+            // Buscamos el valor correcto en listaTermianles que viene fresco de la BD.
+            boolean recibirSolicitudReal = true; // default: abierta
+            if (listaTermianles != null) {
+                for (Terminal t : listaTermianles) {
+                    if (t.getCodigo() != null && t.getCodigo().equals(codTerminal)) {
+                        recibirSolicitudReal = t.isRecibirsolicitud();
+                        // Actualizamos el objeto terminal para que los getters lo lean correctamente
+                        terminal.setRecibirsolicitud(recibirSolicitudReal);
+                        break;
+                    }
+                }
+            }
+            terminalCerrada = !recibirSolicitudReal;
+            System.out.println("FT::seleccionarTerminal - codigo=" + codTerminal
+                    + " recibirsolicitud=" + recibirSolicitudReal
+                    + " terminalCerrada=" + terminalCerrada);
             List<Cliente> listaClientesAux = new ArrayList<>();
             listaClientes = new ArrayList<>();
             if (busqueda == 1) {
@@ -559,13 +574,13 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                 codCliente = cliente.getClientePK().getCodigo();
                 for (int i = 0; i < listaTermianles.size(); i++) {
                     if (listaTermianles.get(i).getCodigo().equals(cliente.getCodigoterminaldefecto().getCodigo())) {
-                        terminal = listaTermianles.get(i);
+                    setTerminal(listaTermianles.get(i)); // usar setter para sincronizar terminalCerrada
                         break;
                     }
                 }
             } else {
                 this.dialogo(FacesMessage.SEVERITY_FATAL,
-                        "Este cliente NO estÃƒÆ’Ã‚Â¡ autorizado para generar NP. Consulte con el administrador para verificar su condiciÃƒÆ’Ã‚Â³n");
+                        "Este cliente NO esta autorizado para generar NP. Consulte con el administrador para verificar su condición");
             }
             seleccionarTerminal(busqueda);
         } else {
@@ -2696,6 +2711,18 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
 
     public void setTerminal(Terminal terminal) {
         this.terminal = terminal;
+        // El converter JSF reconstruye Terminal sin recibirsolicitud.
+        // Sincronizar terminalCerrada desde listaTermianles (fuente de verdad = BD).
+        if (terminal != null && listaTermianles != null) {
+            for (Terminal t : listaTermianles) {
+                if (t.getCodigo() != null && t.getCodigo().equals(terminal.getCodigo())) {
+                    boolean recibirSolicitudReal = t.isRecibirsolicitud();
+                    this.terminal.setRecibirsolicitud(recibirSolicitudReal);
+                    this.terminalCerrada = !recibirSolicitudReal;
+                    break;
+                }
+            }
+        }
     }
 
     public TerminalServicio getTermServicio() {
@@ -3263,6 +3290,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     }
 
     public boolean isTerminalCerrada() {
+        // Usa terminalCerrada como fuente de verdad (sincronizada desde setTerminal y seleccionarTerminal)
         return terminalCerrada;
     }
 
