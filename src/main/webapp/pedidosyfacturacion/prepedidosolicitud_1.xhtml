@@ -211,7 +211,8 @@
                                                 itemLabel="#{cliente.clientePK.codigo} - #{cliente.nombrecomercial}"
                                                 itemValue="#{cliente}" />
                                             <p:ajax event="change"
-                                                listener="#{prepedidoSolicitudBean1.seleccCliente(1)}" update="term switchFiltroTipo terminalStatusBadge btnCrear" />
+                                                listener="#{prepedidoSolicitudBean1.seleccCliente(1)}"
+                                                update="term switchFiltroTipo terminalStatusBadge btnCrear" />
                                         </p:selectOneMenu>
                                     </div>
                                 </div>
@@ -500,8 +501,8 @@
                                 <p:column exportable="false" styleClass="action-col" style="text-align:center;">
                                     <p:commandButton icon="pi pi-print"
                                         styleClass="#{prepedidoItem.generadaNpInfinity ? 'ui-button-info rounded-button' : 'ui-button-secondary rounded-button'}"
-                                        disabled="#{not prepedidoItem.generadaNpInfinity}" ajax="false"
-                                        actionListener="#{prepedidoSolicitudBean1.imprimirNotaPedido(prepedidoItem)}"
+                                        disabled="#{not prepedidoItem.generadaNpInfinity}" process="@this"
+                                        actionListener="#{prepedidoSolicitudBean1.generarNotaPedido(prepedidoItem)}"
                                         title="Imprimir NP Infinity"
                                         style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
                                 </p:column>
