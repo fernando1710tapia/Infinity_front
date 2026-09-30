@@ -44,7 +44,7 @@ public class ComercializadoraBean extends ReusableBean implements Serializable {
 
     private ObjetoNivel1 objeto1;
     /*
-    Objeto Ccmercializadora ftftftft
+    Objeto Ccmercializadora ftftftft 
      */
     private ComercializadoraBean comercializadora;
     /*
