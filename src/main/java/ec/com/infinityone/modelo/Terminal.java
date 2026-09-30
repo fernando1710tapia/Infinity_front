@@ -20,7 +20,9 @@ public class Terminal implements Serializable{
     private boolean activo;
 
     private String usuarioactual;
-    
+
+    private boolean recibirsolicitud;
+
 
     private List<Notapedido> notapedidoList;
 
@@ -70,6 +72,14 @@ public class Terminal implements Serializable{
 
     public void setUsuarioactual(String usuarioactual) {
         this.usuarioactual = usuarioactual;
+    }
+
+    public boolean isRecibirsolicitud() {
+        return recibirsolicitud;
+    }
+
+    public void setRecibirsolicitud(boolean recibirsolicitud) {
+        this.recibirsolicitud = recibirsolicitud;
     }
 
     public List<Notapedido> getNotapedidoList() {

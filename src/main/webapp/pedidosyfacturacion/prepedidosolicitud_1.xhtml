@@ -1,0 +1,1177 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">#{prepedidoSolicitudBean1.tituloPantalla}</ui:define>
+
+    <ui:define name="viewname">
+        <li>#{prepedidoSolicitudBean1.tituloPantalla} - directas</li>
+    </ui:define>
+
+    <ui:define name="content">
+
+        <style>
+            /* === Frozen Columns === */
+            .frozen-col-1 {
+                position: sticky !important;
+                left: 0 !important;
+                z-index: 10 !important;
+                background-color: inherit;
+                box-sizing: border-box !important;
+                min-width: 85px !important;
+                width: 85px !important;
+                max-width: 85px !important;
+            }
+
+            .frozen-col-2 {
+                position: sticky !important;
+                left: 85px !important;
+                z-index: 10 !important;
+                background-color: inherit;
+                box-sizing: border-box !important;
+                min-width: 250px !important;
+                width: 250px !important;
+                max-width: 250px !important;
+            }
+
+            th.frozen-col-1,
+            th.frozen-col-2 {
+                z-index: 11 !important;
+                /* Eliminamos background-color y color forzados para que hereden el del tema (el mismo que Fecha Solicitud) */
+            }
+
+            tr.ui-widget-content td.frozen-col-1,
+            tr.ui-widget-content td.frozen-col-2 {
+                background-color: inherit;
+            }
+
+            /* === Columnas colapsables tipo cortina === */
+            th.action-col,
+            td.action-col {
+                overflow: hidden;
+                transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                    padding 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                    opacity 0.3s ease;
+                max-width: 0 !important;
+                min-width: 0 !important;
+                width: 0 !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+                opacity: 0;
+                white-space: nowrap;
+            }
+
+            th.action-col.ac-expanded,
+            td.action-col.ac-expanded {
+                max-width: 85px !important;
+                width: 75px !important;
+                padding-left: 6px !important;
+                padding-right: 6px !important;
+                opacity: 1;
+                white-space: normal;
+                line-height: 1.2;
+            }
+
+            /* BotÃƒÂ³n toggle de la cortina */
+            .toggle-curtain-btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 22px;
+                height: 22px;
+                border-radius: 50%;
+                background: #2a5f8f;
+                color: #fff;
+                border: none;
+                cursor: pointer;
+                font-size: 0.7rem;
+                transition: background 0.2s, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                outline: none;
+                line-height: 1;
+            }
+
+            .toggle-curtain-btn:hover {
+                background: #3a7fbf;
+            }
+
+            .toggle-curtain-btn.ac-expanded {
+                transform: rotate(180deg);
+                background: #1a5f9f;
+            }
+
+            .status-cerrada {
+                color: #ff6b6b !important;
+            }
+
+            .status-abierta {
+                color: #6bcb77 !important;
+            }
+        </style>
+
+        <script>
+            var acExpanded = false;
+            function toggleActionCols() {
+                acExpanded = !acExpanded;
+                var cols = document.querySelectorAll('.action-col');
+                var btn = document.getElementById('toggleCurtainBtn');
+                cols.forEach(function (c) {
+                    if (acExpanded) c.classList.add('ac-expanded');
+                    else c.classList.remove('ac-expanded');
+                });
+                if (btn) {
+                    if (acExpanded) btn.classList.add('ac-expanded');
+                    else btn.classList.remove('ac-expanded');
+                }
+            }
+        </script>
+
+        <h:form id="form">
+            <p:outputPanel id="manage-product-content1" rendered="#{prepedidoSolicitudBean1.mostarPantallaInicial}">
+                <div class="p-grid crud-demo">
+                    <div class="p-col-12">
+                        <div class="card">
+                            <p:growl id="messages" showDetail="true" />
+
+                            <p:toolbar styleClass="p-mb-4">
+                                <p:toolbarGroup>
+                                    <p:commandButton id="btnCrear" value="Crear" icon="pi pi-plus"
+                                        actionListener="#{prepedidoSolicitudBean1.nuevaPrepedido()}"
+                                        update="form :formNuevo" styleClass="ui-button-success"
+                                        style="margin-right: .5rem" title="Crear nueva solicitud" />
+                                </p:toolbarGroup>
+                            </p:toolbar>
+                            <div class="ui-fluid p-formgrid p-grid">
+                                <div class="p-field p-col-12 p-md-3">
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>
+                                        <p:selectOneMenu id="comercializadora"
+                                            value="#{prepedidoSolicitudBean1.comercializadora}" title="Comercializadora"
+                                            panelStyle="width:175px" style="min-width: 80%;" autoWidth="false"
+                                            converter="converterg"
+                                            disabled="#{!prepedidoSolicitudBean1.habilitarComer}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Comercializadora"
+                                                itemValue="#{null}" />
+                                            <f:selectItems value="#{prepedidoSolicitudBean1.listaComercializadora}"
+                                                var="comer" itemLabel="#{comer.objRelacionado}" itemValue="#{comer}" />
+                                            <p:ajax event="change"
+                                                listener="#{prepedidoSolicitudBean1.seleccionarComerc(1)}"
+                                                update="form cli" />
+                                        </p:selectOneMenu>
+                                    </div>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>
+                                        <p:selectOneMenu id="term" value="#{prepedidoSolicitudBean1.terminal}"
+                                            title="Terminal" panelStyle="width:175px" style="min-width: 80%;"
+                                            autoWidth="false" converter="converterg"
+                                            disabled="#{!prepedidoSolicitudBean1.habilitarTerminal}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Terminal"
+                                                itemValue="#{null}" />
+                                            <f:selectItems value="#{prepedidoSolicitudBean1.listaTermianles}" var="ter"
+                                                itemLabel="#{ter.codigo} - #{ter.nombre}" itemValue="#{ter}" />
+                                            <p:ajax event="change"
+                                                listener="#{prepedidoSolicitudBean1.seleccionarTerminal(1)}"
+                                                update="cli switchFiltroTipo terminalStatusBadge btnCrear" />
+                                        </p:selectOneMenu>
+                                    </div>
+                                </div>
+                                <div class="p-field p-col-12 p-md-1"
+                                    style="display:flex; align-items:center; justify-content:center; margin-top: 0; padding: 0;">
+                                    <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                                        <p:toggleSwitch id="switchFiltroTipo"
+                                            value="#{prepedidoSolicitudBean1.terminalAbierta}">
+                                            <p:ajax listener="#{prepedidoSolicitudBean1.toggleCierreTerminal()}"
+                                                update="messages switchFiltroTipo terminalStatusBadge btnCrear" />
+                                        </p:toggleSwitch>
+                                        <p:outputLabel id="terminalStatusBadge"
+                                            value="#{prepedidoSolicitudBean1.terminalAbierta ? 'ABIERTA' : 'CERRADA'}"
+                                            styleClass="#{prepedidoSolicitudBean1.terminalAbierta ? 'status-abierta' : 'status-cerrada'}"
+                                            style="font-size:0.6rem; font-weight:bold; letter-spacing:0.03em; margin-top:1px;" />
+                                    </div>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <div class="ui-inputgroup">
+                                        <span class="ui-inputgroup-addon">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </span>
+                                        <p:selectOneMenu id="cli" value="#{prepedidoSolicitudBean1.cliente}"
+                                            title="Cliente" panelStyle="width:175px" style="min-width: 80%;"
+                                            autoWidth="false" converter="converterg"
+                                            disabled="#{!prepedidoSolicitudBean1.habilitarCli}" filter="true"
+                                            filterMatchMode="contains">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Cliente"
+                                                itemValue="#{null}" />
+                                            <f:selectItems value="#{prepedidoSolicitudBean1.listaClientes}"
+                                                var="cliente"
+                                                itemLabel="#{cliente.clientePK.codigo} - #{cliente.nombrecomercial}"
+                                                itemValue="#{cliente}" />
+                                            <p:ajax event="change"
+                                                listener="#{prepedidoSolicitudBean1.seleccCliente(1)}" update="term switchFiltroTipo terminalStatusBadge btnCrear" />
+                                        </p:selectOneMenu>
+                                    </div>
+                                </div>
+
+                                <div class="p-field p-col-12 p-md-2">
+                                    <p:outputLabel for="fechaIn" value="Fecha Despacho" />
+                                    <p:datePicker id="fechaIn" value="#{prepedidoSolicitudBean1.fechaInicial}"
+                                        showIcon="true" pattern="dd/MM/yyyy">
+                                    </p:datePicker>
+                                </div>
+                                <div class="p-field p-col-12 p-md-3">
+                                    <p:outputLabel for="filtroEstado" value="Estado Autorizado" />
+                                    <p:selectOneMenu id="filtroEstado"
+                                        value="#{prepedidoSolicitudBean1.filtroAutorizado}"
+                                        disabled="#{empty prepedidoSolicitudBean1.listPrepedidoCompleta}">
+                                        <f:selectItem itemLabel="TODAS" itemValue="" />
+                                        <f:selectItem itemLabel="AUTORIZADAS" itemValue="SI" />
+                                        <f:selectItem itemLabel="NO AUTORIZADAS" itemValue="NO" />
+                                        <p:ajax event="change"
+                                            listener="#{prepedidoSolicitudBean1.filtrarAutorizados()}"
+                                            update="dt-products" />
+                                    </p:selectOneMenu>
+                                </div>
+                                <div class="p-field p-col-12 p-md-2">
+                                    <p:commandButton value="Buscar" icon="pi pi-search"
+                                        actionListener="#{prepedidoSolicitudBean1.obtenerPrepedidos()}" update="form"
+                                        style="margin-top: 1.5rem;" />
+                                </div>
+                            </div>
+                            <p:dataTable id="dt-products" widgetVar="dtProducts" var="prepedidoItem"
+                                value="#{prepedidoSolicitudBean1.listenvNP}" reflow="false" styleClass="products-table"
+                                scrollable="true" scrollWidth="100%" paginator="true" rows="10" rowSelectMode="add"
+                                paginatorPosition="bottom">
+                                <f:facet name="header">
+                                    <div class="products-table-header">
+                                        <span
+                                            style="font-weight: bold">#{prepedidoSolicitudBean1.tituloPantallaPlural}</span>
+                                        <span class="filter-container ui-input-icon-left">
+                                            <i class="pi pi-search"></i>
+                                            <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()"
+                                                placeholder="Buscar" />
+                                        </span>
+                                    </div>
+                                </f:facet>
+
+                                <p:columnGroup type="header">
+                                    <p:row>
+                                        <p:column rowspan="2" headerText="# Sol." styleClass="frozen-col-1"
+                                            style="text-align:center;"
+                                            sortBy="#{prepedidoItem.prepedido.prepedidoPK.numero}" />
+                                        <p:column rowspan="2" headerText="Cliente" styleClass="frozen-col-2"
+                                            style="text-align:center;"
+                                            sortBy="#{prepedidoItem.prepedido.codigocliente.nombrecomercial}" />
+                                        <p:column rowspan="2" headerText="Fecha Solicitud"
+                                            style="text-align:center; min-width:100px;"
+                                            sortBy="#{prepedidoItem.prepedido.fechaventa}" />
+                                        <p:column rowspan="2" headerText="Fecha Despacho"
+                                            style="text-align:center; min-width:100px;"
+                                            sortBy="#{prepedidoItem.prepedido.fechadespacho}" />
+                                        <p:column rowspan="2" headerText="Terminal"
+                                            style="text-align:center; min-width:80px;"
+                                            sortBy="#{prepedidoItem.prepedido.codigoterminal.codigo}" visible="false" />
+                                        <p:column colspan="2" headerText="EXTRA"
+                                            style="text-align:center; background:#1e3a5f; color:#fff; min-width:160px;" />
+                                        <p:column colspan="2" headerText="DIESEL"
+                                            style="text-align:center; background:#1e3a5f; color:#fff; min-width:160px;" />
+                                        <p:column colspan="2" headerText="SÚPER"
+                                            style="text-align:center; background:#1e3a5f; color:#fff; min-width:160px;" />
+                                        <p:column rowspan="2" headerText="Anular"
+                                            style="text-align:center; min-width:55px;" />
+                                        <p:column rowspan="2" headerText="Autorizar"
+                                            style="text-align:center; min-width:60px;" />
+                                        <!-- Boton toggle cortina -->
+                                        <p:column rowspan="2" style="text-align:center; min-width:30px; padding:2px;">
+                                            <f:facet name="header">
+                                                <button id="toggleCurtainBtn" type="button" class="toggle-curtain-btn"
+                                                    onclick="toggleActionCols()"
+                                                    title="Mostrar/ocultar acciones de generación">
+                                                    &#x276F;
+                                                </button>
+                                            </f:facet>
+                                        </p:column>
+                                        <!-- Columnas colapsables (cortina) -->
+                                        <p:column rowspan="2" styleClass="action-col"
+                                            style="text-align:center; min-width:75px;">
+                                            <f:facet name="header">
+                                                <h:outputText value="Generar&lt;br/&gt;NP Infinity" escape="false" />
+                                            </f:facet>
+                                        </p:column>
+                                        <p:column rowspan="2" styleClass="action-col"
+                                            style="text-align:center; min-width:75px;">
+                                            <f:facet name="header">
+                                                <h:outputText value="Generar&lt;br/&gt;NP Banco" escape="false" />
+                                            </f:facet>
+                                        </p:column>
+                                        <p:column rowspan="2" styleClass="action-col"
+                                            style="text-align:center; min-width:75px;">
+                                            <f:facet name="header">
+                                                <h:outputText value="Imprimir&lt;br/&gt;Pedido" escape="false" />
+                                            </f:facet>
+                                        </p:column>
+                                        <p:column rowspan="2" styleClass="action-col"
+                                            style="text-align:center; min-width:75px;">
+                                            <f:facet name="header">
+                                                <h:outputText value="Generar&lt;br/&gt;Factura Infinity"
+                                                    escape="false" />
+                                            </f:facet>
+                                        </p:column>
+                                        <p:column rowspan="2" styleClass="action-col"
+                                            style="text-align:center; min-width:75px;">
+                                            <f:facet name="header">
+                                                <h:outputText value="Imprimir&lt;br/&gt;Factura" escape="false" />
+                                            </f:facet>
+                                        </p:column>
+                                        <p:column rowspan="2" styleClass="action-col"
+                                            style="text-align:center; min-width:65px;">
+                                            <f:facet name="header">
+                                                <h:outputText value="Sellos" escape="false" />
+                                            </f:facet>
+                                        </p:column>
+                                        <p:column rowspan="2" styleClass="action-col"
+                                            style="text-align:center; min-width:75px;">
+                                            <f:facet name="header">
+                                                <h:outputText value="Imprimir&lt;br/&gt;Sellos" escape="false" />
+                                            </f:facet>
+                                        </p:column>
+                                    </p:row>
+                                    <p:row>
+                                        <p:column headerText="Vol.Sol"
+                                            style="text-align:center; min-width:80px; background:#2a4e7f; color:#fff;" />
+                                        <p:column headerText="Vol.Auto"
+                                            style="text-align:center; min-width:80px; background:#2a4e7f; color:#fff;" />
+                                        <p:column headerText="Vol.Sol"
+                                            style="text-align:center; min-width:80px; background:#2a4e7f; color:#fff;" />
+                                        <p:column headerText="Vol.Auto"
+                                            style="text-align:center; min-width:80px; background:#2a4e7f; color:#fff;" />
+                                        <p:column headerText="Vol.Sol"
+                                            style="text-align:center; min-width:80px; background:#2a4e7f; color:#fff;" />
+                                        <p:column headerText="Vol.Auto"
+                                            style="text-align:center; min-width:80px; background:#2a4e7f; color:#fff;" />
+                                    </p:row>
+                                </p:columnGroup>
+
+                                <!-- # Sol. -->
+                                <p:column styleClass="frozen-col-1" style="text-align:center;">
+                                    <h:outputText value="#{prepedidoItem.prepedido.prepedidoPK.numero}" />
+                                </p:column>
+
+                                <!-- Cliente -->
+                                <p:column styleClass="frozen-col-2">
+                                    <h:outputText
+                                        value="#{prepedidoItem.prepedido.codigocliente.clientePK.codigo} - #{prepedidoItem.prepedido.codigocliente.nombrecomercial}" />
+                                </p:column>
+
+                                <!-- Fecha Solicitud -->
+                                <p:column style="text-align:center; width:100px;">
+                                    <h:outputText value="#{prepedidoItem.prepedido.fechaventa}" />
+                                </p:column>
+
+                                <!-- Fecha Despacho -->
+                                <p:column style="text-align:center; width:100px;">
+                                    <h:outputText value="#{prepedidoItem.prepedido.fechadespacho}" />
+                                </p:column>
+
+                                <!-- Terminal -->
+                                <p:column style="text-align:center; width:80px;" visible="false">
+                                    <h:outputText
+                                        value="#{prepedidoItem.prepedido.codigoterminal.codigo} - #{prepedidoItem.prepedido.codigoterminal.nombre}" />
+                                </p:column>
+
+                                <!-- EXTRA: Vol.Sol -->
+                                <p:column style="text-align:center; width:80px;">
+                                    <h:outputText value="#{prepedidoSolicitudBean1.getVolSol(prepedidoItem, 'EXTRA')}">
+                                        <f:convertNumber pattern="0" />
+                                    </h:outputText>
+                                </p:column>
+
+                                <!-- EXTRA: Vol.Auto -->
+                                <p:column style="text-align:center; width:80px;">
+                                    <ui:repeat value="#{prepedidoItem.detalle}" var="det">
+                                        <p:inputNumber value="#{det.volumennaturalautorizado}"
+                                            rendered="#{det.producto.nombre.equalsIgnoreCase('EXTRA')}"
+                                            disabled="#{det.autorizado eq 'SI'}" decimalPlaces="0" thousandSeparator=""
+                                            emptyValue="zero"
+                                            inputStyle="width:72px; text-align:center; padding:2px 4px; font-size:0.85rem;"
+                                            style="width:72px;">
+                                            <p:ajax event="keyup" process="@this" update=":form:totalesPanel"
+                                                delay="300" />
+                                        </p:inputNumber>
+                                    </ui:repeat>
+                                </p:column>
+
+                                <!-- DIESEL: Vol.Sol -->
+                                <p:column style="text-align:center; width:80px;">
+                                    <h:outputText value="#{prepedidoSolicitudBean1.getVolSol(prepedidoItem, 'DIESEL')}">
+                                        <f:convertNumber pattern="0" />
+                                    </h:outputText>
+                                </p:column>
+
+                                <!-- DIESEL: Vol.Auto -->
+                                <p:column style="text-align:center; width:80px;">
+                                    <ui:repeat value="#{prepedidoItem.detalle}" var="det">
+                                        <p:inputNumber value="#{det.volumennaturalautorizado}"
+                                            rendered="#{det.producto.nombre.equalsIgnoreCase('DIESEL')}"
+                                            disabled="#{det.autorizado eq 'SI'}" decimalPlaces="0" thousandSeparator=""
+                                            emptyValue="zero"
+                                            inputStyle="width:72px; text-align:center; padding:2px 4px; font-size:0.85rem;"
+                                            style="width:72px;">
+                                            <p:ajax event="keyup" process="@this" update=":form:totalesPanel"
+                                                delay="300" />
+                                        </p:inputNumber>
+                                    </ui:repeat>
+                                </p:column>
+
+                                <!-- SUPER: Vol.Sol -->
+                                <p:column style="text-align:center; width:80px;">
+                                    <h:outputText value="#{prepedidoSolicitudBean1.getVolSol(prepedidoItem, 'SUPER')}">
+                                        <f:convertNumber pattern="0" />
+                                    </h:outputText>
+                                </p:column>
+
+                                <!-- SUPER: Vol.Auto -->
+                                <p:column style="text-align:center; width:80px;">
+                                    <ui:repeat value="#{prepedidoItem.detalle}" var="det">
+                                        <p:inputNumber value="#{det.volumennaturalautorizado}"
+                                            rendered="#{det.producto.nombre.equalsIgnoreCase('SUPER')}"
+                                            disabled="#{det.autorizado eq 'SI'}" decimalPlaces="0" thousandSeparator=""
+                                            emptyValue="zero"
+                                            inputStyle="width:72px; text-align:center; padding:2px 4px; font-size:0.85rem;"
+                                            style="width:72px;">
+                                            <p:ajax event="keyup" process="@this" update=":form:totalesPanel"
+                                                delay="300" />
+                                        </p:inputNumber>
+                                    </ui:repeat>
+                                </p:column>
+
+                                <!-- Anular: cÃƒÂ­rculo AMARILLO con X -->
+                                <p:column exportable="false" style="text-align:center; width:55px;">
+                                    <p:commandButton icon="pi pi-times" styleClass="rounded-button ui-button-warning"
+                                        process="@form"
+                                        actionListener="#{prepedidoSolicitudBean1.dialogoAnulacionPrepedido(prepedidoItem)}"
+                                        update=":form" disabled="#{not prepedidoItem.registroActivo}" title="Anular">
+                                        <f:setPropertyActionListener value="#{prepedidoItem}"
+                                            target="#{prepedidoSolicitudBean1.envNP}" />
+                                    </p:commandButton>
+                                </p:column>
+
+                                <!-- Autorizar: cÃƒÂ­rculo VERDE con check -->
+                                <p:column exportable="false" style="text-align:center; width:60px;">
+                                    <p:commandButton icon="pi pi-check" styleClass="rounded-button ui-button-success"
+                                        process="@form" update="form"
+                                        actionListener="#{prepedidoSolicitudBean1.autorizarPrepedidoDirecto(prepedidoItem)}"
+                                        disabled="#{prepedidoItem.todosProductosAutorizados or not prepedidoItem.registroActivo}"
+                                        title="Autorizar">
+                                        <p:confirm header="Confirmación"
+                                            message="¿Está seguro que desea autorizar los volúmenes ingresados?"
+                                            icon="pi pi-exclamation-triangle" />
+                                    </p:commandButton>
+                                </p:column>
+
+                                <!-- Columna alineación botón toggle (vacía en el cuerpo) -->
+                                <p:column exportable="false" style="text-align:center; width:30px; padding:2px;" />
+
+                                <!-- G. NP.Infinity: círculo gris "Pi" -->
+                                <p:column exportable="false" styleClass="action-col" style="text-align:center;">
+                                    <p:commandButton icon="pi pi-file" styleClass="ui-button-secondary rounded-button"
+                                        process="@this"
+                                        actionListener="#{prepedidoSolicitudBean1.generarNotaPedido(prepedidoItem)}"
+                                        disabled="#{not prepedidoItem.registroActivo or prepedidoItem.generadaNpBanco}"
+                                        title="Generar NP Infinity"
+                                        style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
+                                </p:column>
+
+                                <!-- G.NP.BCO: cÃƒÂ­rculo gris "Pb" -->
+                                <p:column exportable="false" styleClass="action-col" style="text-align:center;">
+                                    <p:commandButton icon="pi pi-briefcase"
+                                        styleClass="ui-button-secondary rounded-button"
+                                        disabled="#{not prepedidoItem.registroActivo or prepedidoItem.generadaNpInfinity}"
+                                        process="@this"
+                                        actionListener="#{prepedidoSolicitudBean1.generarNpBanco(prepedidoItem)}"
+                                        title="Generar NP Banco"
+                                        style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
+                                </p:column>
+
+                                <!-- Impresión pedido -->
+                                <p:column exportable="false" styleClass="action-col" style="text-align:center;">
+                                    <p:commandButton icon="pi pi-print"
+                                        styleClass="#{prepedidoItem.generadaNpInfinity ? 'ui-button-info rounded-button' : 'ui-button-secondary rounded-button'}"
+                                        disabled="#{not prepedidoItem.generadaNpInfinity}" ajax="false"
+                                        actionListener="#{prepedidoSolicitudBean1.imprimirNotaPedido(prepedidoItem)}"
+                                        title="Imprimir NP Infinity"
+                                        style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
+                                </p:column>
+
+                                <!-- G.FAC.Infinity: cÃƒÂ­rculo gris "Fi" -->
+                                <p:column exportable="false" styleClass="action-col" style="text-align:center;">
+                                    <p:commandButton icon="pi pi-money-bill"
+                                        styleClass="ui-button-secondary rounded-button"
+                                        disabled="#{prepedidoItem.generadaNpBanco or not prepedidoItem.registroActivo}"
+                                        title="Generar Factura Infinity"
+                                        style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
+                                </p:column>
+
+                                <!-- ImpresiÃ³n factura -->
+                                <p:column exportable="false" styleClass="action-col" style="text-align:center;">
+                                    <p:commandButton icon="pi pi-print" styleClass="ui-button-secondary rounded-button"
+                                        disabled="true" title="ImpresiÃ³n factura"
+                                        style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
+                                </p:column>
+
+                                <!-- Sellos: cÃƒÂ­rculo gris "Si" -->
+                                <p:column exportable="false" styleClass="action-col" style="text-align:center;">
+                                    <p:commandButton icon="pi pi-tag" styleClass="ui-button-secondary rounded-button"
+                                        disabled="true" title="Sellos"
+                                        style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
+                                </p:column>
+
+                                <!-- ImpresiÃ³n sellos -->
+                                <p:column exportable="false" styleClass="action-col" style="text-align:center;">
+                                    <p:commandButton icon="pi pi-print" styleClass="ui-button-secondary rounded-button"
+                                        disabled="true" title="ImpresiÃ³n sellos"
+                                        style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
+                                </p:column>
+
+
+                            </p:dataTable>
+
+                            <style>
+                                .hide-scrollbar::-webkit-scrollbar {
+                                    display: none;
+                                }
+
+                                .hide-scrollbar {
+                                    -ms-overflow-style: none;
+                                    scrollbar-width: none;
+                                }
+                            </style>
+
+                            <p:outputPanel id="totalesPanel">
+                                <div class="summary-wrapper hide-scrollbar"
+                                    style="overflow-x: auto; overflow-y: hidden; margin-top: 20px; margin-bottom: 20px; width: 100%;">
+                                    <div
+                                        style="display: flex; flex-direction: column; width: max-content; min-width: 100%;">
+
+                                        <!-- Fila 1: (A) Programa despachos PyS -->
+                                        <div class="sum-row"
+                                            style="display: flex; background: #1a3050; border-top: 2px solid #2a5f8f;">
+                                            <div class="sum-col-sticky"
+                                                style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; background: #1a3050; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
+                                                <span style="color:#8ab4d8; font-weight:bold; font-size:1.05rem;">(A)
+                                                    Programa despachos PyS</span>
+                                            </div>
+                                            <div class="sum-col-scrollable"
+                                                style="width: 264px; min-width: 264px; background: #1a3050; box-sizing: border-box;">
+                                            </div>
+
+                                            <div class="sum-val sum-col-4"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                                <h:outputText
+                                                    value="#{prepedidoSolicitudBean1.getTotalVolSol('EXTRA')}">
+                                                    <f:convertNumber pattern="0" />
+                                                </h:outputText>
+                                            </div>
+                                            <div class="sum-val sum-col-5"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                                <h:outputText
+                                                    value="#{prepedidoSolicitudBean1.getTotalVolAuto('EXTRA')}">
+                                                    <f:convertNumber pattern="0" />
+                                                </h:outputText>
+                                            </div>
+                                            <div class="sum-val sum-col-6"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                                <h:outputText
+                                                    value="#{prepedidoSolicitudBean1.getTotalVolSol('DIESEL')}">
+                                                    <f:convertNumber pattern="0" />
+                                                </h:outputText>
+                                            </div>
+                                            <div class="sum-val sum-col-7"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                                <h:outputText
+                                                    value="#{prepedidoSolicitudBean1.getTotalVolAuto('DIESEL')}">
+                                                    <f:convertNumber pattern="0" />
+                                                </h:outputText>
+                                            </div>
+                                            <div class="sum-val sum-col-8"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                                <h:outputText
+                                                    value="#{prepedidoSolicitudBean1.getTotalVolSol('SUPER')}">
+                                                    <f:convertNumber pattern="0" />
+                                                </h:outputText>
+                                            </div>
+                                            <div class="sum-val sum-col-9"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                                <h:outputText
+                                                    value="#{prepedidoSolicitudBean1.getTotalVolAuto('SUPER')}">
+                                                    <f:convertNumber pattern="0" />
+                                                </h:outputText>
+                                            </div>
+                                            <div style="flex-grow: 1; min-width: 550px; background: #1a3050;"></div>
+                                        </div>
+
+                                        <!-- Fila 2: EPP asignaciÃ³n Inicial -->
+                                        <div class="sum-row"
+                                            style="display: flex; background: #162840; border-top: 1px solid #2a5080;">
+                                            <div class="sum-col-sticky"
+                                                style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
+                                                <span style="color:#cdd9e8; font-weight:bold; font-size:1.05rem;">EPP
+                                                    asignación Inicial</span>
+                                            </div>
+                                            <div class="sum-col-scrollable"
+                                                style="width: 264px; min-width: 264px; background: #162840; box-sizing: border-box;">
+                                            </div>
+
+                                            <div class="sum-val sum-col-4"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                -</div>
+                                            <div class="sum-val sum-col-5"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                0</div>
+                                            <div class="sum-val sum-col-6"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                -</div>
+                                            <div class="sum-val sum-col-7"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                0</div>
+                                            <div class="sum-val sum-col-8"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                -</div>
+                                            <div class="sum-val sum-col-9"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                0</div>
+                                            <div style="flex-grow: 1; min-width: 550px; background: #162840;"></div>
+                                        </div>
+
+                                        <!-- Fila 3: EPP asignaciÃ³n ADICIONAL -->
+                                        <div class="sum-row"
+                                            style="display: flex; background: #162840; border-top: 1px solid #1e3a5f;">
+                                            <div class="sum-col-sticky"
+                                                style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
+                                                <span style="color:#cdd9e8; font-weight:bold; font-size:1.05rem;">EPP
+                                                    asignación ADICIONAL</span>
+                                            </div>
+                                            <div class="sum-col-scrollable"
+                                                style="width: 264px; min-width: 264px; background: #162840; box-sizing: border-box;">
+                                            </div>
+
+                                            <div class="sum-val sum-col-4"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                -</div>
+                                            <div class="sum-val sum-col-5"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                0</div>
+                                            <div class="sum-val sum-col-6"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                -</div>
+                                            <div class="sum-val sum-col-7"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                0</div>
+                                            <div class="sum-val sum-col-8"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                -</div>
+                                            <div class="sum-val sum-col-9"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                0</div>
+                                            <div style="flex-grow: 1; min-width: 550px; background: #162840;"></div>
+                                        </div>
+
+                                        <!-- Fila 4: EPP asignaciÃ³n TOTAL -->
+                                        <div class="sum-row"
+                                            style="display: flex; background: #162840; border-top: 2px solid #2a5080; border-bottom: 2px solid #2a5080;">
+                                            <div class="sum-col-sticky"
+                                                style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
+                                                <span style="color:#cdd9e8; font-weight:bold; font-size:1.05rem;">EPP
+                                                    asignación TOTAL</span>
+                                            </div>
+                                            <div class="sum-col-scrollable"
+                                                style="width: 264px; min-width: 264px; background: #162840; box-sizing: border-box;">
+                                            </div>
+
+                                            <div class="sum-val sum-col-4"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                -</div>
+                                            <div class="sum-val sum-col-5"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                0</div>
+                                            <div class="sum-val sum-col-6"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                -</div>
+                                            <div class="sum-val sum-col-7"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                0</div>
+                                            <div class="sum-val sum-col-8"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                -</div>
+                                            <div class="sum-val sum-col-9"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                0</div>
+                                            <div style="flex-grow: 1; min-width: 550px; background: #162840;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </p:outputPanel>
+
+                            <h:outputScript>
+                                //
+                                <![CDATA[
+                                function syncSummaryScrollAndWidths() {
+                                    var topScrolls = document.querySelectorAll('.ui-datatable-scrollable-body');
+                                    var topScroll = topScrolls.length > 0 ? topScrolls[0] : null;
+                                    var bottomScroll = document.querySelector('.summary-wrapper');
+                                    
+                                    if (topScroll && bottomScroll) {
+                                        // 1) Sincronizar Anchos dinamicamente
+                                        var topRow = topScroll.querySelector('.ui-datatable-data tr.ui-widget-content:not(.ui-datatable-empty-message)');
+                                        if (topRow) {
+                                            var cells = topRow.children;
+                                            var visibleCells = [];
+                                            for (var k = 0; k < cells.length; k++) {
+                                                if (cells[k].offsetWidth > 0 && window.getComputedStyle(cells[k]).display !== 'none') {
+                                                    visibleCells.push(cells[k]);
+                                                }
+                                            }
+                                            
+                                            if (visibleCells.length >= 10) {
+                                                var w0 = visibleCells[0].offsetWidth;
+                                                var w1 = visibleCells[1].offsetWidth;
+                                                var w2 = visibleCells[2].offsetWidth;
+                                                var w3 = visibleCells[3].offsetWidth;
+                                                
+                                                var stickyWidth = w0 + w1;
+                                                var scrollableWidth = w2 + w3;
+                                                
+                                                document.querySelectorAll('.sum-col-sticky').forEach(function(el) {
+                                                    el.style.minWidth = stickyWidth + 'px';
+                                                    el.style.width = stickyWidth + 'px';
+                                                });
+                                                
+                                                document.querySelectorAll('.sum-col-scrollable').forEach(function(el) {
+                                                    el.style.minWidth = scrollableWidth + 'px';
+                                                    el.style.width = scrollableWidth + 'px';
+                                                });
+                                                
+                                                for (var i = 4; i <= 9; i++) {
+                                                    var w = visibleCells[i].offsetWidth;
+                                                    document.querySelectorAll('.sum-col-' + i).forEach(function(el) {
+                                                        el.style.minWidth = w + 'px';
+                                                        el.style.width = w + 'px';
+                                                    });
+                                                }
+                                            }
+                                        }
+
+                                        // 2) Sincronizar Scroll sin Glitch usando flags
+                                        if (!topScroll.dataset.scrollSynced) {
+                                            topScroll.addEventListener('scroll', function() { 
+                                                if (topScroll.dataset.ignoreScroll === 'true') {
+                                                    topScroll.dataset.ignoreScroll = 'false';
+                                                    return;
+                                                }
+                                                var currentBottom = document.querySelector('.summary-wrapper');
+                                                if (currentBottom && currentBottom.scrollLeft !== topScroll.scrollLeft) {
+                                                    currentBottom.dataset.ignoreScroll = 'true';
+                                                    currentBottom.scrollLeft = topScroll.scrollLeft; 
+                                                }
+                                            }, { passive: true });
+                                            topScroll.dataset.scrollSynced = 'true';
+                                        }
+                                        
+                                        if (!bottomScroll.dataset.scrollSynced) {
+                                            bottomScroll.addEventListener('scroll', function() { 
+                                                if (bottomScroll.dataset.ignoreScroll === 'true') {
+                                                    bottomScroll.dataset.ignoreScroll = 'false';
+                                                    return;
+                                                }
+                                                var currentTop = document.querySelectorAll('.ui-datatable-scrollable-body')[0];
+                                                if (currentTop && currentTop.scrollLeft !== bottomScroll.scrollLeft) {
+                                                    currentTop.dataset.ignoreScroll = 'true';
+                                                    currentTop.scrollLeft = bottomScroll.scrollLeft; 
+                                                }
+                                            }, { passive: true });
+                                            bottomScroll.dataset.scrollSynced = 'true';
+                                        }
+                                        
+                                        // Forzar sincronización inicial si están desincronizados
+                                        var currentBottom = document.querySelector('.summary-wrapper');
+                                        if (currentBottom && currentBottom.scrollLeft !== topScroll.scrollLeft) {
+                                            currentBottom.dataset.ignoreScroll = 'true';
+                                            currentBottom.scrollLeft = topScroll.scrollLeft;
+                                        }
+                                    }
+                                }
+                                
+                                $(document).ready(function(){
+                                    setTimeout(syncSummaryScrollAndWidths, 300);
+                                    setTimeout(syncSummaryScrollAndWidths, 1000); 
+                                });
+                                $(document).on('pfAjaxComplete', function() {
+                                    // Forzar a PrimeFaces a recalcular anchos ocultos que rompen el scroll
+                                    setTimeout(function() {
+                                        $(window).trigger('resize');
+                                    }, 50);
+                                    setTimeout(syncSummaryScrollAndWidths, 150);
+                                    setTimeout(syncSummaryScrollAndWidths, 500);
+                                });
+                                //]]>
+                            </h:outputScript>
+
+                        </div>
+                    </div>
+                </div>
+            </p:outputPanel>
+        </h:form>
+
+        <!--        <p:dialog header="Nota Pedido" width="50%" showEffect="fade" modal="true" widgetVar="manageProductDialog" responsive="true">-->
+        <h:form id="formNuevo">
+            <p:outputPanel id="manage-product-content" rendered="#{prepedidoSolicitudBean1.mostarPrepedido}">
+                <p:growl id="messages" showDetail="true" />
+                <div class="ui-fluid p-formgrid p-grid">
+                    <div class="p-field p-col-12 p-md-4">
+                        <div class="ui-inputgroup">
+                            <span class="ui-inputgroup-addon">
+                                <i class="fa fa-shopping-cart"></i>
+                            </span>
+                            <p:selectOneMenu id="comercializadora" value="#{prepedidoSolicitudBean1.comercializadora}"
+                                title="Comercializadora" panelStyle="width:175px" style="min-width: 80%;"
+                                autoWidth="false" converter="converterg" required="true"
+                                disabled="#{!prepedidoSolicitudBean1.habilitarComer}">
+                                <f:selectItem noSelectionOption="true" itemLabel="Comercializadora"
+                                    itemValue="#{null}" />
+                                <f:selectItems value="#{prepedidoSolicitudBean1.listaComercializadora}" var="comer"
+                                    itemLabel="#{comer.objRelacionado}" itemValue="#{comer}" />
+                                <p:ajax event="change" listener="#{prepedidoSolicitudBean1.seleccionarComercializdora}"
+                                    update="formNuevo cliente" />
+                            </p:selectOneMenu>
+                        </div>
+                    </div>
+                    <div class="p-field p-col-12 p-md-3">
+                        <div class="ui-inputgroup">
+                            <span class="ui-inputgroup-addon">
+                                <i class="fa fa-shopping-cart"></i>
+                            </span>
+                            <p:selectOneMenu id="terminal" value="#{prepedidoSolicitudBean1.terminal}" title="Terminal"
+                                panelStyle="width:175px" style="min-width: 80%;" autoWidth="false"
+                                converter="converterg" disabled="#{!prepedidoSolicitudBean1.habilitarTerminal}">
+                                <f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}" />
+                                <f:selectItems value="#{prepedidoSolicitudBean1.listaTermianles}" var="ter"
+                                    itemLabel="#{ter.codigo}-#{ter.nombre}" itemValue="#{ter}" />
+                                <p:ajax event="change" listener="#{prepedidoSolicitudBean1.seleccionarTerminal(2)}"
+                                    update="cliente todos" />
+                            </p:selectOneMenu>
+                        </div>
+                    </div>
+                    <div class="p-field p-col-12 p-md-4">
+                        <div class="ui-inputgroup">
+                            <span class="ui-inputgroup-addon">
+                                <i class="fa fa-money"></i>
+                            </span>
+                            <p:selectOneMenu id="cliente" value="#{prepedidoSolicitudBean1.cliente}" title="Cliente"
+                                panelStyle="width:175px" style="min-width: 80%;" autoWidth="false"
+                                converter="converterg" disabled="#{!prepedidoSolicitudBean1.habilitarCli}"
+                                required="true" requiredMessage="Seleccione Cliente" filter="true"
+                                filterMatchMode="startsWith">
+                                <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}" />
+                                <f:selectItems value="#{prepedidoSolicitudBean1.listaClientes}" var="cli"
+                                    itemLabel="#{cli.clientePK.codigo}-#{cli.nombrecomercial}" itemValue="#{cli}" />
+                                <p:ajax event="change" listener="#{prepedidoSolicitudBean1.seleccionarCliente()}"
+                                    update="formNuevo" />
+                            </p:selectOneMenu>
+                        </div>
+                    </div>
+                    <div class="p-field p-col-12 p-md-1">
+                        <p:outputLabel for="todos" value="Todos" />
+                        <div class="ui-inputgroup">
+                            <p:toggleSwitch id="todos" value="#{prepedidoSolicitudBean1.todosClientes}">
+                                <p:ajax event="change" listener="#{prepedidoSolicitudBean1.todosCli()}" update="cliente"
+                                    process="@this" />
+                            </p:toggleSwitch>
+                        </div>
+                    </div>
+
+
+                    <!--<div class="p-field p-col-12 p-md-6">
+
+                        <div class="ui-inputgroup">
+                            <span class="ui-inputgroup-addon">
+                                <i class="fa fa-shopping-cart"></i>
+                            </span>
+                            <p:selectOneMenu id="comercializadora" value="{prepedidoSolicitudBean1.comercializadora}" title="Comercializadora"
+                                             panelStyle="width:175px" style="min-width: 80%;" 
+                                             autoWidth="false" converter="converterg"
+                                             required="true"
+                                             disabled="{!prepedidoSolicitudBean1.habilitarComer}">
+                                <f:selectItem noSelectionOption="true" itemLabel="Comercializadora" itemValue="{null}"/>
+                                <f:selectItems value="{prepedidoSolicitudBean1.listaComercializadora}"
+                                               var="comer"
+                                               itemLabel="{comer.objRelacionado}"
+                                               itemValue="{comer}" />
+                                <p:ajax event="change" listener="{prepedidoSolicitudBean1.seleccionarComercializdora}"
+                                        update="formNuevo cliente" />
+                            </p:selectOneMenu> 
+                        </div>  
+                    </div>
+                    <div class="p-field p-col-12 p-md-6">
+                        <div class="ui-inputgroup">
+                            <span class="ui-inputgroup-addon">
+                                <i class="fa fa-money"></i>
+                            </span>
+                            <p:selectOneMenu id="cliente" value="{prepedidoSolicitudBean1.cliente}" title="Cliente"
+                                             panelStyle="width:175px" style="min-width: 80%;" 
+                                             autoWidth="false" converter="converterg"
+                                             disabled="{!prepedidoSolicitudBean1.habilitarCli}"
+                                             required="true" requiredMessage="Seleccione Cliente"
+                                             filter="true" filterMatchMode="startsWith">
+                                <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="{null}"/>
+                                <f:selectItems value="{prepedidoSolicitudBean1.listaClientes}"
+                                               var="cli"
+                                               itemLabel="{cli.clientePK.codigo}-{cli.nombrecomercial}"
+                                               itemValue="{cli}" />
+                                <p:ajax event="change" listener="{prepedidoSolicitudBean1.seleccionarCliente()}"
+                                        update="terminal clienteProd banco"/>
+                            </p:selectOneMenu>
+                        </div>                                                
+                    </div>-->
+                    <div class="p-field p-col-12 p-md-12">
+
+                    </div>
+                    <div class="p-field p-col-12 p-md-12">
+                        <p:panel>
+                            <div class="p-m">
+                                <p:outputLabel
+                                    value="#{prepedidoSolicitudBean1.tituloPantalla} Generad#{prepedidoSolicitudBean1.tituloPantalla eq 'Solicitud' ? 'a' : 'o'}: "
+                                    style="text-align: center !important" />
+                                <p:outputLabel value="#{prepedidoSolicitudBean1.numeroNotaPedio}"
+                                    style="font-weight: bold; font-size: medium; text-align: center !important" />
+                            </div>
+                        </p:panel>
+                    </div>
+
+                    <div class="p-field p-col-12 p-md-12">
+
+                    </div>
+                    <div class="p-field p-col-12 p-md-6">
+                        <span class="ui-float-label">
+                            <p:calendar id="fechaVent" value="#{prepedidoSolicitudBean1.fechaVenta}"
+                                pattern="dd/MM/yyyy" disabled="true" />
+                            <p:outputLabel for="fechaVent" value="Fecha de Venta" />
+                        </span>
+                    </div>
+                    <div class="p-field p-col-12 p-md-6">
+                        <span class="ui-float-label">
+                            <p:datePicker id="fechaDesp" value="#{prepedidoSolicitudBean1.fechaDespacho}"
+                                showIcon="true" pattern="dd/MM/yyyy" mindate="#{prepedidoSolicitudBean1.fechaMin}"
+                                required="true" />
+                            <p:outputLabel for="fechaDesp" value="Fecha de Despacho" />
+                        </span>
+                    </div>
+                    <div class="p-field p-col-12 p-md-12">
+
+                    </div>
+                    <div class="p-field p-col-12 p-md-6">
+                        <div class="ui-inputgroup">
+                            <span class="ui-inputgroup-addon">
+                                <i class="fa fa-money"></i>
+                            </span>
+                            <p:selectOneMenu id="banco" value="#{prepedidoSolicitudBean1.banco}" title="Banco"
+                                panelStyle="width:175px" style="min-width: 80%;" autoWidth="false"
+                                converter="converterg" required="true" requiredMessage="Seleccione Banco"
+                                disabled="true">
+                                <f:selectItem noSelectionOption="true" itemLabel="Banco" itemValue="#{null}" />
+                                <f:selectItems value="#{prepedidoSolicitudBean1.listaBancos}" var="banco"
+                                    itemLabel="#{banco.codigo}-#{banco.nombre}" itemValue="#{banco}" />
+                                <p:ajax event="change" listener="#{prepedidoSolicitudBean1.seleccionarBanco}" />
+                            </p:selectOneMenu>
+                        </div>
+                    </div>
+                    <div class="p-field p-col-12 p-md-6">
+                        <!--<span class="ui-float-label">
+                            <p:inputText id="terminalv" value="{prepedidoSolicitudBean1.codTerminal}" maxlength="50" readonly="true" required="true"/>
+                            <p:outputLabel for="terminalv">Terminal</p:outputLabel>
+                        </span>-->
+                    </div>
+                    <div class="p-field p-col-12 p-md-12"></div>
+                    <div class="p-field p-col-12 p-md-12" style="display:none;">
+                        <span class="ui-float-label">
+                            <p:inputTextarea id="comentario" value="#{prepedidoSolicitudBean1.np.observacion}"
+                                maxlength="50" />
+                            <p:outputLabel for="comentario">Comentario</p:outputLabel>
+                        </span>
+                    </div>
+                    <div class="p-field p-col-12 p-md-12"></div>
+
+                    <!-- Fila 1: EXTRA 9901 -->
+                    <div class="p-field p-col-12 p-md-4">
+                        <span class="ui-float-label">
+                            <p:inputText id="prod1" value="EXTRA" maxlength="50" readonly="true"
+                                style="font-weight:bold;" />
+                            <p:outputLabel for="prod1">Producto</p:outputLabel>
+                        </span>
+                    </div>
+                    <div class="p-field p-col-12 p-md-4">
+                        <div class="ui-inputgroup">
+                            <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                            <p:inputText id="medida1" value="GALONES" readonly="true" style="min-width: 80%;" />
+                        </div>
+                    </div>
+                    <div class="p-field p-col-12 p-md-4">
+                        <span class="ui-float-label">
+                            <p:inputNumber id="volNatural1"
+                                value="#{prepedidoSolicitudBean1.detNP1.volumennaturalrequerido}" decimalPlaces="0"
+                                thousandSeparator="" emptyValue="zero" minValue="0" />
+                            <p:outputLabel for="volNatural1">Vol. Natural</p:outputLabel>
+                        </span>
+                    </div>
+
+                    <!-- Fila 2: SUPER 9903 -->
+                    <div class="p-field p-col-12 p-md-4">
+                        <span class="ui-float-label">
+                            <p:inputText id="prod2" value="SUPER" maxlength="50" readonly="true"
+                                style="font-weight:bold;" />
+                            <p:outputLabel for="prod2">Producto</p:outputLabel>
+                        </span>
+                    </div>
+                    <div class="p-field p-col-12 p-md-4">
+                        <div class="ui-inputgroup">
+                            <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                            <p:inputText id="medida2" value="GALONES" readonly="true" style="min-width: 80%;" />
+                        </div>
+                    </div>
+                    <div class="p-field p-col-12 p-md-4">
+                        <span class="ui-float-label">
+                            <p:inputNumber id="volNatural2"
+                                value="#{prepedidoSolicitudBean1.detNP2.volumennaturalrequerido}" decimalPlaces="0"
+                                thousandSeparator="" emptyValue="zero" minValue="0" />
+                            <p:outputLabel for="volNatural2">Vol. Natural</p:outputLabel>
+                        </span>
+                    </div>
+
+                    <!-- Fila 3: DIESEL 9904 -->
+                    <div class="p-field p-col-12 p-md-4">
+                        <span class="ui-float-label">
+                            <p:inputText id="prod3" value="DIESEL" maxlength="50" readonly="true"
+                                style="font-weight:bold;" />
+                            <p:outputLabel for="prod3">Producto</p:outputLabel>
+                        </span>
+                    </div>
+                    <div class="p-field p-col-12 p-md-4">
+                        <div class="ui-inputgroup">
+                            <span class="ui-inputgroup-addon"><i class="fa fa-money"></i></span>
+                            <p:inputText id="medida3" value="GALONES" readonly="true" style="min-width: 80%;" />
+                        </div>
+                    </div>
+                    <div class="p-field p-col-12 p-md-4">
+                        <span class="ui-float-label">
+                            <p:inputNumber id="volNatural3"
+                                value="#{prepedidoSolicitudBean1.detNP3.volumennaturalrequerido}" decimalPlaces="0"
+                                thousandSeparator="" emptyValue="zero" minValue="0" />
+                            <p:outputLabel for="volNatural3">Vol. Natural</p:outputLabel>
+                        </span>
+                    </div>
+                </div>
+
+            </p:outputPanel>
+            <p:outputPanel rendered="#{prepedidoSolicitudBean1.mostarPrepedido}">
+                <div class="p-grid">
+                    <div class="p-field p-col-12 p-md-12"></div>
+                    <div class="p-field p-col-12 p-md-6">
+                        <p:commandButton value="Procesar" icon="pi pi-check"
+                            actionListener="#{prepedidoSolicitudBean1.save()}" update=":form formNuevo"
+                            styleClass="p-mr-2" />
+                        <p:commandButton value="Cancelar" icon="pi pi-times" class="ui-button-secondary"
+                            actionListener="#{prepedidoSolicitudBean1.init()}" update=":form formNuevo"
+                            immediate="true" />
+                    </div>
+                </div>
+            </p:outputPanel>
+        </h:form>
+        <!--</p:dialog>-->
+
+        <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300"
+            message="Anular #{prepedidoSolicitudBean1.tituloPantalla}?" header="Confirm" severity="warn">
+            <p:commandButton value="Si" icon="pi pi-check" actionListener="#{prepedidoSolicitudBean1.anularPrepedido()}"
+                process="@this" oncomplete="PF('deleteProductDialog').hide()" update=":form" />
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
+                onclick="PF('deleteProductDialog').hide()" />
+        </p:confirmDialog>
+
+        <p:confirmDialog widgetVar="autorizarDialog" showEffect="fade" width="300"
+            message="Ã‚Â¿Autorizar #{prepedidoSolicitudBean1.tituloPantalla}?" header="ConfirmaciÃƒÂ³n" severity="info"
+            closable="false">
+            <p:commandButton value="Si" icon="pi pi-check"
+                actionListener="#{prepedidoSolicitudBean1.autorizarPrepedido()}" process="@this" update=":form" />
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
+                onclick="PF('autorizarDialog').hide()"
+                actionListener="#{prepedidoSolicitudBean1.cancelarAutorizacion()}" update=":form" />
+        </p:confirmDialog>
+
+        <p:dialog widgetVar="generarDialog" header="Generar Nota Pedido Infinity" width="70%" modal="true"
+            showEffect="fade" responsive="true">
+            <h:form id="formGenerar">
+                <p:dataTable value="#{prepedidoSolicitudBean1.listaDetallesGenerar}" var="filaItem"
+                    emptyMessage="No hay detalles para este prepedido.">
+
+                    <p:column headerText="Producto" width="15%">
+                        <h:outputText value="#{filaItem.detalle.producto.nombre}" />
+                    </p:column>
+
+                    <p:column headerText="Prod. Cliente" width="25%">
+                        <p:selectOneMenu value="#{filaItem.codigoProductoClienteSeleccionado}" style="width: 100%;"
+                            disabled="#{filaItem.bloqueado}">
+                            <f:selectItem itemLabel="Seleccione producto..." itemValue="" />
+                            <f:selectItems value="#{filaItem.listaProductosFiltrada}" var="prodCli"
+                                itemLabel="#{prodCli.nombre}" itemValue="#{prodCli.codigo}" />
+                        </p:selectOneMenu>
+                    </p:column>
+
+                    <p:column headerText="Vol. Autorizado" width="20%">
+                        <p:inputNumber value="#{filaItem.detalle.volumennaturalautorizado}" decimalPlaces="0"
+                            thousandSeparator="" emptyValue="zero" minValue="0" style="width: 100%;"
+                            inputStyle="width: 100%;" disabled="#{filaItem.bloqueado}" />
+                    </p:column>
+
+                    <p:column headerText="# NotaPedido" width="15%" style="text-align: center;">
+                        <h:outputText value="#{filaItem.numeroNotaPedidoGenerada}" />
+                    </p:column>
+
+                    <p:column headerText="Generar" width="10%" style="text-align: center;">
+                        <p:commandButton value="Generar" icon="pi pi-cog" styleClass="ui-button-primary"
+                            actionListener="#{prepedidoSolicitudBean1.procesarGenerarNotaFila(filaItem)}"
+                            process="@form" update="@form :form" disabled="#{filaItem.bloqueado}" />
+                    </p:column>
+
+                    <p:column headerText="Imprimir pedido" width="10%" style="text-align: center;">
+                        <p:commandButton icon="pi pi-print"
+                            styleClass="#{filaItem.generado ? 'ui-button-info rounded-button' : 'ui-button-secondary rounded-button'}"
+                            action="#{prepedidoSolicitudBean1.imprimirNotaPedidoPreviewFila(filaItem)}" ajax="false"
+                            disabled="#{not filaItem.generado}" />
+                    </p:column>
+
+                </p:dataTable>
+            </h:form>
+        </p:dialog>
+
+
+
+
+        <p:confirmDialog global="true" showEffect="fade" width="300">
+            <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary"
+                icon="pi pi-times" />
+        </p:confirmDialog>
+
+        <p:dialog widgetVar="modalNpBanco" header="Aviso" width="400" modal="true" closable="false" showEffect="fade"
+            responsive="true">
+            <div style="text-align: center; margin: 20px 0;">
+                <h3>ESTA SOLICITUD SERÃ ATENDIDA POR EL BANCO</h3>
+            </div>
+            <div style="text-align: center;">
+                <p:commandButton value="OK" styleClass="ui-button-primary" onclick="PF('modalNpBanco').hide();"
+                    type="button" />
+            </div>
+        </p:dialog>
+    </ui:define>
+</ui:composition>

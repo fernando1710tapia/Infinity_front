@@ -83,11 +83,11 @@ import org.primefaces.shaded.json.JSONObject;
  *
  * @author HP
  */
-@Named("prepedidoSolicitudBean")
+@Named("prepedidoSolicitudBean1")
 @ViewScoped
-public class PrepedidoSolicitudBean extends ReusableBean implements Serializable {
+public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializable {
 
-    private static final Logger LOG = Logger.getLogger(PrepedidoSolicitudBean.class.getName());
+    private static final Logger LOG = Logger.getLogger(PrepedidoSolicitudBean1.class.getName());
 
     /*
      * Variable para renderizar la pantalla
@@ -196,6 +196,7 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
      * Variable para guardar Nota y Detalle Pedido
      */
     private transient PrepedidoSolicitud envNP;
+    private transient ec.com.infinityone.modelo.Detalleprepedido detalleAAutorizar;
     /*
      * Variable para guardar una lista de Nota y Detalle Pedido
      */
@@ -317,6 +318,13 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
 
     private boolean todosClientes;
 
+    /*
+     * Variable que indica si la terminal seleccionada está cerrada para recibir
+     * solicitudes.
+     * true = terminal CERRADA (recibirsolicitud=false), false = terminal ABIERTA.
+     */
+    private boolean terminalCerrada;
+
     private String nomBanco;
 
     private String numCuenta;
@@ -326,7 +334,7 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
     /**
      * Constructor por defecto
      */
-    public PrepedidoSolicitudBean() {
+    public PrepedidoSolicitudBean1() {
     }
 
     @PostConstruct
@@ -345,12 +353,13 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
         } catch (Exception e) {
             mostarPantallaInicial = true;
             mostarPrepedido = false;
-            LOG.log(Level.SEVERE, "Error en init de PrepedidoSolicitudBean: " + e.getMessage(), e);
+            LOG.log(Level.SEVERE, "Error en init de PrepedidoSolicitudBean1: " + e.getMessage(), e);
         }
         // habilitarBusqueda();
     }
 
     public void nuevaPrepedido() {
+
         reestablecer();
         habilitarBusqueda(2);
         obtenerBanco();
@@ -505,6 +514,23 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
     public void seleccionarTerminal(int busqueda) {
         if (terminal != null) {
             codTerminal = terminal.getCodigo();
+            // El converter JSF reconstruye el objeto Terminal pero NO preserva recibirsolicitud.
+            // Buscamos el valor correcto en listaTermianles que viene fresco de la BD.
+            boolean recibirSolicitudReal = true; // default: abierta
+            if (listaTermianles != null) {
+                for (Terminal t : listaTermianles) {
+                    if (t.getCodigo() != null && t.getCodigo().equals(codTerminal)) {
+                        recibirSolicitudReal = t.isRecibirsolicitud();
+                        // Actualizamos el objeto terminal para que los getters lo lean correctamente
+                        terminal.setRecibirsolicitud(recibirSolicitudReal);
+                        break;
+                    }
+                }
+            }
+            terminalCerrada = !recibirSolicitudReal;
+            System.out.println("FT::seleccionarTerminal - codigo=" + codTerminal
+                    + " recibirsolicitud=" + recibirSolicitudReal
+                    + " terminalCerrada=" + terminalCerrada);
             List<Cliente> listaClientesAux = new ArrayList<>();
             listaClientes = new ArrayList<>();
             if (busqueda == 1) {
@@ -548,13 +574,13 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                 codCliente = cliente.getClientePK().getCodigo();
                 for (int i = 0; i < listaTermianles.size(); i++) {
                     if (listaTermianles.get(i).getCodigo().equals(cliente.getCodigoterminaldefecto().getCodigo())) {
-                        terminal = listaTermianles.get(i);
+                    setTerminal(listaTermianles.get(i)); // usar setter para sincronizar terminalCerrada
                         break;
                     }
                 }
             } else {
                 this.dialogo(FacesMessage.SEVERITY_FATAL,
-                        "Este cliente NO estÃƒÆ’Ã‚Â¡ autorizado para generar NP. Consulte con el administrador para verificar su condiciÃƒÆ’Ã‚Â³n");
+                        "Este cliente NO esta autorizado para generar NP. Consulte con el administrador para verificar su condición");
             }
             seleccionarTerminal(busqueda);
         } else {
@@ -562,6 +588,34 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
             seleccionarTerminal(busqueda);
         }
 
+    }
+
+    /**
+     * Invocado por el p:toggleSwitch de la vista.
+     * Invierte el campo recibirsolicitud de la terminal seleccionada via PUT.
+     */
+    public void toggleCierreTerminal() {
+        if (terminal == null) {
+            this.dialogo(FacesMessage.SEVERITY_WARN, "Seleccione una terminal primero.");
+            terminalCerrada = false;
+            return;
+        }
+        // terminalCerrada ya fue actualizado por el toggle del switch en la vista.
+        // Calculamos el nuevo valor de recibirsolicitud (inverso de terminalCerrada)
+        boolean nuevoRecibirSolicitud = !terminalCerrada;
+        int httpCode = termServicio.actualizarRecibirSolicitud(terminal, nuevoRecibirSolicitud);
+        if (httpCode == 200) {
+            terminal.setRecibirsolicitud(nuevoRecibirSolicitud);
+            String mensaje = terminal.getNombre() + (nuevoRecibirSolicitud
+                    ? " ABIERTA correctamente. Recuerde gestionar los volúmenes asignados por Petroecuador."
+                    : " CERRADA correctamente.");
+            this.dialogo(FacesMessage.SEVERITY_INFO, mensaje);
+        } else {
+            // Revertir el switch si falla
+            terminalCerrada = !terminalCerrada;
+            this.dialogo(FacesMessage.SEVERITY_ERROR,
+                    "Error al actualizar el estado de la terminal. Código HTTP: " + httpCode);
+        }
     }
 
     public void seleccionarCliente() {
@@ -745,6 +799,12 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
 
     public void obtenerPrepedidos() throws ParseException {
         try {
+            // Sincronizar fechaFinal con fechaInicial si viene nulo (búsqueda por un solo
+            // día)
+            // En esta pantalla (prepedidosolicitud_1) la búsqueda es por un único día
+            fechaFinal = fechaInicial;
+            // Esta pantalla siempre busca por fecha de DESPACHO (tipofecha=2)
+            tipoFecha = "2";
             DateFormat date = new SimpleDateFormat("yyyy/MM/dd");
             /* fechas para hacer la consulta */
             String fechaI = date.format(fechaInicial);
@@ -762,28 +822,11 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
             long diffrence = time.convert(diff, TimeUnit.MILLISECONDS);
             if (diffrence > 7) {
                 this.dialogo(FacesMessage.SEVERITY_ERROR,
-                        "LA FECHA DE FIN NO PUEDE SER MAYOR A 7 DÍAS A LA FECHA DE INICIO");
+                        "LA FECHA DE FIN NO PUEDE SER MAYOR A 7 DÃƒÆ’Ã‚ÂAS A LA FECHA DE INICIO");
             } else {
-                
-                
-                //// metodo con dos fechas
-                
-//////                                String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.notapedido/Comerterminal?";
-//////                if (codCliente.isEmpty()) {
-//////                    url = new URL(direcc + "codigoabastecedora=" + codAbas + "&codigocomercializadora=" + codComer + "&codigoterminal=" + codTerminal
-//////                            + "&fechaI=" + fechaI + "&fechaF=" + fechaF + "&tipofecha=" + tipoFecha + "&codigocliente=-1");
-//////                } else {
-//////                    url = new URL(direcc + "codigoabastecedora=" + codAbas + "&codigocomercializadora=" + codComer + "&codigoterminal=" + codTerminal
-//////                            + "&fechaI=" + fechaI + "&fechaF=" + fechaF + "&tipofecha=" + tipoFecha + "&codigocliente=" + this.codCliente);
-//////                }
-                
-                ////////////////////
-                
-                
                 // String direcc =
-                // "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.prepedido/paraFactura?";
                 String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
-                        + "ec.com.infinity.modelo.prepedido/paraFactura?";
+                        + "ec.com.infinity.modelo.prepedido/buscarprepedidosgestionintegral?";
                 listPrepedido = new ArrayList<>();
                 listDetNP = new ArrayList<>();
 
@@ -791,17 +834,14 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                 cal.setTime(firstDate);
                 while (cal.getTime().compareTo(secondDate) <= 0) {
                     String fechaStr = date.format(cal.getTime());
+                    String pClienteStr = (codCliente == null || codCliente.trim().isEmpty()) ? "-1" : codCliente;
+                    String baseUrl = direcc + "pcodigocomercializadora=" + codComer
+                            + "&pcodigocliente=" + pClienteStr
+                            + "&pcodigoterminal=" + codTerminal
+                            + "&pfechadespacho=" + fechaStr.replace("/", "%2F");
 
-                    if (codCliente == null || codCliente.isEmpty()) {
-                        url = new URL(direcc + "codigoabastecedora=" + codAbas + "&codigocomercializadora=" + codComer
-                                + "&codigoterminal=" + codTerminal
-                                + "&tipofecha=" + tipoFecha + "&fecha=" + fechaStr);
-                    } else {
-                        url = new URL(direcc + "codigoabastecedora=" + codAbas + "&codigocomercializadora=" + codComer
-                                + "&codigoterminal=" + codTerminal
-                                + "&tipofecha=" + tipoFecha + "&fecha=" + fechaStr + "&codigocliente="
-                                + this.codCliente);
-                    }
+                    url = new URL(baseUrl);
+
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setDoInput(true);
                     connection.setRequestMethod("GET");
@@ -810,397 +850,138 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                     connection.setReadTimeout(30000);
 
                     StringBuilder content = new StringBuilder();
-                    try (InputStreamReader isr = new InputStreamReader(connection.getInputStream());
-                            BufferedReader br = new BufferedReader(isr)) {
-                        String tmp;
-                        while ((tmp = br.readLine()) != null) {
-                            content.append(tmp);
-                        }
-                    }
-                    String respuesta = content.toString();
-                    LOG.info("API Response (Comerterminal) para fecha " + fechaStr + ": " + respuesta);
-
                     try {
-                        if (connection.getResponseCode() != 200) {
-                            System.out.println(connection.getResponseCode());
-                            System.out.println(connection.getResponseMessage());
+                        if (connection.getResponseCode() >= 400) {
+                            try (java.io.InputStreamReader isr = new java.io.InputStreamReader(
+                                    connection.getErrorStream());
+                                    java.io.BufferedReader br = new java.io.BufferedReader(isr)) {
+                                String tmp;
+                                while ((tmp = br.readLine()) != null) {
+                                    content.append(tmp);
+                                }
+                            }
+                            LOG.info("API ERROR Response: " + content.toString());
+                        } else {
+                            try (java.io.InputStreamReader isr = new java.io.InputStreamReader(
+                                    connection.getInputStream());
+                                    java.io.BufferedReader br = new java.io.BufferedReader(isr)) {
+                                String tmp;
+                                while ((tmp = br.readLine()) != null) {
+                                    content.append(tmp);
+                                }
+                            }
                         }
                     } catch (Exception e) {
+                        e.printStackTrace();
                     }
+
+                    String respuesta = content.toString();
+                    LOG.info("API Response Integral para fecha " + fechaStr + ": " + respuesta);
 
                     if (respuesta != null && !respuesta.isEmpty() && respuesta.startsWith("{")) {
                         JSONObject objetoJson = new JSONObject(respuesta);
-                        if (objetoJson.has("retorno")) {
+                        if (objetoJson.has("retorno") && !objetoJson.isNull("retorno")) {
                             JSONArray retorno = objetoJson.getJSONArray("retorno");
                             if (!retorno.isEmpty()) {
                                 for (int indice = 0; indice < retorno.length(); indice++) {
                                     if (!retorno.isNull(indice)) {
                                         JSONObject nt = retorno.getJSONObject(indice);
-                                        JSONObject ntPK = nt.getJSONObject("prepedidoPK");
-                                        JSONObject cli = nt.getJSONObject("codigocliente");
 
-                                        JSONObject cliPK = cli.getJSONObject("clientePK");
+                                        Prepedido parseNp = new Prepedido();
+                                        PrepedidoPK parseNpPK = new PrepedidoPK();
+                                        parseNpPK.setNumero(nt.optString("numeroPrepedido", ""));
+                                        parseNpPK.setCodigocomercializadora(nt.optString("codigoComercializadora", ""));
+                                        parseNpPK.setCodigoabastecedora(codAbas);
+                                        parseNp.setPrepedidoPK(parseNpPK);
 
-                                        if (codCliente != null && !codCliente.trim().isEmpty()) {
-                                            String currentClienteCodigo = cliPK.optString("codigo", "");
-                                            if (!codCliente.trim().equals(currentClienteCodigo.trim())) {
-                                                continue;
-                                            }
-                                        }
-
-                                        JSONObject term = nt.getJSONObject("codigoterminal");
-                                        JSONObject ban = nt.getJSONObject("codigobanco");
-                                        JSONObject formPago = cli.getJSONObject("codigoformapago");
-                                        JSONObject com = nt.getJSONObject("comercializadora");
-                                        JSONObject abastecedora = nt.getJSONObject("abastecedora");
-
-                                        /*----Varaibles para transformar formate json en fechas-----*/
-                                        Long dateStrFV = nt.getLong("fechaventa");
-                                        Long dateStrFD = nt.getLong("fechadespacho");
-                                        Date dateFV = new Date(dateStrFV);
-                                        Date dateFD = new Date(dateStrFD);
-                                        String fechaDescpacho = date.format(dateFD);
-                                        String fechaVencimiento = date.format(dateFV);
-                                        /*----Objeto Abastecedora----*/
-                                        Abastecedora parseAbas = new Abastecedora();
-                                        parseAbas.setCodigo(abastecedora.getString("codigo"));
-
-                                        /*----Objeto comercializadora----*/
                                         Comercializadora parseComerc = new Comercializadora();
-                                        parseComerc.setCodigo(com.getString("codigo"));
-                                        parseComerc.setNombre(com.getString("nombre"));
-                                        parseComerc.setRuc(com.getString("ruc"));
-                                        parseComerc.setDireccion(com.getString("direccion"));
-                                        parseComerc.setAmbientesri(com.getString("ambientesri").charAt(0));
-                                        parseComerc.setEsagenteretencion(com.getBoolean("esagenteretencion"));
-                                        parseComerc
-                                                .setEscontribuyenteespacial(com.getString("escontribuyenteespacial"));
-                                        parseComerc.setTipoemision(com.getString("tipoemision").charAt(0));
-                                        parseComerc.setObligadocontabilidad(com.getString("obligadocontabilidad"));
-                                        parseComerc.setEstablecimientofac(com.getString("establecimientofac"));
-                                        parseComerc.setPuntoventafac(com.getString("puntoventafac"));
-                                        parseComerc.setClavewsepp(com.getString("clavewsepp"));
-                                        if (!com.isNull("generapedidodirecto")) {
-                                            parseComerc.setGenerapedidodirecto(com.getBoolean("generapedidodirecto"));
+                                        parseComerc.setCodigo(nt.optString("codigoComercializadora", ""));
+                                        parseNp.setComercializadora(parseComerc);
+
+                                        String terminalFull = nt.optString("terminal", "");
+                                        Terminal parseTerminal = new Terminal();
+                                        if (terminalFull.contains("-")) {
+                                            parseTerminal
+                                                    .setCodigo(terminalFull.substring(0, terminalFull.indexOf("-")));
+                                            parseTerminal
+                                                    .setNombre(terminalFull.substring(terminalFull.indexOf("-") + 1));
+                                        } else {
+                                            parseTerminal.setCodigo(terminalFull);
                                         }
+                                        parseNp.setCodigoterminal(parseTerminal);
 
-                                        /*----Objeto Fromapago----*/
-                                        Formapago parseFormap = new Formapago();
-                                        parseFormap.setCodigo(formPago.getString("codigo"));
-
-                                        /*----Objeto Cliente----*/
+                                        String clienteFull = nt.optString("cliente", "");
                                         Cliente parseCliente = new Cliente();
                                         parseCliente.setClientePK(new ClientePK());
-                                        parseCliente.getClientePK()
-                                                .setCodigocomercializadora(cliPK.getString("codigocomercializadora"));
-                                        parseCliente.getClientePK().setCodigo(cliPK.getString("codigo"));
-
-                                        parseCliente.setNombre(cli.getString("nombre"));
-                                        parseCliente.setNombrecomercial(cli.getString("nombrecomercial"));
-                                        parseCliente.setRuc(cli.getString("ruc"));
-                                        parseCliente.setCorreo1(cli.getString("correo1"));
-                                        parseCliente.setTelefono1(cli.getString("telefono1"));
-                                        parseCliente.setDireccion(cli.getString("direccion"));
-                                        if (!cli.isNull("tipoplazocredito")) {
-                                            parseCliente.setTipoplazocredito(cli.getString("tipoplazocredito"));
+                                        if (clienteFull.contains("-")) {
+                                            parseCliente.getClientePK()
+                                                    .setCodigo(clienteFull.substring(0, clienteFull.indexOf("-")));
+                                            parseCliente.setNombrecomercial(
+                                                    clienteFull.substring(clienteFull.indexOf("-") + 1));
+                                        } else {
+                                            parseCliente.getClientePK().setCodigo(clienteFull);
                                         }
-                                        parseCliente.setCodigolistaprecio(cli.getLong("codigolistaprecio"));
-                                        parseCliente.setCodigoformapago(parseFormap);
-
-                                        /*----Objeto Terminal----*/
-                                        Terminal parseTerminal = new Terminal();
-                                        parseTerminal.setCodigo(term.getString("codigo"));
-
-                                        /*----Objeto Banco----*/
-                                        Banco parseBanco = new Banco();
-                                        parseBanco.setCodigo(ban.getString("codigo"));
-
-                                        /*----Guardando el cliente, termina y banco en Nota pedido---*/
-                                        Prepedido parseNp = new Prepedido();
                                         parseNp.setCodigocliente(parseCliente);
-                                        parseNp.setCodigoclienteId(parseCliente.getClientePK().getCodigo().trim());
-                                        parseNp.setCodigoterminal(parseTerminal);
-                                        parseNp.setCodigobanco(parseBanco);
-                                        parseNp.setComercializadora(parseComerc);
-                                        parseNp.setAbastecedora(parseAbas);
+                                        parseNp.setCodigoclienteId(parseCliente.getClientePK().getCodigo());
 
-                                        if (!nt.isNull("tramaenviadagoe")) {
-                                            parseNp.setTramaenviadagoe(nt.getString("tramaenviadagoe"));
+                                        String fVenta = nt.optString("fechaVenta", "").replace("-", "/");
+                                        String fDespacho = nt.optString("fechaDespacho", "").replace("-", "/");
+                                        parseNp.setFechaventa(fVenta);
+                                        parseNp.setFechadespacho(fDespacho);
+                                        parseNp.setActiva(nt.optBoolean("activa", true));
+                                        parseNp.setCodigoautotanque(nt.optString("codigoAutotanque", "").trim());
+                                        parseNp.setCedulaconductor(nt.optString("cedulaConductor", "").trim());
+                                        parseNp.setUsuarioactual("");
+
+                                        Detalleprepedido dp = new Detalleprepedido();
+                                        String prodFull = nt.optString("producto", "");
+                                        Producto p = new Producto();
+                                        if (prodFull.contains("-")) {
+                                            p.setCodigo(prodFull.substring(0, prodFull.indexOf("-")));
+                                            p.setNombre(prodFull.substring(prodFull.indexOf("-") + 1));
                                         } else {
-                                            parseNp.setTramaenviadagoe("");
+                                            p.setCodigo(prodFull);
                                         }
+                                        dp.setProducto(p);
 
-                                        if (!nt.isNull("tramarecibidagoe")) {
-                                            parseNp.setTramarecibidagoe(nt.getString("tramarecibidagoe"));
-                                        } else {
-                                            parseNp.setTramarecibidagoe("");
-                                        }
-
-                                        if (!nt.isNull("tramarenviadaaoe")) {
-                                            parseNp.setTramarenviadaaoe(nt.getString("tramarenviadaaoe"));
-                                        } else {
-                                            parseNp.setTramarenviadaaoe("");
-                                        }
-
-                                        if (!nt.isNull("tramarecibidaaoe")) {
-                                            parseNp.setTramarecibidaaoe(nt.getString("tramarecibidaaoe"));
-                                        } else {
-                                            parseNp.setTramarecibidaaoe("");
-                                        }
-
-                                        parseNp.setNumerofacturasri(nt.getString("numerofacturasri"));
-                                        parseNp.setActiva(nt.getBoolean("activa"));
-                                        parseNp.setFacturada(nt.getString("facturada"));
-                                        String respGen = nt.optString("respuestageneracionoeepp", "");
-                                        String respAnu = nt.optString("respuestaanulacionoeepp", "");
-                                        parseNp.setRespuestageneracionoeepp(respGen);
-                                        parseNp.setRespuestaanulacionoeepp(respAnu);
-                                        parseNp.setOeenpetro(respGen);
-                                        parseNp.setOeanuladaenpetro(respAnu);
-
-                                        PrepedidoPK parseNpPK = new PrepedidoPK();
-                                        parseNpPK.setNumero(ntPK.getString("numero"));
-                                        parseNpPK.setCodigoabastecedora(ntPK.getString("codigoabastecedora"));
-                                        parseNpPK.setCodigocomercializadora(ntPK.getString("codigocomercializadora"));
-                                        parseNp.setFechaventa(fechaVencimiento);
-                                        parseNp.setFechadespacho(fechaDescpacho);
-                                        parseNp.setPrepedidoPK(parseNpPK);
-                                        parseNp.setUsuarioactual(nt.getString("usuarioactual"));
-                                        if (!nt.isNull("observacion")) {
-                                            parseNp.setObservacion(nt.getString("observacion"));
-                                        } else {
-                                            parseNp.setObservacion("");
-                                        }
-
-                                        if (!nt.isNull("prefijo")) {
-                                            parseNp.setPrefijo(nt.getString("prefijo"));
-                                        } else {
-                                            parseNp.setPrefijo("");
-                                        }
-                                        if (!nt.isNull("codigoautotanque")) {
-                                            parseNp.setCodigoautotanque(nt.getString("codigoautotanque"));
-                                        } else {
-                                            parseNp.setCodigoautotanque("");
-                                        }
-                                        if (!nt.isNull("cedulaconductor")) {
-                                            parseNp.setCedulaconductor(nt.getString("cedulaconductor"));
-                                        } else {
-                                            parseNp.setCedulaconductor("");
-                                        }
-
-                                        /*----Parse Detail if exists for Producto and Volume columns----*/
-                                        List<Detalleprepedido> detallesParseados = new ArrayList<>();
-                                        JSONArray detList = null;
-                                        if (!nt.isNull("detallesNP")) {
-                                            detList = nt.getJSONArray("detallesNP");
-                                        } else if (!nt.isNull("detalleprepedidoList")) {
-                                            detList = nt.getJSONArray("detalleprepedidoList");
-                                        }
-
-                                        if (detList != null) {
-                                            for (int d = 0; d < detList.length(); d++) {
-                                                if (!detList.isNull(d)) {
-                                                    JSONObject det = detList.getJSONObject(d);
-                                                    Detalleprepedido dp = new Detalleprepedido();
-                                                    if (!det.isNull("detalleprepedidoPK")) {
-                                                        JSONObject pkJson = det.getJSONObject("detalleprepedidoPK");
-                                                        DetalleprepedidoPK pk = new DetalleprepedidoPK();
-                                                        pk.setCodigoabastecedora(
-                                                                pkJson.optString("codigoabastecedora", ""));
-                                                        pk.setCodigocomercializadora(
-                                                                pkJson.optString("codigocomercializadora", ""));
-                                                        pk.setNumero(pkJson.optString("numero", ""));
-                                                        pk.setCodigoproducto(pkJson.optString("codigoproducto", ""));
-                                                        pk.setCodigomedida(pkJson.optString("codigomedida", ""));
-                                                        dp.setDetalleprepedidoPK(pk);
-                                                    }
-                                                    if (!det.isNull("producto")) {
-                                                        JSONObject prodJson = det.getJSONObject("producto");
-                                                        Producto p = new Producto();
-                                                        p.setCodigo(prodJson.optString("codigo", ""));
-                                                        p.setNombre(prodJson.optString("nombre", ""));
-                                                        dp.setProducto(p);
-                                                    } else if (!det.isNull("nombreproducto")) {
-                                                        Producto p = new Producto();
-                                                        p.setCodigo(det.optString("codigoproducto", ""));
-                                                        p.setNombre(det.optString("nombreproducto", ""));
-                                                        dp.setProducto(p);
-                                                    }
-
-                                                    if (!det.isNull("volumennaturalrequerido")) {
-                                                        dp.setVolumennaturalrequerido(
-                                                                det.getBigDecimal("volumennaturalrequerido"));
-                                                    }
-                                                    if (!det.isNull("volumennaturalautorizado")) {
-                                                        dp.setVolumennaturalautorizado(
-                                                                det.getBigDecimal("volumennaturalautorizado"));
-                                                    } else {
-                                                        dp.setVolumennaturalautorizado(BigDecimal.ZERO);
-                                                    }
-                                                    if (det.has("activo") && !det.isNull("activo")) {
-                                                        dp.setActivo(det.getBoolean("activo"));
-                                                    }
-                                                    detallesParseados.add(dp);
-                                                }
-                                            }
-                                        } else if (!nt.isNull("detalle")) {
-                                            JSONObject det = nt.getJSONObject("detalle");
-                                            Detalleprepedido dp = new Detalleprepedido();
-                                            if (!det.isNull("detalleprepedidoPK")) {
-                                                JSONObject pkJson = det.getJSONObject("detalleprepedidoPK");
-                                                DetalleprepedidoPK pk = new DetalleprepedidoPK();
-                                                pk.setCodigoabastecedora(pkJson.optString("codigoabastecedora", ""));
-                                                pk.setCodigocomercializadora(
-                                                        pkJson.optString("codigocomercializadora", ""));
-                                                pk.setNumero(pkJson.optString("numero", ""));
-                                                pk.setCodigoproducto(pkJson.optString("codigoproducto", ""));
-                                                pk.setCodigomedida(pkJson.optString("codigomedida", ""));
-                                                dp.setDetalleprepedidoPK(pk);
-                                            }
-                                            if (!det.isNull("producto")) {
-                                                JSONObject prodJson = det.getJSONObject("producto");
-                                                Producto p = new Producto();
-                                                p.setCodigo(prodJson.optString("codigo", ""));
-                                                p.setNombre(prodJson.optString("nombre", ""));
-                                                dp.setProducto(p);
-                                            } else if (!det.isNull("nombreproducto")) {
-                                                Producto p = new Producto();
-                                                p.setCodigo(det.optString("codigoproducto", ""));
-                                                p.setNombre(det.optString("nombreproducto", ""));
-                                                dp.setProducto(p);
-                                            }
-                                            if (!det.isNull("volumennaturalrequerido")) {
-                                                dp.setVolumennaturalrequerido(
-                                                        det.getBigDecimal("volumennaturalrequerido"));
-                                            }
-                                            if (!det.isNull("volumennaturalautorizado")) {
-                                                dp.setVolumennaturalautorizado(
-                                                        det.getBigDecimal("volumennaturalautorizado"));
-                                            } else {
-                                                dp.setVolumennaturalautorizado(BigDecimal.ZERO);
-                                            }
-                                            if (det.has("activo") && !det.isNull("activo")) {
-                                                dp.setActivo(det.getBoolean("activo"));
-                                            }
-                                            detallesParseados.add(dp);
-                                        } else {
-                                            // Check for flat structure in nt directly
-                                            if (!nt.isNull("nombreproducto")
-                                                    || !nt.isNull("volumennaturalautorizado")) {
-                                                Detalleprepedido dp = new Detalleprepedido();
-                                                Producto p = new Producto();
-                                                p.setCodigo(nt.optString("codigoproducto", ""));
-                                                p.setNombre(nt.optString("nombreproducto", ""));
-                                                dp.setProducto(p);
-                                                if (!nt.isNull("volumennaturalrequerido")) {
-                                                    dp.setVolumennaturalrequerido(
-                                                            nt.getBigDecimal("volumennaturalrequerido"));
-                                                }
-                                                if (!nt.isNull("volumennaturalautorizado")) {
-                                                    dp.setVolumennaturalautorizado(
-                                                            nt.getBigDecimal("volumennaturalautorizado"));
-                                                } else {
-                                                    dp.setVolumennaturalautorizado(BigDecimal.ZERO);
-                                                }
-                                                if (nt.has("activo") && !nt.isNull("activo")) {
-                                                    dp.setActivo(nt.getBoolean("activo"));
-                                                }
-                                                detallesParseados.add(dp);
-                                            }
-                                        }
-
-                                        String numNotaBackend = "0";
                                         try {
-                                            if (nt.has("numeronotapedidogenerada")
-                                                    && !nt.isNull("numeronotapedidogenerada")) {
-                                                numNotaBackend = nt.optString("numeronotapedidogenerada", "0");
-                                            } else if (nt.has("numeroNotaPedidoGenerada")
-                                                    && !nt.isNull("numeroNotaPedidoGenerada")) {
-                                                numNotaBackend = nt.optString("numeroNotaPedidoGenerada", "0");
-                                            } else if (nt.has("numeronotapedido") && !nt.isNull("numeronotapedido")) {
-                                                numNotaBackend = nt.optString("numeronotapedido", "0");
-                                            } else if (nt.has("notapedido") && !nt.isNull("notapedido")) {
-                                                Object objNp = nt.get("notapedido");
-                                                if (objNp instanceof String) {
-                                                    numNotaBackend = (String) objNp;
-                                                } else if (objNp instanceof JSONObject) {
-                                                    JSONObject joNp = (JSONObject) objNp;
-                                                    if (joNp.has("notapedidoPK") && !joNp.isNull("notapedidoPK")) {
-                                                        numNotaBackend = joNp.getJSONObject("notapedidoPK").optString(
-                                                                "numero",
-                                                                "0");
-                                                    } else if (joNp.has("numero") && !joNp.isNull("numero")) {
-                                                        numNotaBackend = joNp.optString("numero", "0");
-                                                    }
-                                                }
-                                            } else if (nt.has("notapedidogenerada")
-                                                    && !nt.isNull("notapedidogenerada")) {
-                                                numNotaBackend = nt.optString("notapedidogenerada", "0");
-                                            }
-                                            if (numNotaBackend == null || numNotaBackend.trim().isEmpty()
-                                                    || numNotaBackend.equals("null")) {
-                                                numNotaBackend = "0";
-                                            }
+                                            dp.setVolumennaturalrequerido(new java.math.BigDecimal(
+                                                    nt.optString("volumenNaturalRequerido", "0").trim()));
                                         } catch (Exception e) {
-                                            LOG.log(java.util.logging.Level.WARNING,
-                                                    "Error parseando nota pedido generada", e);
+                                            dp.setVolumennaturalrequerido(java.math.BigDecimal.ZERO);
                                         }
 
-                                        if (!detallesParseados.isEmpty()) {
-                                            int idx = 0;
-                                            JSONArray arr = nt.optJSONArray("detalleprepedidoList");
-                                            for (Detalleprepedido dpParsed : detallesParseados) {
-                                                PrepedidoSolicitud row = new PrepedidoSolicitud();
-                                                row.setPrepedido(parseNp);
-                                                java.util.List<Detalleprepedido> singleList = new java.util.ArrayList<>();
-                                                singleList.add(dpParsed);
-                                                row.setDetalle(singleList);
-                                                row.setEstadoForzado(row.getEstadoAutorizado());
-
-                                                String finalNumNp = numNotaBackend;
-                                                try {
-                                                    if (arr != null && idx < arr.length()) {
-                                                        JSONObject detJson = arr.getJSONObject(idx);
-                                                        if (detJson.has("numeronp") && !detJson.isNull("numeronp")) {
-                                                            String val = detJson.optString("numeronp", "0");
-                                                            if (val != null && !val.trim().isEmpty()
-                                                                    && !val.equals("null")
-                                                                    && !val.equals("0")) {
-                                                                finalNumNp = val;
-                                                            }
-                                                        }
-                                                    } else if (nt.has("detalle") && !nt.isNull("detalle")) {
-                                                        JSONObject detJson = nt.getJSONObject("detalle");
-                                                        if (detJson.has("numeronp") && !detJson.isNull("numeronp")) {
-                                                            String val = detJson.optString("numeronp", "0");
-                                                            if (val != null && !val.trim().isEmpty()
-                                                                    && !val.equals("null")
-                                                                    && !val.equals("0")) {
-                                                                finalNumNp = val;
-                                                            }
-                                                        }
-                                                    }
-                                                } catch (Exception e) {
-                                                }
-
-                                                row.setNumeroNotaPedidoGenerada(finalNumNp);
-                                                listPrepedido.add(row);
-                                                idx++;
-                                            }
-                                        } else {
-                                            PrepedidoSolicitud envioPedido = new PrepedidoSolicitud();
-                                            envioPedido.setPrepedido(parseNp);
-                                            envioPedido.setEstadoForzado(envioPedido.getEstadoAutorizado());
-                                            envioPedido.setNumeroNotaPedidoGenerada(numNotaBackend);
-                                            listPrepedido.add(envioPedido);
+                                        try {
+                                            dp.setVolumennaturalautorizado(new java.math.BigDecimal(
+                                                    nt.optString("volumenNaturalAutorizado", "0").trim()));
+                                        } catch (Exception e) {
+                                            dp.setVolumennaturalautorizado(java.math.BigDecimal.ZERO);
                                         }
 
-                                        listDetNP = new ArrayList<>();
+                                        dp.setAutorizado(nt.optString("autorizado", ""));
+                                        dp.setActivo(nt.optBoolean("activo", true));
+
+                                        String numNP = nt.optString("numeroNP", "0");
+                                        if (numNP == null || numNP.trim().isEmpty() || numNP.equals("null")) {
+                                            numNP = "0";
+                                        }
+                                        dp.setNumeronp(numNP);
+
+                                        PrepedidoSolicitud row = new PrepedidoSolicitud();
+                                        row.setPrepedido(parseNp);
+                                        java.util.List<Detalleprepedido> singleList = new java.util.ArrayList<>();
+                                        singleList.add(dp);
+                                        row.setDetalle(singleList);
+                                        row.setEstadoForzado(dp.getAutorizado());
+                                        row.setNumeroNotaPedidoGenerada(numNP);
+
+                                        listPrepedido.add(row);
                                     }
                                 }
                             }
                         }
                     }
+
                     cal.add(Calendar.DATE, 1);
                 }
 
@@ -1209,6 +990,8 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                             "NO SE ENCONTRARON " + getTituloPantallaPlural().toUpperCase());
                 }
 
+                // Agrupar: 1 fila por prepedido con todos sus detalles
+                listPrepedido = agruparPorPrepedido(listPrepedido);
                 this.listPrepedidoCompleta = new java.util.ArrayList<>(listPrepedido);
                 filtrarAutorizados();
             }
@@ -1216,6 +999,97 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Agrupa la lista de PrepedidoSolicitud por número de prepedido (PK completa).
+     * Cada grupo resultante tiene UNA fila con todos los Detalleprepedido de ese
+     * prepedido.
+     */
+    private List<PrepedidoSolicitud> agruparPorPrepedido(List<PrepedidoSolicitud> source) {
+        java.util.LinkedHashMap<String, PrepedidoSolicitud> mapa = new java.util.LinkedHashMap<>();
+        for (PrepedidoSolicitud row : source) {
+            PrepedidoPK pk = row.getPrepedido() != null ? row.getPrepedido().getPrepedidoPK() : null;
+            String clave = pk != null
+                    ? (pk.getCodigoabastecedora() + "_" + pk.getCodigocomercializadora() + "_" + pk.getNumero())
+                    : String.valueOf(System.identityHashCode(row));
+            if (!mapa.containsKey(clave)) {
+                PrepedidoSolicitud agrupado = new PrepedidoSolicitud();
+                agrupado.setPrepedido(row.getPrepedido());
+                agrupado.setEstadoForzado(null);
+                agrupado.setNumeroNotaPedidoGenerada(row.getNumeroNotaPedidoGenerada());
+                List<Detalleprepedido> dets = new java.util.ArrayList<>();
+                if (row.getDetalle() != null)
+                    dets.addAll(row.getDetalle());
+                agrupado.setDetalle(dets);
+                mapa.put(clave, agrupado);
+            } else {
+                PrepedidoSolicitud agrupado = mapa.get(clave);
+                if (row.getDetalle() != null)
+                    agrupado.getDetalle().addAll(row.getDetalle());
+            }
+        }
+        return new java.util.ArrayList<>(mapa.values());
+    }
+
+    /**
+     * Devuelve el volumen natural requerido (solicitado) del producto indicado
+     * buscando por nombre en la lista de detalles del PrepedidoSolicitud.
+     */
+    public java.math.BigDecimal getVolSol(PrepedidoSolicitud ps, String nombreProducto) {
+        if (ps == null || ps.getDetalle() == null || nombreProducto == null)
+            return java.math.BigDecimal.ZERO;
+        for (Detalleprepedido d : ps.getDetalle()) {
+            if (d.getProducto() != null && nombreProducto.equalsIgnoreCase(d.getProducto().getNombre())) {
+                return d.getVolumennaturalrequerido() != null ? d.getVolumennaturalrequerido()
+                        : java.math.BigDecimal.ZERO;
+            }
+        }
+        return java.math.BigDecimal.ZERO;
+    }
+
+    /**
+     * Devuelve el volumen natural autorizado del producto indicado
+     * buscando por nombre en la lista de detalles del PrepedidoSolicitud.
+     */
+    public java.math.BigDecimal getVolAuto(PrepedidoSolicitud ps, String nombreProducto) {
+        if (ps == null || ps.getDetalle() == null || nombreProducto == null)
+            return java.math.BigDecimal.ZERO;
+        for (Detalleprepedido d : ps.getDetalle()) {
+            if (d.getProducto() != null && nombreProducto.equalsIgnoreCase(d.getProducto().getNombre())) {
+                return d.getVolumennaturalautorizado() != null ? d.getVolumennaturalautorizado()
+                        : java.math.BigDecimal.ZERO;
+            }
+        }
+        return java.math.BigDecimal.ZERO;
+    }
+
+    /**
+     * Sumatoria de Vol.Sol (requerido) de todas las filas visibles para el producto
+     * dado.
+     */
+    public java.math.BigDecimal getTotalVolSol(String nombreProducto) {
+        java.math.BigDecimal total = java.math.BigDecimal.ZERO;
+        if (listPrepedido == null)
+            return total;
+        for (PrepedidoSolicitud ps : listPrepedido) {
+            total = total.add(getVolSol(ps, nombreProducto));
+        }
+        return total;
+    }
+
+    /**
+     * Sumatoria de Vol.Auto (autorizado) de todas las filas visibles para el
+     * producto dado.
+     */
+    public java.math.BigDecimal getTotalVolAuto(String nombreProducto) {
+        java.math.BigDecimal total = java.math.BigDecimal.ZERO;
+        if (listPrepedido == null)
+            return total;
+        for (PrepedidoSolicitud ps : listPrepedido) {
+            total = total.add(getVolAuto(ps, nombreProducto));
+        }
+        return total;
     }
 
     public void save() throws ParseException {
@@ -1478,6 +1352,7 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
             if (connection.getResponseCode() == 200 || connection.getResponseCode() == 201) {
                 envNP.getPrepedido().getPrepedidoPK().setNumero(numeroNotaPedio);
                 this.dialogo(FacesMessage.SEVERITY_INFO, "PREPEDIDO REGISTRADO EXITOSAMENTE");
+                init();
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR PREPEDIDO");
                 System.out.println("FT:: ERROR EN addItems RESPONSECODE " + connection.getResponseCode());
@@ -1544,14 +1419,29 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
             this.dialogo(FacesMessage.SEVERITY_ERROR, "No se puede autorizar porque el prepedido está anulado.");
             return;
         }
-        if (envNP.getDetalle() == null || envNP.getDetalle().isEmpty() ||
-                envNP.getDetalle().get(0).getVolumennaturalautorizado() == null ||
-                envNP.getDetalle().get(0).getVolumennaturalautorizado().compareTo(java.math.BigDecimal.ZERO) == 0) {
-            this.dialogo(FacesMessage.SEVERITY_ERROR, "El volumen autorizado debe ser diferente de 0.");
+
+        // Validar que al menos un producto de este prepedido tenga vol.auto > 0
+        boolean hayVolumenAutorizado = false;
+        if (envNP.getDetalle() != null) {
+            for (ec.com.infinityone.modelo.Detalleprepedido det : envNP.getDetalle()) {
+                if (det.getVolumennaturalautorizado() != null
+                        && det.getVolumennaturalautorizado().compareTo(java.math.BigDecimal.ZERO) > 0) {
+                    hayVolumenAutorizado = true;
+                    break;
+                }
+            }
+        }
+
+        if (!hayVolumenAutorizado) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR,
+                    "Debe ingresar un volumen autorizado mayor a 0 en al menos un producto antes de autorizar.");
             return;
         }
+
         this.envNP = envNP;
-        PrimeFaces.current().executeScript("PF('autorizarDialog').show()");
+
+        PrimeFaces.current().ajax().update("formAutorizar");
+        PrimeFaces.current().executeScript("PF('autorizarGenerarDialog').show();");
     }
 
     public void autorizarPrepedido() {
@@ -1560,6 +1450,7 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                 p.setAutorizar(false);
             }
             this.envNP.setAutorizar(true);
+            this.detalleAAutorizar = null; // bulk auth
             procesarAutorizacion();
             PrimeFaces.current().executeScript("PF('autorizarDialog').hide()");
         }
@@ -1577,22 +1468,93 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
         }
     }
 
+    /**
+     * Autoriza un prepedido específico (fila individual) desde el diálogo
+     * autorizarGenerarDialog.
+     * Marca únicamente la fila seleccionada como autorizar=true y llama al
+     * procesamiento.
+     */
+    public void autorizarProductoDetalle(ec.com.infinityone.modelo.Detalleprepedido det) {
+        if (this.envNP == null) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "No hay prepedido seleccionado.");
+            return;
+        }
+
+        // Limpiar cualquier marcador previo
+        if (listPrepedido != null) {
+            for (PrepedidoSolicitud p : listPrepedido) {
+                p.setAutorizar(false);
+            }
+        }
+
+        // Marcar el prepedido actual como a autorizar
+        this.envNP.setAutorizar(true);
+        this.detalleAAutorizar = det;
+
+        // procesarAutorizacion enviará solo el detalleAAutorizar si no es nulo
+        procesarAutorizacion();
+    }
+
+    public void autorizarPrepedidoDirecto(PrepedidoSolicitud envNP) {
+        if (envNP == null || envNP.getDetalle() == null) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "No hay prepedido seleccionado o detalles vacíos.");
+            return;
+        }
+
+        boolean hasGreaterThanZero = false;
+        for (ec.com.infinityone.modelo.Detalleprepedido det : envNP.getDetalle()) {
+            if (det.getVolumennaturalautorizado() != null
+                    && det.getVolumennaturalautorizado().compareTo(BigDecimal.ZERO) > 0) {
+                hasGreaterThanZero = true;
+                break;
+            }
+        }
+
+        if (!hasGreaterThanZero) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "Debe ingresar al menos un volumen mayor a cero para autorizar.");
+            return;
+        }
+
+        // Limpiar cualquier marcador previo
+        if (listPrepedido != null) {
+            for (PrepedidoSolicitud p : listPrepedido) {
+                p.setAutorizar(false);
+            }
+        }
+
+        this.envNP = envNP;
+        this.envNP.setAutorizar(true);
+        this.detalleAAutorizar = null; // null significa autorizar todos los detalles de este prepedido
+
+        procesarAutorizacion();
+    }
+
     public static class FilaGenerarNota {
         private PrepedidoSolicitud prepedidoSolicitud;
+        private ec.com.infinityone.modelo.Detalleprepedido detalle;
         private String codigoProductoClienteSeleccionado;
         private java.util.List<Producto> listaProductosFiltrada;
         private String numeroNotaPedidoGenerada;
 
-        public FilaGenerarNota(PrepedidoSolicitud ps) {
+        public FilaGenerarNota(PrepedidoSolicitud ps, ec.com.infinityone.modelo.Detalleprepedido det) {
             this.prepedidoSolicitud = ps;
+            this.detalle = det;
             this.listaProductosFiltrada = new java.util.ArrayList<>();
-            if (ps != null && ps.getNumeroNotaPedidoGenerada() != null
-                    && !ps.getNumeroNotaPedidoGenerada().trim().isEmpty()
-                    && !ps.getNumeroNotaPedidoGenerada().equals("0")) {
-                this.numeroNotaPedidoGenerada = ps.getNumeroNotaPedidoGenerada();
+            if (det != null && det.getNumeronp() != null
+                    && !det.getNumeronp().trim().isEmpty()
+                    && !det.getNumeronp().equals("0")) {
+                this.numeroNotaPedidoGenerada = det.getNumeronp();
             } else {
                 this.numeroNotaPedidoGenerada = "00";
             }
+        }
+
+        public ec.com.infinityone.modelo.Detalleprepedido getDetalle() {
+            return detalle;
+        }
+
+        public void setDetalle(ec.com.infinityone.modelo.Detalleprepedido detalle) {
+            this.detalle = detalle;
         }
 
         public String getNumeroNotaPedidoGenerada() {
@@ -1632,12 +1594,16 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                     && !"0".equals(numeroNotaPedidoGenerada)) {
                 return true;
             }
-            if (prepedidoSolicitud == null || prepedidoSolicitud.getDetalle() == null
-                    || prepedidoSolicitud.getDetalle().isEmpty()) {
+            if (detalle == null) {
                 return true;
             }
-            java.math.BigDecimal volAutorizado = prepedidoSolicitud.getDetalle().get(0).getVolumennaturalautorizado();
+            java.math.BigDecimal volAutorizado = detalle.getVolumennaturalautorizado();
             return volAutorizado == null || volAutorizado.compareTo(java.math.BigDecimal.ZERO) <= 0;
+        }
+
+        public boolean isGenerado() {
+            return numeroNotaPedidoGenerada != null && !"00".equals(numeroNotaPedidoGenerada)
+                    && !"0".equals(numeroNotaPedidoGenerada) && !numeroNotaPedidoGenerada.trim().isEmpty();
         }
     }
 
@@ -1701,10 +1667,13 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
         this.envNP = envNP;
 
         // Cargar productos del cliente
+        if (listaBancos == null || listaBancos.isEmpty()) {
+            obtenerBanco();
+        }
         try {
             if (envNP.getPrepedido() != null && envNP.getPrepedido().getCodigocliente() != null) {
                 String codCliente = envNP.getPrepedido().getCodigocliente().getClientePK().getCodigo();
-                String codComer = envNP.getPrepedido().getCodigocliente().getClientePK().getCodigocomercializadora();
+                String codComer = envNP.getPrepedido().getPrepedidoPK().getCodigocomercializadora();
                 listaProductosClienteModal = cliProdServicio.obtenerProductos(codComer, codCliente);
             } else {
                 listaProductosClienteModal = new java.util.ArrayList<>();
@@ -1716,35 +1685,27 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
 
         // Cargar todos los detalles del mismo prepedido para el modal
         listaDetallesGenerar = new java.util.ArrayList<>();
-        if (listPrepedido != null && envNP != null && envNP.getPrepedido() != null) {
-            String targetNumero = envNP.getPrepedido().getPrepedidoPK().getNumero();
-            if (targetNumero != null) {
-                targetNumero = targetNumero.trim();
-                for (PrepedidoSolicitud ps : listPrepedido) {
-                    if (ps.getPrepedido() != null && ps.getPrepedido().getPrepedidoPK() != null) {
-                        String currentNumero = ps.getPrepedido().getPrepedidoPK().getNumero();
-                        if (currentNumero != null && targetNumero.equals(currentNumero.trim())) {
-                            if (!ps.isRegistroActivo()) {
-                                continue;
-                            }
-                            FilaGenerarNota fila = new FilaGenerarNota(ps);
+        if (envNP != null && envNP.getPrepedido() != null && envNP.getDetalle() != null) {
+            for (ec.com.infinityone.modelo.Detalleprepedido det : envNP.getDetalle()) {
+                if (det == null || det.getProducto() == null) {
+                    continue;
+                }
 
-                            java.util.List<Producto> filtrada = new java.util.ArrayList<>();
-                            if (ps.getDetalle() != null && !ps.getDetalle().isEmpty()
-                                    && ps.getDetalle().get(0).getProducto() != null) {
-                                String prodRef = ps.getDetalle().get(0).getProducto().getCodigo();
-                                for (Producto p : listaProductosClienteModal) {
-                                    if (prodRef != null && prodRef.equals(p.getProductogenerico())) {
-                                        filtrada.add(p);
-                                    }
-                                }
-                            }
-                            fila.setListaProductosFiltrada(filtrada);
+                FilaGenerarNota fila = new FilaGenerarNota(envNP, det);
 
-                            listaDetallesGenerar.add(fila);
-                        }
+                java.util.List<Producto> filtrada = new java.util.ArrayList<>();
+                String prodRef = det.getProducto().getCodigo();
+                for (Producto p : listaProductosClienteModal) {
+                    if (prodRef != null && prodRef.equals(p.getProductogenerico())) {
+                        filtrada.add(p);
                     }
                 }
+                fila.setListaProductosFiltrada(filtrada);
+                if (!filtrada.isEmpty()) {
+                    fila.setCodigoProductoClienteSeleccionado(filtrada.get(0).getCodigo());
+                }
+
+                listaDetallesGenerar.add(fila);
             }
         }
 
@@ -1766,11 +1727,18 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
 
         PrepedidoSolicitud ps = fila.getPrepedidoSolicitud();
         Prepedido prep = ps.getPrepedido();
-        Detalleprepedido detPrep = ps.getDetalle().get(0);
+        Detalleprepedido detPrep = fila.getDetalle();
+
+        if (detPrep.getVolumennaturalautorizado() == null
+                || detPrep.getVolumennaturalautorizado().compareTo(BigDecimal.ZERO) <= 0) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "No se puede generar una Nota de Pedido con volumen cero.");
+            return;
+        }
 
         try {
             ec.com.infinityone.modelo.Notapedido np = new ec.com.infinityone.modelo.Notapedido();
             ec.com.infinityone.modelo.NotapedidoPK npPK = new ec.com.infinityone.modelo.NotapedidoPK();
+            String fallbackUser = (dataUser != null && dataUser.getUser() != null && dataUser.getUser().getNombrever() != null && !dataUser.getUser().getNombrever().trim().isEmpty()) ? dataUser.getUser().getNombrever() : "ADMIN";
 
             npPK.setNumero("");
             npPK.setCodigoabastecedora(prep.getPrepedidoPK().getCodigoabastecedora());
@@ -1778,13 +1746,45 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
             np.setNotapedidoPK(npPK);
 
             np.setCodigoterminal(prep.getCodigoterminal());
+            if (prep.getCodigoterminal() != null && prep.getCodigoterminal().getUsuarioactual() == null) {
+                prep.getCodigoterminal().setUsuarioactual(fallbackUser);
+            }
             np.setCodigocliente(prep.getCodigocliente());
             if (prep.getCodigocliente() != null && prep.getCodigocliente().getClientePK() != null) {
+                if (prep.getCodigocliente().getClientePK().getCodigocomercializadora() == null) {
+                    prep.getCodigocliente().getClientePK().setCodigocomercializadora(prep.getPrepedidoPK().getCodigocomercializadora());
+                }
+                if (prep.getCodigocliente().getUsuarioactual() == null) {
+                    prep.getCodigocliente().setUsuarioactual(fallbackUser);
+                }
                 np.setCodigoclienteId(prep.getCodigocliente().getClientePK().getCodigo());
             } else {
                 np.setCodigoclienteId(prep.getCodigoclienteId() != null ? prep.getCodigoclienteId() : "");
             }
-            np.setCodigobanco(prep.getCodigobanco());
+            ec.com.infinityone.modelo.Banco banco = prep.getCodigobanco();
+            if (banco == null || banco.getCodigo() == null || banco.getCodigo().isEmpty()) {
+                // Intentar resolver desde el codigobancodebito del cliente
+                String codBancoDebito = (prep.getCodigocliente() != null) ? prep.getCodigocliente().getCodigobancodebito() : null;
+                if (codBancoDebito != null && !codBancoDebito.isEmpty() && listaBancos != null) {
+                    for (ec.com.infinityone.modelo.Banco b : listaBancos) {
+                        if (codBancoDebito.equals(b.getCodigo())) {
+                            banco = b;
+                            break;
+                        }
+                    }
+                }
+                // Si aún es null, usar el primer banco disponible
+                if (banco == null && listaBancos != null && !listaBancos.isEmpty()) {
+                    banco = listaBancos.get(0);
+                }
+            }
+            if (banco != null && banco.getUsuarioactual() == null) {
+                banco.setUsuarioactual(fallbackUser);
+            }
+            np.setCodigobanco(banco);
+            if (prep.getComercializadora() != null && prep.getComercializadora().getUsuarioactual() == null) {
+                prep.getComercializadora().setUsuarioactual(fallbackUser);
+            }
             np.setComercializadora(prep.getComercializadora());
             np.setAbastecedora(prep.getAbastecedora());
 
@@ -1820,7 +1820,7 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
             np.setTramarenviadaaoe(prep.getTramarenviadaaoe() != null ? prep.getTramarenviadaaoe() : "");
             np.setTramarecibidaaoe(prep.getTramarecibidaaoe() != null ? prep.getTramarecibidaaoe() : "");
             np.setUsuarioactual(
-                    prep.getUsuarioactual() != null ? prep.getUsuarioactual() : dataUser.getUser().getNombrever());
+                    (prep.getUsuarioactual() != null && !prep.getUsuarioactual().trim().isEmpty()) ? prep.getUsuarioactual() : fallbackUser);
             np.setPrefijo(prep.getPrefijo() != null ? prep.getPrefijo() : "");
             np.setObservacion("PREPEDIDO-" + prep.getPrepedidoPK().getNumero());
 
@@ -1831,7 +1831,14 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
             detNPK.setCodigoabastecedora(prep.getPrepedidoPK().getCodigoabastecedora());
             detNPK.setCodigocomercializadora(prep.getPrepedidoPK().getCodigocomercializadora());
             detNPK.setCodigoproducto(codProductoCliente);
-            detNPK.setCodigomedida(detPrep.getDetalleprepedidoPK().getCodigomedida());
+            String codigoMedida = "01";
+            if (detPrep.getDetalleprepedidoPK() != null && detPrep.getDetalleprepedidoPK().getCodigomedida() != null) {
+                codigoMedida = detPrep.getDetalleprepedidoPK().getCodigomedida();
+            } else if (detPrep.getMedida() != null && detPrep.getMedida().getCodigo() != null) {
+                codigoMedida = detPrep.getMedida().getCodigo();
+            }
+
+            detNPK.setCodigomedida(codigoMedida);
 
             detNP.setDetallenotapedidoPK(detNPK);
 
@@ -1845,7 +1852,7 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
             detNP.setProducto(prodFinal);
 
             ec.com.infinityone.modelo.Medida medida = new ec.com.infinityone.modelo.Medida();
-            medida.setCodigo(detPrep.getDetalleprepedidoPK().getCodigomedida());
+            medida.setCodigo(codigoMedida);
             detNP.setMedida(medida);
 
             detNP.setVolumennaturalrequerido(
@@ -1854,7 +1861,7 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
             detNP.setVolumennaturalautorizado(
                     detPrep.getVolumennaturalautorizado() != null ? detPrep.getVolumennaturalautorizado()
                             : java.math.BigDecimal.ZERO);
-            detNP.setUsuarioactual(dataUser.getUser().getNombrever());
+            detNP.setUsuarioactual(fallbackUser);
             detNP.setCompartimento1(BigDecimal.ZERO);
             detNP.setCompartimento2(BigDecimal.ZERO);
             detNP.setCompartimento3(BigDecimal.ZERO);
@@ -1879,6 +1886,7 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
             } else {
                 direcc += "ec.com.infinity.modelo.notapedido";
             }
+            System.out.println("FT:: URL notapedido: " + direcc);
             URL url = new URL(direcc);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
@@ -1956,6 +1964,9 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                     && !numeroNotaPedio.isEmpty()) {
                 fila.setNumeroNotaPedidoGenerada(numeroNotaPedio);
                 fila.getPrepedidoSolicitud().setNumeroNotaPedidoGenerada(numeroNotaPedio);
+                if (fila.getDetalle() != null) {
+                    fila.getDetalle().setNumeronp(numeroNotaPedio);
+                }
                 this.dialogo(FacesMessage.SEVERITY_INFO, "NOTA DE PEDIDO REGISTRADA EXITOSAMENTE: " + numeroNotaPedio);
 
                 if (prep.getComercializadora() != null
@@ -2122,6 +2133,84 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
         } catch (Exception e) {
             e.printStackTrace();
             this.dialogo(FacesMessage.SEVERITY_ERROR, "Error al anular: " + e.getMessage());
+        }
+    }
+
+    public void generarNpBanco(PrepedidoSolicitud envNP) {
+        if (envNP == null || envNP.getDetalle() == null || envNP.getDetalle().isEmpty()) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "No se encontró el detalle del prepedido para el banco.");
+            return;
+        }
+
+        try {
+            boolean allSuccess = true;
+            for (ec.com.infinityone.modelo.Detalleprepedido detalle : envNP.getDetalle()) {
+                detalle.setNotapedidobco(true);
+
+                if (detalle.getCompartimento1() == null)
+                    detalle.setCompartimento1(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento2() == null)
+                    detalle.setCompartimento2(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento3() == null)
+                    detalle.setCompartimento3(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento4() == null)
+                    detalle.setCompartimento4(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento5() == null)
+                    detalle.setCompartimento5(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento6() == null)
+                    detalle.setCompartimento6(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento7() == null)
+                    detalle.setCompartimento7(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento8() == null)
+                    detalle.setCompartimento8(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento9() == null)
+                    detalle.setCompartimento9(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento10() == null)
+                    detalle.setCompartimento10(java.math.BigDecimal.ZERO);
+                if (detalle.getSelloinicial() == null)
+                    detalle.setSelloinicial(0);
+                if (detalle.getSellofinal() == null)
+                    detalle.setSellofinal(0);
+                if (detalle.getUsuarioactual() == null || detalle.getUsuarioactual().isEmpty()) {
+                    detalle.setUsuarioactual(
+                            dataUser != null && dataUser.getUser() != null ? dataUser.getUser().getNombrever()
+                                    : "ADMIN");
+                }
+
+                String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
+                        + "ec.com.infinity.modelo.detalleprepedido/porId";
+                URL url = new URL(direcc);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setDoOutput(true);
+                connection.setRequestMethod("PUT");
+                connection.setRequestProperty("Content-type", "application/json");
+
+                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                String jsonStr = mapper.writeValueAsString(detalle);
+
+                try (java.io.OutputStreamWriter out = new java.io.OutputStreamWriter(connection.getOutputStream(),
+                        "UTF-8")) {
+                    out.write(jsonStr);
+                    out.flush();
+                }
+
+                if (connection.getResponseCode() != 200 && connection.getResponseCode() != 204) {
+                    allSuccess = false;
+                    String errorInfo = getErrorStreamContent(connection);
+                    System.out.println("FT:: ERROR EN generarNpBanco RESPONSECODE " + connection.getResponseCode() + " "
+                            + errorInfo);
+                }
+            }
+
+            if (allSuccess) {
+                org.primefaces.PrimeFaces.current().executeScript("PF('modalNpBanco').show();");
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "Hubo un error al procesar uno o más detalles con el banco.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "Error al generar NP Banco: " + e.getMessage());
         }
     }
 
@@ -2540,6 +2629,15 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
         return null;
     }
 
+    public String imprimirNotaPedidoPreviewFila(FilaGenerarNota filaItem) {
+        if (filaItem != null && filaItem.getPrepedidoSolicitud() != null) {
+            PrepedidoSolicitud envP = filaItem.getPrepedidoSolicitud();
+            envP.setNumeroNotaPedidoGenerada(filaItem.getNumeroNotaPedidoGenerada());
+            return imprimirNotaPedidoPreview(envP);
+        }
+        return null;
+    }
+
     public void generarReporteNp(ec.com.infinityone.modelo.EnvioPedido envP) {
         String rutaGuardar = Fichero.getCARPETAREPORTES();
         String subreport = Fichero.getCARPETAREPORTES() + "/notapedidoext.jrxml";
@@ -2613,6 +2711,18 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
 
     public void setTerminal(Terminal terminal) {
         this.terminal = terminal;
+        // El converter JSF reconstruye Terminal sin recibirsolicitud.
+        // Sincronizar terminalCerrada desde listaTermianles (fuente de verdad = BD).
+        if (terminal != null && listaTermianles != null) {
+            for (Terminal t : listaTermianles) {
+                if (t.getCodigo() != null && t.getCodigo().equals(terminal.getCodigo())) {
+                    boolean recibirSolicitudReal = t.isRecibirsolicitud();
+                    this.terminal.setRecibirsolicitud(recibirSolicitudReal);
+                    this.terminalCerrada = !recibirSolicitudReal;
+                    break;
+                }
+            }
+        }
     }
 
     public TerminalServicio getTermServicio() {
@@ -3059,10 +3169,14 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                     if (pSolicitud.isAutorizar()) {
                         if (pSolicitud.getDetalle() != null) {
                             for (Detalleprepedido det : pSolicitud.getDetalle()) {
-                                if (det.getVolumennaturalautorizado() == null
-                                        || det.getVolumennaturalautorizado().compareTo(BigDecimal.ZERO) <= 0) {
-                                    // Simplemente ignoramos los productos a los que no se les asignó volumen, no es
-                                    // un error
+                                if (this.detalleAAutorizar != null && !det.equals(this.detalleAAutorizar)) {
+                                    continue;
+                                }
+                                if (det.getVolumennaturalautorizado() == null) {
+                                    det.setVolumennaturalautorizado(BigDecimal.ZERO);
+                                }
+                                if (det.getVolumennaturalautorizado().compareTo(BigDecimal.ZERO) < 0) {
+                                    // Simplemente ignoramos los productos a los que se les asignó volumen negativo
                                     continue;
                                 }
                                 String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
@@ -3138,6 +3252,7 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
 
                                 if (connection.getResponseCode() == 200 || connection.getResponseCode() == 204) {
                                     processados = true;
+                                    det.setAutorizado("SI");
                                 } else {
                                     String errResponse = getErrorStreamContent(connection);
                                     this.dialogo(FacesMessage.SEVERITY_ERROR,
@@ -3154,9 +3269,12 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
             if (processados) {
                 this.dialogo(FacesMessage.SEVERITY_INFO, "REGISTROS PROCESADOS EXITOSAMENTE");
                 if (this.envNP != null) {
-                    this.envNP.setEstadoForzado("SI");
+                    if (this.detalleAAutorizar == null) {
+                        this.envNP.setEstadoForzado("SI");
+                    }
                     this.envNP.setAutorizar(false);
                 }
+                this.detalleAAutorizar = null;
                 // No recargar la tabla entera para que las filas no se muevan de su posición
             } else {
                 this.dialogo(FacesMessage.SEVERITY_WARN,
@@ -3170,4 +3288,22 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
             this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL PROCESAR");
         }
     }
+
+    public boolean isTerminalCerrada() {
+        // Usa terminalCerrada como fuente de verdad (sincronizada desde setTerminal y seleccionarTerminal)
+        return terminalCerrada;
+    }
+
+    public void setTerminalCerrada(boolean terminalCerrada) {
+        this.terminalCerrada = terminalCerrada;
+    }
+
+    public boolean isTerminalAbierta() {
+        return !terminalCerrada;
+    }
+
+    public void setTerminalAbierta(boolean terminalAbierta) {
+        this.terminalCerrada = !terminalAbierta;
+    }
+
 }
