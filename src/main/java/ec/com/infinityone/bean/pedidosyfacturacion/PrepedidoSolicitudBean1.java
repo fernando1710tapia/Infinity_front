@@ -569,7 +569,8 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                 }
             }
 
-            if (pysGDValido) {
+            // if (pysGDValido) {
+            if (true) {
 
                 codCliente = cliente.getClientePK().getCodigo();
                 for (int i = 0; i < listaTermianles.size(); i++) {
@@ -633,7 +634,8 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                 }
             }
 
-            if (pysGDValido) {
+            // if (pysGDValido) {
+            if (true) {
 
                 codCliente = cliente.getClientePK().getCodigo();
                 listaProductos = new ArrayList<>();
@@ -664,7 +666,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             } else {
 
                 this.dialogo(FacesMessage.SEVERITY_FATAL,
-                        "Este cliente NO estÃƒÆ’Ã‚Â¡ autorizado para generar NP. Consulte con el administrador para verificar su condiciÃƒÆ’Ã‚Â³n");
+                        "Este cliente NO está autorizado para generar NP. Consulte con el administrador para verificar su condición");
 
                 // nuevaPrepedido();
                 listaProductos = new ArrayList<>();
@@ -1406,10 +1408,10 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         if (!this.prepedidoAuxiliar.isActiva()) {
             this.dialogo(FacesMessage.SEVERITY_ERROR,
                     "NO SE PUEDE ANULAR ESTA NOTA DE PEDIDO, PORQUE YA SE ENCUENTRA ANULADA");
-        } else if ("SI".equalsIgnoreCase(this.prepedidoAuxiliar.getFacturada().trim())) {
+        } /* else if (this.prepedidoAuxiliar.getFacturada() != null && "SI".equalsIgnoreCase(this.prepedidoAuxiliar.getFacturada().trim())) {
             this.dialogo(FacesMessage.SEVERITY_ERROR,
                     "NO SE PUEDE ANULAR ESTA NOTA DE PEDIDO, PORQUE SE ENCUENTRA FACTURADA");
-        } else {
+        } */ else {
             PrimeFaces.current().executeScript("PF('deleteProductDialog').show()");
         }
     }
@@ -2185,8 +2187,61 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                 connection.setRequestMethod("PUT");
                 connection.setRequestProperty("Content-type", "application/json");
 
-                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
-                String jsonStr = mapper.writeValueAsString(detalle);
+                JSONObject jsonPayload = new JSONObject();
+                JSONObject pkJson = new JSONObject();
+                pkJson.put("codigoabastecedora", envNP.getPrepedido().getPrepedidoPK().getCodigoabastecedora());
+                pkJson.put("codigocomercializadora", envNP.getPrepedido().getPrepedidoPK().getCodigocomercializadora());
+                pkJson.put("numero", envNP.getPrepedido().getPrepedidoPK().getNumero());
+                pkJson.put("codigoproducto", detalle.getProducto().getCodigo());
+
+                String codigoMedida = "01";
+                if (detalle.getDetalleprepedidoPK() != null
+                        && detalle.getDetalleprepedidoPK().getCodigomedida() != null) {
+                    codigoMedida = detalle.getDetalleprepedidoPK().getCodigomedida();
+                }
+                pkJson.put("codigomedida", codigoMedida);
+                jsonPayload.put("detalleprepedidoPK", pkJson);
+
+                jsonPayload.put("volumennaturalrequerido", detalle.getVolumennaturalrequerido() != null ? detalle.getVolumennaturalrequerido() : java.math.BigDecimal.ZERO);
+                jsonPayload.put("volumennaturalautorizado", detalle.getVolumennaturalautorizado() != null ? detalle.getVolumennaturalautorizado() : java.math.BigDecimal.ZERO);
+
+                jsonPayload.put("usuarioactual", detalle.getUsuarioactual());
+
+                jsonPayload.put("selloinicial", detalle.getSelloinicial());
+                jsonPayload.put("sellofinal", detalle.getSellofinal());
+                jsonPayload.put("compartimento1", detalle.getCompartimento1());
+                jsonPayload.put("compartimento2", detalle.getCompartimento2());
+                jsonPayload.put("compartimento3", detalle.getCompartimento3());
+                jsonPayload.put("compartimento4", detalle.getCompartimento4());
+                jsonPayload.put("compartimento5", detalle.getCompartimento5());
+                jsonPayload.put("compartimento6", detalle.getCompartimento6());
+                jsonPayload.put("compartimento7", detalle.getCompartimento7());
+                jsonPayload.put("compartimento8", detalle.getCompartimento8());
+                jsonPayload.put("compartimento9", detalle.getCompartimento9());
+                jsonPayload.put("compartimento10", detalle.getCompartimento10());
+
+                JSONObject medidaJson = new JSONObject();
+                medidaJson.put("codigo", codigoMedida);
+                jsonPayload.put("medida", medidaJson);
+
+                JSONObject productoJson = new JSONObject();
+                productoJson.put("codigo", detalle.getProducto().getCodigo());
+                JSONObject areaMercadeoJson = new JSONObject();
+                areaMercadeoJson.put("codigo", "01");
+                productoJson.put("codigoareamercadeo", areaMercadeoJson);
+                jsonPayload.put("producto", productoJson);
+
+                jsonPayload.put("activo", envNP.getPrepedido().isActiva());
+                jsonPayload.put("notapedidobco", true);
+
+                if (detalle.getAutorizado() != null) {
+                    jsonPayload.put("autorizado", detalle.getAutorizado());
+                }
+                if (detalle.getNumeronp() != null) {
+                    jsonPayload.put("numeronp", detalle.getNumeronp());
+                }
+
+                String jsonStr = jsonPayload.toString();
 
                 try (java.io.OutputStreamWriter out = new java.io.OutputStreamWriter(connection.getOutputStream(),
                         "UTF-8")) {

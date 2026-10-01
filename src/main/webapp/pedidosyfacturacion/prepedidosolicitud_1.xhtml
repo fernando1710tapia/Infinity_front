@@ -479,7 +479,7 @@
                                 <!-- G. NP.Infinity: círculo gris "Pi" -->
                                 <p:column exportable="false" styleClass="action-col" style="text-align:center;">
                                     <p:commandButton icon="pi pi-file" styleClass="ui-button-secondary rounded-button"
-                                        process="@this"
+                                        process="@this" update="@form"
                                         actionListener="#{prepedidoSolicitudBean1.generarNotaPedido(prepedidoItem)}"
                                         disabled="#{not prepedidoItem.registroActivo or prepedidoItem.generadaNpBanco}"
                                         title="Generar NP Infinity"
@@ -491,7 +491,7 @@
                                     <p:commandButton icon="pi pi-briefcase"
                                         styleClass="ui-button-secondary rounded-button"
                                         disabled="#{not prepedidoItem.registroActivo or prepedidoItem.generadaNpInfinity}"
-                                        process="@this"
+                                        process="@this" update="@form"
                                         actionListener="#{prepedidoSolicitudBean1.generarNpBanco(prepedidoItem)}"
                                         title="Generar NP Banco"
                                         style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
@@ -1167,7 +1167,7 @@
         <p:dialog widgetVar="modalNpBanco" header="Aviso" width="400" modal="true" closable="false" showEffect="fade"
             responsive="true">
             <div style="text-align: center; margin: 20px 0;">
-                <h3>ESTA SOLICITUD SERÃ ATENDIDA POR EL BANCO</h3>
+                <h3>ESTA SOLICITUD SERÁ ATENDIDA POR EL BANCO</h3>
             </div>
             <div style="text-align: center;">
                 <p:commandButton value="OK" styleClass="ui-button-primary" onclick="PF('modalNpBanco').hide();"
