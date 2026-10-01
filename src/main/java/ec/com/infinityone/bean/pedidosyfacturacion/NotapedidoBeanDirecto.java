@@ -49,6 +49,8 @@ import java.sql.Connection;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -551,16 +553,27 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
 
     public void seleccionarCliente() {
         boolean pysGDValido = true;
+
+        LocalDate hoy = LocalDate.now();
+
+        LocalDate fechaVencimiento = cliente.getFehavencimientocontrato()
+                .toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+//         pysGDValido = !fechaVencimiento.isBefore(hoy);
         if (cliente != null) {
 
             if ("0002".equalsIgnoreCase(codComer)) {
 
                 if ("03".equalsIgnoreCase(cliente.getCodigoformapago().getCodigo())) {
 
-                    if (new Date().after(cliente.getFehavencimientocontrato())) {
+                    pysGDValido = !fechaVencimiento.isBefore(hoy);
+                    
+                    //if (new Date().before(cliente.getFehavencimientocontrato())) {
 
-                        pysGDValido = false;
-                    }
+                    //    pysGDValido = false;
+                    //}
                 }
             }
 

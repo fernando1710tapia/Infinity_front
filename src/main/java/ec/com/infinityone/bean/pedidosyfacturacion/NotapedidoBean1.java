@@ -54,6 +54,8 @@ import java.sql.Connection;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -727,7 +729,36 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
     }
 
     public void seleccionarCliente() {
+        boolean pysGDValido = true;
+        
+        LocalDate hoy = LocalDate.now();
+
+LocalDate fechaVencimiento = cliente.getFehavencimientocontrato()
+        .toInstant()
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate();
+
+//         pysGDValido = !fechaVencimiento.isBefore(hoy);
+        
         if (cliente != null) {
+            
+            if ("0002".equalsIgnoreCase(codComer)) {
+
+                if ("03".equalsIgnoreCase(cliente.getCodigoformapago().getCodigo())) {
+
+                    pysGDValido = !fechaVencimiento.isBefore(hoy);
+                    
+                    //if (new Date().before(cliente.getFehavencimientocontrato())) {
+
+                    //    pysGDValido = false;
+                    //}
+                }
+            }
+
+            if (pysGDValido) {
+            //if (Boolean.TRUE) {
+   
+            
             codCliente = cliente.getClientePK().getCodigo();
             listaProductos = new ArrayList<>();
             listaProductos = cliProdServicio.obtenerProductos(codComer, codCliente);
@@ -749,6 +780,14 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
                         np.setCodigobanco(banco);
                     }
                 }
+            }
+             } else {
+
+                this.dialogo(FacesMessage.SEVERITY_FATAL,
+                        "Este cliente NO está autorizado para generar NP. Consulte con el administrador para verificar su condición");
+                
+                //nuevaNotaPedido();
+                listaProductos = new ArrayList<>();
             }
         }
     }
