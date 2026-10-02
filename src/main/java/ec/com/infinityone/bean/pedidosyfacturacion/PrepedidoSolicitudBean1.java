@@ -163,6 +163,11 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
      * Variable para establoecer el valor de oeenpetro
      */
     private String oeenpetro;
+
+    /**
+     * Variable para mantener la lista filtrada de prepedidos en la tabla
+     */
+    private List<PrepedidoSolicitud> filteredListenvNP;
     /*
      * Variable Nota Pedido
      */
@@ -359,21 +364,38 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     }
 
     public void nuevaPrepedido() {
+        String lastComer = this.codComer;
+        String lastCliente = this.codCliente;
 
         reestablecer();
+        
+        this.codComer = lastComer;
+        this.codCliente = lastCliente;
+
         habilitarBusqueda(2);
         obtenerBanco();
         obtenerMedida();
         if (habilitarComer) {
-            comercializadora = new ComercializadoraBean();
+            // No resetear si ya habia uno seleccionado en la busqueda
+            if (this.codComer == null || this.codComer.trim().isEmpty()) {
+                comercializadora = new ComercializadoraBean();
+            } else {
+                seleccionarComercializdora();
+            }
         } else {
             seleccionarComercializdora();
         }
+        
         if (habilitarCli) {
-            cliente = new Cliente();
-            codTerminal = "";
-            codCliente = "";
-            listaProductos = new ArrayList<>();
+            // Si ya teniamos un cliente en la busqueda, mantenerlo para la creacion
+            if (this.codCliente == null || this.codCliente.trim().isEmpty()) {
+                cliente = new Cliente();
+                codTerminal = "";
+                codCliente = "";
+                listaProductos = new ArrayList<>();
+            } else {
+                seleccionarCliente();
+            }
         } else {
             seleccionarCliente();
         }
@@ -387,9 +409,9 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
 
     public void reestablecer() {
         editarPrepedido = false;
-        codComer = "";
+        // codComer = "";
         // codTerminal = "";
-        codCliente = "";
+        // codCliente = "";
         numeroNotaPedio = "";
         tramaGrabada = "";
         codAbas = "";
@@ -412,7 +434,9 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         comerc = new Comercializadora();
         abas = new Abastecedora();
         formap = new Formapago();
-        listPrepedido = new ArrayList<>();
+        if (listPrepedido == null) {
+            listPrepedido = new ArrayList<>();
+        }
         fechaVenta = new Date();
         fechaMin = new Date();
         productoSeleccionado = new Producto();
@@ -801,6 +825,9 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
 
     public void obtenerPrepedidos() throws ParseException {
         try {
+            if (fechaInicial == null) {
+                fechaInicial = new Date();
+            }
             // Sincronizar fechaFinal con fechaInicial si viene nulo (búsqueda por un solo
             // día)
             // En esta pantalla (prepedidosolicitud_1) la búsqueda es por un único día
@@ -1354,14 +1381,14 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             if (connection.getResponseCode() == 200 || connection.getResponseCode() == 201) {
                 envNP.getPrepedido().getPrepedidoPK().setNumero(numeroNotaPedio);
                 this.dialogo(FacesMessage.SEVERITY_INFO, "PREPEDIDO REGISTRADO EXITOSAMENTE");
-                init();
+                cancelar();
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR PREPEDIDO");
                 System.out.println("FT:: ERROR EN addItems RESPONSECODE " + connection.getResponseCode());
                 System.out.println("FT:: ERROR EN addItems RESPONSEMESSAGE " + connection.getResponseMessage());
             }
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR PREPEDIDO: " + e);
             e.printStackTrace();
         }
@@ -1456,6 +1483,11 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             procesarAutorizacion();
             PrimeFaces.current().executeScript("PF('autorizarDialog').hide()");
         }
+    }
+
+    public void cancelar() {
+        mostarPantallaInicial = true;
+        mostarPrepedido = false;
     }
 
     public void cancelarAutorizacion() {
@@ -2112,8 +2144,63 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             connection.setRequestMethod("PUT");
             connection.setRequestProperty("Content-type", "application/json");
 
-            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
-            String jsonStr = mapper.writeValueAsString(detalle);
+            JSONObject jsonPayload = new JSONObject();
+            JSONObject pkJson = new JSONObject();
+            pkJson.put("codigoabastecedora", this.envNP.getPrepedido().getPrepedidoPK().getCodigoabastecedora());
+            pkJson.put("codigocomercializadora", this.envNP.getPrepedido().getPrepedidoPK().getCodigocomercializadora());
+            pkJson.put("numero", this.envNP.getPrepedido().getPrepedidoPK().getNumero());
+            pkJson.put("codigoproducto", detalle.getProducto().getCodigo());
+
+            String codigoMedida = "01";
+            if (detalle.getDetalleprepedidoPK() != null
+                    && detalle.getDetalleprepedidoPK().getCodigomedida() != null) {
+                codigoMedida = detalle.getDetalleprepedidoPK().getCodigomedida();
+            }
+            pkJson.put("codigomedida", codigoMedida);
+            jsonPayload.put("detalleprepedidoPK", pkJson);
+
+            jsonPayload.put("volumennaturalrequerido", detalle.getVolumennaturalrequerido() != null ? detalle.getVolumennaturalrequerido() : java.math.BigDecimal.ZERO);
+            jsonPayload.put("volumennaturalautorizado", detalle.getVolumennaturalautorizado() != null ? detalle.getVolumennaturalautorizado() : java.math.BigDecimal.ZERO);
+
+            jsonPayload.put("usuarioactual", detalle.getUsuarioactual());
+
+            jsonPayload.put("selloinicial", detalle.getSelloinicial());
+            jsonPayload.put("sellofinal", detalle.getSellofinal());
+            jsonPayload.put("compartimento1", detalle.getCompartimento1());
+            jsonPayload.put("compartimento2", detalle.getCompartimento2());
+            jsonPayload.put("compartimento3", detalle.getCompartimento3());
+            jsonPayload.put("compartimento4", detalle.getCompartimento4());
+            jsonPayload.put("compartimento5", detalle.getCompartimento5());
+            jsonPayload.put("compartimento6", detalle.getCompartimento6());
+            jsonPayload.put("compartimento7", detalle.getCompartimento7());
+            jsonPayload.put("compartimento8", detalle.getCompartimento8());
+            jsonPayload.put("compartimento9", detalle.getCompartimento9());
+            jsonPayload.put("compartimento10", detalle.getCompartimento10());
+
+            JSONObject medidaJson = new JSONObject();
+            medidaJson.put("codigo", codigoMedida);
+            jsonPayload.put("medida", medidaJson);
+
+            JSONObject productoJson = new JSONObject();
+            productoJson.put("codigo", detalle.getProducto().getCodigo());
+            JSONObject areaMercadeoJson = new JSONObject();
+            areaMercadeoJson.put("codigo", "01");
+            productoJson.put("codigoareamercadeo", areaMercadeoJson);
+            jsonPayload.put("producto", productoJson);
+
+            jsonPayload.put("activo", detalle.getActivo());
+
+            if (detalle.getNotapedidobco() != null) {
+                jsonPayload.put("notapedidobco", detalle.getNotapedidobco());
+            }
+            if (detalle.getAutorizado() != null) {
+                jsonPayload.put("autorizado", detalle.getAutorizado());
+            }
+            if (detalle.getNumeronp() != null) {
+                jsonPayload.put("numeronp", detalle.getNumeronp());
+            }
+
+            String jsonStr = jsonPayload.toString();
 
             try (java.io.OutputStreamWriter out = new java.io.OutputStreamWriter(connection.getOutputStream(),
                     "UTF-8")) {
@@ -2906,6 +2993,14 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
 
     public void setListenvNP(List<PrepedidoSolicitud> listPrepedido) {
         this.listPrepedido = listPrepedido;
+    }
+
+    public List<PrepedidoSolicitud> getFilteredListenvNP() {
+        return filteredListenvNP;
+    }
+
+    public void setFilteredListenvNP(List<PrepedidoSolicitud> filteredListenvNP) {
+        this.filteredListenvNP = filteredListenvNP;
     }
 
     public Terminal getTerminalT() {

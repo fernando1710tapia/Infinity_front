@@ -424,8 +424,30 @@ public class NotapedidoBean1 extends ReusableBean implements Serializable {
 //        if (habilitarTerminal) {
 //            terminal = new TerminalBean();
 //        }
-        mostarNotaPedido = true;
-        mostarPantallaInicial = false;
+        
+        boolean pysGDValido = true;
+        java.time.LocalDate hoy = java.time.LocalDate.now();
+        
+        if (cliente != null && cliente.getFehavencimientocontrato() != null) {
+            java.time.LocalDate fechaVencimiento = cliente.getFehavencimientocontrato()
+                    .toInstant()
+                    .atZone(java.time.ZoneId.systemDefault())
+                    .toLocalDate();
+                    
+            if ("0002".equalsIgnoreCase(codComer)) {
+                if (cliente.getCodigoformapago() != null && "03".equalsIgnoreCase(cliente.getCodigoformapago().getCodigo())) {
+                    pysGDValido = !fechaVencimiento.isBefore(hoy);
+                }
+            }
+        }
+        
+        if (pysGDValido) {
+            mostarNotaPedido = true;
+            mostarPantallaInicial = false;
+        } else {
+            this.dialogo(javax.faces.application.FacesMessage.SEVERITY_FATAL,
+                    "Este cliente NO está autorizado para generar NP. Consulte con el administrador para verificar su condición");
+        }
 
     }
 

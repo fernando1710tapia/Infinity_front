@@ -11,6 +11,18 @@
     <ui:define name="content">
 
         <style>
+            /* Columnas permanentemente ocultas (no usar visible=false que falla al paginar) */
+            .col-hidden,
+            th.col-hidden,
+            td.col-hidden {
+                display: none !important;
+                width: 0 !important;
+                min-width: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+                overflow: hidden !important;
+            }
+
             /* === Frozen Columns === */
             .frozen-col-1 {
                 position: sticky !important;
@@ -245,7 +257,8 @@
                             <p:dataTable id="dt-products" widgetVar="dtProducts" var="prepedidoItem"
                                 value="#{prepedidoSolicitudBean1.listenvNP}" reflow="false" styleClass="products-table"
                                 scrollable="true" scrollWidth="100%" paginator="true" rows="10" rowSelectMode="add"
-                                paginatorPosition="bottom">
+                                paginatorPosition="bottom" globalFilter="globalFilter"
+                                filteredValue="#{prepedidoSolicitudBean1.filteredListenvNP}">
                                 <f:facet name="header">
                                     <div class="products-table-header">
                                         <span
@@ -262,25 +275,31 @@
                                     <p:row>
                                         <p:column rowspan="2" headerText="# Sol." styleClass="frozen-col-1"
                                             style="text-align:center;"
-                                            sortBy="#{prepedidoItem.prepedido.prepedidoPK.numero}" />
+                                            sortBy="#{prepedidoItem.prepedido.prepedidoPK.numero}"
+                                            filterBy="#{prepedidoItem.prepedido.prepedidoPK.numero}"
+                                            filterMatchMode="contains" />
                                         <p:column rowspan="2" headerText="Cliente" styleClass="frozen-col-2"
                                             style="text-align:center;"
-                                            sortBy="#{prepedidoItem.prepedido.codigocliente.nombrecomercial}" />
+                                            sortBy="#{prepedidoItem.prepedido.codigocliente.nombrecomercial}"
+                                            filterBy="#{prepedidoItem.prepedido.codigocliente.nombrecomercial}"
+                                            filterMatchMode="contains" />
                                         <p:column rowspan="2" headerText="Fecha Solicitud"
                                             style="text-align:center; min-width:100px;"
                                             sortBy="#{prepedidoItem.prepedido.fechaventa}" />
                                         <p:column rowspan="2" headerText="Fecha Despacho"
                                             style="text-align:center; min-width:100px;"
                                             sortBy="#{prepedidoItem.prepedido.fechadespacho}" />
-                                        <p:column rowspan="2" headerText="Terminal"
-                                            style="text-align:center; min-width:80px;"
-                                            sortBy="#{prepedidoItem.prepedido.codigoterminal.codigo}" visible="false" />
+                                        <p:column rowspan="2" headerText="Terminal" styleClass="col-hidden"
+                                            style="text-align:center; min-width:80px; display:none;"
+                                            sortBy="#{prepedidoItem.prepedido.codigoterminal.codigo}" />
                                         <p:column colspan="2" headerText="EXTRA"
                                             style="text-align:center; background:#1e3a5f; color:#fff; min-width:160px;" />
                                         <p:column colspan="2" headerText="DIESEL"
                                             style="text-align:center; background:#1e3a5f; color:#fff; min-width:160px;" />
                                         <p:column colspan="2" headerText="SÚPER"
                                             style="text-align:center; background:#1e3a5f; color:#fff; min-width:160px;" />
+                                        <p:column rowspan="2" headerText="Estado"
+                                            style="text-align:center; min-width:65px;" />
                                         <p:column rowspan="2" headerText="Anular"
                                             style="text-align:center; min-width:55px;" />
                                         <p:column rowspan="2" headerText="Autorizar"
@@ -377,8 +396,8 @@
                                     <h:outputText value="#{prepedidoItem.prepedido.fechadespacho}" />
                                 </p:column>
 
-                                <!-- Terminal -->
-                                <p:column style="text-align:center; width:80px;" visible="false">
+                                <!-- Terminal (oculto) -->
+                                <p:column styleClass="col-hidden" style="text-align:center; width:80px; display:none;">
                                     <h:outputText
                                         value="#{prepedidoItem.prepedido.codigoterminal.codigo} - #{prepedidoItem.prepedido.codigoterminal.nombre}" />
                                 </p:column>
@@ -395,8 +414,8 @@
                                     <ui:repeat value="#{prepedidoItem.detalle}" var="det">
                                         <p:inputNumber value="#{det.volumennaturalautorizado}"
                                             rendered="#{det.producto.nombre.equalsIgnoreCase('EXTRA')}"
-                                            disabled="#{det.autorizado eq 'SI'}" decimalPlaces="0" thousandSeparator=""
-                                            emptyValue="zero"
+                                            disabled="#{det.autorizado eq 'SI' or not prepedidoItem.registroActivo}"
+                                            decimalPlaces="0" thousandSeparator="" emptyValue="zero"
                                             inputStyle="width:72px; text-align:center; padding:2px 4px; font-size:0.85rem;"
                                             style="width:72px;">
                                             <p:ajax event="keyup" process="@this" update=":form:totalesPanel"
@@ -417,8 +436,8 @@
                                     <ui:repeat value="#{prepedidoItem.detalle}" var="det">
                                         <p:inputNumber value="#{det.volumennaturalautorizado}"
                                             rendered="#{det.producto.nombre.equalsIgnoreCase('DIESEL')}"
-                                            disabled="#{det.autorizado eq 'SI'}" decimalPlaces="0" thousandSeparator=""
-                                            emptyValue="zero"
+                                            disabled="#{det.autorizado eq 'SI' or not prepedidoItem.registroActivo}"
+                                            decimalPlaces="0" thousandSeparator="" emptyValue="zero"
                                             inputStyle="width:72px; text-align:center; padding:2px 4px; font-size:0.85rem;"
                                             style="width:72px;">
                                             <p:ajax event="keyup" process="@this" update=":form:totalesPanel"
@@ -439,8 +458,8 @@
                                     <ui:repeat value="#{prepedidoItem.detalle}" var="det">
                                         <p:inputNumber value="#{det.volumennaturalautorizado}"
                                             rendered="#{det.producto.nombre.equalsIgnoreCase('SUPER')}"
-                                            disabled="#{det.autorizado eq 'SI'}" decimalPlaces="0" thousandSeparator=""
-                                            emptyValue="zero"
+                                            disabled="#{det.autorizado eq 'SI' or not prepedidoItem.registroActivo}"
+                                            decimalPlaces="0" thousandSeparator="" emptyValue="zero"
                                             inputStyle="width:72px; text-align:center; padding:2px 4px; font-size:0.85rem;"
                                             style="width:72px;">
                                             <p:ajax event="keyup" process="@this" update=":form:totalesPanel"
@@ -449,7 +468,13 @@
                                     </ui:repeat>
                                 </p:column>
 
-                                <!-- Anular: cÃƒÂ­rculo AMARILLO con X -->
+                                <!-- Estado -->
+                                <p:column style="text-align:center; width:65px;">
+                                    <span
+                                        style="display:inline-block; padding:2px 6px; border-radius:4px; background:#6c757d; color:#fff; font-size:0.72rem; font-weight:bold; letter-spacing:1px;">---</span>
+                                </p:column>
+
+                                <!-- Anular: círculo AMARILLO con X -->
                                 <p:column exportable="false" style="text-align:center; width:55px;">
                                     <p:commandButton icon="pi pi-times" styleClass="rounded-button ui-button-warning"
                                         process="@form"
@@ -479,19 +504,21 @@
                                 <!-- G. NP.Infinity: círculo gris "Pi" -->
                                 <p:column exportable="false" styleClass="action-col" style="text-align:center;">
                                     <p:commandButton icon="pi pi-file" styleClass="ui-button-secondary rounded-button"
-                                        process="@this" update="@form"
+                                        process="@this" update="formGenerar"
                                         actionListener="#{prepedidoSolicitudBean1.generarNotaPedido(prepedidoItem)}"
                                         disabled="#{not prepedidoItem.registroActivo or prepedidoItem.generadaNpBanco}"
                                         title="Generar NP Infinity"
                                         style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
                                 </p:column>
 
-                                <!-- G.NP.BCO: cÃƒÂ­rculo gris "Pb" -->
+                                <!-- G.NP.BCO: círculo gris "Pb" -->
                                 <p:column exportable="false" styleClass="action-col" style="text-align:center;">
                                     <p:commandButton icon="pi pi-briefcase"
                                         styleClass="ui-button-secondary rounded-button"
                                         disabled="#{not prepedidoItem.registroActivo or prepedidoItem.generadaNpInfinity}"
                                         process="@this" update="@form"
+                                        onclick="window._dtScrollTop = document.querySelector('.ui-datatable-scrollable-body') ? document.querySelector('.ui-datatable-scrollable-body').scrollTop : 0;"
+                                        oncomplete="var el = document.querySelector('.ui-datatable-scrollable-body'); if(el) el.scrollTop = window._dtScrollTop || 0;"
                                         actionListener="#{prepedidoSolicitudBean1.generarNpBanco(prepedidoItem)}"
                                         title="Generar NP Banco"
                                         style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
@@ -725,43 +752,48 @@
                                     var bottomScroll = document.querySelector('.summary-wrapper');
                                     
                                     if (topScroll && bottomScroll) {
-                                        // 1) Sincronizar Anchos dinamicamente
+                                        // 1) Leer anchos del HEADER (siempre consistente, independiente de cuántas filas hay)
+                                        var headerScrollable = document.querySelector('.ui-datatable-scrollable-header-box table thead tr');
+                                        var headerCells = headerScrollable ? Array.from(headerScrollable.querySelectorAll('th')).filter(function(th) {
+                                            return th.offsetWidth > 0 && window.getComputedStyle(th).display !== 'none';
+                                        }) : [];
+
+                                        // Fallback: leer del body si el header no funciona
                                         var topRow = topScroll.querySelector('.ui-datatable-data tr.ui-widget-content:not(.ui-datatable-empty-message)');
-                                        if (topRow) {
-                                            var cells = topRow.children;
-                                            var visibleCells = [];
-                                            for (var k = 0; k < cells.length; k++) {
-                                                if (cells[k].offsetWidth > 0 && window.getComputedStyle(cells[k]).display !== 'none') {
-                                                    visibleCells.push(cells[k]);
-                                                }
-                                            }
+                                        var bodyCells = topRow ? Array.from(topRow.children).filter(function(td) {
+                                            return td.offsetWidth > 0 && window.getComputedStyle(td).display !== 'none';
+                                        }) : [];
+
+                                        var visibleCells = bodyCells.length >= headerCells.length ? bodyCells : headerCells;
+                                        
+                                        if (visibleCells.length >= 10) {
+                                            var w0 = visibleCells[0].offsetWidth;
+                                            var w1 = visibleCells[1].offsetWidth;
+                                            var w2 = visibleCells[2].offsetWidth;
+                                            var w3 = visibleCells[3].offsetWidth;
                                             
-                                            if (visibleCells.length >= 10) {
-                                                var w0 = visibleCells[0].offsetWidth;
-                                                var w1 = visibleCells[1].offsetWidth;
-                                                var w2 = visibleCells[2].offsetWidth;
-                                                var w3 = visibleCells[3].offsetWidth;
-                                                
-                                                var stickyWidth = w0 + w1;
-                                                var scrollableWidth = w2 + w3;
-                                                
-                                                document.querySelectorAll('.sum-col-sticky').forEach(function(el) {
-                                                    el.style.minWidth = stickyWidth + 'px';
-                                                    el.style.width = stickyWidth + 'px';
-                                                });
-                                                
-                                                document.querySelectorAll('.sum-col-scrollable').forEach(function(el) {
-                                                    el.style.minWidth = scrollableWidth + 'px';
-                                                    el.style.width = scrollableWidth + 'px';
-                                                });
-                                                
-                                                for (var i = 4; i <= 9; i++) {
-                                                    var w = visibleCells[i].offsetWidth;
-                                                    document.querySelectorAll('.sum-col-' + i).forEach(function(el) {
-                                                        el.style.minWidth = w + 'px';
-                                                        el.style.width = w + 'px';
+                                            var stickyWidth = w0 + w1;
+                                            var scrollableWidth = w2 + w3;
+                                            
+                                            document.querySelectorAll('.sum-col-sticky').forEach(function(el) {
+                                                el.style.minWidth = stickyWidth + 'px';
+                                                el.style.width = stickyWidth + 'px';
+                                            });
+                                            
+                                            document.querySelectorAll('.sum-col-scrollable').forEach(function(el) {
+                                                el.style.minWidth = scrollableWidth + 'px';
+                                                el.style.width = scrollableWidth + 'px';
+                                            });
+                                            
+                                            // indices 4-9 = EXTRA Vol.Sol, EXTRA Vol.Auto, DIESEL Vol.Sol, DIESEL Vol.Auto, SUPER Vol.Sol, SUPER Vol.Auto
+                                            for (var i = 4; i <= 9; i++) {
+                                                var w = visibleCells[i].offsetWidth;
+                                                (function(idx, width) {
+                                                    document.querySelectorAll('.sum-col-' + idx).forEach(function(el) {
+                                                        el.style.minWidth = width + 'px';
+                                                        el.style.width = width + 'px';
                                                     });
-                                                }
+                                                })(i, w);
                                             }
                                         }
 
@@ -816,6 +848,16 @@
                                     }, 50);
                                     setTimeout(syncSummaryScrollAndWidths, 150);
                                     setTimeout(syncSummaryScrollAndWidths, 500);
+                                    
+                                    // Restaurar estado de la cortina si estaba abierta
+                                    // (la paginación AJAX re-renderiza las filas sin la clase ac-expanded)
+                                    if (acExpanded) {
+                                        setTimeout(function() {
+                                            document.querySelectorAll('.action-col').forEach(function(c) {
+                                                c.classList.add('ac-expanded');
+                                            });
+                                        }, 60);
+                                    }
                                 });
                                 //]]>
                             </h:outputScript>
@@ -1083,7 +1125,7 @@
                             actionListener="#{prepedidoSolicitudBean1.save()}" update=":form formNuevo"
                             styleClass="p-mr-2" />
                         <p:commandButton value="Cancelar" icon="pi pi-times" class="ui-button-secondary"
-                            actionListener="#{prepedidoSolicitudBean1.init()}" update=":form formNuevo"
+                            actionListener="#{prepedidoSolicitudBean1.cancelar()}" update=":form formNuevo"
                             immediate="true" />
                     </div>
                 </div>
@@ -1141,7 +1183,9 @@
                     <p:column headerText="Generar" width="10%" style="text-align: center;">
                         <p:commandButton value="Generar" icon="pi pi-cog" styleClass="ui-button-primary"
                             actionListener="#{prepedidoSolicitudBean1.procesarGenerarNotaFila(filaItem)}"
-                            process="@form" update="@form :form" disabled="#{filaItem.bloqueado}" />
+                            onclick="window._dtScrollTop = document.querySelector('.ui-datatable-scrollable-body') ? document.querySelector('.ui-datatable-scrollable-body').scrollTop : 0;"
+                            oncomplete="var el = document.querySelector('.ui-datatable-scrollable-body'); if(el) el.scrollTop = window._dtScrollTop || 0;"
+                            process="@form" update="@form" disabled="#{filaItem.bloqueado}" />
                     </p:column>
 
                     <p:column headerText="Imprimir pedido" width="10%" style="text-align: center;">
