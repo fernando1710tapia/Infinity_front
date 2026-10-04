@@ -368,7 +368,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         String lastCliente = this.codCliente;
 
         reestablecer();
-        
+
         this.codComer = lastComer;
         this.codCliente = lastCliente;
 
@@ -385,7 +385,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         } else {
             seleccionarComercializdora();
         }
-        
+
         if (habilitarCli) {
             // Si ya teniamos un cliente en la busqueda, mantenerlo para la creacion
             if (this.codCliente == null || this.codCliente.trim().isEmpty()) {
@@ -538,7 +538,8 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     public void seleccionarTerminal(int busqueda) {
         if (terminal != null) {
             codTerminal = terminal.getCodigo();
-            // El converter JSF reconstruye el objeto Terminal pero NO preserva recibirsolicitud.
+            // El converter JSF reconstruye el objeto Terminal pero NO preserva
+            // recibirsolicitud.
             // Buscamos el valor correcto en listaTermianles que viene fresco de la BD.
             boolean recibirSolicitudReal = true; // default: abierta
             if (listaTermianles != null) {
@@ -599,7 +600,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                 codCliente = cliente.getClientePK().getCodigo();
                 for (int i = 0; i < listaTermianles.size(); i++) {
                     if (listaTermianles.get(i).getCodigo().equals(cliente.getCodigoterminaldefecto().getCodigo())) {
-                    setTerminal(listaTermianles.get(i)); // usar setter para sincronizar terminalCerrada
+                        setTerminal(listaTermianles.get(i)); // usar setter para sincronizar terminalCerrada
                         break;
                     }
                 }
@@ -970,6 +971,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                                             p.setNombre(prodFull.substring(prodFull.indexOf("-") + 1));
                                         } else {
                                             p.setCodigo(prodFull);
+                                            p.setNombre("");
                                         }
                                         dp.setProducto(p);
 
@@ -1025,8 +1027,9 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                 filtrarAutorizados();
             }
             // habilitarBusqueda();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "Error al obtener prepedidos: " + e.getMessage());
         }
     }
 
@@ -1435,10 +1438,13 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         if (!this.prepedidoAuxiliar.isActiva()) {
             this.dialogo(FacesMessage.SEVERITY_ERROR,
                     "NO SE PUEDE ANULAR ESTA NOTA DE PEDIDO, PORQUE YA SE ENCUENTRA ANULADA");
-        } /* else if (this.prepedidoAuxiliar.getFacturada() != null && "SI".equalsIgnoreCase(this.prepedidoAuxiliar.getFacturada().trim())) {
-            this.dialogo(FacesMessage.SEVERITY_ERROR,
-                    "NO SE PUEDE ANULAR ESTA NOTA DE PEDIDO, PORQUE SE ENCUENTRA FACTURADA");
-        } */ else {
+        } /*
+           * else if (this.prepedidoAuxiliar.getFacturada() != null &&
+           * "SI".equalsIgnoreCase(this.prepedidoAuxiliar.getFacturada().trim())) {
+           * this.dialogo(FacesMessage.SEVERITY_ERROR,
+           * "NO SE PUEDE ANULAR ESTA NOTA DE PEDIDO, PORQUE SE ENCUENTRA FACTURADA");
+           * }
+           */ else {
             PrimeFaces.current().executeScript("PF('deleteProductDialog').show()");
         }
     }
@@ -1772,7 +1778,10 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         try {
             ec.com.infinityone.modelo.Notapedido np = new ec.com.infinityone.modelo.Notapedido();
             ec.com.infinityone.modelo.NotapedidoPK npPK = new ec.com.infinityone.modelo.NotapedidoPK();
-            String fallbackUser = (dataUser != null && dataUser.getUser() != null && dataUser.getUser().getNombrever() != null && !dataUser.getUser().getNombrever().trim().isEmpty()) ? dataUser.getUser().getNombrever() : "ADMIN";
+            String fallbackUser = (dataUser != null && dataUser.getUser() != null
+                    && dataUser.getUser().getNombrever() != null && !dataUser.getUser().getNombrever().trim().isEmpty())
+                            ? dataUser.getUser().getNombrever()
+                            : "ADMIN";
 
             npPK.setNumero("");
             npPK.setCodigoabastecedora(prep.getPrepedidoPK().getCodigoabastecedora());
@@ -1786,7 +1795,8 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             np.setCodigocliente(prep.getCodigocliente());
             if (prep.getCodigocliente() != null && prep.getCodigocliente().getClientePK() != null) {
                 if (prep.getCodigocliente().getClientePK().getCodigocomercializadora() == null) {
-                    prep.getCodigocliente().getClientePK().setCodigocomercializadora(prep.getPrepedidoPK().getCodigocomercializadora());
+                    prep.getCodigocliente().getClientePK()
+                            .setCodigocomercializadora(prep.getPrepedidoPK().getCodigocomercializadora());
                 }
                 if (prep.getCodigocliente().getUsuarioactual() == null) {
                     prep.getCodigocliente().setUsuarioactual(fallbackUser);
@@ -1798,7 +1808,9 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             ec.com.infinityone.modelo.Banco banco = prep.getCodigobanco();
             if (banco == null || banco.getCodigo() == null || banco.getCodigo().isEmpty()) {
                 // Intentar resolver desde el codigobancodebito del cliente
-                String codBancoDebito = (prep.getCodigocliente() != null) ? prep.getCodigocliente().getCodigobancodebito() : null;
+                String codBancoDebito = (prep.getCodigocliente() != null)
+                        ? prep.getCodigocliente().getCodigobancodebito()
+                        : null;
                 if (codBancoDebito != null && !codBancoDebito.isEmpty() && listaBancos != null) {
                     for (ec.com.infinityone.modelo.Banco b : listaBancos) {
                         if (codBancoDebito.equals(b.getCodigo())) {
@@ -1854,7 +1866,9 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             np.setTramarenviadaaoe(prep.getTramarenviadaaoe() != null ? prep.getTramarenviadaaoe() : "");
             np.setTramarecibidaaoe(prep.getTramarecibidaaoe() != null ? prep.getTramarecibidaaoe() : "");
             np.setUsuarioactual(
-                    (prep.getUsuarioactual() != null && !prep.getUsuarioactual().trim().isEmpty()) ? prep.getUsuarioactual() : fallbackUser);
+                    (prep.getUsuarioactual() != null && !prep.getUsuarioactual().trim().isEmpty())
+                            ? prep.getUsuarioactual()
+                            : fallbackUser);
             np.setPrefijo(prep.getPrefijo() != null ? prep.getPrefijo() : "");
             np.setObservacion("PREPEDIDO-" + prep.getPrepedidoPK().getNumero());
 
@@ -2147,7 +2161,8 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             JSONObject jsonPayload = new JSONObject();
             JSONObject pkJson = new JSONObject();
             pkJson.put("codigoabastecedora", this.envNP.getPrepedido().getPrepedidoPK().getCodigoabastecedora());
-            pkJson.put("codigocomercializadora", this.envNP.getPrepedido().getPrepedidoPK().getCodigocomercializadora());
+            pkJson.put("codigocomercializadora",
+                    this.envNP.getPrepedido().getPrepedidoPK().getCodigocomercializadora());
             pkJson.put("numero", this.envNP.getPrepedido().getPrepedidoPK().getNumero());
             pkJson.put("codigoproducto", detalle.getProducto().getCodigo());
 
@@ -2159,8 +2174,12 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             pkJson.put("codigomedida", codigoMedida);
             jsonPayload.put("detalleprepedidoPK", pkJson);
 
-            jsonPayload.put("volumennaturalrequerido", detalle.getVolumennaturalrequerido() != null ? detalle.getVolumennaturalrequerido() : java.math.BigDecimal.ZERO);
-            jsonPayload.put("volumennaturalautorizado", detalle.getVolumennaturalautorizado() != null ? detalle.getVolumennaturalautorizado() : java.math.BigDecimal.ZERO);
+            jsonPayload.put("volumennaturalrequerido",
+                    detalle.getVolumennaturalrequerido() != null ? detalle.getVolumennaturalrequerido()
+                            : java.math.BigDecimal.ZERO);
+            jsonPayload.put("volumennaturalautorizado",
+                    detalle.getVolumennaturalautorizado() != null ? detalle.getVolumennaturalautorizado()
+                            : java.math.BigDecimal.ZERO);
 
             jsonPayload.put("usuarioactual", detalle.getUsuarioactual());
 
@@ -2289,8 +2308,12 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                 pkJson.put("codigomedida", codigoMedida);
                 jsonPayload.put("detalleprepedidoPK", pkJson);
 
-                jsonPayload.put("volumennaturalrequerido", detalle.getVolumennaturalrequerido() != null ? detalle.getVolumennaturalrequerido() : java.math.BigDecimal.ZERO);
-                jsonPayload.put("volumennaturalautorizado", detalle.getVolumennaturalautorizado() != null ? detalle.getVolumennaturalautorizado() : java.math.BigDecimal.ZERO);
+                jsonPayload.put("volumennaturalrequerido",
+                        detalle.getVolumennaturalrequerido() != null ? detalle.getVolumennaturalrequerido()
+                                : java.math.BigDecimal.ZERO);
+                jsonPayload.put("volumennaturalautorizado",
+                        detalle.getVolumennaturalautorizado() != null ? detalle.getVolumennaturalautorizado()
+                                : java.math.BigDecimal.ZERO);
 
                 jsonPayload.put("usuarioactual", detalle.getUsuarioactual());
 
@@ -3440,7 +3463,8 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     }
 
     public boolean isTerminalCerrada() {
-        // Usa terminalCerrada como fuente de verdad (sincronizada desde setTerminal y seleccionarTerminal)
+        // Usa terminalCerrada como fuente de verdad (sincronizada desde setTerminal y
+        // seleccionarTerminal)
         return terminalCerrada;
     }
 
