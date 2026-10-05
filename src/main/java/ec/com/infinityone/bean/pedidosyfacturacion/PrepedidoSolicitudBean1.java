@@ -912,7 +912,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                         JSONObject objetoJson = new JSONObject(respuesta);
                         if (objetoJson.has("retorno") && !objetoJson.isNull("retorno")) {
                             JSONArray retorno = objetoJson.getJSONArray("retorno");
-                            if (!retorno.isEmpty()) {
+                            if (retorno.length() > 0) {
                                 for (int indice = 0; indice < retorno.length(); indice++) {
                                     if (!retorno.isNull(indice)) {
                                         JSONObject nt = retorno.getJSONObject(indice);
@@ -2411,7 +2411,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             }
             JSONObject objetoJson = new JSONObject(respuesta);
             JSONArray retorno = objetoJson.getJSONArray("retorno");
-            if (retorno.isEmpty()) {
+            if (retorno.length() == 0) {
                 this.dialogo(FacesMessage.SEVERITY_ERROR,
                         "ERROR AL OBTENER INFORMACIÓN SOBRE LA NOTA DE PEDIDO PARA LA ANULACIÓN");
             } else {
