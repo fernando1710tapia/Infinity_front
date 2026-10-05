@@ -908,6 +908,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                     String respuesta = content.toString();
                     LOG.info("API Response Integral para fecha " + fechaStr + ": " + respuesta);
                     //esto se añadio para Usar .length() > 0 y .length() == 0 es más seguro y compatible con las distintas versiones de las librerías JSON en Java.
+                    //.isEmpty() y .startsWith("{") se mantienen porque son verificaciones de formato y null-safety, no de tamaño de array.
                     if (respuesta != null && !respuesta.isEmpty() && respuesta.startsWith("{")) {
                         JSONObject objetoJson = new JSONObject(respuesta);
                         if (objetoJson.has("retorno") && !objetoJson.isNull("retorno")) {
