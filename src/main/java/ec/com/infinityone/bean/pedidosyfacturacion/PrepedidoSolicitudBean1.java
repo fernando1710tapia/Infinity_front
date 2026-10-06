@@ -453,6 +453,44 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         medida3 = new Medida();
     }
 
+    /**
+     * Obtiene el prefijo NPE de la comercializadora indicada (necesario para que
+     * el número de nota de pedido se genere completo, 8 dígitos).
+     */
+    private String resolverPrefijoComercializadora(String codigoComer) {
+        if (comercializadora != null && comercializadora.getPrefijoNpe() != null
+                && !comercializadora.getPrefijoNpe().trim().isEmpty()
+                && (codigoComer == null || codigoComer.equals(comercializadora.getCodigo()))) {
+            return comercializadora.getPrefijoNpe();
+        }
+        if (codigoComer != null && listaComercializadora != null) {
+            for (ComercializadoraBean c : listaComercializadora) {
+                if (c != null && codigoComer.equals(c.getCodigo()) && c.getPrefijoNpe() != null) {
+                    return c.getPrefijoNpe();
+                }
+            }
+        }
+        return "";
+    }
+
+    /**
+     * Resuelve si la comercializadora genera pedido directo, en caso de que el JSON retorne null.
+     */
+    private Boolean resolverGeneraPedidoDirecto(String codigoComer) {
+        if (comercializadora != null && comercializadora.getCodigo() != null
+                && comercializadora.getCodigo().equals(codigoComer)) {
+            return comercializadora.isGenerapedidodirecto();
+        }
+        if (codigoComer != null && listaComercializadora != null) {
+            for (ComercializadoraBean c : listaComercializadora) {
+                if (c != null && codigoComer.equals(c.getCodigo())) {
+                    return c.isGenerapedidodirecto();
+                }
+            }
+        }
+        return false;
+    }
+
     public void obtenerComercializadora() {
         listaComercializadora = new ArrayList<>();
         listaComercializadora = comerServicio.obtenerComercializadorasActivas();
@@ -929,15 +967,19 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                                         parseComerc.setCodigo(nt.optString("codigoComercializadora", ""));
                                         parseNp.setComercializadora(parseComerc);
 
+                                        Abastecedora parseAbas = new Abastecedora();
+                                        parseAbas.setCodigo(codAbas);
+                                        parseNp.setAbastecedora(parseAbas);
+
                                         String terminalFull = nt.optString("terminal", "");
                                         Terminal parseTerminal = new Terminal();
                                         if (terminalFull.contains("-")) {
                                             parseTerminal
-                                                    .setCodigo(terminalFull.substring(0, terminalFull.indexOf("-")));
+                                                    .setCodigo(terminalFull.substring(0, terminalFull.indexOf("-")).trim());
                                             parseTerminal
-                                                    .setNombre(terminalFull.substring(terminalFull.indexOf("-") + 1));
+                                                    .setNombre(terminalFull.substring(terminalFull.indexOf("-") + 1).trim());
                                         } else {
-                                            parseTerminal.setCodigo(terminalFull);
+                                            parseTerminal.setCodigo(terminalFull.trim());
                                         }
                                         parseNp.setCodigoterminal(parseTerminal);
 
@@ -1171,6 +1213,9 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                 np.setTramarenviadaaoe("");
                 np.setTramarecibidaaoe("");
                 np.setUsuarioactual(dataUser.getUser().getNombrever());
+                if (prefijo == null || prefijo.trim().isEmpty()) {
+                    prefijo = resolverPrefijoComercializadora(codComer);
+                }
                 np.setPrefijo(prefijo);
                 np.setObservacion("Bco: " + nomBanco + " - Cta: " + numCuenta + " - Ch: " + numCheque);
 
@@ -1754,6 +1799,46 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         org.primefaces.PrimeFaces.current().executeScript("PF('generarDialog').show();");
     }
 
+    private void hidratarEntidadesDesdeListas(Prepedido prep) {
+        if (prep == null) return;
+        
+        if (prep.getComercializadora() != null && listaComercializadora != null) {
+            for (ec.com.infinityone.bean.actorcomercial.ComercializadoraBean bean : listaComercializadora) {
+                if (bean.getCodigo().equals(prep.getComercializadora().getCodigo())) {
+                    prep.getComercializadora().setNombre(bean.getNombreCorto() != null ? bean.getNombreCorto() : bean.getNomRepLegal());
+                    prep.getComercializadora().setRuc(bean.getRuc());
+                    // prep.getComercializadora().setDireccion(bean.getDireccion() != null ? bean.getDireccion() : "S/N");
+                    if (bean.getAmbienteSri() != null && !bean.getAmbienteSri().isEmpty()) prep.getComercializadora().setAmbientesri(bean.getAmbienteSri().charAt(0));
+                    prep.getComercializadora().setEsagenteretencion(bean.isEsAgRetencion());
+                    prep.getComercializadora().setEscontribuyenteespacial(bean.getEsContriEspecial());
+                    if (bean.getTipoEmision() != null && !bean.getTipoEmision().isEmpty()) prep.getComercializadora().setTipoemision(bean.getTipoEmision().charAt(0));
+                    prep.getComercializadora().setObligadocontabilidad(bean.isObContabilidad() ? "SI" : "NO");
+                    prep.getComercializadora().setEstablecimientofac(bean.getEstabFac());
+                    prep.getComercializadora().setPuntoventafac(bean.getPvFac());
+                    prep.getComercializadora().setClavewsepp(bean.getClaveWsepp() != null ? bean.getClaveWsepp() : "");
+                    prep.getComercializadora().setGenerapedidodirecto(bean.isGenerapedidodirecto());
+                    prep.getComercializadora().setPrefijonpe(bean.getPrefijoNpe());
+                    break;
+                }
+            }
+        }
+        
+        if (prep.getCodigocliente() != null && listaClientes != null) {
+            String codCli = prep.getCodigocliente().getClientePK().getCodigo();
+            for (Cliente c : listaClientes) {
+                if (c.getClientePK() != null && c.getClientePK().getCodigo().equals(codCli)) {
+                    prep.getCodigocliente().setNombre(c.getNombre());
+                    prep.getCodigocliente().setRuc(c.getRuc());
+                    prep.getCodigocliente().setCorreo1(c.getCorreo1());
+                    prep.getCodigocliente().setTelefono1(c.getTelefono1());
+                    prep.getCodigocliente().setDireccion(c.getDireccion());
+                    prep.getCodigocliente().setTipoplazocredito(c.getTipoplazocredito());
+                    break;
+                }
+            }
+        }
+    }
+
     public void procesarGenerarNotaFila(FilaGenerarNota fila) {
         if (fila == null || fila.getPrepedidoSolicitud() == null) {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "No se encontró el detalle de la fila.");
@@ -1769,6 +1854,8 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         PrepedidoSolicitud ps = fila.getPrepedidoSolicitud();
         Prepedido prep = ps.getPrepedido();
         Detalleprepedido detPrep = fila.getDetalle();
+        
+        hidratarEntidadesDesdeListas(prep);
 
         if (detPrep.getVolumennaturalautorizado() == null
                 || detPrep.getVolumennaturalautorizado().compareTo(BigDecimal.ZERO) <= 0) {
@@ -1833,7 +1920,13 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                 prep.getComercializadora().setUsuarioactual(fallbackUser);
             }
             np.setComercializadora(prep.getComercializadora());
-            np.setAbastecedora(prep.getAbastecedora());
+            
+            ec.com.infinityone.modelo.Abastecedora abas = prep.getAbastecedora();
+            if (abas == null) {
+                abas = new ec.com.infinityone.modelo.Abastecedora();
+                abas.setCodigo(prep.getPrepedidoPK().getCodigoabastecedora());
+            }
+            np.setAbastecedora(abas);
 
             np.setActiva(true);
             np.setFacturada("NO");
@@ -1870,7 +1963,19 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                     (prep.getUsuarioactual() != null && !prep.getUsuarioactual().trim().isEmpty())
                             ? prep.getUsuarioactual()
                             : fallbackUser);
-            np.setPrefijo(prep.getPrefijo() != null ? prep.getPrefijo() : "");
+            
+            Boolean generaDirecto = false;
+            if (prep.getComercializadora() != null && prep.getComercializadora().getGenerapedidodirecto() != null) {
+                generaDirecto = prep.getComercializadora().getGenerapedidodirecto();
+            } else {
+                generaDirecto = resolverGeneraPedidoDirecto(prep.getPrepedidoPK().getCodigocomercializadora());
+            }
+
+            String prefijoNP = prep.getPrefijo();
+            if (prefijoNP == null || prefijoNP.trim().isEmpty()) {
+                prefijoNP = resolverPrefijoComercializadora(prep.getPrepedidoPK().getCodigocomercializadora());
+            }
+            np.setPrefijo(prefijoNP != null ? prefijoNP : "");
             np.setObservacion("PREPEDIDO-" + prep.getPrepedidoPK().getNumero());
 
             ec.com.infinityone.modelo.Detallenotapedido detNP = new ec.com.infinityone.modelo.Detallenotapedido();
@@ -1929,8 +2034,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             envioPedido.setDetalle(detNP);
 
             String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim();
-            if (prep.getComercializadora() != null
-                    && Boolean.TRUE.equals(prep.getComercializadora().getGenerapedidodirecto())) {
+            if (prep.getComercializadora() != null && Boolean.TRUE.equals(generaDirecto)) {
                 direcc += "ec.com.infinity.modelo.notapedido/crearyenviar";
             } else {
                 direcc += "ec.com.infinity.modelo.notapedido";
@@ -1979,6 +2083,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             }
 
             String respuesta = contentBuilder.toString();
+            System.out.println("FT:: RESPUESTA BACKEND NOTAPEDIDO: " + respuesta);
             JSONObject objetoJson = new JSONObject(respuesta);
             String devMsg = objetoJson.optString("developerMessage", "");
             String numeroNotaPedio = "";
@@ -2018,8 +2123,15 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                 }
                 this.dialogo(FacesMessage.SEVERITY_INFO, "NOTA DE PEDIDO REGISTRADA EXITOSAMENTE: " + numeroNotaPedio);
 
+                if (prep.getComercializadora() != null) {
+                    System.out.println("FT:: getGenerapedidodirecto: " + generaDirecto);
+                } else {
+                    System.out.println("FT:: comercializadora es NULL");
+                }
+                System.out.println("FT:: tramaGrabada: " + tramaGrabada);
+
                 if (prep.getComercializadora() != null
-                        && Boolean.TRUE.equals(prep.getComercializadora().getGenerapedidodirecto())
+                        && Boolean.TRUE.equals(generaDirecto)
                         && !tramaGrabada.isEmpty()) {
                     envioPedido.getNotapedido().getNotapedidoPK().setNumero(numeroNotaPedio);
                     envioPedido.getNotapedido().setTramaenviadagoe(tramaGrabada);
@@ -2116,127 +2228,138 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                 return;
             }
 
-            ec.com.infinityone.modelo.Detalleprepedido detalle = this.envNP.getDetalle().get(0);
-            Boolean estadoAnterior = detalle.getActivo();
-            detalle.setActivo(false);
+            boolean todosExitosos = true;
+            StringBuilder errores = new StringBuilder();
 
-            if (detalle.getCompartimento1() == null)
-                detalle.setCompartimento1(java.math.BigDecimal.ZERO);
-            if (detalle.getCompartimento2() == null)
-                detalle.setCompartimento2(java.math.BigDecimal.ZERO);
-            if (detalle.getCompartimento3() == null)
-                detalle.setCompartimento3(java.math.BigDecimal.ZERO);
-            if (detalle.getCompartimento4() == null)
-                detalle.setCompartimento4(java.math.BigDecimal.ZERO);
-            if (detalle.getCompartimento5() == null)
-                detalle.setCompartimento5(java.math.BigDecimal.ZERO);
-            if (detalle.getCompartimento6() == null)
-                detalle.setCompartimento6(java.math.BigDecimal.ZERO);
-            if (detalle.getCompartimento7() == null)
-                detalle.setCompartimento7(java.math.BigDecimal.ZERO);
-            if (detalle.getCompartimento8() == null)
-                detalle.setCompartimento8(java.math.BigDecimal.ZERO);
-            if (detalle.getCompartimento9() == null)
-                detalle.setCompartimento9(java.math.BigDecimal.ZERO);
-            if (detalle.getCompartimento10() == null)
-                detalle.setCompartimento10(java.math.BigDecimal.ZERO);
-            if (detalle.getSelloinicial() == null)
-                detalle.setSelloinicial(0);
-            if (detalle.getSellofinal() == null)
-                detalle.setSellofinal(0);
+            for (ec.com.infinityone.modelo.Detalleprepedido detalle : this.envNP.getDetalle()) {
+                Boolean estadoAnterior = detalle.getActivo();
+                detalle.setActivo(false);
 
-            if (detalle.getUsuarioactual() == null || detalle.getUsuarioactual().isEmpty()) {
-                detalle.setUsuarioactual(
-                        dataUser != null && dataUser.getUser() != null ? dataUser.getUser().getNombrever() : "ADMIN");
+                if (detalle.getCompartimento1() == null)
+                    detalle.setCompartimento1(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento2() == null)
+                    detalle.setCompartimento2(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento3() == null)
+                    detalle.setCompartimento3(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento4() == null)
+                    detalle.setCompartimento4(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento5() == null)
+                    detalle.setCompartimento5(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento6() == null)
+                    detalle.setCompartimento6(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento7() == null)
+                    detalle.setCompartimento7(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento8() == null)
+                    detalle.setCompartimento8(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento9() == null)
+                    detalle.setCompartimento9(java.math.BigDecimal.ZERO);
+                if (detalle.getCompartimento10() == null)
+                    detalle.setCompartimento10(java.math.BigDecimal.ZERO);
+                if (detalle.getSelloinicial() == null)
+                    detalle.setSelloinicial(0);
+                if (detalle.getSellofinal() == null)
+                    detalle.setSellofinal(0);
+
+                if (detalle.getUsuarioactual() == null || detalle.getUsuarioactual().isEmpty()) {
+                    detalle.setUsuarioactual(
+                            dataUser != null && dataUser.getUser() != null ? dataUser.getUser().getNombrever() : "ADMIN");
+                }
+
+                String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
+                        + "ec.com.infinity.modelo.detalleprepedido/porId";
+                URL url = new URL(direcc);
+
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setDoOutput(true);
+                connection.setRequestMethod("PUT");
+                connection.setRequestProperty("Content-type", "application/json");
+
+                JSONObject jsonPayload = new JSONObject();
+                JSONObject pkJson = new JSONObject();
+                pkJson.put("codigoabastecedora", this.envNP.getPrepedido().getPrepedidoPK().getCodigoabastecedora());
+                pkJson.put("codigocomercializadora",
+                        this.envNP.getPrepedido().getPrepedidoPK().getCodigocomercializadora());
+                pkJson.put("numero", this.envNP.getPrepedido().getPrepedidoPK().getNumero());
+                pkJson.put("codigoproducto", detalle.getProducto().getCodigo());
+
+                String codigoMedida = "01";
+                if (detalle.getDetalleprepedidoPK() != null
+                        && detalle.getDetalleprepedidoPK().getCodigomedida() != null) {
+                    codigoMedida = detalle.getDetalleprepedidoPK().getCodigomedida();
+                }
+                pkJson.put("codigomedida", codigoMedida);
+                jsonPayload.put("detalleprepedidoPK", pkJson);
+
+                jsonPayload.put("volumennaturalrequerido",
+                        detalle.getVolumennaturalrequerido() != null ? detalle.getVolumennaturalrequerido()
+                                : java.math.BigDecimal.ZERO);
+                jsonPayload.put("volumennaturalautorizado",
+                        detalle.getVolumennaturalautorizado() != null ? detalle.getVolumennaturalautorizado()
+                                : java.math.BigDecimal.ZERO);
+
+                jsonPayload.put("usuarioactual", detalle.getUsuarioactual());
+
+                jsonPayload.put("selloinicial", detalle.getSelloinicial());
+                jsonPayload.put("sellofinal", detalle.getSellofinal());
+                jsonPayload.put("compartimento1", detalle.getCompartimento1());
+                jsonPayload.put("compartimento2", detalle.getCompartimento2());
+                jsonPayload.put("compartimento3", detalle.getCompartimento3());
+                jsonPayload.put("compartimento4", detalle.getCompartimento4());
+                jsonPayload.put("compartimento5", detalle.getCompartimento5());
+                jsonPayload.put("compartimento6", detalle.getCompartimento6());
+                jsonPayload.put("compartimento7", detalle.getCompartimento7());
+                jsonPayload.put("compartimento8", detalle.getCompartimento8());
+                jsonPayload.put("compartimento9", detalle.getCompartimento9());
+                jsonPayload.put("compartimento10", detalle.getCompartimento10());
+
+                JSONObject medidaJson = new JSONObject();
+                medidaJson.put("codigo", codigoMedida);
+                jsonPayload.put("medida", medidaJson);
+
+                JSONObject productoJson = new JSONObject();
+                productoJson.put("codigo", detalle.getProducto().getCodigo());
+                JSONObject areaMercadeoJson = new JSONObject();
+                areaMercadeoJson.put("codigo", "01");
+                productoJson.put("codigoareamercadeo", areaMercadeoJson);
+                jsonPayload.put("producto", productoJson);
+
+                jsonPayload.put("activo", detalle.getActivo());
+
+                if (detalle.getNotapedidobco() != null) {
+                    jsonPayload.put("notapedidobco", detalle.getNotapedidobco());
+                }
+                if (detalle.getAutorizado() != null) {
+                    jsonPayload.put("autorizado", detalle.getAutorizado());
+                }
+                if (detalle.getNumeronp() != null) {
+                    jsonPayload.put("numeronp", detalle.getNumeronp());
+                }
+
+                String jsonStr = jsonPayload.toString();
+
+                try (java.io.OutputStreamWriter out = new java.io.OutputStreamWriter(connection.getOutputStream(),
+                        "UTF-8")) {
+                    out.write(jsonStr);
+                    out.flush();
+                }
+
+                if (connection.getResponseCode() == 200 || connection.getResponseCode() == 204) {
+                    // Éxito
+                } else {
+                    todosExitosos = false;
+                    String errorInfo = getErrorStreamContent(connection);
+                    errores.append("Error prod ").append(detalle.getProducto().getCodigo()).append(": HTTP ")
+                            .append(connection.getResponseCode()).append(". ");
+                    System.out.println("FT:: ERROR EN anularPrepedido RESPONSECODE " + connection.getResponseCode());
+                    // Revertir estado si falló
+                    detalle.setActivo(estadoAnterior);
+                }
             }
 
-            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
-                    + "ec.com.infinity.modelo.detalleprepedido/porId";
-            URL url = new URL(direcc);
-
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoOutput(true);
-            connection.setRequestMethod("PUT");
-            connection.setRequestProperty("Content-type", "application/json");
-
-            JSONObject jsonPayload = new JSONObject();
-            JSONObject pkJson = new JSONObject();
-            pkJson.put("codigoabastecedora", this.envNP.getPrepedido().getPrepedidoPK().getCodigoabastecedora());
-            pkJson.put("codigocomercializadora",
-                    this.envNP.getPrepedido().getPrepedidoPK().getCodigocomercializadora());
-            pkJson.put("numero", this.envNP.getPrepedido().getPrepedidoPK().getNumero());
-            pkJson.put("codigoproducto", detalle.getProducto().getCodigo());
-
-            String codigoMedida = "01";
-            if (detalle.getDetalleprepedidoPK() != null
-                    && detalle.getDetalleprepedidoPK().getCodigomedida() != null) {
-                codigoMedida = detalle.getDetalleprepedidoPK().getCodigomedida();
-            }
-            pkJson.put("codigomedida", codigoMedida);
-            jsonPayload.put("detalleprepedidoPK", pkJson);
-
-            jsonPayload.put("volumennaturalrequerido",
-                    detalle.getVolumennaturalrequerido() != null ? detalle.getVolumennaturalrequerido()
-                            : java.math.BigDecimal.ZERO);
-            jsonPayload.put("volumennaturalautorizado",
-                    detalle.getVolumennaturalautorizado() != null ? detalle.getVolumennaturalautorizado()
-                            : java.math.BigDecimal.ZERO);
-
-            jsonPayload.put("usuarioactual", detalle.getUsuarioactual());
-
-            jsonPayload.put("selloinicial", detalle.getSelloinicial());
-            jsonPayload.put("sellofinal", detalle.getSellofinal());
-            jsonPayload.put("compartimento1", detalle.getCompartimento1());
-            jsonPayload.put("compartimento2", detalle.getCompartimento2());
-            jsonPayload.put("compartimento3", detalle.getCompartimento3());
-            jsonPayload.put("compartimento4", detalle.getCompartimento4());
-            jsonPayload.put("compartimento5", detalle.getCompartimento5());
-            jsonPayload.put("compartimento6", detalle.getCompartimento6());
-            jsonPayload.put("compartimento7", detalle.getCompartimento7());
-            jsonPayload.put("compartimento8", detalle.getCompartimento8());
-            jsonPayload.put("compartimento9", detalle.getCompartimento9());
-            jsonPayload.put("compartimento10", detalle.getCompartimento10());
-
-            JSONObject medidaJson = new JSONObject();
-            medidaJson.put("codigo", codigoMedida);
-            jsonPayload.put("medida", medidaJson);
-
-            JSONObject productoJson = new JSONObject();
-            productoJson.put("codigo", detalle.getProducto().getCodigo());
-            JSONObject areaMercadeoJson = new JSONObject();
-            areaMercadeoJson.put("codigo", "01");
-            productoJson.put("codigoareamercadeo", areaMercadeoJson);
-            jsonPayload.put("producto", productoJson);
-
-            jsonPayload.put("activo", detalle.getActivo());
-
-            if (detalle.getNotapedidobco() != null) {
-                jsonPayload.put("notapedidobco", detalle.getNotapedidobco());
-            }
-            if (detalle.getAutorizado() != null) {
-                jsonPayload.put("autorizado", detalle.getAutorizado());
-            }
-            if (detalle.getNumeronp() != null) {
-                jsonPayload.put("numeronp", detalle.getNumeronp());
-            }
-
-            String jsonStr = jsonPayload.toString();
-
-            try (java.io.OutputStreamWriter out = new java.io.OutputStreamWriter(connection.getOutputStream(),
-                    "UTF-8")) {
-                out.write(jsonStr);
-                out.flush();
-            }
-
-            if (connection.getResponseCode() == 200 || connection.getResponseCode() == 204) {
-                this.dialogo(FacesMessage.SEVERITY_INFO, "REGISTRO ANULADO EXITOSAMENTE");
+            if (todosExitosos) {
+                this.dialogo(FacesMessage.SEVERITY_INFO, "REGISTROS ANULADOS EXITOSAMENTE");
             } else {
-                String errorInfo = getErrorStreamContent(connection);
-                String errorMsg = "ERROR AL ANULAR REGISTRO: HTTP " + connection.getResponseCode() + " " + errorInfo;
-                this.dialogo(FacesMessage.SEVERITY_ERROR, errorMsg);
-                System.out.println("FT:: ERROR EN anularPrepedido RESPONSECODE " + connection.getResponseCode());
-                // Revertir estado si falló
-                detalle.setActivo(estadoAnterior);
+                this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR PARCIAL AL ANULAR: " + errores.toString());
             }
 
         } catch (Exception e) {

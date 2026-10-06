@@ -707,13 +707,46 @@
                                             <div style="flex-grow: 1; min-width: 550px; background: #162840;"></div>
                                         </div>
 
-                                        <!-- Fila 4: EPP asignaciÃ³n TOTAL -->
+                                        <!-- Fila 4: EPP asignación TOTAL -->
                                         <div class="sum-row"
-                                            style="display: flex; background: #162840; border-top: 2px solid #2a5080; border-bottom: 2px solid #2a5080;">
+                                            style="display: flex; background: #162840; border-top: 2px solid #2a5080;">
                                             <div class="sum-col-sticky"
                                                 style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
                                                 <span style="color:#cdd9e8; font-weight:bold; font-size:1.05rem;">EPP
                                                     asignación TOTAL</span>
+                                            </div>
+                                            <div class="sum-col-scrollable"
+                                                style="width: 264px; min-width: 264px; background: #162840; box-sizing: border-box;">
+                                            </div>
+
+                                            <div class="sum-val sum-col-4"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                -</div>
+                                            <div class="sum-val sum-col-5"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                0</div>
+                                            <div class="sum-val sum-col-6"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                -</div>
+                                            <div class="sum-val sum-col-7"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                0</div>
+                                            <div class="sum-val sum-col-8"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                -</div>
+                                            <div class="sum-val sum-col-9"
+                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                0</div>
+                                            <div style="flex-grow: 1; min-width: 550px; background: #162840;"></div>
+                                        </div>
+
+                                        <!-- Fila 5: SALDO -->
+                                        <div class="sum-row"
+                                            style="display: flex; background: #162840; border-top: 1px solid #1e3a5f; border-bottom: 2px solid #2a5080;">
+                                            <div class="sum-col-sticky"
+                                                style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
+                                                <span
+                                                    style="color:#cdd9e8; font-weight:bold; font-size:1.05rem;">SALDO</span>
                                             </div>
                                             <div class="sum-col-scrollable"
                                                 style="width: 264px; min-width: 264px; background: #162840; box-sizing: border-box;">
@@ -841,7 +874,7 @@
                                     setTimeout(syncSummaryScrollAndWidths, 300);
                                     setTimeout(syncSummaryScrollAndWidths, 1000); 
                                 });
-                                $(document).on('pfAjaxComplete', function() {
+                                $(document).off('pfAjaxComplete').on('pfAjaxComplete', function() {
                                     // Forzar a PrimeFaces a recalcular anchos ocultos que rompen el scroll
                                     setTimeout(function() {
                                         $(window).trigger('resize');
@@ -1176,7 +1209,7 @@
                             inputStyle="width: 100%;" disabled="#{filaItem.bloqueado}" />
                     </p:column>
 
-                    <p:column headerText="# NotaPedido" width="15%" style="text-align: center;">
+                    <p:column headerText="# NotaPedido" width="20%" style="text-align: center;">
                         <h:outputText value="#{filaItem.numeroNotaPedidoGenerada}" />
                     </p:column>
 
@@ -1185,7 +1218,7 @@
                             actionListener="#{prepedidoSolicitudBean1.procesarGenerarNotaFila(filaItem)}"
                             onclick="window._dtScrollTop = document.querySelector('.ui-datatable-scrollable-body') ? document.querySelector('.ui-datatable-scrollable-body').scrollTop : 0;"
                             oncomplete="var el = document.querySelector('.ui-datatable-scrollable-body'); if(el) el.scrollTop = window._dtScrollTop || 0;"
-                            process="@form" update="@form" disabled="#{filaItem.bloqueado}" />
+                            process="@form" update="@form :form:dataPrepedidos" disabled="#{filaItem.bloqueado}" />
                     </p:column>
 
                     <p:column headerText="Imprimir pedido" width="10%" style="text-align: center;">
