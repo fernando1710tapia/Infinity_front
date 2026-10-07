@@ -776,124 +776,128 @@
                                 </div>
                             </p:outputPanel>
 
-                            <h:outputScript>
-                                //<![CDATA[
-                                window.syncSummaryScrollAndWidths = function() {
-                                    var topScrolls = document.querySelectorAll('.ui-datatable-scrollable-body');
-                                    var topScroll = topScrolls.length > 0 ? topScrolls[0] : null;
-                                    var bottomScroll = document.querySelector('.summary-wrapper');
-                                    
-                                    if (topScroll && bottomScroll) {
-                                        // 1) Leer anchos del HEADER (siempre consistente, independiente de cuántas filas hay)
-                                        var headerScrollable = document.querySelector('.ui-datatable-scrollable-header-box table thead tr');
-                                        var headerCells = headerScrollable ? Array.from(headerScrollable.querySelectorAll('th')).filter(function(th) {
-                                            return th.offsetWidth > 0 && window.getComputedStyle(th).display !== 'none';
-                                        }) : [];
 
-                                        // Fallback: leer del body si el header no funciona
-                                        var topRow = topScroll.querySelector('.ui-datatable-data tr.ui-widget-content:not(.ui-datatable-empty-message)');
-                                        var bodyCells = topRow ? Array.from(topRow.children).filter(function(td) {
-                                            return td.offsetWidth > 0 && window.getComputedStyle(td).display !== 'none';
-                                        }) : [];
-
-                                        var visibleCells = bodyCells.length >= headerCells.length ? bodyCells : headerCells;
-                                        
-                                        if (visibleCells.length >= 10) {
-                                            var w0 = visibleCells[0].offsetWidth;
-                                            var w1 = visibleCells[1].offsetWidth;
-                                            var w2 = visibleCells[2].offsetWidth;
-                                            var w3 = visibleCells[3].offsetWidth;
-                                            
-                                            var stickyWidth = w0 + w1;
-                                            var scrollableWidth = w2 + w3;
-                                            
-                                            document.querySelectorAll('.sum-col-sticky').forEach(function(el) {
-                                                el.style.minWidth = stickyWidth + 'px';
-                                                el.style.width = stickyWidth + 'px';
-                                            });
-                                            
-                                            document.querySelectorAll('.sum-col-scrollable').forEach(function(el) {
-                                                el.style.minWidth = scrollableWidth + 'px';
-                                                el.style.width = scrollableWidth + 'px';
-                                            });
-                                            
-                                            // indices 4-9 = EXTRA Vol.Sol, EXTRA Vol.Auto, DIESEL Vol.Sol, DIESEL Vol.Auto, SUPER Vol.Sol, SUPER Vol.Auto
-                                            for (var i = 4; i <= 9; i++) {
-                                                var w = visibleCells[i].offsetWidth;
-                                                (function(idx, width) {
-                                                    document.querySelectorAll('.sum-col-' + idx).forEach(function(el) {
-                                                        el.style.minWidth = width + 'px';
-                                                        el.style.width = width + 'px';
-                                                    });
-                                                })(i, w);
-                                            }
-                                        }
-
-                                        // 2) Sincronizar Scroll sin Glitch usando flags
-                                        if (!topScroll.dataset.scrollSynced) {
-                                            topScroll.addEventListener('scroll', function() { 
-                                                if (topScroll.dataset.ignoreScroll === 'true') {
-                                                    topScroll.dataset.ignoreScroll = 'false';
-                                                    return;
-                                                }
-                                                var currentBottom = document.querySelector('.summary-wrapper');
-                                                if (currentBottom && currentBottom.scrollLeft !== topScroll.scrollLeft) {
-                                                    currentBottom.dataset.ignoreScroll = 'true';
-                                                    currentBottom.scrollLeft = topScroll.scrollLeft; 
-                                                }
-                                            }, { passive: true });
-                                            topScroll.dataset.scrollSynced = 'true';
-                                        }
-                                        
-                                        if (!bottomScroll.dataset.scrollSynced) {
-                                            bottomScroll.addEventListener('scroll', function() { 
-                                                if (bottomScroll.dataset.ignoreScroll === 'true') {
-                                                    bottomScroll.dataset.ignoreScroll = 'false';
-                                                    return;
-                                                }
-                                                var currentTop = document.querySelectorAll('.ui-datatable-scrollable-body')[0];
-                                                if (currentTop && currentTop.scrollLeft !== bottomScroll.scrollLeft) {
-                                                    currentTop.dataset.ignoreScroll = 'true';
-                                                    currentTop.scrollLeft = bottomScroll.scrollLeft; 
-                                                }
-                                            }, { passive: true });
-                                            bottomScroll.dataset.scrollSynced = 'true';
-                                        }
-                                        
-                                        // Forzar sincronización inicial si están desincronizados
-                                        var currentBottom = document.querySelector('.summary-wrapper');
-                                        if (currentBottom && currentBottom.scrollLeft !== topScroll.scrollLeft) {
-                                            currentBottom.dataset.ignoreScroll = 'true';
-                                            currentBottom.scrollLeft = topScroll.scrollLeft;
-                                        }
-                                    }
-                                };
-                                
-                                $(document).off('pfAjaxComplete.syncPrepedido').on('pfAjaxComplete.syncPrepedido', function(e, xhr, settings) {
-                                    setTimeout(function() {
-                                        window.syncSummaryScrollAndWidths();
-                                        
-                                        // Restaurar estado de la cortina si estaba abierta
-                                        if (typeof acExpanded !== 'undefined' && acExpanded) {
-                                            document.querySelectorAll('.action-col').forEach(function(c) {
-                                                c.classList.add('ac-expanded');
-                                            });
-                                        }
-                                    }, 200);
-                                    
-                                    setTimeout(window.syncSummaryScrollAndWidths, 800);
-                                });
-
-                                // Ejecutar al inicio/carga
-                                setTimeout(window.syncSummaryScrollAndWidths, 300);
-                                //]]>
-                            </h:outputScript>
 
                         </div>
                     </div>
                 </div>
             </p:outputPanel>
         </h:form>
+
+        <h:outputScript>
+            //
+            <![CDATA[
+            window.syncSummaryScrollAndWidths = function() {
+                var topScrolls = document.querySelectorAll('.ui-datatable-scrollable-body');
+                var topScroll = topScrolls.length > 0 ? topScrolls[0] : null;
+                var bottomScroll = document.querySelector('.summary-wrapper');
+                
+                if (topScroll && bottomScroll) {
+                    // 1) Leer anchos del HEADER (siempre consistente, independiente de cuántas filas hay)
+                    var headerScrollable = document.querySelector('.ui-datatable-scrollable-header-box table thead tr');
+                    var headerCells = headerScrollable ? Array.from(headerScrollable.querySelectorAll('th')).filter(function(th) {
+                        return th.offsetWidth > 0 && window.getComputedStyle(th).display !== 'none';
+                    }) : [];
+
+                    // Fallback: leer del body si el header no funciona
+                    var topRow = topScroll.querySelector('.ui-datatable-data tr.ui-widget-content:not(.ui-datatable-empty-message)');
+                    var bodyCells = topRow ? Array.from(topRow.children).filter(function(td) {
+                        return td.offsetWidth > 0 && window.getComputedStyle(td).display !== 'none';
+                    }) : [];
+
+                    var visibleCells = bodyCells.length >= headerCells.length ? bodyCells : headerCells;
+                    
+                    if (visibleCells.length >= 10) {
+                        var w0 = visibleCells[0].offsetWidth;
+                        var w1 = visibleCells[1].offsetWidth;
+                        var w2 = visibleCells[2].offsetWidth;
+                        var w3 = visibleCells[3].offsetWidth;
+                        
+                        var stickyWidth = w0 + w1;
+                        var scrollableWidth = w2 + w3;
+                        
+                        document.querySelectorAll('.sum-col-sticky').forEach(function(el) {
+                            el.style.minWidth = stickyWidth + 'px';
+                            el.style.width = stickyWidth + 'px';
+                        });
+                        
+                        document.querySelectorAll('.sum-col-scrollable').forEach(function(el) {
+                            el.style.minWidth = scrollableWidth + 'px';
+                            el.style.width = scrollableWidth + 'px';
+                        });
+                        
+                        // indices 4-9 = EXTRA Vol.Sol, EXTRA Vol.Auto, DIESEL Vol.Sol, DIESEL Vol.Auto, SUPER Vol.Sol, SUPER Vol.Auto
+                        for (var i = 4; i <= 9; i++) {
+                            var w = visibleCells[i].offsetWidth;
+                            (function(idx, width) {
+                                document.querySelectorAll('.sum-col-' + idx).forEach(function(el) {
+                                    el.style.minWidth = width + 'px';
+                                    el.style.width = width + 'px';
+                                });
+                            })(i, w);
+                        }
+                    }
+
+                    // 2) Sincronizar Scroll sin Glitch usando flags
+                    if (!topScroll.dataset.scrollSynced) {
+                        topScroll.addEventListener('scroll', function() { 
+                            if (topScroll.dataset.ignoreScroll === 'true') {
+                                topScroll.dataset.ignoreScroll = 'false';
+                                return;
+                            }
+                            var currentBottom = document.querySelector('.summary-wrapper');
+                            if (currentBottom && currentBottom.scrollLeft !== topScroll.scrollLeft) {
+                                currentBottom.dataset.ignoreScroll = 'true';
+                                currentBottom.scrollLeft = topScroll.scrollLeft; 
+                            }
+                        }, { passive: true });
+                        topScroll.dataset.scrollSynced = 'true';
+                    }
+                    
+                    if (!bottomScroll.dataset.scrollSynced) {
+                        bottomScroll.addEventListener('scroll', function() { 
+                            if (bottomScroll.dataset.ignoreScroll === 'true') {
+                                bottomScroll.dataset.ignoreScroll = 'false';
+                                return;
+                            }
+                            var currentTop = document.querySelectorAll('.ui-datatable-scrollable-body')[0];
+                            if (currentTop && currentTop.scrollLeft !== bottomScroll.scrollLeft) {
+                                currentTop.dataset.ignoreScroll = 'true';
+                                currentTop.scrollLeft = bottomScroll.scrollLeft; 
+                            }
+                        }, { passive: true });
+                        bottomScroll.dataset.scrollSynced = 'true';
+                    }
+                    
+                    // Forzar sincronización inicial si están desincronizados
+                    var currentBottom = document.querySelector('.summary-wrapper');
+                    if (currentBottom && currentBottom.scrollLeft !== topScroll.scrollLeft) {
+                        currentBottom.dataset.ignoreScroll = 'true';
+                        currentBottom.scrollLeft = topScroll.scrollLeft;
+                    }
+                }
+            };
+            
+            $(document).off('pfAjaxComplete.syncPrepedido').on('pfAjaxComplete.syncPrepedido', function(e, xhr, settings) {
+                setTimeout(function() {
+                    window.syncSummaryScrollAndWidths();
+                    
+                    // Restaurar estado de la cortina si estaba abierta
+                    if (typeof acExpanded !== 'undefined' && acExpanded) {
+                        document.querySelectorAll('.action-col').forEach(function(c) {
+                            c.classList.add('ac-expanded');
+                        });
+                    }
+                }, 200);
+                
+                setTimeout(window.syncSummaryScrollAndWidths, 800);
+            });
+
+            // Ejecutar al inicio/carga
+            setTimeout(window.syncSummaryScrollAndWidths, 300);
+            //]]>
+        </h:outputScript>
+
 
         <!--        <p:dialog header="Nota Pedido" width="50%" showEffect="fade" modal="true" widgetVar="manageProductDialog" responsive="true">-->
         <h:form id="formNuevo">
