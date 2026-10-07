@@ -1796,7 +1796,44 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         }
 
         org.primefaces.PrimeFaces.current().ajax().update("formGenerar");
-        org.primefaces.PrimeFaces.current().executeScript("PF('generarDialog').show();");
+        String titulo = escaparJs("Generar Nota Pedido Infinity " + construirTituloGenerar(envNP));
+        org.primefaces.PrimeFaces.current().executeScript(
+                "try{var d=PF('generarDialog');"
+                + "var t=d.titlebar?d.titlebar.find('.ui-dialog-title'):d.jq.find('.ui-dialog-title');"
+                + "t.text('" + titulo + "');}catch(e){}"
+                + "PF('generarDialog').show();");
+    }
+
+    private String construirTituloGenerar(PrepedidoSolicitud sol) {
+        try {
+            if (sol == null || sol.getPrepedido() == null) {
+                return "";
+            }
+            Prepedido p = sol.getPrepedido();
+            StringBuilder sb = new StringBuilder();
+            if (p.getPrepedidoPK() != null) {
+                sb.append("| Sol: ").append(p.getPrepedidoPK().getNumero());
+            }
+            if (p.getCodigocliente() != null) {
+                sb.append(" | Cliente: ");
+                if (p.getCodigocliente().getClientePK() != null) {
+                    sb.append(p.getCodigocliente().getClientePK().getCodigo()).append(" - ");
+                }
+                String nombre = p.getCodigocliente().getNombrecomercial();
+                sb.append(nombre != null ? nombre : "");
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    private String escaparJs(String s) {
+        if (s == null) {
+            return "";
+        }
+        return s.replace("\\", "\\\\").replace("'", "\\'").replace("\"", "\\\"")
+                .replace("\r", " ").replace("\n", " ").replace("<", "\\x3C");
     }
 
     private void hidratarEntidadesDesdeListas(Prepedido prep) {

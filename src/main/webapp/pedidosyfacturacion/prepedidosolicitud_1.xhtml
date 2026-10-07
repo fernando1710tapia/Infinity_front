@@ -1218,7 +1218,7 @@
                             actionListener="#{prepedidoSolicitudBean1.procesarGenerarNotaFila(filaItem)}"
                             onclick="window._dtScrollTop = document.querySelector('.ui-datatable-scrollable-body') ? document.querySelector('.ui-datatable-scrollable-body').scrollTop : 0;"
                             oncomplete="var el = document.querySelector('.ui-datatable-scrollable-body'); if(el) el.scrollTop = window._dtScrollTop || 0;"
-                            process="@form" update="@form :form:dataPrepedidos" disabled="#{filaItem.bloqueado}" />
+                            process="@form" update="@form :form:dt-products" disabled="#{filaItem.bloqueado}" />
                     </p:column>
 
                     <p:column headerText="Imprimir pedido" width="10%" style="text-align: center;">
