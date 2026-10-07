@@ -1750,6 +1750,13 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             return;
         }
 
+        // Control de cliente ANTES de abrir la pantalla de generación de NP
+        if (!clientePuedeGenerarNP(envNP)) {
+            this.dialogo(FacesMessage.SEVERITY_FATAL,
+                    "Este cliente NO está autorizado para generar NP. Consulte con el administrador para verificar su condición");
+            return;
+        }
+
         this.envNP = envNP;
 
         // Cargar productos del cliente
@@ -1802,6 +1809,58 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                 + "var t=d.titlebar?d.titlebar.find('.ui-dialog-title'):d.jq.find('.ui-dialog-title');"
                 + "t.text('" + titulo + "');}catch(e){}"
                 + "PF('generarDialog').show();");
+    }
+
+    /**
+     * Control PyS: si la comercializadora es 0002 y el cliente tiene forma de pago 03,
+     * su contrato no debe estar vencido. Si faltan datos, se permite (igual que NotapedidoBean1).
+     */
+    private boolean clientePuedeGenerarNP(PrepedidoSolicitud sol) {
+        if (sol == null || sol.getPrepedido() == null) {
+            return true;
+        }
+        String comer = sol.getPrepedido().getPrepedidoPK() != null
+                ? sol.getPrepedido().getPrepedidoPK().getCodigocomercializadora()
+                : codComer;
+        Cliente cli = resolverClienteCompleto(sol.getPrepedido().getCodigocliente());
+        if (cli == null || cli.getFehavencimientocontrato() == null) {
+            return true;
+        }
+
+        java.time.LocalDate hoy = java.time.LocalDate.now();
+        java.time.LocalDate fechaVencimiento = new java.util.Date(cli.getFehavencimientocontrato().getTime())
+                .toInstant()
+                .atZone(java.time.ZoneId.systemDefault())
+                .toLocalDate();
+
+        if ("0002".equalsIgnoreCase(comer)
+                && cli.getCodigoformapago() != null
+                && "03".equalsIgnoreCase(cli.getCodigoformapago().getCodigo())) {
+            return !fechaVencimiento.isBefore(hoy);
+        }
+        return true;
+    }
+
+    /**
+     * Devuelve el cliente con forma de pago y fecha de vencimiento. Si el cliente del
+     * prepedido no trae esos datos, se busca por código en listaClientes.
+     */
+    private Cliente resolverClienteCompleto(Cliente cliPrep) {
+        if (cliPrep == null) {
+            return null;
+        }
+        if (cliPrep.getCodigoformapago() != null && cliPrep.getFehavencimientocontrato() != null) {
+            return cliPrep;
+        }
+        String codCli = cliPrep.getClientePK() != null ? cliPrep.getClientePK().getCodigo() : null;
+        if (codCli != null && listaClientes != null) {
+            for (Cliente c : listaClientes) {
+                if (c != null && c.getClientePK() != null && codCli.equals(c.getClientePK().getCodigo())) {
+                    return c;
+                }
+            }
+        }
+        return cliPrep;
     }
 
     private String construirTituloGenerar(PrepedidoSolicitud sol) {
@@ -2408,6 +2467,12 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     public void generarNpBanco(PrepedidoSolicitud envNP) {
         if (envNP == null || envNP.getDetalle() == null || envNP.getDetalle().isEmpty()) {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "No se encontró el detalle del prepedido para el banco.");
+            return;
+        }
+
+        // Solo se procesa si TODOS los detalles están ACTIVOS y AUTORIZADOS
+        if (!envNP.isDetallesActivosYAutorizados()) {
+            this.dialogo(FacesMessage.SEVERITY_WARN, "Esta solicitud NO está AUTORIZADA!. NO se puede procesar!");
             return;
         }
 

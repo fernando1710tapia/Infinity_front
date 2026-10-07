@@ -154,4 +154,27 @@ public class PrepedidoSolicitud {
         }
         return prepedido != null ? prepedido.isActiva() : true;
     }
+
+    /**
+     * Validación estricta: TODOS los detalles deben estar activos (activo == true)
+     * y autorizados (autorizado == "SI").
+     */
+    @JsonIgnore
+    public boolean isDetallesActivosYAutorizados() {
+        if (detalle == null || detalle.isEmpty()) {
+            return false;
+        }
+        for (Detalleprepedido d : detalle) {
+            if (d == null) {
+                return false;
+            }
+            if (!Boolean.TRUE.equals(d.getActivo())) {
+                return false;
+            }
+            if (!"SI".equalsIgnoreCase(d.getAutorizado())) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

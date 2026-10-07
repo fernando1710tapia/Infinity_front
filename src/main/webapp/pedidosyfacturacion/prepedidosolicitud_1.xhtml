@@ -777,9 +777,8 @@
                             </p:outputPanel>
 
                             <h:outputScript>
-                                //
-                                <![CDATA[
-                                function syncSummaryScrollAndWidths() {
+                                //<![CDATA[
+                                window.syncSummaryScrollAndWidths = function() {
                                     var topScrolls = document.querySelectorAll('.ui-datatable-scrollable-body');
                                     var topScroll = topScrolls.length > 0 ? topScrolls[0] : null;
                                     var bottomScroll = document.querySelector('.summary-wrapper');
@@ -868,30 +867,25 @@
                                             currentBottom.scrollLeft = topScroll.scrollLeft;
                                         }
                                     }
-                                }
+                                };
                                 
-                                $(document).ready(function(){
-                                    setTimeout(syncSummaryScrollAndWidths, 300);
-                                    setTimeout(syncSummaryScrollAndWidths, 1000); 
-                                });
-                                $(document).off('pfAjaxComplete').on('pfAjaxComplete', function() {
-                                    // Forzar a PrimeFaces a recalcular anchos ocultos que rompen el scroll
+                                $(document).off('pfAjaxComplete.syncPrepedido').on('pfAjaxComplete.syncPrepedido', function(e, xhr, settings) {
                                     setTimeout(function() {
-                                        $(window).trigger('resize');
-                                    }, 50);
-                                    setTimeout(syncSummaryScrollAndWidths, 150);
-                                    setTimeout(syncSummaryScrollAndWidths, 500);
-                                    
-                                    // Restaurar estado de la cortina si estaba abierta
-                                    // (la paginación AJAX re-renderiza las filas sin la clase ac-expanded)
-                                    if (acExpanded) {
-                                        setTimeout(function() {
+                                        window.syncSummaryScrollAndWidths();
+                                        
+                                        // Restaurar estado de la cortina si estaba abierta
+                                        if (typeof acExpanded !== 'undefined' && acExpanded) {
                                             document.querySelectorAll('.action-col').forEach(function(c) {
                                                 c.classList.add('ac-expanded');
                                             });
-                                        }, 60);
-                                    }
+                                        }
+                                    }, 200);
+                                    
+                                    setTimeout(window.syncSummaryScrollAndWidths, 800);
                                 });
+
+                                // Ejecutar al inicio/carga
+                                setTimeout(window.syncSummaryScrollAndWidths, 300);
                                 //]]>
                             </h:outputScript>
 
