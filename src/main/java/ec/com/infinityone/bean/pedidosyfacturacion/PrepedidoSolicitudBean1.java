@@ -363,7 +363,58 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         // habilitarBusqueda();
     }
 
+    /*
+     * Snapshot de los filtros de busqueda. El flujo de creacion (habilitarBusqueda,
+     * seleccionarCliente, etc.) los modifica; se restauran al regresar.
+     */
+    private boolean filtrosGuardados;
+    private ComercializadoraBean snapComercializadora;
+    private String snapCodComer;
+    private String snapCodAbas;
+    private String snapCodCliente;
+    private String snapCodTerminal;
+    private Cliente snapCliente;
+    private Terminal snapTerminal;
+    private List<Cliente> snapListaClientes;
+    private boolean snapTodosClientes;
+    private boolean snapTerminalCerrada;
+    private Date snapFechaInicial;
+
+    private void guardarFiltrosBusqueda() {
+        snapComercializadora = comercializadora;
+        snapCodComer = codComer;
+        snapCodAbas = codAbas;
+        snapCodCliente = codCliente;
+        snapCodTerminal = codTerminal;
+        snapCliente = cliente;
+        snapTerminal = terminal;
+        snapListaClientes = listaClientes;
+        snapTodosClientes = todosClientes;
+        snapTerminalCerrada = terminalCerrada;
+        snapFechaInicial = fechaInicial;
+        filtrosGuardados = true;
+    }
+
+    private void restaurarFiltrosBusqueda() {
+        if (!filtrosGuardados) {
+            return;
+        }
+        comercializadora = snapComercializadora;
+        codComer = snapCodComer;
+        codAbas = snapCodAbas;
+        codCliente = snapCodCliente;
+        codTerminal = snapCodTerminal;
+        cliente = snapCliente;
+        terminal = snapTerminal;
+        listaClientes = snapListaClientes;
+        todosClientes = snapTodosClientes;
+        terminalCerrada = snapTerminalCerrada;
+        fechaInicial = snapFechaInicial;
+        filtrosGuardados = false;
+    }
+
     public void nuevaPrepedido() {
+        guardarFiltrosBusqueda();
         String lastComer = this.codComer;
         String lastCliente = this.codCliente;
 
@@ -474,7 +525,8 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     }
 
     /**
-     * Resuelve si la comercializadora genera pedido directo, en caso de que el JSON retorne null.
+     * Resuelve si la comercializadora genera pedido directo, en caso de que el JSON
+     * retorne null.
      */
     private Boolean resolverGeneraPedidoDirecto(String codigoComer) {
         if (comercializadora != null && comercializadora.getCodigo() != null
@@ -945,8 +997,10 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
 
                     String respuesta = content.toString();
                     LOG.info("API Response Integral para fecha " + fechaStr + ": " + respuesta);
-                    //esto se añadio para Usar .length() > 0 y .length() == 0 es más seguro y compatible con las distintas versiones de las librerías JSON en Java.
-                    //.isEmpty() y .startsWith("{") se mantienen porque son verificaciones de formato y null-safety, no de tamaño de array.
+                    // esto se añadio para Usar .length() > 0 y .length() == 0 es más seguro y
+                    // compatible con las distintas versiones de las librerías JSON en Java.
+                    // .isEmpty() y .startsWith("{") se mantienen porque son verificaciones de
+                    // formato y null-safety, no de tamaño de array.
                     if (respuesta != null && !respuesta.isEmpty() && respuesta.startsWith("{")) {
                         JSONObject objetoJson = new JSONObject(respuesta);
                         if (objetoJson.has("retorno") && !objetoJson.isNull("retorno")) {
@@ -975,9 +1029,11 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                                         Terminal parseTerminal = new Terminal();
                                         if (terminalFull.contains("-")) {
                                             parseTerminal
-                                                    .setCodigo(terminalFull.substring(0, terminalFull.indexOf("-")).trim());
+                                                    .setCodigo(terminalFull.substring(0, terminalFull.indexOf("-"))
+                                                            .trim());
                                             parseTerminal
-                                                    .setNombre(terminalFull.substring(terminalFull.indexOf("-") + 1).trim());
+                                                    .setNombre(terminalFull.substring(terminalFull.indexOf("-") + 1)
+                                                            .trim());
                                         } else {
                                             parseTerminal.setCodigo(terminalFull.trim());
                                         }
@@ -1430,7 +1486,14 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             if (connection.getResponseCode() == 200 || connection.getResponseCode() == 201) {
                 envNP.getPrepedido().getPrepedidoPK().setNumero(numeroNotaPedio);
                 this.dialogo(FacesMessage.SEVERITY_INFO, "PREPEDIDO REGISTRADO EXITOSAMENTE");
-                cancelar();
+                // Mostrar la tabla con el contexto del prepedido recien creado
+                filtrosGuardados = false;
+                mostarPantallaInicial = true;
+                mostarPrepedido = false;
+                if (fechaDespacho != null) {
+                    fechaInicial = fechaDespacho;
+                }
+                obtenerPrepedidos();
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR PREPEDIDO");
                 System.out.println("FT:: ERROR EN addItems RESPONSECODE " + connection.getResponseCode());
@@ -1538,6 +1601,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     }
 
     public void cancelar() {
+        restaurarFiltrosBusqueda();
         mostarPantallaInicial = true;
         mostarPrepedido = false;
     }
@@ -1806,14 +1870,16 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         String titulo = escaparJs("Generar Nota Pedido Infinity " + construirTituloGenerar(envNP));
         org.primefaces.PrimeFaces.current().executeScript(
                 "try{var d=PF('generarDialog');"
-                + "var t=d.titlebar?d.titlebar.find('.ui-dialog-title'):d.jq.find('.ui-dialog-title');"
-                + "t.text('" + titulo + "');}catch(e){}"
-                + "PF('generarDialog').show();");
+                        + "var t=d.titlebar?d.titlebar.find('.ui-dialog-title'):d.jq.find('.ui-dialog-title');"
+                        + "t.text('" + titulo + "');}catch(e){}"
+                        + "PF('generarDialog').show();");
     }
 
     /**
-     * Control PyS: si la comercializadora es 0002 y el cliente tiene forma de pago 03,
-     * su contrato no debe estar vencido. Si faltan datos, se permite (igual que NotapedidoBean1).
+     * Control PyS: si la comercializadora es 0002 y el cliente tiene forma de pago
+     * 03,
+     * su contrato no debe estar vencido. Si faltan datos, se permite (igual que
+     * NotapedidoBean1).
      */
     private boolean clientePuedeGenerarNP(PrepedidoSolicitud sol) {
         if (sol == null || sol.getPrepedido() == null) {
@@ -1842,7 +1908,8 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     }
 
     /**
-     * Devuelve el cliente con forma de pago y fecha de vencimiento. Si el cliente del
+     * Devuelve el cliente con forma de pago y fecha de vencimiento. Si el cliente
+     * del
      * prepedido no trae esos datos, se busca por código en listaClientes.
      */
     private Cliente resolverClienteCompleto(Cliente cliPrep) {
@@ -1896,18 +1963,23 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     }
 
     private void hidratarEntidadesDesdeListas(Prepedido prep) {
-        if (prep == null) return;
-        
+        if (prep == null)
+            return;
+
         if (prep.getComercializadora() != null && listaComercializadora != null) {
             for (ec.com.infinityone.bean.actorcomercial.ComercializadoraBean bean : listaComercializadora) {
                 if (bean.getCodigo().equals(prep.getComercializadora().getCodigo())) {
-                    prep.getComercializadora().setNombre(bean.getNombreCorto() != null ? bean.getNombreCorto() : bean.getNomRepLegal());
+                    prep.getComercializadora()
+                            .setNombre(bean.getNombreCorto() != null ? bean.getNombreCorto() : bean.getNomRepLegal());
                     prep.getComercializadora().setRuc(bean.getRuc());
-                    // prep.getComercializadora().setDireccion(bean.getDireccion() != null ? bean.getDireccion() : "S/N");
-                    if (bean.getAmbienteSri() != null && !bean.getAmbienteSri().isEmpty()) prep.getComercializadora().setAmbientesri(bean.getAmbienteSri().charAt(0));
+                    // prep.getComercializadora().setDireccion(bean.getDireccion() != null ?
+                    // bean.getDireccion() : "S/N");
+                    if (bean.getAmbienteSri() != null && !bean.getAmbienteSri().isEmpty())
+                        prep.getComercializadora().setAmbientesri(bean.getAmbienteSri().charAt(0));
                     prep.getComercializadora().setEsagenteretencion(bean.isEsAgRetencion());
                     prep.getComercializadora().setEscontribuyenteespacial(bean.getEsContriEspecial());
-                    if (bean.getTipoEmision() != null && !bean.getTipoEmision().isEmpty()) prep.getComercializadora().setTipoemision(bean.getTipoEmision().charAt(0));
+                    if (bean.getTipoEmision() != null && !bean.getTipoEmision().isEmpty())
+                        prep.getComercializadora().setTipoemision(bean.getTipoEmision().charAt(0));
                     prep.getComercializadora().setObligadocontabilidad(bean.isObContabilidad() ? "SI" : "NO");
                     prep.getComercializadora().setEstablecimientofac(bean.getEstabFac());
                     prep.getComercializadora().setPuntoventafac(bean.getPvFac());
@@ -1918,7 +1990,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                 }
             }
         }
-        
+
         if (prep.getCodigocliente() != null && listaClientes != null) {
             String codCli = prep.getCodigocliente().getClientePK().getCodigo();
             for (Cliente c : listaClientes) {
@@ -1950,7 +2022,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         PrepedidoSolicitud ps = fila.getPrepedidoSolicitud();
         Prepedido prep = ps.getPrepedido();
         Detalleprepedido detPrep = fila.getDetalle();
-        
+
         hidratarEntidadesDesdeListas(prep);
 
         if (detPrep.getVolumennaturalautorizado() == null
@@ -2016,7 +2088,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                 prep.getComercializadora().setUsuarioactual(fallbackUser);
             }
             np.setComercializadora(prep.getComercializadora());
-            
+
             ec.com.infinityone.modelo.Abastecedora abas = prep.getAbastecedora();
             if (abas == null) {
                 abas = new ec.com.infinityone.modelo.Abastecedora();
@@ -2059,7 +2131,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                     (prep.getUsuarioactual() != null && !prep.getUsuarioactual().trim().isEmpty())
                             ? prep.getUsuarioactual()
                             : fallbackUser);
-            
+
             Boolean generaDirecto = false;
             if (prep.getComercializadora() != null && prep.getComercializadora().getGenerapedidodirecto() != null) {
                 generaDirecto = prep.getComercializadora().getGenerapedidodirecto();
@@ -2358,7 +2430,8 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
 
                 if (detalle.getUsuarioactual() == null || detalle.getUsuarioactual().isEmpty()) {
                     detalle.setUsuarioactual(
-                            dataUser != null && dataUser.getUser() != null ? dataUser.getUser().getNombrever() : "ADMIN");
+                            dataUser != null && dataUser.getUser() != null ? dataUser.getUser().getNombrever()
+                                    : "ADMIN");
                 }
 
                 String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
