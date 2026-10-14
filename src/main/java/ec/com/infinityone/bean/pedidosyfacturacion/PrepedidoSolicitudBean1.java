@@ -15,6 +15,9 @@ import ec.com.infinityone.serivicio.actorcomercial.ComercializadoraServicio;
 import ec.com.infinityone.servicio.catalogo.BancoServicio;
 import ec.com.infinityone.servicio.catalogo.MedidaServicio;
 import ec.com.infinityone.servicio.catalogo.TerminalServicio;
+import ec.com.infinityone.servicio.pedidosyfacturacion.AsignacionPetroTerminalServicio;
+import ec.com.infinityone.modelo.Asignacionpetroterminal;
+import ec.com.infinityone.modelo.AsignacionpetroterminalPK;
 import ec.com.infinityone.modelo.Abastecedora;
 import ec.com.infinityone.modelo.Banco;
 import ec.com.infinityone.modelo.Cliente;
@@ -127,6 +130,10 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
      */
     @Inject
     private ClienteProductoServicio cliProdServicio;
+    @Inject
+    private AsignacionPetroTerminalServicio asignacionPetroTerminalServicio;
+
+    private Asignacionpetroterminal asignacionPetroTerminal;
     /*
      * Variable Comercializadora
      */
@@ -355,6 +362,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             obtenerTerminales();
             obtenerComercializadora();
             todosClientes = false;
+            asignacionPetroTerminal = new Asignacionpetroterminal();
         } catch (Exception e) {
             mostarPantallaInicial = true;
             mostarPrepedido = false;
@@ -1125,6 +1133,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                 this.listPrepedidoCompleta = new java.util.ArrayList<>(listPrepedido);
                 filtrarAutorizados();
             }
+            cargarAsignacionPetroTerminal();
             // habilitarBusqueda();
         } catch (Exception e) {
             e.printStackTrace();
@@ -1221,6 +1230,126 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             total = total.add(getVolAuto(ps, nombreProducto));
         }
         return total;
+    }
+
+    /**
+     * Calcula el saldo de volumen solicitado: Total Asignado - Programa Despachos PyS
+     */
+    public java.math.BigDecimal getSaldoVolSol(String nombreProducto) {
+        java.math.BigDecimal totalAsig = (this.asignacionPetroTerminal != null)
+                ? this.asignacionPetroTerminal.getTotalSolPorProducto(nombreProducto)
+                : java.math.BigDecimal.ZERO;
+        java.math.BigDecimal totalDespacho = getTotalVolSol(nombreProducto);
+        return totalAsig.subtract(totalDespacho);
+    }
+
+    /**
+     * Calcula el saldo de volumen autorizado: Total Asignado - Programa Despachos PyS
+     */
+    public java.math.BigDecimal getSaldoVolAuto(String nombreProducto) {
+        java.math.BigDecimal totalAsig = (this.asignacionPetroTerminal != null)
+                ? this.asignacionPetroTerminal.getTotalAutoPorProducto(nombreProducto)
+                : java.math.BigDecimal.ZERO;
+        java.math.BigDecimal totalDespacho = getTotalVolAuto(nombreProducto);
+        return totalAsig.subtract(totalDespacho);
+    }
+
+    /**
+     * Recalcula la sumatoria de totales de la asignación (Inicial + Adicional)
+     */
+    public void recalcularAsignacionTotales() {
+        if (this.asignacionPetroTerminal != null) {
+            this.asignacionPetroTerminal.calcularTotales();
+        }
+    }
+
+    public void cargarAsignacionPetroTerminal() {
+        try {
+            String codComerc = (this.comercializadora != null && this.comercializadora.getCodigo() != null)
+                    ? this.comercializadora.getCodigo() : null;
+            String codTerm = (this.terminal != null) ? this.terminal.getCodigo() : null;
+            Date fechaD = this.fechaInicial; // Fecha de despacho
+
+            if (codComerc != null && codTerm != null && fechaD != null) {
+                Asignacionpetroterminal asig = asignacionPetroTerminalServicio.obtenerAsignacion(codComerc, codTerm, fechaD);
+                if (asig != null) {
+                    this.asignacionPetroTerminal = asig;
+                } else {
+                    this.asignacionPetroTerminal = new Asignacionpetroterminal(
+                            new AsignacionpetroterminalPK(codComerc, codTerm, fechaD));
+                    this.asignacionPetroTerminal.setTerminal(this.terminal);
+                }
+            } else {
+                if (this.asignacionPetroTerminal == null) {
+                    this.asignacionPetroTerminal = new Asignacionpetroterminal();
+                }
+            }
+            this.asignacionPetroTerminal.calcularTotales();
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE, "Error al cargar asignacion de petro terminal", e);
+            if (this.asignacionPetroTerminal == null) {
+                this.asignacionPetroTerminal = new Asignacionpetroterminal();
+            }
+        }
+    }
+
+    /**
+     * Actualiza o registra la asignación de Petro Terminal llamando al servicio REST gestionarasignacion
+     */
+    public void actualizarAsignacionPetroTerminal() {
+        try {
+            if (this.comercializadora == null || this.comercializadora.getCodigo() == null) {
+                this.dialogo(FacesMessage.SEVERITY_WARN, "Debe seleccionar una comercializadora");
+                return;
+            }
+            if (this.terminal == null || this.terminal.getCodigo() == null) {
+                this.dialogo(FacesMessage.SEVERITY_WARN, "Debe seleccionar un terminal");
+                return;
+            }
+            if (this.fechaInicial == null) {
+                this.dialogo(FacesMessage.SEVERITY_WARN, "Debe seleccionar una fecha de despacho");
+                return;
+            }
+
+            if (this.asignacionPetroTerminal == null) {
+                this.asignacionPetroTerminal = new Asignacionpetroterminal();
+            }
+
+            AsignacionpetroterminalPK pk = this.asignacionPetroTerminal.getAsignacionpetroterminalPK();
+            if (pk == null) {
+                pk = new AsignacionpetroterminalPK();
+                this.asignacionPetroTerminal.setAsignacionpetroterminalPK(pk);
+            }
+            pk.setCodigocomercializadora(this.comercializadora.getCodigo());
+            pk.setCodigoterminal(this.terminal.getCodigo());
+            pk.setFecha(this.fechaInicial);
+
+            this.asignacionPetroTerminal.setTerminal(this.terminal);
+            String user = (this.dataUser != null && this.dataUser.getUserConected() != null)
+                    ? this.dataUser.getUserConected() : "FT";
+            this.asignacionPetroTerminal.setUsuarioactual(user);
+
+            this.asignacionPetroTerminal.calcularTotales();
+
+            int codigo = asignacionPetroTerminalServicio.gestionarAsignacion(this.asignacionPetroTerminal);
+            if (codigo == 200) {
+                cargarAsignacionPetroTerminal();
+            }
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE, "Error al actualizar asignacion de petro terminal", e);
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "Error al actualizar asignación: " + e.getMessage());
+        }
+    }
+
+    public Asignacionpetroterminal getAsignacionPetroTerminal() {
+        if (this.asignacionPetroTerminal == null) {
+            this.asignacionPetroTerminal = new Asignacionpetroterminal();
+        }
+        return asignacionPetroTerminal;
+    }
+
+    public void setAsignacionPetroTerminal(Asignacionpetroterminal asignacionPetroTerminal) {
+        this.asignacionPetroTerminal = asignacionPetroTerminal;
     }
 
     public void save() throws ParseException {

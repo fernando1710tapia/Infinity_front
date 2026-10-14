@@ -591,196 +591,317 @@
                                 <div class="summary-wrapper hide-scrollbar"
                                     style="overflow-x: auto; overflow-y: hidden; margin-top: 20px; margin-bottom: 20px; width: 100%;">
                                     <div
-                                        style="display: flex; flex-direction: column; width: max-content; min-width: 100%;">
+                                        style="display: flex; flex-direction: row; width: max-content; min-width: 100%;">
 
-                                        <!-- Fila 1: (A) Programa despachos PyS -->
-                                        <div class="sum-row"
-                                            style="display: flex; background: #1a3050; border-top: 2px solid #2a5f8f;">
-                                            <div class="sum-col-sticky"
-                                                style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; max-width: 335px; flex-shrink: 0; background: #1a3050; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
-                                                <span style="color:#8ab4d8; font-weight:bold; font-size:1.05rem;">(A)
-                                                    Programa despachos PyS</span>
-                                            </div>
-                                            <div class="sum-col-scrollable"
-                                                style="width: 200px; min-width: 200px; max-width: 200px; flex-shrink: 0; background: #1a3050; box-sizing: border-box;">
+                                        <!-- Bloque de las 5 filas a la izquierda -->
+                                        <div style="display: flex; flex-direction: column; flex-shrink: 0;">
+
+                                            <!-- Fila 1: (A) Programa despachos PyS -->
+                                            <div class="sum-row"
+                                                style="display: flex; background: #1a3050; border-top: 2px solid #2a5f8f;">
+                                                <div class="sum-col-sticky"
+                                                    style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; max-width: 335px; flex-shrink: 0; background: #1a3050; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
+                                                    <span
+                                                        style="color:#8ab4d8; font-weight:bold; font-size:1.05rem;">(A)
+                                                        Programa despachos PyS</span>
+                                                </div>
+                                                <div class="sum-col-scrollable"
+                                                    style="width: 200px; min-width: 200px; max-width: 200px; flex-shrink: 0; background: #1a3050; box-sizing: border-box;">
+                                                </div>
+
+                                                <div class="sum-val sum-col-4"
+                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                                    <h:outputText
+                                                        value="#{prepedidoSolicitudBean1.getTotalVolSol('EXTRA')}">
+                                                        <f:convertNumber pattern="0" />
+                                                    </h:outputText>
+                                                </div>
+                                                <div class="sum-val sum-col-5"
+                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                                    <h:outputText
+                                                        value="#{prepedidoSolicitudBean1.getTotalVolAuto('EXTRA')}">
+                                                        <f:convertNumber pattern="0" />
+                                                    </h:outputText>
+                                                </div>
+                                                <div class="sum-val sum-col-6"
+                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                                    <h:outputText
+                                                        value="#{prepedidoSolicitudBean1.getTotalVolSol('DIESEL')}">
+                                                        <f:convertNumber pattern="0" />
+                                                    </h:outputText>
+                                                </div>
+                                                <div class="sum-val sum-col-7"
+                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                                    <h:outputText
+                                                        value="#{prepedidoSolicitudBean1.getTotalVolAuto('DIESEL')}">
+                                                        <f:convertNumber pattern="0" />
+                                                    </h:outputText>
+                                                </div>
+                                                <div class="sum-val sum-col-8"
+                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                                    <h:outputText
+                                                        value="#{prepedidoSolicitudBean1.getTotalVolSol('SUPER')}">
+                                                        <f:convertNumber pattern="0" />
+                                                    </h:outputText>
+                                                </div>
+                                                <div class="sum-val sum-col-9"
+                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                                    <h:outputText
+                                                        value="#{prepedidoSolicitudBean1.getTotalVolAuto('SUPER')}">
+                                                        <f:convertNumber pattern="0" />
+                                                    </h:outputText>
+                                                </div>
                                             </div>
 
-                                            <div class="sum-val sum-col-4"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
-                                                <h:outputText
-                                                    value="#{prepedidoSolicitudBean1.getTotalVolSol('EXTRA')}">
-                                                    <f:convertNumber pattern="0" />
-                                                </h:outputText>
+                                            <!-- Fila 2: EPP asignación Inicial -->
+                                            <div class="sum-row"
+                                                style="display: flex; background: #162840; border-top: 1px solid #2a5080;">
+                                                <div class="sum-col-sticky"
+                                                    style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; max-width: 335px; flex-shrink: 0; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
+                                                    <span
+                                                        style="color:#cdd9e8; font-weight:bold; font-size:1.05rem;">EPP
+                                                        asignación Inicial</span>
+                                                </div>
+                                                <div class="sum-col-scrollable"
+                                                    style="width: 200px; min-width: 200px; max-width: 200px; flex-shrink: 0; background: #162840; box-sizing: border-box;">
+                                                </div>
+
+                                                <div class="sum-val sum-col-4"
+                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 5px 0; box-sizing: border-box;">
+                                                    -</div>
+                                                <div class="sum-val sum-col-5"
+                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 3px 0; box-sizing: border-box;">
+                                                    <p:inputNumber
+                                                        value="#{prepedidoSolicitudBean1.asignacionPetroTerminal.eppasiginicialautorizadoext}"
+                                                        decimalPlaces="0" thousandSeparator="" emptyValue="zero"
+                                                        inputStyle="width:70px; text-align:center; padding:2px 2px; font-size:0.85rem; font-weight:bold; background:#0d1b2a; color:#fff; border:1px solid #2a5f8f; border-radius:4px;"
+                                                        style="width:70px;">
+                                                        <p:ajax event="keyup"
+                                                            listener="#{prepedidoSolicitudBean1.recalcularAsignacionTotales()}"
+                                                            process="@this" update=":form:totalesFilasCalculadas"
+                                                            delay="300" />
+                                                        <p:ajax event="change"
+                                                            listener="#{prepedidoSolicitudBean1.recalcularAsignacionTotales()}"
+                                                            process="@this" update=":form:totalesFilasCalculadas" />
+                                                    </p:inputNumber>
+                                                </div>
+                                                <div class="sum-val sum-col-6"
+                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 5px 0; box-sizing: border-box;">
+                                                    -</div>
+                                                <div class="sum-val sum-col-7"
+                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 3px 0; box-sizing: border-box;">
+                                                    <p:inputNumber
+                                                        value="#{prepedidoSolicitudBean1.asignacionPetroTerminal.eppasiginicialautorizadodie}"
+                                                        decimalPlaces="0" thousandSeparator="" emptyValue="zero"
+                                                        inputStyle="width:70px; text-align:center; padding:2px 2px; font-size:0.85rem; font-weight:bold; background:#0d1b2a; color:#fff; border:1px solid #2a5f8f; border-radius:4px;"
+                                                        style="width:70px;">
+                                                        <p:ajax event="keyup"
+                                                            listener="#{prepedidoSolicitudBean1.recalcularAsignacionTotales()}"
+                                                            process="@this" update=":form:totalesFilasCalculadas"
+                                                            delay="300" />
+                                                        <p:ajax event="change"
+                                                            listener="#{prepedidoSolicitudBean1.recalcularAsignacionTotales()}"
+                                                            process="@this" update=":form:totalesFilasCalculadas" />
+                                                    </p:inputNumber>
+                                                </div>
+                                                <div class="sum-val sum-col-8"
+                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 5px 0; box-sizing: border-box;">
+                                                    -</div>
+                                                <div class="sum-val sum-col-9"
+                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 3px 0; box-sizing: border-box;">
+                                                    <p:inputNumber
+                                                        value="#{prepedidoSolicitudBean1.asignacionPetroTerminal.eppasiginicialautorizadosup}"
+                                                        decimalPlaces="0" thousandSeparator="" emptyValue="zero"
+                                                        inputStyle="width:70px; text-align:center; padding:2px 2px; font-size:0.85rem; font-weight:bold; background:#0d1b2a; color:#fff; border:1px solid #2a5f8f; border-radius:4px;"
+                                                        style="width:70px;">
+                                                        <p:ajax event="keyup"
+                                                            listener="#{prepedidoSolicitudBean1.recalcularAsignacionTotales()}"
+                                                            process="@this" update=":form:totalesFilasCalculadas"
+                                                            delay="300" />
+                                                        <p:ajax event="change"
+                                                            listener="#{prepedidoSolicitudBean1.recalcularAsignacionTotales()}"
+                                                            process="@this" update=":form:totalesFilasCalculadas" />
+                                                    </p:inputNumber>
+                                                </div>
                                             </div>
-                                            <div class="sum-val sum-col-5"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
-                                                <h:outputText
-                                                    value="#{prepedidoSolicitudBean1.getTotalVolAuto('EXTRA')}">
-                                                    <f:convertNumber pattern="0" />
-                                                </h:outputText>
+
+                                            <!-- Fila 3: EPP asignación ADICIONAL -->
+                                            <div class="sum-row"
+                                                style="display: flex; background: #162840; border-top: 1px solid #1e3a5f;">
+                                                <div class="sum-col-sticky"
+                                                    style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; max-width: 335px; flex-shrink: 0; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
+                                                    <span
+                                                        style="color:#cdd9e8; font-weight:bold; font-size:1.05rem;">EPP
+                                                        asignación ADICIONAL</span>
+                                                </div>
+                                                <div class="sum-col-scrollable"
+                                                    style="width: 200px; min-width: 200px; max-width: 200px; flex-shrink: 0; background: #162840; box-sizing: border-box;">
+                                                </div>
+
+                                                <div class="sum-val sum-col-4"
+                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 5px 0; box-sizing: border-box;">
+                                                    -</div>
+                                                <div class="sum-val sum-col-5"
+                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 3px 0; box-sizing: border-box;">
+                                                    <p:inputNumber
+                                                        value="#{prepedidoSolicitudBean1.asignacionPetroTerminal.eppasigadicionalautorizadoext}"
+                                                        decimalPlaces="0" thousandSeparator="" emptyValue="zero"
+                                                        inputStyle="width:70px; text-align:center; padding:2px 2px; font-size:0.85rem; font-weight:bold; background:#0d1b2a; color:#fff; border:1px solid #2a5f8f; border-radius:4px;"
+                                                        style="width:70px;">
+                                                        <p:ajax event="keyup"
+                                                            listener="#{prepedidoSolicitudBean1.recalcularAsignacionTotales()}"
+                                                            process="@this" update=":form:totalesFilasCalculadas"
+                                                            delay="300" />
+                                                        <p:ajax event="change"
+                                                            listener="#{prepedidoSolicitudBean1.recalcularAsignacionTotales()}"
+                                                            process="@this" update=":form:totalesFilasCalculadas" />
+                                                    </p:inputNumber>
+                                                </div>
+                                                <div class="sum-val sum-col-6"
+                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 5px 0; box-sizing: border-box;">
+                                                    -</div>
+                                                <div class="sum-val sum-col-7"
+                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 3px 0; box-sizing: border-box;">
+                                                    <p:inputNumber
+                                                        value="#{prepedidoSolicitudBean1.asignacionPetroTerminal.eppasigadicionalautorizadodie}"
+                                                        decimalPlaces="0" thousandSeparator="" emptyValue="zero"
+                                                        inputStyle="width:70px; text-align:center; padding:2px 2px; font-size:0.85rem; font-weight:bold; background:#0d1b2a; color:#fff; border:1px solid #2a5f8f; border-radius:4px;"
+                                                        style="width:70px;">
+                                                        <p:ajax event="keyup"
+                                                            listener="#{prepedidoSolicitudBean1.recalcularAsignacionTotales()}"
+                                                            process="@this" update=":form:totalesFilasCalculadas"
+                                                            delay="300" />
+                                                        <p:ajax event="change"
+                                                            listener="#{prepedidoSolicitudBean1.recalcularAsignacionTotales()}"
+                                                            process="@this" update=":form:totalesFilasCalculadas" />
+                                                    </p:inputNumber>
+                                                </div>
+                                                <div class="sum-val sum-col-8"
+                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 5px 0; box-sizing: border-box;">
+                                                    -</div>
+                                                <div class="sum-val sum-col-9"
+                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 3px 0; box-sizing: border-box;">
+                                                    <p:inputNumber
+                                                        value="#{prepedidoSolicitudBean1.asignacionPetroTerminal.eppasigadicionalautorizadosup}"
+                                                        decimalPlaces="0" thousandSeparator="" emptyValue="zero"
+                                                        inputStyle="width:70px; text-align:center; padding:2px 2px; font-size:0.85rem; font-weight:bold; background:#0d1b2a; color:#fff; border:1px solid #2a5f8f; border-radius:4px;"
+                                                        style="width:70px;">
+                                                        <p:ajax event="keyup"
+                                                            listener="#{prepedidoSolicitudBean1.recalcularAsignacionTotales()}"
+                                                            process="@this" update=":form:totalesFilasCalculadas"
+                                                            delay="300" />
+                                                        <p:ajax event="change"
+                                                            listener="#{prepedidoSolicitudBean1.recalcularAsignacionTotales()}"
+                                                            process="@this" update=":form:totalesFilasCalculadas" />
+                                                    </p:inputNumber>
+                                                </div>
                                             </div>
-                                            <div class="sum-val sum-col-6"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
-                                                <h:outputText
-                                                    value="#{prepedidoSolicitudBean1.getTotalVolSol('DIESEL')}">
-                                                    <f:convertNumber pattern="0" />
-                                                </h:outputText>
-                                            </div>
-                                            <div class="sum-val sum-col-7"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
-                                                <h:outputText
-                                                    value="#{prepedidoSolicitudBean1.getTotalVolAuto('DIESEL')}">
-                                                    <f:convertNumber pattern="0" />
-                                                </h:outputText>
-                                            </div>
-                                            <div class="sum-val sum-col-8"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
-                                                <h:outputText
-                                                    value="#{prepedidoSolicitudBean1.getTotalVolSol('SUPER')}">
-                                                    <f:convertNumber pattern="0" />
-                                                </h:outputText>
-                                            </div>
-                                            <div class="sum-val sum-col-9"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
-                                                <h:outputText
-                                                    value="#{prepedidoSolicitudBean1.getTotalVolAuto('SUPER')}">
-                                                    <f:convertNumber pattern="0" />
-                                                </h:outputText>
-                                            </div>
-                                            <div style="flex-grow: 1; min-width: 550px; background: #1a3050;"></div>
+
+                                            <!-- Grupo de Filas Calculadas (Fila 4 y 5) -->
+                                            <h:panelGroup id="totalesFilasCalculadas" layout="block"
+                                                style="display: flex; flex-direction: column;">
+                                                <!-- Fila 4: EPP asignación TOTAL -->
+                                                <div class="sum-row"
+                                                    style="display: flex; background: #162840; border-top: 2px solid #2a5080;">
+                                                    <div class="sum-col-sticky"
+                                                        style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; max-width: 335px; flex-shrink: 0; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
+                                                        <span
+                                                            style="color:#cdd9e8; font-weight:bold; font-size:1.05rem;">EPP
+                                                            asignación TOTAL</span>
+                                                    </div>
+                                                    <div class="sum-col-scrollable"
+                                                        style="width: 200px; min-width: 200px; max-width: 200px; flex-shrink: 0; background: #162840; box-sizing: border-box;">
+                                                    </div>
+
+                                                    <div class="sum-val sum-col-4"
+                                                        style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                        -</div>
+                                                    <div class="sum-val sum-col-5"
+                                                        style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                        <h:outputText
+                                                            value="#{prepedidoSolicitudBean1.asignacionPetroTerminal.eppasigtotalautorizadoext}">
+                                                            <f:convertNumber pattern="0" />
+                                                        </h:outputText>
+                                                    </div>
+                                                    <div class="sum-val sum-col-6"
+                                                        style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                        -</div>
+                                                    <div class="sum-val sum-col-7"
+                                                        style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                        <h:outputText
+                                                            value="#{prepedidoSolicitudBean1.asignacionPetroTerminal.eppasigtotalautorizadodie}">
+                                                            <f:convertNumber pattern="0" />
+                                                        </h:outputText>
+                                                    </div>
+                                                    <div class="sum-val sum-col-8"
+                                                        style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                        -</div>
+                                                    <div class="sum-val sum-col-9"
+                                                        style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                        <h:outputText
+                                                            value="#{prepedidoSolicitudBean1.asignacionPetroTerminal.eppasigtotalautorizadosup}">
+                                                            <f:convertNumber pattern="0" />
+                                                        </h:outputText>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Fila 5: SALDO -->
+                                                <div class="sum-row"
+                                                    style="display: flex; background: #162840; border-top: 1px solid #1e3a5f; border-bottom: 2px solid #2a5080;">
+                                                    <div class="sum-col-sticky"
+                                                        style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; max-width: 335px; flex-shrink: 0; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
+                                                        <span
+                                                            style="color:#cdd9e8; font-weight:bold; font-size:1.05rem;">SALDO</span>
+                                                    </div>
+                                                    <div class="sum-col-scrollable"
+                                                        style="width: 200px; min-width: 200px; max-width: 200px; flex-shrink: 0; background: #162840; box-sizing: border-box;">
+                                                    </div>
+
+                                                    <div class="sum-val sum-col-4"
+                                                        style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                        -</div>
+                                                    <div class="sum-val sum-col-5"
+                                                        style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                        <h:outputText
+                                                            value="#{prepedidoSolicitudBean1.getSaldoVolAuto('EXTRA')}">
+                                                            <f:convertNumber pattern="0" />
+                                                        </h:outputText>
+                                                    </div>
+                                                    <div class="sum-val sum-col-6"
+                                                        style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                        -</div>
+                                                    <div class="sum-val sum-col-7"
+                                                        style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                        <h:outputText
+                                                            value="#{prepedidoSolicitudBean1.getSaldoVolAuto('DIESEL')}">
+                                                            <f:convertNumber pattern="0" />
+                                                        </h:outputText>
+                                                    </div>
+                                                    <div class="sum-val sum-col-8"
+                                                        style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                        -</div>
+                                                    <div class="sum-val sum-col-9"
+                                                        style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                        <h:outputText
+                                                            value="#{prepedidoSolicitudBean1.getSaldoVolAuto('SUPER')}">
+                                                            <f:convertNumber pattern="0" />
+                                                        </h:outputText>
+                                                    </div>
+                                                </div>
+                                            </h:panelGroup>
+
                                         </div>
 
-                                        <!-- Fila 2: EPP asignación Inicial -->
-                                        <div class="sum-row"
-                                            style="display: flex; background: #162840; border-top: 1px solid #2a5080;">
-                                            <div class="sum-col-sticky"
-                                                style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; max-width: 335px; flex-shrink: 0; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
-                                                <span style="color:#cdd9e8; font-weight:bold; font-size:1.05rem;">EPP
-                                                    asignación Inicial</span>
-                                            </div>
-                                            <div class="sum-col-scrollable"
-                                                style="width: 200px; min-width: 200px; max-width: 200px; flex-shrink: 0; background: #162840; box-sizing: border-box;">
-                                            </div>
-
-                                            <div class="sum-val sum-col-4"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
-                                                -</div>
-                                            <div class="sum-val sum-col-5"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
-                                                0</div>
-                                            <div class="sum-val sum-col-6"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
-                                                -</div>
-                                            <div class="sum-val sum-col-7"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
-                                                0</div>
-                                            <div class="sum-val sum-col-8"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
-                                                -</div>
-                                            <div class="sum-val sum-col-9"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
-                                                0</div>
-                                            <div style="flex-grow: 1; min-width: 550px; background: #162840;"></div>
+                                        <!-- Bloque derecho con el botón Actualizar -->
+                                        <div
+                                            style="flex-grow: 1; min-width: 450px; background: #162840; border-top: 2px solid #2a5f8f; border-bottom: 2px solid #2a5080; display: flex; align-items: center; justify-content: flex-start; padding-left: 35px; box-sizing: border-box;">
+                                            <p:commandButton id="btnActualizarAsig" value="Actualizar"
+                                                actionListener="#{prepedidoSolicitudBean1.actualizarAsignacionPetroTerminal()}"
+                                                process=":form:totalesPanel" update=":form:totalesPanel :form:messages"
+                                                styleClass="ui-button-info"
+                                                style="font-weight: bold; font-size: 1rem; padding: 8px 24px; border-radius: 6px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);" />
                                         </div>
 
-                                        <!-- Fila 3: EPP asignación ADICIONAL -->
-                                        <div class="sum-row"
-                                            style="display: flex; background: #162840; border-top: 1px solid #1e3a5f;">
-                                            <div class="sum-col-sticky"
-                                                style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; max-width: 335px; flex-shrink: 0; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
-                                                <span style="color:#cdd9e8; font-weight:bold; font-size:1.05rem;">EPP
-                                                    asignación ADICIONAL</span>
-                                            </div>
-                                            <div class="sum-col-scrollable"
-                                                style="width: 200px; min-width: 200px; max-width: 200px; flex-shrink: 0; background: #162840; box-sizing: border-box;">
-                                            </div>
-
-                                            <div class="sum-val sum-col-4"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
-                                                -</div>
-                                            <div class="sum-val sum-col-5"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
-                                                0</div>
-                                            <div class="sum-val sum-col-6"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
-                                                -</div>
-                                            <div class="sum-val sum-col-7"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
-                                                0</div>
-                                            <div class="sum-val sum-col-8"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
-                                                -</div>
-                                            <div class="sum-val sum-col-9"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
-                                                0</div>
-                                            <div style="flex-grow: 1; min-width: 550px; background: #162840;"></div>
-                                        </div>
-
-                                        <!-- Fila 4: EPP asignación TOTAL -->
-                                        <div class="sum-row"
-                                            style="display: flex; background: #162840; border-top: 2px solid #2a5080;">
-                                            <div class="sum-col-sticky"
-                                                style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; max-width: 335px; flex-shrink: 0; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
-                                                <span style="color:#cdd9e8; font-weight:bold; font-size:1.05rem;">EPP
-                                                    asignación TOTAL</span>
-                                            </div>
-                                            <div class="sum-col-scrollable"
-                                                style="width: 200px; min-width: 200px; max-width: 200px; flex-shrink: 0; background: #162840; box-sizing: border-box;">
-                                            </div>
-
-                                            <div class="sum-val sum-col-4"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
-                                                -</div>
-                                            <div class="sum-val sum-col-5"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
-                                                0</div>
-                                            <div class="sum-val sum-col-6"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
-                                                -</div>
-                                            <div class="sum-val sum-col-7"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
-                                                0</div>
-                                            <div class="sum-val sum-col-8"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
-                                                -</div>
-                                            <div class="sum-val sum-col-9"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
-                                                0</div>
-                                            <div style="flex-grow: 1; min-width: 550px; background: #162840;"></div>
-                                        </div>
-
-                                        <!-- Fila 5: SALDO -->
-                                        <div class="sum-row"
-                                            style="display: flex; background: #162840; border-top: 1px solid #1e3a5f; border-bottom: 2px solid #2a5080;">
-                                            <div class="sum-col-sticky"
-                                                style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; max-width: 335px; flex-shrink: 0; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
-                                                <span
-                                                    style="color:#cdd9e8; font-weight:bold; font-size:1.05rem;">SALDO</span>
-                                            </div>
-                                            <div class="sum-col-scrollable"
-                                                style="width: 200px; min-width: 200px; max-width: 200px; flex-shrink: 0; background: #162840; box-sizing: border-box;">
-                                            </div>
-
-                                            <div class="sum-val sum-col-4"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
-                                                -</div>
-                                            <div class="sum-val sum-col-5"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
-                                                0</div>
-                                            <div class="sum-val sum-col-6"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
-                                                -</div>
-                                            <div class="sum-val sum-col-7"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
-                                                0</div>
-                                            <div class="sum-val sum-col-8"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
-                                                -</div>
-                                            <div class="sum-val sum-col-9"
-                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
-                                                0</div>
-                                            <div style="flex-grow: 1; min-width: 550px; background: #162840;"></div>
-                                        </div>
                                     </div>
                                 </div>
                             </p:outputPanel>
