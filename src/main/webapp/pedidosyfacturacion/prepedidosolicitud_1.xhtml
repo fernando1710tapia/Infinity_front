@@ -134,6 +134,11 @@
                     if (acExpanded) btn.classList.add('ac-expanded');
                     else btn.classList.remove('ac-expanded');
                 }
+                setTimeout(function () {
+                    if (window.syncSummaryScrollAndWidths) {
+                        window.syncSummaryScrollAndWidths();
+                    }
+                }, 420);
             }
         </script>
 
@@ -553,7 +558,11 @@
                                 <!-- Sellos: cÃƒÂ­rculo gris "Si" -->
                                 <p:column exportable="false" styleClass="action-col" style="text-align:center;">
                                     <p:commandButton icon="pi pi-tag" styleClass="ui-button-secondary rounded-button"
-                                        disabled="true" title="Sellos"
+                                        process="@this" update="formSellos"
+                                        actionListener="#{usoSellosPrepedidoBean.abrirDesdePrepedido(prepedidoItem)}"
+                                        oncomplete="PF('sellosDialog').show()"
+                                        disabled="#{not (prepedidoItem.generadaNpInfinity or prepedidoItem.generadaNpBanco)}"
+                                        title="Sellos"
                                         style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
                                 </p:column>
 
@@ -588,51 +597,51 @@
                                         <div class="sum-row"
                                             style="display: flex; background: #1a3050; border-top: 2px solid #2a5f8f;">
                                             <div class="sum-col-sticky"
-                                                style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; background: #1a3050; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
+                                                style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; max-width: 335px; flex-shrink: 0; background: #1a3050; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
                                                 <span style="color:#8ab4d8; font-weight:bold; font-size:1.05rem;">(A)
                                                     Programa despachos PyS</span>
                                             </div>
                                             <div class="sum-col-scrollable"
-                                                style="width: 264px; min-width: 264px; background: #1a3050; box-sizing: border-box;">
+                                                style="width: 200px; min-width: 200px; max-width: 200px; flex-shrink: 0; background: #1a3050; box-sizing: border-box;">
                                             </div>
 
                                             <div class="sum-val sum-col-4"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
                                                 <h:outputText
                                                     value="#{prepedidoSolicitudBean1.getTotalVolSol('EXTRA')}">
                                                     <f:convertNumber pattern="0" />
                                                 </h:outputText>
                                             </div>
                                             <div class="sum-val sum-col-5"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
                                                 <h:outputText
                                                     value="#{prepedidoSolicitudBean1.getTotalVolAuto('EXTRA')}">
                                                     <f:convertNumber pattern="0" />
                                                 </h:outputText>
                                             </div>
                                             <div class="sum-val sum-col-6"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
                                                 <h:outputText
                                                     value="#{prepedidoSolicitudBean1.getTotalVolSol('DIESEL')}">
                                                     <f:convertNumber pattern="0" />
                                                 </h:outputText>
                                             </div>
                                             <div class="sum-val sum-col-7"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
                                                 <h:outputText
                                                     value="#{prepedidoSolicitudBean1.getTotalVolAuto('DIESEL')}">
                                                     <f:convertNumber pattern="0" />
                                                 </h:outputText>
                                             </div>
                                             <div class="sum-val sum-col-8"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
                                                 <h:outputText
                                                     value="#{prepedidoSolicitudBean1.getTotalVolSol('SUPER')}">
                                                     <f:convertNumber pattern="0" />
                                                 </h:outputText>
                                             </div>
                                             <div class="sum-val sum-col-9"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 10px 0; box-sizing: border-box;">
                                                 <h:outputText
                                                     value="#{prepedidoSolicitudBean1.getTotalVolAuto('SUPER')}">
                                                     <f:convertNumber pattern="0" />
@@ -641,68 +650,68 @@
                                             <div style="flex-grow: 1; min-width: 550px; background: #1a3050;"></div>
                                         </div>
 
-                                        <!-- Fila 2: EPP asignaciÃ³n Inicial -->
+                                        <!-- Fila 2: EPP asignación Inicial -->
                                         <div class="sum-row"
                                             style="display: flex; background: #162840; border-top: 1px solid #2a5080;">
                                             <div class="sum-col-sticky"
-                                                style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
+                                                style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; max-width: 335px; flex-shrink: 0; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
                                                 <span style="color:#cdd9e8; font-weight:bold; font-size:1.05rem;">EPP
                                                     asignación Inicial</span>
                                             </div>
                                             <div class="sum-col-scrollable"
-                                                style="width: 264px; min-width: 264px; background: #162840; box-sizing: border-box;">
+                                                style="width: 200px; min-width: 200px; max-width: 200px; flex-shrink: 0; background: #162840; box-sizing: border-box;">
                                             </div>
 
                                             <div class="sum-val sum-col-4"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
                                                 -</div>
                                             <div class="sum-val sum-col-5"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
                                                 0</div>
                                             <div class="sum-val sum-col-6"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
                                                 -</div>
                                             <div class="sum-val sum-col-7"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
                                                 0</div>
                                             <div class="sum-val sum-col-8"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
                                                 -</div>
                                             <div class="sum-val sum-col-9"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
                                                 0</div>
                                             <div style="flex-grow: 1; min-width: 550px; background: #162840;"></div>
                                         </div>
 
-                                        <!-- Fila 3: EPP asignaciÃ³n ADICIONAL -->
+                                        <!-- Fila 3: EPP asignación ADICIONAL -->
                                         <div class="sum-row"
                                             style="display: flex; background: #162840; border-top: 1px solid #1e3a5f;">
                                             <div class="sum-col-sticky"
-                                                style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
+                                                style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; max-width: 335px; flex-shrink: 0; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
                                                 <span style="color:#cdd9e8; font-weight:bold; font-size:1.05rem;">EPP
                                                     asignación ADICIONAL</span>
                                             </div>
                                             <div class="sum-col-scrollable"
-                                                style="width: 264px; min-width: 264px; background: #162840; box-sizing: border-box;">
+                                                style="width: 200px; min-width: 200px; max-width: 200px; flex-shrink: 0; background: #162840; box-sizing: border-box;">
                                             </div>
 
                                             <div class="sum-val sum-col-4"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
                                                 -</div>
                                             <div class="sum-val sum-col-5"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
                                                 0</div>
                                             <div class="sum-val sum-col-6"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
                                                 -</div>
                                             <div class="sum-val sum-col-7"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
                                                 0</div>
                                             <div class="sum-val sum-col-8"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
                                                 -</div>
                                             <div class="sum-val sum-col-9"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
                                                 0</div>
                                             <div style="flex-grow: 1; min-width: 550px; background: #162840;"></div>
                                         </div>
@@ -711,31 +720,31 @@
                                         <div class="sum-row"
                                             style="display: flex; background: #162840; border-top: 2px solid #2a5080;">
                                             <div class="sum-col-sticky"
-                                                style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
+                                                style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; max-width: 335px; flex-shrink: 0; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
                                                 <span style="color:#cdd9e8; font-weight:bold; font-size:1.05rem;">EPP
                                                     asignación TOTAL</span>
                                             </div>
                                             <div class="sum-col-scrollable"
-                                                style="width: 264px; min-width: 264px; background: #162840; box-sizing: border-box;">
+                                                style="width: 200px; min-width: 200px; max-width: 200px; flex-shrink: 0; background: #162840; box-sizing: border-box;">
                                             </div>
 
                                             <div class="sum-val sum-col-4"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
                                                 -</div>
                                             <div class="sum-val sum-col-5"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
                                                 0</div>
                                             <div class="sum-val sum-col-6"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
                                                 -</div>
                                             <div class="sum-val sum-col-7"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
                                                 0</div>
                                             <div class="sum-val sum-col-8"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
                                                 -</div>
                                             <div class="sum-val sum-col-9"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
                                                 0</div>
                                             <div style="flex-grow: 1; min-width: 550px; background: #162840;"></div>
                                         </div>
@@ -744,31 +753,31 @@
                                         <div class="sum-row"
                                             style="display: flex; background: #162840; border-top: 1px solid #1e3a5f; border-bottom: 2px solid #2a5080;">
                                             <div class="sum-col-sticky"
-                                                style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
+                                                style="position: sticky; left: 0; z-index: 10; width: 335px; min-width: 335px; max-width: 335px; flex-shrink: 0; background: #162840; display: flex; align-items: center; padding-left: 12px; box-sizing: border-box;">
                                                 <span
                                                     style="color:#cdd9e8; font-weight:bold; font-size:1.05rem;">SALDO</span>
                                             </div>
                                             <div class="sum-col-scrollable"
-                                                style="width: 264px; min-width: 264px; background: #162840; box-sizing: border-box;">
+                                                style="width: 200px; min-width: 200px; max-width: 200px; flex-shrink: 0; background: #162840; box-sizing: border-box;">
                                             </div>
 
                                             <div class="sum-val sum-col-4"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
                                                 -</div>
                                             <div class="sum-val sum-col-5"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
                                                 0</div>
                                             <div class="sum-val sum-col-6"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
                                                 -</div>
                                             <div class="sum-val sum-col-7"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
                                                 0</div>
                                             <div class="sum-val sum-col-8"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 8px 0; box-sizing: border-box;">
                                                 -</div>
                                             <div class="sum-val sum-col-9"
-                                                style="width: 112px; min-width: 112px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
+                                                style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; padding: 8px 0; box-sizing: border-box;">
                                                 0</div>
                                             <div style="flex-grow: 1; min-width: 550px; background: #162840;"></div>
                                         </div>
@@ -788,57 +797,84 @@
             //
             <![CDATA[
             window.syncSummaryScrollAndWidths = function() {
-                var topScrolls = document.querySelectorAll('.ui-datatable-scrollable-body');
-                var topScroll = topScrolls.length > 0 ? topScrolls[0] : null;
+                var topTable = document.querySelector('#form\\:dt-products');
+                if (!topTable) return;
+                var topScroll = topTable.querySelector('.ui-datatable-scrollable-body');
                 var bottomScroll = document.querySelector('.summary-wrapper');
                 
                 if (topScroll && bottomScroll) {
-                    // 1) Leer anchos del HEADER (siempre consistente, independiente de cuántas filas hay)
-                    var headerScrollable = document.querySelector('.ui-datatable-scrollable-header-box table thead tr');
-                    var headerCells = headerScrollable ? Array.from(headerScrollable.querySelectorAll('th')).filter(function(th) {
-                        return th.offsetWidth > 0 && window.getComputedStyle(th).display !== 'none';
-                    }) : [];
+                    var w0 = 0, w1 = 0, w2 = 0, w3 = 0;
+                    var wCols = [0, 0, 0, 0, 0, 0];
 
-                    // Fallback: leer del body si el header no funciona
-                    var topRow = topScroll.querySelector('.ui-datatable-data tr.ui-widget-content:not(.ui-datatable-empty-message)');
-                    var bodyCells = topRow ? Array.from(topRow.children).filter(function(td) {
-                        return td.offsetWidth > 0 && window.getComputedStyle(td).display !== 'none';
-                    }) : [];
+                    // 1) Leer directamente de la primera fila visible de datos si existe
+                    var bodyRow = topScroll.querySelector('.ui-datatable-data tr.ui-widget-content:not(.ui-datatable-empty-message)');
+                    if (bodyRow && bodyRow.children.length >= 11) {
+                        var c = bodyRow.children;
+                        w0 = c[0].getBoundingClientRect().width;
+                        w1 = c[1].getBoundingClientRect().width;
+                        w2 = c[2].getBoundingClientRect().width;
+                        w3 = c[3].getBoundingClientRect().width;
+                        // c[4] es Terminal (display:none)
+                        wCols[0] = c[5].getBoundingClientRect().width;  // EXTRA Vol.Sol
+                        wCols[1] = c[6].getBoundingClientRect().width;  // EXTRA Vol.Auto
+                        wCols[2] = c[7].getBoundingClientRect().width;  // DIESEL Vol.Sol
+                        wCols[3] = c[8].getBoundingClientRect().width;  // DIESEL Vol.Auto
+                        wCols[4] = c[9].getBoundingClientRect().width;  // SUPER Vol.Sol
+                        wCols[5] = c[10].getBoundingClientRect().width; // SUPER Vol.Auto
+                    }
 
-                    var visibleCells = bodyCells.length >= headerCells.length ? bodyCells : headerCells;
-                    
-                    if (visibleCells.length >= 10) {
-                        var w0 = visibleCells[0].offsetWidth;
-                        var w1 = visibleCells[1].offsetWidth;
-                        var w2 = visibleCells[2].offsetWidth;
-                        var w3 = visibleCells[3].offsetWidth;
-                        
-                        var stickyWidth = w0 + w1;
-                        var scrollableWidth = w2 + w3;
-                        
-                        document.querySelectorAll('.sum-col-sticky').forEach(function(el) {
-                            el.style.minWidth = stickyWidth + 'px';
-                            el.style.width = stickyWidth + 'px';
-                        });
-                        
-                        document.querySelectorAll('.sum-col-scrollable').forEach(function(el) {
-                            el.style.minWidth = scrollableWidth + 'px';
-                            el.style.width = scrollableWidth + 'px';
-                        });
-                        
-                        // indices 4-9 = EXTRA Vol.Sol, EXTRA Vol.Auto, DIESEL Vol.Sol, DIESEL Vol.Auto, SUPER Vol.Sol, SUPER Vol.Auto
-                        for (var i = 4; i <= 9; i++) {
-                            var w = visibleCells[i].offsetWidth;
-                            (function(idx, width) {
-                                document.querySelectorAll('.sum-col-' + idx).forEach(function(el) {
-                                    el.style.minWidth = width + 'px';
-                                    el.style.width = width + 'px';
-                                });
-                            })(i, w);
+                    // 2) Fallback si no hay filas en el body: leer del thead
+                    if (!wCols[0] || wCols[0] <= 0) {
+                        var theadRows = topTable.querySelectorAll('.ui-datatable-scrollable-header-box table thead tr');
+                        if (theadRows && theadRows.length >= 2) {
+                            var r0 = theadRows[0].children;
+                            var r1 = theadRows[1].children;
+                            if (r0.length >= 4 && r1.length >= 6) {
+                                w0 = r0[0].getBoundingClientRect().width;
+                                w1 = r0[1].getBoundingClientRect().width;
+                                w2 = r0[2].getBoundingClientRect().width;
+                                w3 = r0[3].getBoundingClientRect().width;
+                                wCols[0] = r1[0].getBoundingClientRect().width;
+                                wCols[1] = r1[1].getBoundingClientRect().width;
+                                wCols[2] = r1[2].getBoundingClientRect().width;
+                                wCols[3] = r1[3].getBoundingClientRect().width;
+                                wCols[4] = r1[4].getBoundingClientRect().width;
+                                wCols[5] = r1[5].getBoundingClientRect().width;
+                            }
                         }
                     }
 
-                    // 2) Sincronizar Scroll sin Glitch usando flags
+                    // 3) Aplicar anchos exactos
+                    if (w0 > 0 && w1 > 0) {
+                        var stickyWidth = Math.round(w0 + w1);
+                        var scrollableWidth = Math.round(w2 + w3);
+
+                        document.querySelectorAll('.sum-col-sticky').forEach(function(el) {
+                            el.style.minWidth = stickyWidth + 'px';
+                            el.style.width = stickyWidth + 'px';
+                            el.style.maxWidth = stickyWidth + 'px';
+                        });
+
+                        document.querySelectorAll('.sum-col-scrollable').forEach(function(el) {
+                            el.style.minWidth = scrollableWidth + 'px';
+                            el.style.width = scrollableWidth + 'px';
+                            el.style.maxWidth = scrollableWidth + 'px';
+                        });
+
+                        for (var i = 0; i < 6; i++) {
+                            var colIdx = i + 4; // sum-col-4 a sum-col-9
+                            var widthPx = Math.round(wCols[i]);
+                            if (widthPx > 0) {
+                                document.querySelectorAll('.sum-col-' + colIdx).forEach(function(el) {
+                                    el.style.minWidth = widthPx + 'px';
+                                    el.style.width = widthPx + 'px';
+                                    el.style.maxWidth = widthPx + 'px';
+                                });
+                            }
+                        }
+                    }
+
+                    // 4) Sincronizar Scroll sin Glitch usando flags
                     if (!topScroll.dataset.scrollSynced) {
                         topScroll.addEventListener('scroll', function() { 
                             if (topScroll.dataset.ignoreScroll === 'true') {
@@ -853,14 +889,14 @@
                         }, { passive: true });
                         topScroll.dataset.scrollSynced = 'true';
                     }
-                    
+
                     if (!bottomScroll.dataset.scrollSynced) {
                         bottomScroll.addEventListener('scroll', function() { 
                             if (bottomScroll.dataset.ignoreScroll === 'true') {
                                 bottomScroll.dataset.ignoreScroll = 'false';
                                 return;
                             }
-                            var currentTop = document.querySelectorAll('.ui-datatable-scrollable-body')[0];
+                            var currentTop = topTable.querySelector('.ui-datatable-scrollable-body');
                             if (currentTop && currentTop.scrollLeft !== bottomScroll.scrollLeft) {
                                 currentTop.dataset.ignoreScroll = 'true';
                                 currentTop.scrollLeft = bottomScroll.scrollLeft; 
@@ -868,15 +904,16 @@
                         }, { passive: true });
                         bottomScroll.dataset.scrollSynced = 'true';
                     }
-                    
+
                     // Forzar sincronización inicial si están desincronizados
-                    var currentBottom = document.querySelector('.summary-wrapper');
-                    if (currentBottom && currentBottom.scrollLeft !== topScroll.scrollLeft) {
-                        currentBottom.dataset.ignoreScroll = 'true';
-                        currentBottom.scrollLeft = topScroll.scrollLeft;
+                    if (bottomScroll.scrollLeft !== topScroll.scrollLeft) {
+                        bottomScroll.dataset.ignoreScroll = 'true';
+                        bottomScroll.scrollLeft = topScroll.scrollLeft;
                     }
                 }
             };
+
+            window.addEventListener('resize', window.syncSummaryScrollAndWidths);
             
             $(document).off('pfAjaxComplete.syncPrepedido').on('pfAjaxComplete.syncPrepedido', function(e, xhr, settings) {
                 setTimeout(function() {
@@ -1238,6 +1275,253 @@
             <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary"
                 icon="pi pi-times" />
         </p:confirmDialog>
+
+        <p:dialog widgetVar="sellosDialog" header="Sellos" width="90%" modal="true" showEffect="fade" responsive="true"
+            draggable="false" resizable="false">
+            <h:form id="formSellos">
+                <h3 style="margin-top:0;">#{usoSellosPrepedidoBean.tituloDialogo}</h3>
+                <p:outputPanel id="manage-product-content" rendered="#{usoSellosPrepedidoBean.mostrarPantallaAsignar}">
+                    <div class="p-grid crud-demo">
+                        <div class="p-col-12">
+                            <div class="card">
+                                <p:growl id="messages" showDetail="true" />
+                                <div class="ui-fluid p-formgrid p-grid">
+
+                                    <div class="p-field p-col-12 p-md-3">
+                                        <span class="ui-float-label">
+
+                                            <p:inputText id="ultimoSello" value="#{usoSellosPrepedidoBean.ultimoSello}"
+                                                maxlength="8">
+                                                <p:ajax event="blur" process="@this" update="@none" />
+                                            </p:inputText>
+
+
+                                            <!--                                        <p:inputText id="ultimoSello" value="#{usoSellosPrepedidoBean.ultimoSello}">
+    <p:ajax event="blur" update="@none" process="@this" />
+</p:inputText>-->
+
+                                            <p:outputLabel for="ultimoSello">Último Sello</p:outputLabel>
+                                        </span>
+                                    </div>
+                                    <div class="p-field p-col-12 p-md-3">
+                                        <p:commandButton id="btnBuscar2" value="Buscar" icon="pi pi-search"
+                                            actionListener="#{usoSellosPrepedidoBean.obtenerUltimoUsoSello()}"
+                                            process="@this" update="messages ultimoSello" />
+                                    </div>
+                                    <div class="p-field p-col-12 p-md-12"> </div>
+                                    <div class="p-field p-col-12 p-md-3">
+                                        <div class="ui-inputgroup">
+                                            <span class="ui-inputgroup-addon">
+                                                <i class="fa fa-money"></i>
+                                            </span>
+                                            <p:selectOneMenu id="ci" value="#{usoSellosPrepedidoBean.autotanque}"
+                                                title="Placa" panelStyle="width:175px" style="min-width: 60%;"
+                                                autoWidth="false" filter="true" filterMatchMode="startsWith"
+                                                converter="converterg" required="true"
+                                                requiredMessage="Seleccione placa">
+                                                <f:selectItem noSelectionOption="true" itemLabel="Placa"
+                                                    itemValue="#{null}" />
+                                                <f:selectItems value="#{usoSellosPrepedidoBean.listaAutotanque}"
+                                                    var="autot" itemLabel="#{autot.placa}" itemValue="#{autot}" />
+                                                <p:ajax event="change" update="cond sellosU sellos2U"
+                                                    listener="#{usoSellosPrepedidoBean.inicializarValTanques}" />
+                                            </p:selectOneMenu>
+                                        </div>
+                                    </div>
+
+                                    <div class="p-field p-col-12 p-md-3">
+                                        <span class="ui-float-label">
+                                            <p:inputText id="cond"
+                                                value="#{usoSellosPrepedidoBean.autotanque.cedularuc.cedularuc} - #{usoSellosPrepedidoBean.autotanque.cedularuc.nombre}"
+                                                readonly="true" />
+                                            <p:outputLabel for="cond">Conductor</p:outputLabel>
+                                        </span>
+                                    </div>
+
+                                    <!--                                <div class="p-field p-col-12 p-md-3">
+                                                                    <span class="ui-float-label">
+                                                                        <p:inputText id="ultimaNP" value="{}" maxlength="50" readonly="true" />
+                                                                        <p:outputLabel for="cond">Última NP</p:outputLabel>
+                                                                    </span>
+                                                                </div>-->
+
+                                </div>
+
+                                <div class="p-field p-col-12" style="display:flex; align-items:center; gap:10px;">
+
+                                    <p:outputLabel for="fechauso" value="Fecha de uso" style="white-space:nowrap;" />
+
+                                    <p:datePicker id="fechauso" value="#{usoSellosPrepedidoBean.fechaUso}"
+                                        showIcon="true" style="width:250px;" />
+
+                                </div>
+
+                                <div class="p-field p-col-12 p-md-12">
+                                    <p:outputLabel id="np">Solicitudes: </p:outputLabel>
+                                    <h:panelGrid id="nps" columns="6"
+                                        style="margin-left: 0; margin-right: auto; text-align: left;">
+                                        <p:outputLabel for="np1" value="Solicitud 1" />
+                                        <p:outputLabel for="np2" value="Solicitud 2" />
+                                        <p:outputLabel for="np3" value="Solicitud 3" />
+                                        <p:outputLabel for="np4" value="Solicitud 4" />
+                                        <p:outputLabel for="np5" value="Solicitud 5" />
+                                        <p:outputLabel for="np6" value="Solicitud 6" />
+
+
+                                        <p:inputText id="np1" value="#{usoSellosPrepedidoBean.usoSello.np1}"
+                                            maxlength="8">
+                                            <p:ajax event="blur" process="@this" update="@none" />
+                                        </p:inputText>
+                                        <p:inputText id="np2" value="#{usoSellosPrepedidoBean.usoSello.np2}"
+                                            maxlength="8">
+                                            <p:ajax event="blur" process="@this" update="@none" />
+                                        </p:inputText>
+                                        <p:inputText id="np3" value="#{usoSellosPrepedidoBean.usoSello.np3}"
+                                            maxlength="8">
+                                            <p:ajax event="blur" process="@this" update="@none" />
+                                        </p:inputText>
+                                        <p:inputText id="np4" value="#{usoSellosPrepedidoBean.usoSello.np4}"
+                                            maxlength="8">
+                                            <p:ajax event="blur" process="@this" update="@none" />
+                                        </p:inputText>
+                                        <p:inputText id="np5" value="#{usoSellosPrepedidoBean.usoSello.np5}"
+                                            maxlength="8">
+                                            <p:ajax event="blur" process="@this" update="@none" />
+                                        </p:inputText>
+                                        <p:inputText id="np6" value="#{usoSellosPrepedidoBean.usoSello.np6}"
+                                            maxlength="8">
+                                            <p:ajax event="blur" process="@this" update="@none" />
+                                        </p:inputText>
+
+                                    </h:panelGrid>
+                                </div>
+
+                                <!-- #{usoSellosPrepedidoBean.autotanque.compartimento1} -->
+
+                                <div class="p-field p-col-12 p-md-12">
+                                    <p:outputLabel id="sello">Sellos Usados: </p:outputLabel>
+                                    <h:panelGrid id="sellosU" columns="8"
+                                        style="margin-left: 0; margin-right: auto; text-align: left;">
+                                        <p:outputLabel for="selloU1" value="1" />
+                                        <p:outputLabel for="selloU2" value="2" />
+                                        <p:outputLabel for="selloU3" value="3" />
+                                        <p:outputLabel for="selloU4" value="4" />
+                                        <p:outputLabel for="selloU5" value="5" />
+                                        <p:outputLabel for="selloU6" value="6" />
+                                        <p:outputLabel for="selloU7" value="7" />
+                                        <p:outputLabel for="selloU8" value="8" />
+
+                                        <p:inputText id="selloU1" value="#{usoSellosPrepedidoBean.usoSello.sello1}"
+                                            maxlength="20">
+                                            <p:ajax event="blur" process="@this" update="@none" />
+                                        </p:inputText>
+                                        <p:inputText id="selloU2" value="#{usoSellosPrepedidoBean.usoSello.sello2}"
+                                            maxlength="20">
+                                            <p:ajax event="blur" process="@this" update="@none" />
+                                        </p:inputText>
+                                        <p:inputText id="selloU3" value="#{usoSellosPrepedidoBean.usoSello.sello3}"
+                                            maxlength="20">
+                                            <p:ajax event="blur" process="@this" update="@none" />
+                                        </p:inputText>
+                                        <p:inputText id="selloU4" value="#{usoSellosPrepedidoBean.usoSello.sello4}"
+                                            maxlength="20">
+                                            <p:ajax event="blur" process="@this" update="@none" />
+                                        </p:inputText>
+                                        <p:inputText id="selloU5" value="#{usoSellosPrepedidoBean.usoSello.sello5}"
+                                            maxlength="20">
+                                            <p:ajax event="blur" process="@this" update="@none" />
+                                        </p:inputText>
+                                        <p:inputText id="selloU6" value="#{usoSellosPrepedidoBean.usoSello.sello6}"
+                                            maxlength="20">
+                                            <p:ajax event="blur" process="@this" update="@none" />
+                                        </p:inputText>
+                                        <p:inputText id="selloU7" value="#{usoSellosPrepedidoBean.usoSello.sello7}"
+                                            maxlength="20">
+                                            <p:ajax event="blur" process="@this" update="@none" />
+                                        </p:inputText>
+                                        <p:inputText id="selloU8" value="#{usoSellosPrepedidoBean.usoSello.sello8}"
+                                            maxlength="20">
+                                            <p:ajax event="blur" process="@this" update="@none" />
+                                        </p:inputText>
+                                    </h:panelGrid>
+                                </div>
+                                <div class="p-field p-col-12 p-md-12">
+                                    <h:panelGrid id="sellos2U" columns="8"
+                                        style="margin-left: 0; margin-right: auto; text-align: left;">
+                                        <p:outputLabel for="sello2U1" value="9" />
+                                        <p:outputLabel for="sello2U2" value="10" />
+                                        <p:outputLabel for="sello2U3" value="11" />
+                                        <p:outputLabel for="sello2U4" value="12" />
+                                        <p:outputLabel for="sello2U5" value="13" />
+                                        <p:outputLabel for="sello2U6" value="14" />
+                                        <p:outputLabel for="sello2U7" value="15" />
+                                        <p:outputLabel for="sello2U8" value="16" />
+
+                                        <p:inputText id="sello2U1" value="#{usoSellosPrepedidoBean.usoSello.sello9}"
+                                            maxlength="20">
+                                            <p:ajax event="blur" process="@this" update="@none" />
+                                        </p:inputText>
+                                        <p:inputText id="sello2U2" value="#{usoSellosPrepedidoBean.usoSello.sello10}"
+                                            maxlength="20">
+                                            <p:ajax event="blur" process="@this" update="@none" />
+                                        </p:inputText>
+                                        <p:inputText id="sello2U3" value="#{usoSellosPrepedidoBean.usoSello.sello11}"
+                                            maxlength="20">
+                                            <p:ajax event="blur" process="@this" update="@none" />
+                                        </p:inputText>
+                                        <p:inputText id="sello2U4" value="#{usoSellosPrepedidoBean.usoSello.sello12}"
+                                            maxlength="20">
+                                            <p:ajax event="blur" process="@this" update="@none" />
+                                        </p:inputText>
+                                        <p:inputText id="sello2U5" value="#{usoSellosPrepedidoBean.usoSello.sello13}"
+                                            maxlength="20">
+                                            <p:ajax event="blur" process="@this" update="@none" />
+                                        </p:inputText>
+                                        <p:inputText id="sello2U6" value="#{usoSellosPrepedidoBean.usoSello.sello14}"
+                                            maxlength="20">
+                                            <p:ajax event="blur" process="@this" update="@none" />
+                                        </p:inputText>
+                                        <p:inputText id="sello2U7" value="#{usoSellosPrepedidoBean.usoSello.sello15}"
+                                            maxlength="20">
+                                            <p:ajax event="blur" process="@this" update="@none" />
+                                        </p:inputText>
+                                        <p:inputText id="sello2U8" value="#{usoSellosPrepedidoBean.usoSello.sello16}"
+                                            maxlength="20">
+                                            <p:ajax event="blur" process="@this" update="@none" />
+                                        </p:inputText>
+                                    </h:panelGrid>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--                <p:toolbar>
+                                    <p:toolbarGroup>
+                                        <p:commandButton value="Regresar" icon="pi pi-times" actionListener="{sellosBean.regresar()}" class="ui-button-secondary" update="formNuevo :form" styleClass="p-mr-2"/>
+                                    </p:toolbarGroup>
+                                </p:toolbar> -->
+                </p:outputPanel>
+                <p:outputPanel rendered="#{usoSellosPrepedidoBean.mostrarPantallaAsignar}">
+                    <div class="p-grid">
+                        <div class="p-field p-col-12 p-md-12"></div>
+                        <div class="p-field p-col-12 p-md-6">
+
+                            <p:commandButton value="Procesar" icon="pi pi-check"
+                                actionListener="#{usoSellosPrepedidoBean.adquirirUsoSello(true)}" update="messages"
+                                styleClass="p-mr-2" process="@this" onstart="PF('blockUIWidget').block()"
+                                oncomplete="PF('blockUIWidget').unblock()"
+                                onclick="PrimeFaces.monitorDownload(start, stop);">
+                                <p:fileDownload value="#{usoSellosPrepedidoBean.pdfStream}" />
+
+                            </p:commandButton>
+
+                            <p:commandButton value="Cancelar" icon="pi pi-times" type="button"
+                                styleClass="ui-button-secondary" onclick="PF('sellosDialog').hide()" />
+                        </div>
+                    </div>
+                </p:outputPanel>
+            </h:form>
+        </p:dialog>
+
 
         <p:dialog widgetVar="modalNpBanco" header="Aviso" width="400" modal="true" closable="false" showEffect="fade"
             responsive="true">
