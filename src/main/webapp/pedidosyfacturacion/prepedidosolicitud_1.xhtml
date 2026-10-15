@@ -1406,37 +1406,36 @@
                         <div class="p-col-12">
                             <div class="card">
                                 <p:growl id="messages" showDetail="true" />
-                                <div class="ui-fluid p-formgrid p-grid">
+                                <div
+                                    style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px; margin-top: 10px; margin-bottom: 20px;">
 
-                                    <div class="p-field p-col-12 p-md-3">
+                                    <!-- 1. Último Sello -->
+                                    <div style="width: 140px; flex-shrink: 0;">
                                         <span class="ui-float-label">
-
                                             <p:inputText id="ultimoSello" value="#{usoSellosPrepedidoBean.ultimoSello}"
-                                                maxlength="8">
+                                                maxlength="8" style="width: 100%;">
                                                 <p:ajax event="blur" process="@this" update="@none" />
                                             </p:inputText>
-
-
-                                            <!--                                        <p:inputText id="ultimoSello" value="#{usoSellosPrepedidoBean.ultimoSello}">
-    <p:ajax event="blur" update="@none" process="@this" />
-</p:inputText>-->
-
                                             <p:outputLabel for="ultimoSello">Último Sello</p:outputLabel>
                                         </span>
                                     </div>
-                                    <div class="p-field p-col-12 p-md-3">
+
+                                    <!-- 2. Botón Buscar -->
+                                    <div style="flex-shrink: 0;">
                                         <p:commandButton id="btnBuscar2" value="Buscar" icon="pi pi-search"
                                             actionListener="#{usoSellosPrepedidoBean.obtenerUltimoUsoSello()}"
-                                            process="@this" update="messages ultimoSello" />
+                                            process="@this" update="messages ultimoSello"
+                                            style="width: auto; white-space: nowrap; padding: 0 16px;" />
                                     </div>
-                                    <div class="p-field p-col-12 p-md-12"> </div>
-                                    <div class="p-field p-col-12 p-md-3">
-                                        <div class="ui-inputgroup">
+
+                                    <!-- 3. Placa -->
+                                    <div style="width: 160px; flex-shrink: 0;">
+                                        <div class="ui-inputgroup" style="width: 100%;">
                                             <span class="ui-inputgroup-addon">
                                                 <i class="fa fa-money"></i>
                                             </span>
                                             <p:selectOneMenu id="ci" value="#{usoSellosPrepedidoBean.autotanque}"
-                                                title="Placa" panelStyle="width:175px" style="min-width: 60%;"
+                                                title="Placa" panelStyle="width:175px" style="width: 100%;"
                                                 autoWidth="false" filter="true" filterMatchMode="startsWith"
                                                 converter="converterg" required="true"
                                                 requiredMessage="Seleccione placa">
@@ -1450,30 +1449,24 @@
                                         </div>
                                     </div>
 
-                                    <div class="p-field p-col-12 p-md-3">
+                                    <!-- 4. Conductor -->
+                                    <div style="flex: 1 1 220px; min-width: 180px;">
                                         <span class="ui-float-label">
                                             <p:inputText id="cond"
                                                 value="#{usoSellosPrepedidoBean.autotanque.cedularuc.cedularuc} - #{usoSellosPrepedidoBean.autotanque.cedularuc.nombre}"
-                                                readonly="true" />
+                                                readonly="true" style="width: 100%;" />
                                             <p:outputLabel for="cond">Conductor</p:outputLabel>
                                         </span>
                                     </div>
 
-                                    <!--                                <div class="p-field p-col-12 p-md-3">
-                                                                    <span class="ui-float-label">
-                                                                        <p:inputText id="ultimaNP" value="{}" maxlength="50" readonly="true" />
-                                                                        <p:outputLabel for="cond">Última NP</p:outputLabel>
-                                                                    </span>
-                                                                </div>-->
-
-                                </div>
-
-                                <div class="p-field p-col-12" style="display:flex; align-items:center; gap:10px;">
-
-                                    <p:outputLabel for="fechauso" value="Fecha de uso" style="white-space:nowrap;" />
-
-                                    <p:datePicker id="fechauso" value="#{usoSellosPrepedidoBean.fechaUso}"
-                                        showIcon="true" style="width:250px;" />
+                                    <!-- 5. Fecha de uso -->
+                                    <div
+                                        style="display: flex; align-items: center; gap: 8px; flex-shrink: 0; padding-bottom: 2px;">
+                                        <p:outputLabel for="fechauso" value="Fecha de uso"
+                                            style="white-space: nowrap;" />
+                                        <p:datePicker id="fechauso" value="#{usoSellosPrepedidoBean.fechaUso}"
+                                            showIcon="true" style="width: 160px;" inputStyle="width: 115px;" />
+                                    </div>
 
                                 </div>
 
