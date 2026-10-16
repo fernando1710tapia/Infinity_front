@@ -132,6 +132,8 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     private ClienteProductoServicio cliProdServicio;
     @Inject
     private AsignacionPetroTerminalServicio asignacionPetroTerminalServicio;
+    @Inject
+    private ec.com.infinityone.servicio.pedidosyfacturacion.UsoSellosServicio usoSellosServicio;
 
     private Asignacionpetroterminal asignacionPetroTerminal;
     /*
@@ -410,9 +412,9 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         comercializadora = snapComercializadora;
         codComer = snapCodComer;
         codAbas = snapCodAbas;
-        codCliente = snapCodCliente;
+        codCliente = "";
         codTerminal = snapCodTerminal;
-        cliente = snapCliente;
+        cliente = null;
         terminal = snapTerminal;
         listaClientes = snapListaClientes;
         todosClientes = snapTodosClientes;
@@ -1134,6 +1136,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                 filtrarAutorizados();
             }
             cargarAsignacionPetroTerminal();
+            cargarSellosPrepedidos();
             // habilitarBusqueda();
         } catch (Exception e) {
             e.printStackTrace();
@@ -1170,6 +1173,84 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             }
         }
         return new java.util.ArrayList<>(mapa.values());
+    }
+
+    private void cargarSellosPrepedidos() {
+        if (listPrepedido == null || listPrepedido.isEmpty() || fechaInicial == null || fechaFinal == null) {
+            return;
+        }
+        try {
+            SimpleDateFormat dateFmt = new SimpleDateFormat("yyyy/MM/dd");
+            String fI = dateFmt.format(fechaInicial);
+            String fF = dateFmt.format(fechaFinal);
+            String cComer = (codComer != null && !codComer.trim().isEmpty()) ? codComer : "0095";
+            String cTerm = (codTerminal != null && !codTerminal.trim().isEmpty()) ? codTerminal : "-1";
+
+            JSONArray arr = usoSellosServicio.buscarUsoSellos(cComer, cTerm, fI, fF);
+            if (arr != null && arr.length() > 0) {
+                java.util.Map<String, ec.com.infinityone.modelo.EnvioUsoSello> mapSellos = new java.util.HashMap<>();
+                for (int i = 0; i < arr.length(); i++) {
+                    if (!arr.isNull(i)) {
+                        JSONObject obj = arr.getJSONObject(i);
+                        ec.com.infinityone.modelo.EnvioUsoSello envio = new ec.com.infinityone.modelo.EnvioUsoSello();
+                        envio.setCodigocomercializadora(obj.optString("codigocomercializadora", ""));
+                        envio.setCodigoterminal(obj.optString("codigoterminal", ""));
+                        envio.setCodigocliente(obj.optString("codigocliente", ""));
+                        envio.setPlaca(obj.optString("placa", ""));
+                        envio.setFecha(obj.optString("fecha", ""));
+                        envio.setNombreconductor(obj.optString("nombreconductor", ""));
+                        envio.setNombrecliente(obj.optString("nombrecliente", ""));
+                        envio.setNp1(obj.optString("np1", ""));
+                        envio.setSelloconcatenado(obj.optString("selloconcatenado", ""));
+                        envio.setNpconcatenada(obj.optString("npconcatenada", ""));
+
+                        String np1 = envio.getNp1() != null ? envio.getNp1().trim() : "";
+                        if (!np1.isEmpty()) {
+                            mapSellos.put(np1, envio);
+                        }
+                        String npConcat = envio.getNpconcatenada() != null ? envio.getNpconcatenada() : "";
+                        for (String part : npConcat.split(";")) {
+                            String p = part.trim();
+                            if (!p.isEmpty()) {
+                                mapSellos.put(p, envio);
+                            }
+                        }
+                    }
+                }
+
+                for (PrepedidoSolicitud sol : listPrepedido) {
+                    if (sol == null)
+                        continue;
+                    boolean encontrado = false;
+                    ec.com.infinityone.modelo.EnvioUsoSello match = null;
+                    if (sol.getNumeroNotaPedidoGenerada() != null) {
+                        String gen = sol.getNumeroNotaPedidoGenerada().trim();
+                        if (mapSellos.containsKey(gen)) {
+                            encontrado = true;
+                            match = mapSellos.get(gen);
+                        }
+                    }
+                    if (!encontrado && sol.getDetalle() != null) {
+                        for (Detalleprepedido det : sol.getDetalle()) {
+                            if (det != null && det.getNumeronp() != null) {
+                                String dnp = det.getNumeronp().trim();
+                                if (mapSellos.containsKey(dnp)) {
+                                    encontrado = true;
+                                    match = mapSellos.get(dnp);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (encontrado) {
+                        sol.setSellosProcesados(true);
+                        sol.setEnvioUsoSello(match);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.warning("No se pudieron cargar sellos existentes: " + e.getMessage());
+        }
     }
 
     /**
@@ -1233,7 +1314,8 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     }
 
     /**
-     * Calcula el saldo de volumen solicitado: Total Asignado - Programa Despachos PyS
+     * Calcula el saldo de volumen solicitado: Total Asignado - Programa Despachos
+     * PyS
      */
     public java.math.BigDecimal getSaldoVolSol(String nombreProducto) {
         java.math.BigDecimal totalAsig = (this.asignacionPetroTerminal != null)
@@ -1244,7 +1326,8 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     }
 
     /**
-     * Calcula el saldo de volumen autorizado: Total Asignado - Programa Despachos PyS
+     * Calcula el saldo de volumen autorizado: Total Asignado - Programa Despachos
+     * PyS
      */
     public java.math.BigDecimal getSaldoVolAuto(String nombreProducto) {
         java.math.BigDecimal totalAsig = (this.asignacionPetroTerminal != null)
@@ -1266,12 +1349,14 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     public void cargarAsignacionPetroTerminal() {
         try {
             String codComerc = (this.comercializadora != null && this.comercializadora.getCodigo() != null)
-                    ? this.comercializadora.getCodigo() : null;
+                    ? this.comercializadora.getCodigo()
+                    : null;
             String codTerm = (this.terminal != null) ? this.terminal.getCodigo() : null;
             Date fechaD = this.fechaInicial; // Fecha de despacho
 
             if (codComerc != null && codTerm != null && fechaD != null) {
-                Asignacionpetroterminal asig = asignacionPetroTerminalServicio.obtenerAsignacion(codComerc, codTerm, fechaD);
+                Asignacionpetroterminal asig = asignacionPetroTerminalServicio.obtenerAsignacion(codComerc, codTerm,
+                        fechaD);
                 if (asig != null) {
                     this.asignacionPetroTerminal = asig;
                 } else {
@@ -1294,7 +1379,8 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     }
 
     /**
-     * Actualiza o registra la asignación de Petro Terminal llamando al servicio REST gestionarasignacion
+     * Actualiza o registra la asignación de Petro Terminal llamando al servicio
+     * REST gestionarasignacion
      */
     public void actualizarAsignacionPetroTerminal() {
         try {
@@ -1326,7 +1412,8 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
 
             this.asignacionPetroTerminal.setTerminal(this.terminal);
             String user = (this.dataUser != null && this.dataUser.getUserConected() != null)
-                    ? this.dataUser.getUserConected() : "FT";
+                    ? this.dataUser.getUserConected()
+                    : "FT";
             this.asignacionPetroTerminal.setUsuarioactual(user);
 
             this.asignacionPetroTerminal.calcularTotales();
@@ -1615,10 +1702,12 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             if (connection.getResponseCode() == 200 || connection.getResponseCode() == 201) {
                 envNP.getPrepedido().getPrepedidoPK().setNumero(numeroNotaPedio);
                 this.dialogo(FacesMessage.SEVERITY_INFO, "PREPEDIDO REGISTRADO EXITOSAMENTE");
-                // Mostrar la tabla con el contexto del prepedido recien creado
+                // Regresar a la pantalla inicial con cliente en -1 (todos los clientes)
                 filtrosGuardados = false;
                 mostarPantallaInicial = true;
                 mostarPrepedido = false;
+                this.cliente = null;
+                this.codCliente = "";
                 if (fechaDespacho != null) {
                     fechaInicial = fechaDespacho;
                 }
@@ -1731,8 +1820,18 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
 
     public void cancelar() {
         restaurarFiltrosBusqueda();
+        this.cliente = null;
+        this.codCliente = "";
         mostarPantallaInicial = true;
         mostarPrepedido = false;
+        try {
+            if (listPrepedido != null && !listPrepedido.isEmpty() && codComer != null && !codComer.trim().isEmpty()
+                    && codTerminal != null && !codTerminal.trim().isEmpty()) {
+                obtenerPrepedidos();
+            }
+        } catch (Exception e) {
+            LOG.log(Level.WARNING, "Error al refrescar prepedidos al cancelar: " + e.getMessage(), e);
+        }
     }
 
     public void cancelarAutorizacion() {
@@ -2017,7 +2116,10 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         String comer = sol.getPrepedido().getPrepedidoPK() != null
                 ? sol.getPrepedido().getPrepedidoPK().getCodigocomercializadora()
                 : codComer;
-        Cliente cli = resolverClienteCompleto(sol.getPrepedido().getCodigocliente());
+        Cliente cli = resolverClienteCompleto(sol.getPrepedido().getCodigocliente(), comer);
+        if (cli != null) {
+            sol.getPrepedido().setCodigocliente(cli);
+        }
         if (cli == null || cli.getFehavencimientocontrato() == null) {
             return true;
         }
@@ -2037,18 +2139,54 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     }
 
     /**
-     * Devuelve el cliente con forma de pago y fecha de vencimiento. Si el cliente
-     * del
-     * prepedido no trae esos datos, se busca por código en listaClientes.
+     * Devuelve el cliente con datos actualizados en tiempo real desde la BD
+     * (porComercializadoraCliente).
+     * Si falla la llamada o no se encuentra, busca en listaClientes o retorna el
+     * del prepedido como fallback.
      */
     private Cliente resolverClienteCompleto(Cliente cliPrep) {
+        return resolverClienteCompleto(cliPrep, null);
+    }
+
+    private Cliente resolverClienteCompleto(Cliente cliPrep, String comer) {
         if (cliPrep == null) {
             return null;
         }
+        String codCli = cliPrep.getClientePK() != null ? cliPrep.getClientePK().getCodigo() : null;
+        String codComercializadora = (comer != null && !comer.trim().isEmpty()) ? comer : codComer;
+        if (cliPrep.getClientePK() != null && cliPrep.getClientePK().getCodigocomercializadora() != null
+                && !cliPrep.getClientePK().getCodigocomercializadora().trim().isEmpty()) {
+            codComercializadora = cliPrep.getClientePK().getCodigocomercializadora();
+        }
+
+        if (codCli != null && !codCli.trim().isEmpty() && codComercializadora != null
+                && !codComercializadora.trim().isEmpty()) {
+            try {
+                List<Cliente> listFresh = clienteServicio.obtenerClientesPorID(codComercializadora, codCli);
+                if (listFresh != null && !listFresh.isEmpty() && listFresh.get(0) != null) {
+                    Cliente cliFresh = listFresh.get(0);
+                    // Sincronizar en listaClientes si existe en memoria
+                    if (listaClientes != null) {
+                        for (int i = 0; i < listaClientes.size(); i++) {
+                            Cliente c = listaClientes.get(i);
+                            if (c != null && c.getClientePK() != null && codCli.equals(c.getClientePK().getCodigo())) {
+                                listaClientes.set(i, cliFresh);
+                                break;
+                            }
+                        }
+                    }
+                    return cliFresh;
+                }
+            } catch (Exception e) {
+                LOG.log(Level.WARNING,
+                        "Error al consultar cliente en tiempo real para validacion de NP: " + e.getMessage(), e);
+            }
+        }
+
+        // Fallback a los datos en memoria si la consulta fresca no responde
         if (cliPrep.getCodigoformapago() != null && cliPrep.getFehavencimientocontrato() != null) {
             return cliPrep;
         }
-        String codCli = cliPrep.getClientePK() != null ? cliPrep.getClientePK().getCodigo() : null;
         if (codCli != null && listaClientes != null) {
             for (Cliente c : listaClientes) {
                 if (c != null && c.getClientePK() != null && codCli.equals(c.getClientePK().getCodigo())) {
@@ -2080,6 +2218,433 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             return sb.toString();
         } catch (Exception e) {
             return "";
+        }
+    }
+
+    // =====================================================================
+    // GENERAR FACTURA INFINITY (misma lógica que facturacionDirectaBean)
+    // =====================================================================
+
+    public static class FilaGenerarFactura {
+        private PrepedidoSolicitud prepedidoSolicitud;
+        private ec.com.infinityone.modelo.Detalleprepedido detalle;
+        private String numeroNotaPedido;
+        private String numeroFactura = "0";
+
+        public FilaGenerarFactura(PrepedidoSolicitud ps, ec.com.infinityone.modelo.Detalleprepedido det) {
+            this.prepedidoSolicitud = ps;
+            this.detalle = det;
+            if (det != null && det.getNumeronp() != null && !det.getNumeronp().trim().isEmpty()
+                    && !det.getNumeronp().trim().equals("0") && !det.getNumeronp().trim().equals("00")) {
+                this.numeroNotaPedido = det.getNumeronp().trim();
+            } else {
+                this.numeroNotaPedido = "00";
+            }
+        }
+
+        public PrepedidoSolicitud getPrepedidoSolicitud() {
+            return prepedidoSolicitud;
+        }
+
+        public ec.com.infinityone.modelo.Detalleprepedido getDetalle() {
+            return detalle;
+        }
+
+        public String getNumeroNotaPedido() {
+            return numeroNotaPedido;
+        }
+
+        public String getNumeroFactura() {
+            return numeroFactura;
+        }
+
+        public void setNumeroFactura(String numeroFactura) {
+            this.numeroFactura = numeroFactura;
+        }
+
+        public boolean isTieneNotaPedido() {
+            return numeroNotaPedido != null && !"00".equals(numeroNotaPedido);
+        }
+
+        public boolean isGenerado() {
+            return numeroFactura != null && !numeroFactura.trim().isEmpty() && !"0".equals(numeroFactura.trim());
+        }
+
+        public boolean isBloqueado() {
+            return !isTieneNotaPedido() || isGenerado();
+        }
+    }
+
+    private java.util.List<FilaGenerarFactura> listaDetallesFactura;
+
+    public java.util.List<FilaGenerarFactura> getListaDetallesFactura() {
+        return listaDetallesFactura;
+    }
+
+    public void setListaDetallesFactura(java.util.List<FilaGenerarFactura> listaDetallesFactura) {
+        this.listaDetallesFactura = listaDetallesFactura;
+    }
+
+    /**
+     * Abre el modal "Generar Factura Infinity". Cada fila toma su número de
+     * factura real desde la Nota de Pedido (notapedido/porId), de modo que al
+     * recargar la pantalla no vuelve a 0.
+     */
+    public void generarFacturaInfinity(PrepedidoSolicitud ps) {
+        if (ps == null || ps.getPrepedido() == null) {
+            return;
+        }
+        if (!ps.isGeneradaNpInfinity()) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "Primero debe generar la nota de pedido.");
+            return;
+        }
+        try {
+            if (ps.getPrepedido().getCodigocliente() != null
+                    && ps.getPrepedido().getCodigocliente().getClientePK() != null) {
+                listaProductosClienteModal = cliProdServicio.obtenerProductos(
+                        ps.getPrepedido().getPrepedidoPK().getCodigocomercializadora(),
+                        ps.getPrepedido().getCodigocliente().getClientePK().getCodigo());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        listaDetallesFactura = new java.util.ArrayList<>();
+        if (ps.getDetalle() != null) {
+            for (ec.com.infinityone.modelo.Detalleprepedido det : ps.getDetalle()) {
+                if (det == null || det.getProducto() == null) {
+                    continue;
+                }
+                FilaGenerarFactura fila = new FilaGenerarFactura(ps, det);
+                if (fila.isTieneNotaPedido()) {
+                    fila.setNumeroFactura(consultarNumeroFacturaNP(ps, fila.getNumeroNotaPedido()));
+                }
+                listaDetallesFactura.add(fila);
+            }
+        }
+
+        org.primefaces.PrimeFaces.current().ajax().update("formFacturar");
+        String titulo = escaparJs("Generar Factura Infinity " + construirTituloGenerar(ps));
+        org.primefaces.PrimeFaces.current().executeScript(
+                "try{var d=PF('generarFacturaDialog');"
+                        + "var t=d.titlebar?d.titlebar.find('.ui-dialog-title'):d.jq.find('.ui-dialog-title');"
+                        + "t.text('" + titulo + "');}catch(e){}"
+                        + "PF('generarFacturaDialog').show();");
+    }
+
+    /**
+     * Devuelve el número de factura de la NP si ya está facturada; "0" en caso
+     * contrario (las NP directas pueden traer numerofacturasri sin estar
+     * facturadas, por eso se exige facturada = SI).
+     */
+    private String consultarNumeroFacturaNP(PrepedidoSolicitud ps, String numeroNP) {
+        try {
+            PrepedidoPK pk = ps.getPrepedido().getPrepedidoPK();
+            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.notapedido/porId?";
+            URL u = new URL(direcc + "codigoabastecedora=" + pk.getCodigoabastecedora()
+                    + "&codigocomercializadora=" + pk.getCodigocomercializadora()
+                    + "&numero=" + numeroNP);
+            HttpURLConnection connection = (HttpURLConnection) u.openConnection();
+            connection.setDoInput(true);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setConnectTimeout(30000);
+            connection.setReadTimeout(30000);
+            if (connection.getResponseCode() != 200) {
+                return "0";
+            }
+            StringBuilder sb = new StringBuilder();
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"))) {
+                String tmp;
+                while ((tmp = br.readLine()) != null) {
+                    sb.append(tmp);
+                }
+            }
+            JSONArray retorno = new JSONObject(sb.toString()).getJSONArray("retorno");
+            for (int i = 0; i < retorno.length(); i++) {
+                if (!retorno.isNull(i)) {
+                    JSONObject np = retorno.getJSONObject(i);
+                    String facturada = np.isNull("facturada") ? "" : np.optString("facturada", "").trim();
+                    String numFac = np.isNull("numerofacturasri") ? "" : np.optString("numerofacturasri", "").trim();
+                    if ("SI".equalsIgnoreCase(facturada) && !numFac.isEmpty() && !"0".equals(numFac)
+                            && !"null".equalsIgnoreCase(numFac)) {
+                        return numFac;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.warning("No se pudo consultar la factura de la NP " + numeroNP + ": " + e.getMessage());
+        }
+        return "0";
+    }
+
+    private int controlDespachoFactura(String codClienteNP) {
+        try {
+            URL u = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
+                    + "ec.com.infinity.modelo.factura/controlDespacho?pcodigocliente=" + codClienteNP);
+            HttpURLConnection connection = (HttpURLConnection) u.openConnection();
+            connection.setDoInput(true);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+            StringBuilder sb = new StringBuilder();
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                String tmp;
+                while ((tmp = br.readLine()) != null) {
+                    sb.append(tmp);
+                }
+            }
+            JSONArray retorno = new JSONObject(sb.toString()).getJSONArray("retorno");
+            int value = 0;
+            for (int i = 0; i < retorno.length(); i++) {
+                if (!retorno.isNull(i)) {
+                    value = retorno.getInt(i);
+                }
+            }
+            return value;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -2;
+        }
+    }
+
+    /** Productos sin factura electrónica (Fichero.PRODUCTOSINFE) => numero "-1". */
+    private boolean esProductoSinFe(FilaGenerarFactura fila) {
+        String cfg = Fichero.getPRODUCTOSINFE();
+        if (cfg == null || fila.getDetalle() == null || fila.getDetalle().getProducto() == null) {
+            return false;
+        }
+        String generico = fila.getDetalle().getProducto().getCodigo();
+        for (String s : cfg.split(",")) {
+            String cod = s.trim();
+            if (cod.isEmpty()) {
+                continue;
+            }
+            if (cod.equals(generico)) {
+                return true;
+            }
+            if (listaProductosClienteModal != null) {
+                for (Producto p : listaProductosClienteModal) {
+                    if (p != null && generico != null && generico.equals(p.getProductogenerico())
+                            && cod.equals(p.getCodigo())) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Botón Generar del modal: equivale a save() + generarFacturaParametros() de
+     * facturacionDirectaBean.
+     */
+    public void procesarGenerarFacturaFila(FilaGenerarFactura fila) {
+        if (fila == null || fila.getPrepedidoSolicitud() == null || !fila.isTieneNotaPedido()) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "La fila no tiene una nota de pedido generada.");
+            return;
+        }
+        if (fila.isGenerado()) {
+            this.dialogo(FacesMessage.SEVERITY_WARN, "Esta nota de pedido ya está facturada.");
+            return;
+        }
+        PrepedidoSolicitud ps = fila.getPrepedidoSolicitud();
+        PrepedidoPK pk = ps.getPrepedido().getPrepedidoPK();
+
+        if (comercializadora != null && comercializadora.getActivo() != null
+                && !"S".equals(comercializadora.getActivo())) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "LA COMERCIALIZADORA SE ENCUENTRA INACTIVA");
+            return;
+        }
+
+        // La NP pudo facturarse desde otra pantalla
+        String yaFacturada = consultarNumeroFacturaNP(ps, fila.getNumeroNotaPedido());
+        if (!"0".equals(yaFacturada)) {
+            fila.setNumeroFactura(yaFacturada);
+            this.dialogo(FacesMessage.SEVERITY_ERROR,
+                    "Usted no puede facturar esa Nota Pedido, porque ya está Facturada");
+            return;
+        }
+
+        // Control de despacho del cliente
+        Cliente cli = resolverClienteCompleto(ps.getPrepedido().getCodigocliente());
+        if (cli != null && cli.getClientePK() != null && cli.getControldespacho() > -1) {
+            int value = controlDespachoFactura(cli.getClientePK().getCodigo());
+            if (cli.getControldespacho() < value) {
+                this.dialogo(FacesMessage.SEVERITY_ERROR,
+                        "Este cliente tiene mas facturas sin despachar que las permitidas");
+                return;
+            }
+        }
+
+        String num = esProductoSinFe(fila) ? "-1" : "0";
+        actualizarVolumenDetalleNP(fila, pk);
+        try {
+            String usuario = dataUser.getUser().getNombrever().trim().replace(" ", "");
+            URL u = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
+                    + "ec.com.infinity.modelo.factura/crearFdirecta?"
+                    + "codigoabastecedora=" + pk.getCodigoabastecedora()
+                    + "&codigocomercializadora=" + pk.getCodigocomercializadora()
+                    + "&numeronotapedido=" + fila.getNumeroNotaPedido()
+                    + "&numero=" + num
+                    + "&codigousuario=" + usuario);
+            HttpURLConnection connection = (HttpURLConnection) u.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("PUT");
+            connection.setRequestProperty("Content-type", "application/json");
+            connection.connect();
+
+            int code = connection.getResponseCode();
+            InputStream is = code >= 400 ? connection.getErrorStream() : connection.getInputStream();
+            StringBuilder sb = new StringBuilder();
+            if (is != null) {
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"))) {
+                    String tmp;
+                    while ((tmp = br.readLine()) != null) {
+                        sb.append(tmp);
+                    }
+                }
+            }
+
+            if (code == 200) {
+                String numeroFactura = "";
+                JSONArray retorno = new JSONObject(sb.toString()).getJSONArray("retorno");
+                for (int i = 0; i < retorno.length(); i++) {
+                    if (!retorno.isNull(i)) {
+                        JSONObject factura = retorno.getJSONObject(i).getJSONObject("factura");
+                        numeroFactura = factura.getJSONObject("facturaPK").getString("numero");
+                    }
+                }
+                if (numeroFactura.trim().isEmpty()) {
+                    numeroFactura = consultarNumeroFacturaNP(ps, fila.getNumeroNotaPedido());
+                }
+                fila.setNumeroFactura(numeroFactura.trim());
+                this.dialogo(FacesMessage.SEVERITY_INFO, "FACTURA REGISTRADA EXITOSAMENTE");
+            } else if (code == 299) {
+                String mensajeError = "";
+                try {
+                    JSONArray retorno = new JSONObject(sb.toString()).getJSONArray("retorno");
+                    for (int i = 0; i < retorno.length(); i++) {
+                        if (!retorno.isNull(i)) {
+                            mensajeError = retorno.getString(i);
+                        }
+                    }
+                } catch (Exception ex) {
+                    mensajeError = sb.toString();
+                }
+                this.dialogo(FacesMessage.SEVERITY_ERROR,
+                        "ERROR AL REGISTRAR FACTURA sobre la NP: " + fila.getNumeroNotaPedido() + " " + mensajeError);
+            } else {
+                System.out.println("FT:: crearFdirecta HTTP " + code + " URL: " + u + " BODY: " + sb);
+                this.dialogo(FacesMessage.SEVERITY_ERROR,
+                        "ERROR AL REGISTRAR FACTURA sobre la NP: " + fila.getNumeroNotaPedido() + " (HTTP " + code
+                                + ")");
+            }
+        } catch (Exception e) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR,
+                    "ERROR AL REGISTRAR FACTURA sobre la NP: " + fila.getNumeroNotaPedido());
+            e.printStackTrace(System.out);
+        }
+    }
+
+    /**
+     * Equivale a obtenerDetalleNotaPedidoF + actualizarVolumenFactura de
+     * facturacionDirectaBean: deja el volumen autorizado en el detalle de la NP.
+     */
+    private void actualizarVolumenDetalleNP(FilaGenerarFactura fila, PrepedidoPK pk) {
+        try {
+            String generico = fila.getDetalle().getProducto().getCodigo();
+            List<String> candidatos = new ArrayList<>();
+            if (listaProductosClienteModal != null) {
+                for (Producto p : listaProductosClienteModal) {
+                    if (p != null && generico != null && generico.equals(p.getProductogenerico())) {
+                        candidatos.add(p.getCodigo());
+                    }
+                }
+            }
+            String codMedida = "01";
+            if (fila.getDetalle().getDetalleprepedidoPK() != null
+                    && fila.getDetalle().getDetalleprepedidoPK().getCodigomedida() != null) {
+                codMedida = fila.getDetalle().getDetalleprepedidoPK().getCodigomedida();
+            }
+            String base = Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
+                    + "ec.com.infinity.modelo.detallenotapedido/porId";
+            for (String codProd : candidatos) {
+                URL g = new URL(base + "?codigoabastecedora=" + pk.getCodigoabastecedora()
+                        + "&codigocomercializadora=" + pk.getCodigocomercializadora()
+                        + "&numero=" + fila.getNumeroNotaPedido()
+                        + "&codigoproducto=" + codProd + "&codigomedida=" + codMedida);
+                HttpURLConnection c = (HttpURLConnection) g.openConnection();
+                c.setRequestMethod("GET");
+                c.setRequestProperty("Accept", "application/json");
+                if (c.getResponseCode() != 200) {
+                    continue;
+                }
+                StringBuilder sb = new StringBuilder();
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream(), "UTF-8"))) {
+                    String tmp;
+                    while ((tmp = br.readLine()) != null) {
+                        sb.append(tmp);
+                    }
+                }
+                JSONArray retorno = new JSONObject(sb.toString()).getJSONArray("retorno");
+                if (retorno.isEmpty() || retorno.isNull(0)) {
+                    continue;
+                }
+                JSONObject det = retorno.getJSONObject(0);
+                JSONObject detPk = det.getJSONObject("detallenotapedidoPK");
+                JSONObject med = det.getJSONObject("medida");
+                JSONObject prod = det.getJSONObject("producto");
+                String usr = dataUser.getUser().getNombrever();
+
+                ec.com.infinityone.modelo.Medida medida = new ec.com.infinityone.modelo.Medida();
+                medida.setAbreviacion(med.getString("abreviacion"));
+                medida.setActivo(med.getBoolean("activo"));
+                medida.setCodigo(med.getString("codigo"));
+                medida.setNombre(med.getString("nombre"));
+                medida.setUsuarioactual(usr);
+                ec.com.infinityone.modelo.Producto producto = new ec.com.infinityone.modelo.Producto();
+                producto.setCodigo(prod.getString("codigo"));
+                producto.setNombre(prod.getString("nombre"));
+                ec.com.infinityone.modelo.DetallenotapedidoPK dpk = new ec.com.infinityone.modelo.DetallenotapedidoPK();
+                dpk.setCodigoabastecedora(detPk.getString("codigoabastecedora"));
+                dpk.setCodigocomercializadora(detPk.getString("codigocomercializadora"));
+                dpk.setCodigomedida(detPk.getString("codigomedida"));
+                dpk.setCodigoproducto(detPk.getString("codigoproducto"));
+                dpk.setNumero(detPk.getString("numero"));
+                ec.com.infinityone.modelo.Detallenotapedido d = new ec.com.infinityone.modelo.Detallenotapedido();
+                d.setDetallenotapedidoPK(dpk);
+                d.setMedida(medida);
+                d.setProducto(producto);
+                d.setUsuarioactual(usr);
+                d.setVolumennaturalautorizado(fila.getDetalle().getVolumennaturalautorizado());
+                d.setVolumennaturalrequerido(det.getBigDecimal("volumennaturalrequerido"));
+                d.setCompartimento1(det.getBigDecimal("compartimento1"));
+                d.setCompartimento2(det.getBigDecimal("compartimento2"));
+                d.setCompartimento3(det.getBigDecimal("compartimento3"));
+                d.setCompartimento4(det.getBigDecimal("compartimento4"));
+                d.setCompartimento5(det.getBigDecimal("compartimento5"));
+                d.setCompartimento6(det.getBigDecimal("compartimento6"));
+                d.setCompartimento7(det.getBigDecimal("compartimento7"));
+                d.setCompartimento8(det.getBigDecimal("compartimento8"));
+                d.setCompartimento9(det.getBigDecimal("compartimento9"));
+                d.setCompartimento10(det.getBigDecimal("compartimento10"));
+                d.setSelloinicial(det.getInt("selloinicial"));
+                d.setSellofinal(det.getInt("sellofinal"));
+
+                HttpURLConnection p = (HttpURLConnection) new URL(base).openConnection();
+                p.setDoOutput(true);
+                p.setRequestMethod("PUT");
+                p.setRequestProperty("Content-type", "application/json");
+                try (DataOutputStream out = new DataOutputStream(p.getOutputStream())) {
+                    out.write(new ObjectMapper().writeValueAsString(d).getBytes("UTF-8"));
+                    out.flush();
+                }
+                System.out.println("FT:: PUT detallenotapedido HTTP " + p.getResponseCode());
+                return;
+            }
+            System.out.println("FT:: No se encontró detallenotapedido para NP " + fila.getNumeroNotaPedido());
+        } catch (Exception e) {
+            e.printStackTrace(System.out);
         }
     }
 

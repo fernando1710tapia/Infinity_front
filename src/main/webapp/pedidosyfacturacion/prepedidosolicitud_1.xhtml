@@ -544,6 +544,8 @@
                                     <p:commandButton icon="pi pi-money-bill"
                                         styleClass="ui-button-secondary rounded-button"
                                         disabled="#{prepedidoItem.generadaNpBanco or not prepedidoItem.registroActivo}"
+                                        process="@this" update=":formFacturar"
+                                        actionListener="#{prepedidoSolicitudBean1.generarFacturaInfinity(prepedidoItem)}"
                                         title="Generar Factura Infinity"
                                         style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
                                 </p:column>
@@ -566,11 +568,16 @@
                                         style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
                                 </p:column>
 
-                                <!-- ImpresiÃ³n sellos -->
+                                <!-- Impresión sellos -->
                                 <p:column exportable="false" styleClass="action-col" style="text-align:center;">
-                                    <p:commandButton icon="pi pi-print" styleClass="ui-button-secondary rounded-button"
-                                        disabled="true" title="ImpresiÃ³n sellos"
-                                        style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
+                                    <p:commandButton icon="pi pi-print"
+                                        styleClass="#{prepedidoItem.sellosProcesados ? 'ui-button-info rounded-button' : 'ui-button-secondary rounded-button'}"
+                                        disabled="#{not prepedidoItem.sellosProcesados}" title="Impresión sellos"
+                                        process="@this" ajax="false"
+                                        actionListener="#{usoSellosPrepedidoBean.imprimirSellos(prepedidoItem)}"
+                                        style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;">
+                                        <p:fileDownload value="#{usoSellosPrepedidoBean.pdfStream}" />
+                                    </p:commandButton>
                                 </p:column>
 
 
@@ -1388,6 +1395,44 @@
             </h:form>
         </p:dialog>
 
+        <p:dialog widgetVar="generarFacturaDialog" header="Generar Factura Infinity" width="70%" modal="true"
+            showEffect="fade" responsive="true">
+            <h:form id="formFacturar">
+                <p:dataTable value="#{prepedidoSolicitudBean1.listaDetallesFactura}" var="filaFac"
+                    emptyMessage="No hay detalles para este prepedido.">
+
+                    <p:column headerText="Producto" width="20%">
+                        <h:outputText value="#{filaFac.detalle.producto.nombre}" />
+                    </p:column>
+
+                    <p:column headerText="Vol. Autorizado" width="15%">
+                        <p:inputNumber value="#{filaFac.detalle.volumennaturalautorizado}" decimalPlaces="0"
+                            thousandSeparator="" style="width: 100%;" inputStyle="width: 100%;" disabled="true" />
+                    </p:column>
+
+                    <p:column headerText="# NotaPedido" width="15%" style="text-align: center;">
+                        <h:outputText value="#{filaFac.numeroNotaPedido}" />
+                    </p:column>
+
+                    <p:column headerText="# Factura" width="20%" style="text-align: center;">
+                        <h:outputText value="#{filaFac.numeroFactura}" />
+                    </p:column>
+
+                    <p:column headerText="Generar" width="10%" style="text-align: center;">
+                        <p:commandButton value="Generar" icon="pi pi-cog" styleClass="ui-button-primary"
+                            actionListener="#{prepedidoSolicitudBean1.procesarGenerarFacturaFila(filaFac)}"
+                            process="@form" update="@form" disabled="#{filaFac.bloqueado}" />
+                    </p:column>
+
+                    <p:column headerText="Imprimir factura" width="10%" style="text-align: center;">
+                        <p:commandButton icon="pi pi-print" styleClass="ui-button-secondary rounded-button"
+                            disabled="true" />
+                    </p:column>
+
+                </p:dataTable>
+            </h:form>
+        </p:dialog>
+
 
 
 
@@ -1450,7 +1495,7 @@
                                     </div>
 
                                     <!-- 4. Conductor -->
-                                    <div style="flex: 1 1 220px; min-width: 180px;">
+                                    <div style="width: 300px; flex-shrink: 0;">
                                         <span class="ui-float-label">
                                             <p:inputText id="cond"
                                                 value="#{usoSellosPrepedidoBean.autotanque.cedularuc.cedularuc} - #{usoSellosPrepedidoBean.autotanque.cedularuc.nombre}"
@@ -1620,13 +1665,10 @@
                         <div class="p-field p-col-12 p-md-6">
 
                             <p:commandButton value="Procesar" icon="pi pi-check"
-                                actionListener="#{usoSellosPrepedidoBean.adquirirUsoSello(true)}" update="messages"
+                                actionListener="#{usoSellosPrepedidoBean.adquirirUsoSello(true)}"
+                                update=":form:messages :form:dt-products"
                                 styleClass="p-mr-2" process="@this" onstart="PF('blockUIWidget').block()"
-                                oncomplete="PF('blockUIWidget').unblock()"
-                                onclick="PrimeFaces.monitorDownload(start, stop);">
-                                <p:fileDownload value="#{usoSellosPrepedidoBean.pdfStream}" />
-
-                            </p:commandButton>
+                                oncomplete="PF('blockUIWidget').unblock();" />
 
                             <p:commandButton value="Cancelar" icon="pi pi-times" type="button"
                                 styleClass="ui-button-secondary" onclick="PF('sellosDialog').hide()" />

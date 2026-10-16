@@ -858,13 +858,17 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
             }
             System.out.println("FT::METODO adquirirUsoSello():. " + SUCCESS_CODE);
             if (SUCCESS_CODE == 200) {
-                ////////// archivoListo = true;
                 System.out.println(
                         "FT::METODO adquirirUsoSello():. " + SUCCESS_CODE + " DENTRO DEL if (SUCCESS_CODE == 200) {");
                 generarReporteAux(usoSelloImpresion);
-                // rutaPdfGenerado=
-                // RequestContext.getCurrentInstance().execute("descargarPDF()");
-                ////////// PrimeFaces.current().executeScript("descargarPDF()");
+                if (this.prepedidoActual != null) {
+                    this.prepedidoActual.setSellosProcesados(true);
+                    this.prepedidoActual.setEnvioUsoSello(usoSelloImpresion);
+                    this.prepedidoActual.setRutaPdfSellos(this.rutaPdfGenerado);
+                }
+                this.dialogo(FacesMessage.SEVERITY_INFO, "Sellos procesados exitosamente");
+                org.primefaces.PrimeFaces.current().executeScript("PF('sellosDialog').hide();");
+                org.primefaces.PrimeFaces.current().ajax().update(":form:dt-products", ":form:messages");
 
             } else {
                 archivoListo = false;
@@ -1770,11 +1774,62 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
      */
     private String tituloDialogo;
 
+    private ec.com.infinityone.modelo.PrepedidoSolicitud prepedidoActual;
+
+    public ec.com.infinityone.modelo.PrepedidoSolicitud getPrepedidoActual() {
+        return prepedidoActual;
+    }
+
+    public void setPrepedidoActual(ec.com.infinityone.modelo.PrepedidoSolicitud prepedidoActual) {
+        this.prepedidoActual = prepedidoActual;
+    }
+
+    /**
+     * Imprime o prepara el PDF de sellos para un prepedido que ya tiene sellos asignados.
+     */
+    public void imprimirSellos(ec.com.infinityone.modelo.PrepedidoSolicitud ps) {
+        if (ps == null) {
+            return;
+        }
+        try {
+            if (ps.getRutaPdfSellos() != null && !ps.getRutaPdfSellos().isEmpty()) {
+                java.io.File f = new java.io.File(ps.getRutaPdfSellos());
+                if (f.exists()) {
+                    this.rutaPdfGenerado = ps.getRutaPdfSellos();
+                    return;
+                }
+            }
+            if (ps.getEnvioUsoSello() != null) {
+                generarReporteAux(ps.getEnvioUsoSello());
+                return;
+            }
+            if (ps.getPrepedido() != null) {
+                EnvioUsoSello fallback = new EnvioUsoSello();
+                String cCom = ps.getPrepedido().getPrepedidoPK() != null
+                        ? ps.getPrepedido().getPrepedidoPK().getCodigocomercializadora()
+                        : (codComer != null ? codComer : "0095");
+                fallback.setCodigocomercializadora(cCom);
+                String nomCli = ps.getPrepedido().getCodigocliente() != null
+                        ? ps.getPrepedido().getCodigocliente().getNombrecomercial()
+                        : "";
+                fallback.setNombrecliente(nomCli != null ? nomCli : "");
+                fallback.setPlaca(ps.getPrepedido().getCodigoautotanque() != null ? ps.getPrepedido().getCodigoautotanque() : "");
+                fallback.setNombreconductor(ps.getPrepedido().getCedulaconductor() != null ? ps.getPrepedido().getCedulaconductor() : "");
+                fallback.setSelloconcatenado("");
+                generarReporteAux(fallback);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "Error al preparar impresión de sellos: " + e.getMessage());
+        }
+    }
+
     /**
      * Abre el panel de asignacion de sellos (identico a usosellos.xhtml) para un
      * prepedido de la pantalla prepedidosolicitud_1.
      */
     public void abrirDesdePrepedido(ec.com.infinityone.modelo.PrepedidoSolicitud ps) {
+        this.prepedidoActual = ps;
         asignacion();
         StringBuilder sb = new StringBuilder("Entrega de Sellos");
         if (ps != null && ps.getPrepedido() != null) {
@@ -1805,26 +1860,37 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
         obtenerAutotanque();
         obtenerConductores();
 
-        // 3) Precargar número de Nota de Pedido en Pedido 1
+        // 3) Precargar números de Nota de Pedido en Solicitudes (np1 .. np6)
         if (ps != null) {
-            String npGen = ps.getNumeroNotaPedidoGenerada();
-            if (npGen != null && !npGen.trim().isEmpty() && !npGen.equals("0") && !npGen.equals("00")) {
-                if (usoSello == null) {
-                    usoSello = new ec.com.infinityone.modelo.UsoSello();
-                }
-                usoSello.setNp1(npGen.trim());
-            } else if (ps.getDetalle() != null) {
+            java.util.List<String> nps = new java.util.ArrayList<>();
+            if (ps.getDetalle() != null) {
                 for (ec.com.infinityone.modelo.Detalleprepedido d : ps.getDetalle()) {
-                    if (d.getNumeronp() != null && !d.getNumeronp().trim().isEmpty()
-                            && !d.getNumeronp().equals("0") && !d.getNumeronp().equals("00")) {
-                        if (usoSello == null) {
-                            usoSello = new ec.com.infinityone.modelo.UsoSello();
+                    if (d != null && d.getNumeronp() != null) {
+                        String num = d.getNumeronp().trim();
+                        if (!num.isEmpty() && !num.equals("0") && !num.equals("00")
+                                && !num.equalsIgnoreCase("null") && !nps.contains(num)) {
+                            nps.add(num);
                         }
-                        usoSello.setNp1(d.getNumeronp().trim());
-                        break;
                     }
                 }
             }
+            if (ps.getNumeroNotaPedidoGenerada() != null) {
+                String numGen = ps.getNumeroNotaPedidoGenerada().trim();
+                if (!numGen.isEmpty() && !numGen.equals("0") && !numGen.equals("00")
+                        && !numGen.equalsIgnoreCase("null") && !nps.contains(numGen)) {
+                    nps.add(numGen);
+                }
+            }
+
+            if (usoSello == null) {
+                usoSello = new ec.com.infinityone.modelo.UsoSello();
+            }
+            usoSello.setNp1(nps.size() > 0 ? nps.get(0) : "");
+            usoSello.setNp2(nps.size() > 1 ? nps.get(1) : "");
+            usoSello.setNp3(nps.size() > 2 ? nps.get(2) : "");
+            usoSello.setNp4(nps.size() > 3 ? nps.get(3) : "");
+            usoSello.setNp5(nps.size() > 4 ? nps.get(4) : "");
+            usoSello.setNp6(nps.size() > 5 ? nps.get(5) : "");
 
             // 4) Si el prepedido ya tiene autotanque asignado, autoseleccionar y calcular
             // sellos

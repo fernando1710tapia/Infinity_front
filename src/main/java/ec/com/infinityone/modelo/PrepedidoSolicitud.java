@@ -79,6 +79,37 @@ public class PrepedidoSolicitud {
         this.estadoForzado = estadoForzado;
     }
 
+    private boolean sellosProcesados = false;
+    private String rutaPdfSellos = null;
+    private ec.com.infinityone.modelo.EnvioUsoSello envioUsoSello = null;
+
+    @JsonIgnore
+    public boolean isSellosProcesados() {
+        return sellosProcesados;
+    }
+
+    public void setSellosProcesados(boolean sellosProcesados) {
+        this.sellosProcesados = sellosProcesados;
+    }
+
+    @JsonIgnore
+    public String getRutaPdfSellos() {
+        return rutaPdfSellos;
+    }
+
+    public void setRutaPdfSellos(String rutaPdfSellos) {
+        this.rutaPdfSellos = rutaPdfSellos;
+    }
+
+    @JsonIgnore
+    public ec.com.infinityone.modelo.EnvioUsoSello getEnvioUsoSello() {
+        return envioUsoSello;
+    }
+
+    public void setEnvioUsoSello(ec.com.infinityone.modelo.EnvioUsoSello envioUsoSello) {
+        this.envioUsoSello = envioUsoSello;
+    }
+
     @JsonIgnore
     public String getEstadoAutorizado() {
         if (estadoForzado != null) {
@@ -86,7 +117,8 @@ public class PrepedidoSolicitud {
         }
         if (detalle != null && !detalle.isEmpty()) {
             for (Detalleprepedido d : detalle) {
-                if (d.getVolumennaturalautorizado() != null && d.getVolumennaturalautorizado().compareTo(java.math.BigDecimal.ZERO) > 0) {
+                if (d.getVolumennaturalautorizado() != null
+                        && d.getVolumennaturalautorizado().compareTo(java.math.BigDecimal.ZERO) > 0) {
                     return "SI";
                 }
             }
@@ -101,7 +133,8 @@ public class PrepedidoSolicitud {
         }
         boolean hasAuthorized = false;
         for (Detalleprepedido d : detalle) {
-            if (d.getVolumennaturalautorizado() != null && d.getVolumennaturalautorizado().compareTo(java.math.BigDecimal.ZERO) > 0) {
+            if (d.getVolumennaturalautorizado() != null
+                    && d.getVolumennaturalautorizado().compareTo(java.math.BigDecimal.ZERO) > 0) {
                 hasAuthorized = true;
                 if (d.getNumeronp() == null || d.getNumeronp().equals("0") || d.getNumeronp().trim().isEmpty()) {
                     return false;
@@ -113,7 +146,8 @@ public class PrepedidoSolicitud {
 
     @JsonIgnore
     public boolean isGeneradaNpInfinity() {
-        if (detalle == null || detalle.isEmpty()) return false;
+        if (detalle == null || detalle.isEmpty())
+            return false;
         for (Detalleprepedido d : detalle) {
             if (d.getNumeronp() != null && !d.getNumeronp().equals("0") && !d.getNumeronp().trim().isEmpty()) {
                 return true;
@@ -124,7 +158,8 @@ public class PrepedidoSolicitud {
 
     @JsonIgnore
     public boolean isGeneradaNpBanco() {
-        if (detalle == null || detalle.isEmpty()) return false;
+        if (detalle == null || detalle.isEmpty())
+            return false;
         for (Detalleprepedido d : detalle) {
             if (Boolean.TRUE.equals(d.getNotapedidobco())) {
                 return true;
