@@ -764,22 +764,25 @@ public class PrepedidoSolicitudBean extends ReusableBean implements Serializable
                 this.dialogo(FacesMessage.SEVERITY_ERROR,
                         "LA FECHA DE FIN NO PUEDE SER MAYOR A 7 DÍAS A LA FECHA DE INICIO");
             } else {
-                
-                
+
                 //// metodo con dos fechas
-                
-//////                                String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.notapedido/Comerterminal?";
-//////                if (codCliente.isEmpty()) {
-//////                    url = new URL(direcc + "codigoabastecedora=" + codAbas + "&codigocomercializadora=" + codComer + "&codigoterminal=" + codTerminal
-//////                            + "&fechaI=" + fechaI + "&fechaF=" + fechaF + "&tipofecha=" + tipoFecha + "&codigocliente=-1");
-//////                } else {
-//////                    url = new URL(direcc + "codigoabastecedora=" + codAbas + "&codigocomercializadora=" + codComer + "&codigoterminal=" + codTerminal
-//////                            + "&fechaI=" + fechaI + "&fechaF=" + fechaF + "&tipofecha=" + tipoFecha + "&codigocliente=" + this.codCliente);
-//////                }
-                
+
+                ////// String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() +
+                ////// "ec.com.infinity.modelo.notapedido/Comerterminal?";
+                ////// if (codCliente.isEmpty()) {
+                ////// url = new URL(direcc + "codigoabastecedora=" + codAbas +
+                ////// "&codigocomercializadora=" + codComer + "&codigoterminal=" + codTerminal
+                ////// + "&fechaI=" + fechaI + "&fechaF=" + fechaF + "&tipofecha=" + tipoFecha +
+                ////// "&codigocliente=-1");
+                ////// } else {
+                ////// url = new URL(direcc + "codigoabastecedora=" + codAbas +
+                ////// "&codigocomercializadora=" + codComer + "&codigoterminal=" + codTerminal
+                ////// + "&fechaI=" + fechaI + "&fechaF=" + fechaF + "&tipofecha=" + tipoFecha +
+                ////// "&codigocliente=" + this.codCliente);
+                ////// }
+
                 ////////////////////
-                
-                
+
                 // String direcc =
                 // "https://www.supertech.ec:8443/infinityone1/resources/ec.com.infinity.modelo.prepedido/paraFactura?";
                 String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim()

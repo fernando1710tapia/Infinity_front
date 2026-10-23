@@ -134,6 +134,12 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     private AsignacionPetroTerminalServicio asignacionPetroTerminalServicio;
     @Inject
     private ec.com.infinityone.servicio.pedidosyfacturacion.UsoSellosServicio usoSellosServicio;
+    @Inject
+    private ec.com.infinityone.servicio.notificacion.ExpoPushService expoPushService;
+    /** Código de PYS sin ceros a la izquierda ("002" / "0002" equivalen a "2"). */
+    private static final String CODIGO_COMERCIALIZADORA_PYS = "2";
+    @Inject
+    private ec.com.infinityone.servicio.catalogo.UsuarioServicio usuarioServicioPush;
 
     private Asignacionpetroterminal asignacionPetroTerminal;
     /*
@@ -1070,7 +1076,10 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                                         parseNp.setActiva(nt.optBoolean("activa", true));
                                         parseNp.setCodigoautotanque(nt.optString("codigoAutotanque", "").trim());
                                         parseNp.setCedulaconductor(nt.optString("cedulaConductor", "").trim());
-                                        parseNp.setUsuarioactual("");
+                                        // Usuario que registró el prepedido (necesario para notificaciones push)
+                                        String usrPrep = nt.optString("usuarioactual",
+                                                nt.optString("usuarioActual", nt.optString("usuario", "")));
+                                        parseNp.setUsuarioactual("null".equals(usrPrep) ? "" : usrPrep.trim());
 
                                         Detalleprepedido dp = new Detalleprepedido();
                                         String prodFull = nt.optString("producto", "");
@@ -4333,6 +4342,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             if (listPrepedido != null) {
                 for (PrepedidoSolicitud pSolicitud : listPrepedido) {
                     if (pSolicitud.isAutorizar()) {
+                        boolean pushEnviado = false;
                         if (pSolicitud.getDetalle() != null) {
                             for (Detalleprepedido det : pSolicitud.getDetalle()) {
                                 if (this.detalleAAutorizar != null && !det.equals(this.detalleAAutorizar)) {
@@ -4419,6 +4429,9 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                                 if (connection.getResponseCode() == 200 || connection.getResponseCode() == 204) {
                                     processados = true;
                                     det.setAutorizado("SI");
+                                    if (!pushEnviado) {
+                                        pushEnviado = notificarPrepedidoAutorizadoPys(pSolicitud);
+                                    }
                                 } else {
                                     String errResponse = getErrorStreamContent(connection);
                                     this.dialogo(FacesMessage.SEVERITY_ERROR,
@@ -4452,6 +4465,111 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         } catch (Exception e) {
             e.printStackTrace();
             this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL PROCESAR");
+        }
+    }
+
+    /**
+     * Envía push de prepedido autorizado (solo PYS, comercializadora 002) cuando
+     * todos los detalles del prepedido quedaron autorizados. Nunca lanza excepción
+     * para no afectar el flujo de autorización. Devuelve true si se disparó el
+     * envío.
+     */
+    private boolean notificarPrepedidoAutorizadoPys(PrepedidoSolicitud ps) {
+        try {
+            if (ps == null || ps.getPrepedido() == null || ps.getPrepedido().getPrepedidoPK() == null) {
+                return false;
+            }
+            String codComer = ps.getPrepedido().getPrepedidoPK().getCodigocomercializadora();
+            String numeroLog = ps.getPrepedido().getPrepedidoPK().getNumero();
+            if (codComer == null || !CODIGO_COMERCIALIZADORA_PYS.equals(codComer.trim().replaceFirst("^0+(?!$)", ""))) {
+                System.out.println("[ExpoPush] Prepedido " + numeroLog + " omitido: comercializadora '" + codComer
+                        + "' no es PYS.");
+                return false;
+            }
+            if (ps.getDetalle() != null) {
+                for (Detalleprepedido d : ps.getDetalle()) {
+                    if (!"SI".equals(d.getAutorizado())) {
+                        System.out.println("[ExpoPush] Prepedido " + numeroLog + " aún tiene detalles sin autorizar.");
+                        return false;
+                    }
+                }
+            }
+            String usuarioPrep = ps.getPrepedido().getUsuarioactual();
+            if (usuarioPrep == null || usuarioPrep.trim().isEmpty()) {
+                usuarioPrep = obtenerUsuarioCreadorPrepedido(ps.getPrepedido().getPrepedidoPK());
+                if (usuarioPrep != null) {
+                    ps.getPrepedido().setUsuarioactual(usuarioPrep);
+                }
+            }
+            String token = usuarioServicioPush.obtenerPushTokenActivo(usuarioPrep);
+            if (token == null) {
+                System.out.println("[ExpoPush] Prepedido " + numeroLog + " omitido: sin token activo para usuario '"
+                        + usuarioPrep + "'.");
+                return false;
+            }
+            String numero = ps.getPrepedido().getPrepedidoPK().getNumero();
+            String terminal = ps.getPrepedido().getCodigoterminal() != null
+                    ? ps.getPrepedido().getCodigoterminal().getCodigo()
+                    : "";
+            expoPushService.enviarPrepedidoAutorizado(token, numero != null ? numero.trim() : "", terminal);
+            return true;
+        } catch (Exception e) {
+            System.out.println("[ExpoPush] Error preparando notificación: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Obtiene el usuarioactual de la cabecera del prepedido (usuario que lo
+     * registró) mediante ec.com.infinity.modelo.prepedido/porId.
+     * Devuelve null si no se puede obtener.
+     */
+    private String obtenerUsuarioCreadorPrepedido(PrepedidoPK pk) {
+        if (pk == null) {
+            return null;
+        }
+        HttpURLConnection connection = null;
+        try {
+            URL urlPorId = new URL(Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
+                    + "ec.com.infinity.modelo.prepedido/porId?codigoabastecedora="
+                    + java.net.URLEncoder.encode(pk.getCodigoabastecedora().trim(), "UTF-8")
+                    + "&codigocomercializadora="
+                    + java.net.URLEncoder.encode(pk.getCodigocomercializadora().trim(), "UTF-8")
+                    + "&numero=" + java.net.URLEncoder.encode(pk.getNumero().trim(), "UTF-8"));
+            connection = (HttpURLConnection) urlPorId.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(5000);
+            if (connection.getResponseCode() != 200) {
+                return null;
+            }
+            StringBuilder sb = new StringBuilder();
+            try (BufferedReader br = new BufferedReader(
+                    new InputStreamReader(connection.getInputStream(), java.nio.charset.StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line);
+                }
+            }
+            JSONObject json = new JSONObject(sb.toString());
+            if (json.isNull("retorno")) {
+                return null;
+            }
+            JSONArray ret = json.getJSONArray("retorno");
+            if (ret.length() == 0 || ret.isNull(0)) {
+                return null;
+            }
+            String usr = ret.getJSONObject(0).optString("usuarioactual", "").trim();
+            return usr.isEmpty() || "null".equals(usr) ? null : usr;
+        } catch (Exception e) {
+            System.out.println("[ExpoPush] No se pudo obtener usuario del prepedido " + pk.getNumero() + ": "
+                    + e.getMessage());
+            return null;
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
     }
 
