@@ -1076,6 +1076,18 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                                         parseNp.setActiva(nt.optBoolean("activa", true));
                                         parseNp.setCodigoautotanque(nt.optString("codigoAutotanque", "").trim());
                                         parseNp.setCedulaconductor(nt.optString("cedulaConductor", "").trim());
+                                        String numFacNt = nt.optString("numeroFacturaSri",
+                                                nt.optString("numeroFactura", nt.optString("numerofacturasri", "")))
+                                                .trim();
+                                        if (!numFacNt.isEmpty() && !"0".equals(numFacNt)
+                                                && !"null".equalsIgnoreCase(numFacNt)) {
+                                            parseNp.setNumerofacturasri(numFacNt);
+                                            parseNp.setFacturada("SI");
+                                            String claveNt = parseNpPK.getCodigoabastecedora() + "_"
+                                                    + parseNpPK.getCodigocomercializadora() + "_"
+                                                    + parseNpPK.getNumero();
+                                            mapaFacturasPorPrepedido.put(claveNt, numFacNt);
+                                        }
                                         // Usuario que registró el prepedido (necesario para notificaciones push)
                                         String usrPrep = nt.optString("usuarioactual",
                                                 nt.optString("usuarioActual", nt.optString("usuario", "")));
@@ -1146,6 +1158,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             }
             cargarAsignacionPetroTerminal();
             cargarSellosPrepedidos();
+            cargarFacturasPrepedidos();
             // habilitarBusqueda();
         } catch (Exception e) {
             e.printStackTrace();
@@ -2285,6 +2298,85 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     }
 
     private java.util.List<FilaGenerarFactura> listaDetallesFactura;
+    private java.util.Map<String, String> mapaFacturasPorPrepedido = new java.util.HashMap<>();
+
+    public java.util.Map<String, String> getMapaFacturasPorPrepedido() {
+        return mapaFacturasPorPrepedido;
+    }
+
+    public void setMapaFacturasPorPrepedido(java.util.Map<String, String> mapaFacturasPorPrepedido) {
+        this.mapaFacturasPorPrepedido = mapaFacturasPorPrepedido;
+    }
+
+    public String clavePrepedido(PrepedidoSolicitud ps) {
+        if (ps == null || ps.getPrepedido() == null || ps.getPrepedido().getPrepedidoPK() == null) {
+            return "";
+        }
+        PrepedidoPK pk = ps.getPrepedido().getPrepedidoPK();
+        return pk.getCodigoabastecedora() + "_" + pk.getCodigocomercializadora() + "_" + pk.getNumero();
+    }
+
+    public boolean tieneFacturaGenerada(PrepedidoSolicitud ps) {
+        if (ps == null || ps.getPrepedido() == null || ps.getPrepedido().getPrepedidoPK() == null) {
+            return false;
+        }
+        String clave = clavePrepedido(ps);
+        if (mapaFacturasPorPrepedido.containsKey(clave)) {
+            String num = mapaFacturasPorPrepedido.get(clave);
+            return num != null && !num.trim().isEmpty() && !"0".equals(num.trim());
+        }
+        String numSri = ps.getPrepedido().getNumerofacturasri();
+        if (numSri != null && !numSri.trim().isEmpty() && !"0".equals(numSri.trim())
+                && !"null".equalsIgnoreCase(numSri)) {
+            mapaFacturasPorPrepedido.put(clave, numSri.trim());
+            return true;
+        }
+        return false;
+    }
+
+    public String obtenerNumeroFacturaPrepedido(PrepedidoSolicitud ps) {
+        if (ps == null) {
+            return null;
+        }
+        String clave = clavePrepedido(ps);
+        if (mapaFacturasPorPrepedido.containsKey(clave)) {
+            return mapaFacturasPorPrepedido.get(clave);
+        }
+        if (ps.getPrepedido() != null && ps.getPrepedido().getNumerofacturasri() != null) {
+            String n = ps.getPrepedido().getNumerofacturasri().trim();
+            if (!n.isEmpty() && !"0".equals(n) && !"null".equalsIgnoreCase(n)) {
+                return n;
+            }
+        }
+        return null;
+    }
+
+    private void cargarFacturasPrepedidos() {
+        if (listPrepedido == null || listPrepedido.isEmpty()) {
+            return;
+        }
+        for (PrepedidoSolicitud ps : listPrepedido) {
+            if (ps != null && ps.isGeneradaNpInfinity() && !tieneFacturaGenerada(ps)) {
+                if (ps.getDetalle() != null) {
+                    for (Detalleprepedido det : ps.getDetalle()) {
+                        if (det != null && det.getNumeronp() != null && !det.getNumeronp().trim().isEmpty()
+                                && !"0".equals(det.getNumeronp().trim()) && !"00".equals(det.getNumeronp().trim())) {
+                            String numFac = consultarNumeroFacturaNP(ps, det.getNumeronp().trim());
+                            if (numFac != null && !numFac.trim().isEmpty() && !"0".equals(numFac.trim())) {
+                                String clave = clavePrepedido(ps);
+                                mapaFacturasPorPrepedido.put(clave, numFac.trim());
+                                if (ps.getPrepedido() != null) {
+                                    ps.getPrepedido().setNumerofacturasri(numFac.trim());
+                                    ps.getPrepedido().setFacturada("SI");
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     public java.util.List<FilaGenerarFactura> getListaDetallesFactura() {
         return listaDetallesFactura;
@@ -2326,7 +2418,15 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                 }
                 FilaGenerarFactura fila = new FilaGenerarFactura(ps, det);
                 if (fila.isTieneNotaPedido()) {
-                    fila.setNumeroFactura(consultarNumeroFacturaNP(ps, fila.getNumeroNotaPedido()));
+                    String numFac = consultarNumeroFacturaNP(ps, fila.getNumeroNotaPedido());
+                    fila.setNumeroFactura(numFac);
+                    if (fila.isGenerado()) {
+                        mapaFacturasPorPrepedido.put(clavePrepedido(ps), numFac.trim());
+                        if (ps.getPrepedido() != null) {
+                            ps.getPrepedido().setNumerofacturasri(numFac.trim());
+                            ps.getPrepedido().setFacturada("SI");
+                        }
+                    }
                 }
                 listaDetallesFactura.add(fila);
             }
@@ -2527,6 +2627,11 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                     numeroFactura = consultarNumeroFacturaNP(ps, fila.getNumeroNotaPedido());
                 }
                 fila.setNumeroFactura(numeroFactura.trim());
+                if (ps != null && ps.getPrepedido() != null && ps.getPrepedido().getPrepedidoPK() != null) {
+                    mapaFacturasPorPrepedido.put(clavePrepedido(ps), numeroFactura.trim());
+                    ps.getPrepedido().setNumerofacturasri(numeroFactura.trim());
+                    ps.getPrepedido().setFacturada("SI");
+                }
                 this.dialogo(FacesMessage.SEVERITY_INFO, "FACTURA REGISTRADA EXITOSAMENTE");
             } else if (code == 299) {
                 String mensajeError = "";
@@ -3803,6 +3908,160 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             return imprimirNotaPedidoPreview(envP);
         }
         return null;
+    }
+
+    public void imprimirFacturaPreviewFila(FilaGenerarFactura filaItem) {
+        if (filaItem != null && filaItem.isGenerado()) {
+            PrepedidoSolicitud ps = filaItem.getPrepedidoSolicitud();
+            String codComerVal = (ps != null && ps.getPrepedido() != null && ps.getPrepedido().getPrepedidoPK() != null)
+                    ? ps.getPrepedido().getPrepedidoPK().getCodigocomercializadora()
+                    : codComer;
+            String numeroFactura = filaItem.getNumeroFactura();
+            generarReporteFactura(codComerVal, numeroFactura);
+        }
+    }
+
+    public void imprimirFacturaPreview(PrepedidoSolicitud prepedidoItem) {
+        if (prepedidoItem != null) {
+            String numeroFactura = obtenerNumeroFacturaPrepedido(prepedidoItem);
+            if (numeroFactura != null && !numeroFactura.trim().isEmpty() && !"0".equals(numeroFactura.trim())) {
+                String codComerVal = (prepedidoItem.getPrepedido() != null
+                        && prepedidoItem.getPrepedido().getPrepedidoPK() != null)
+                                ? prepedidoItem.getPrepedido().getPrepedidoPK().getCodigocomercializadora()
+                                : codComer;
+                generarReporteFactura(codComerVal, numeroFactura);
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_WARN, "No hay factura registrada para este prepedido.");
+            }
+        }
+    }
+
+    private void asegurarPlantillasFactura(String rutaGuardar) {
+        try {
+            File dir = new File(rutaGuardar);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            File mainJrxml = new File(dir, "NuevaFactura.jrxml");
+            if (!mainJrxml.exists()) {
+                String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                        + "<jasperReport xmlns=\"http://jasperreports.sourceforge.net/jasperreports\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd\" name=\"NuevaFactura\" pageWidth=\"595\" pageHeight=\"842\" columnWidth=\"535\" leftMargin=\"30\" rightMargin=\"30\" topMargin=\"30\" bottomMargin=\"30\">\n"
+                        + "    <parameter name=\"numeroFactura\" class=\"java.lang.String\"/>\n"
+                        + "    <parameter name=\"numeroComercializadora\" class=\"java.lang.String\"/>\n"
+                        + "    <parameter name=\"subReporte\" class=\"net.sf.jasperreports.engine.JasperReport\" isForPrompting=\"false\"/>\n"
+                        + "    <parameter name=\"subReporte1\" class=\"net.sf.jasperreports.engine.JasperReport\" isForPrompting=\"false\"/>\n"
+                        + "    <parameter name=\"logo\" class=\"java.lang.Object\" isForPrompting=\"false\"/>\n"
+                        + "    <parameter name=\"barras\" class=\"java.lang.Object\" isForPrompting=\"false\"/>\n"
+                        + "    <title>\n"
+                        + "        <band height=\"280\">\n"
+                        + "            <staticText>\n"
+                        + "                <reportElement x=\"0\" y=\"10\" width=\"535\" height=\"30\"/>\n"
+                        + "                <textElement textAlignment=\"Center\"><font size=\"18\" isBold=\"true\"/></textElement>\n"
+                        + "                <text><![CDATA[FACTURA ELECTRÓNICA - INFINITY ONE]]></text>\n"
+                        + "            </staticText>\n"
+                        + "            <textField isBlankWhenNull=\"true\">\n"
+                        + "                <reportElement x=\"0\" y=\"50\" width=\"535\" height=\"25\"/>\n"
+                        + "                <textElement textAlignment=\"Center\"><font size=\"14\" isBold=\"true\"/></textElement>\n"
+                        + "                <textFieldExpression><![CDATA[\"Factura N°: \" + ($P{numeroFactura} != null ? $P{numeroFactura} : \"\")]]></textFieldExpression>\n"
+                        + "            </textField>\n"
+                        + "            <textField isBlankWhenNull=\"true\">\n"
+                        + "                <reportElement x=\"20\" y=\"95\" width=\"495\" height=\"20\"/>\n"
+                        + "                <textElement><font size=\"11\"/></textElement>\n"
+                        + "                <textFieldExpression><![CDATA[\"Comercializadora: \" + ($P{numeroComercializadora} != null ? $P{numeroComercializadora} : \"\")]]></textFieldExpression>\n"
+                        + "            </textField>\n"
+                        + "            <staticText>\n"
+                        + "                <reportElement x=\"20\" y=\"140\" width=\"495\" height=\"20\"/>\n"
+                        + "                <textElement><font size=\"10\" isItalic=\"true\"/></textElement>\n"
+                        + "                <text><![CDATA[Documento emitido electrónicamente por el sistema Infinity One.]]></text>\n"
+                        + "            </staticText>\n"
+                        + "        </band>\n"
+                        + "    </title>\n"
+                        + "</jasperReport>";
+                try (FileOutputStream fos = new FileOutputStream(mainJrxml)) {
+                    fos.write(xml.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                }
+            }
+            File sub1 = new File(dir, "SubreporteFacturaRubros.jrxml");
+            if (!sub1.exists()) {
+                String subXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                        + "<jasperReport xmlns=\"http://jasperreports.sourceforge.net/jasperreports\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd\" name=\"Subreporte\" pageWidth=\"535\" pageHeight=\"50\" columnWidth=\"535\" leftMargin=\"0\" rightMargin=\"0\" topMargin=\"0\" bottomMargin=\"0\">\n"
+                        + "    <summary><band height=\"1\"/></summary>\n"
+                        + "</jasperReport>";
+                try (FileOutputStream fos = new FileOutputStream(sub1)) {
+                    fos.write(subXml.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                }
+            }
+            File sub2 = new File(dir, "SubreporteFacturaImpuestos.jrxml");
+            if (!sub2.exists()) {
+                String subXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                        + "<jasperReport xmlns=\"http://jasperreports.sourceforge.net/jasperreports\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd\" name=\"Subreporte\" pageWidth=\"535\" pageHeight=\"50\" columnWidth=\"535\" leftMargin=\"0\" rightMargin=\"0\" topMargin=\"0\" bottomMargin=\"0\">\n"
+                        + "    <summary><band height=\"1\"/></summary>\n"
+                        + "</jasperReport>";
+                try (FileOutputStream fos = new FileOutputStream(sub2)) {
+                    fos.write(subXml.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                }
+            }
+        } catch (Exception e) {
+            LOG.warning("No se pudo autogenerar plantillas jrxml por defecto: " + e.getMessage());
+        }
+    }
+
+    public void generarReporteFactura(String codComer, String numeroFactura) {
+        String rutaGuardar = Fichero.getCARPETAREPORTES();
+        if (rutaGuardar == null || rutaGuardar.trim().isEmpty()) {
+            rutaGuardar = "C:\\wildfly-13.0.0.Final\\standalone\\configuration\\reportes";
+        }
+        asegurarPlantillasFactura(rutaGuardar);
+
+        String path = rutaGuardar + File.separator + "NuevaFactura.jrxml";
+        String subreport = rutaGuardar + File.separator + "SubreporteFacturaRubros.jrxml";
+        String subreport1 = rutaGuardar + File.separator + "SubreporteFacturaImpuestos.jrxml";
+        try (InputStream file = new FileInputStream(new File(path))) {
+            net.sf.jasperreports.engine.JasperReport reporte = net.sf.jasperreports.engine.JasperCompileManager
+                    .compileReport(file);
+            net.sf.jasperreports.engine.JasperReport subreporte = net.sf.jasperreports.engine.JasperCompileManager
+                    .compileReport(subreport);
+            net.sf.jasperreports.engine.JasperReport subreporte1 = net.sf.jasperreports.engine.JasperCompileManager
+                    .compileReport(subreport1);
+
+            Map<String, Object> parametro = new HashMap<>();
+            File logoFile = new File(rutaGuardar + File.separator + "logo" + codComer + ".jpeg");
+            BufferedImage image = logoFile.exists() ? ImageIO.read(logoFile) : null;
+            File barrasFile = new File(rutaGuardar + File.separator + "barras.jpeg");
+            BufferedImage imageBar = barrasFile.exists() ? ImageIO.read(barrasFile) : null;
+
+            parametro.put("numeroComercializadora", codComer);
+            parametro.put("subReporte", subreporte);
+            parametro.put("subReporte1", subreporte1);
+            parametro.put("numeroFactura", numeroFactura);
+            parametro.put("logo", image);
+            parametro.put("barras", imageBar);
+
+            Connection conexion = conexionJasperBD();
+            net.sf.jasperreports.engine.JasperPrint print;
+            if (conexion != null) {
+                print = net.sf.jasperreports.engine.JasperFillManager.fillReport(reporte, parametro, conexion);
+            } else {
+                print = net.sf.jasperreports.engine.JasperFillManager.fillReport(reporte, parametro,
+                        new net.sf.jasperreports.engine.JREmptyDataSource());
+            }
+
+            File directory = new File(rutaGuardar);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+            String nombreDocumento = "reporteFactura";
+            File pdf = File.createTempFile(nombreDocumento + "_", ".pdf", directory);
+            net.sf.jasperreports.engine.JasperExportManager.exportReportToPdfStream(print, new FileOutputStream(pdf));
+            File initialFile = new File(pdf.getAbsolutePath());
+            InputStream targetStream = new FileInputStream(initialFile);
+            pdfStream = new DefaultStreamedContent(targetStream, "application/pdf",
+                    nombreDocumento + numeroFactura + ".pdf");
+        } catch (Exception ex) {
+            System.out.println("Excepcion al generar reporte factura: " + ex);
+            ex.printStackTrace();
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "Error al generar reporte de factura: " + ex.getMessage());
+        }
     }
 
     public void generarReporteNp(ec.com.infinityone.modelo.EnvioPedido envP) {

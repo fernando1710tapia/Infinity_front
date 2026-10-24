@@ -550,14 +550,18 @@
                                         style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
                                 </p:column>
 
-                                <!-- ImpresiÃ³n factura -->
+                                <!-- Impresión factura -->
                                 <p:column exportable="false" styleClass="action-col" style="text-align:center;">
-                                    <p:commandButton icon="pi pi-print" styleClass="ui-button-secondary rounded-button"
-                                        disabled="true" title="ImpresiÃ³n factura"
+                                    <p:commandButton icon="pi pi-print"
+                                        styleClass="#{prepedidoSolicitudBean1.tieneFacturaGenerada(prepedidoItem) ? 'ui-button-info rounded-button' : 'ui-button-secondary rounded-button'}"
+                                        disabled="#{not prepedidoSolicitudBean1.tieneFacturaGenerada(prepedidoItem)}"
+                                        process="@this" update=":formFacturar"
+                                        actionListener="#{prepedidoSolicitudBean1.generarFacturaInfinity(prepedidoItem)}"
+                                        title="Impresión factura"
                                         style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
                                 </p:column>
 
-                                <!-- Sellos: cÃƒÂ­rculo gris "Si" -->
+                                <!-- Sellos: circulo gris "Si" -->
                                 <p:column exportable="false" styleClass="action-col" style="text-align:center;">
                                     <p:commandButton icon="pi pi-tag" styleClass="ui-button-secondary rounded-button"
                                         process="@this" update="formSellos"
@@ -1421,12 +1425,16 @@
                     <p:column headerText="Generar" width="10%" style="text-align: center;">
                         <p:commandButton value="Generar" icon="pi pi-cog" styleClass="ui-button-primary"
                             actionListener="#{prepedidoSolicitudBean1.procesarGenerarFacturaFila(filaFac)}"
-                            process="@form" update="@form" disabled="#{filaFac.bloqueado}" />
+                            process="@form" update="@form :form:dt-products" disabled="#{filaFac.bloqueado}" />
                     </p:column>
 
                     <p:column headerText="Imprimir factura" width="10%" style="text-align: center;">
-                        <p:commandButton icon="pi pi-print" styleClass="ui-button-secondary rounded-button"
-                            disabled="true" />
+                        <p:commandButton icon="pi pi-print"
+                            styleClass="#{filaFac.generado ? 'ui-button-info rounded-button' : 'ui-button-secondary rounded-button'}"
+                            actionListener="#{prepedidoSolicitudBean1.imprimirFacturaPreviewFila(filaFac)}" ajax="false"
+                            disabled="#{not filaFac.generado}">
+                            <p:fileDownload value="#{prepedidoSolicitudBean1.pdfStream}" />
+                        </p:commandButton>
                     </p:column>
 
                 </p:dataTable>
@@ -1516,15 +1524,15 @@
                                 </div>
 
                                 <div class="p-field p-col-12 p-md-12">
-                                    <p:outputLabel id="np">Solicitudes: </p:outputLabel>
+                                    <p:outputLabel id="np">Notas de pedido: </p:outputLabel>
                                     <h:panelGrid id="nps" columns="6"
                                         style="margin-left: 0; margin-right: auto; text-align: left;">
-                                        <p:outputLabel for="np1" value="Solicitud 1" />
-                                        <p:outputLabel for="np2" value="Solicitud 2" />
-                                        <p:outputLabel for="np3" value="Solicitud 3" />
-                                        <p:outputLabel for="np4" value="Solicitud 4" />
-                                        <p:outputLabel for="np5" value="Solicitud 5" />
-                                        <p:outputLabel for="np6" value="Solicitud 6" />
+                                        <p:outputLabel for="np1" value="Nota de pedido 1" />
+                                        <p:outputLabel for="np2" value="Nota de pedido 2" />
+                                        <p:outputLabel for="np3" value="Nota de pedido 3" />
+                                        <p:outputLabel for="np4" value="Nota de pedido 4" />
+                                        <p:outputLabel for="np5" value="Nota de pedido 5" />
+                                        <p:outputLabel for="np6" value="Nota de pedido 6" />
 
 
                                         <p:inputText id="np1" value="#{usoSellosPrepedidoBean.usoSello.np1}"
@@ -1666,9 +1674,8 @@
 
                             <p:commandButton value="Procesar" icon="pi pi-check"
                                 actionListener="#{usoSellosPrepedidoBean.adquirirUsoSello(true)}"
-                                update=":form:messages :form:dt-products"
-                                styleClass="p-mr-2" process="@this" onstart="PF('blockUIWidget').block()"
-                                oncomplete="PF('blockUIWidget').unblock();" />
+                                update=":form:messages :form:dt-products" styleClass="p-mr-2" process="@this"
+                                onstart="PF('blockUIWidget').block()" oncomplete="PF('blockUIWidget').unblock();" />
 
                             <p:commandButton value="Cancelar" icon="pi pi-times" type="button"
                                 styleClass="ui-button-secondary" onclick="PF('sellosDialog').hide()" />
