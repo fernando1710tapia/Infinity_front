@@ -401,7 +401,9 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         snapCodComer = codComer;
         snapCodAbas = codAbas;
         snapCodCliente = codCliente;
-        snapCodTerminal = codTerminal;
+        snapCodTerminal = (terminal != null && terminal.getCodigo() != null && !terminal.getCodigo().trim().isEmpty())
+                ? terminal.getCodigo()
+                : codTerminal;
         snapCliente = cliente;
         snapTerminal = terminal;
         snapListaClientes = listaClientes;
@@ -418,10 +420,12 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         comercializadora = snapComercializadora;
         codComer = snapCodComer;
         codAbas = snapCodAbas;
-        codCliente = "";
-        codTerminal = snapCodTerminal;
-        cliente = null;
+        codCliente = snapCodCliente;
+        cliente = snapCliente;
         terminal = snapTerminal;
+        codTerminal = (snapTerminal != null && snapTerminal.getCodigo() != null && !snapTerminal.getCodigo().trim().isEmpty())
+                ? snapTerminal.getCodigo()
+                : snapCodTerminal;
         listaClientes = snapListaClientes;
         todosClientes = snapTodosClientes;
         terminalCerrada = snapTerminalCerrada;
@@ -433,11 +437,17 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         guardarFiltrosBusqueda();
         String lastComer = this.codComer;
         String lastCliente = this.codCliente;
+        Terminal lastTerminal = this.terminal;
+        String lastCodTerminal = (lastTerminal != null && lastTerminal.getCodigo() != null && !lastTerminal.getCodigo().trim().isEmpty())
+                ? lastTerminal.getCodigo()
+                : this.codTerminal;
 
         reestablecer();
 
         this.codComer = lastComer;
         this.codCliente = lastCliente;
+        this.terminal = lastTerminal;
+        this.codTerminal = lastCodTerminal;
 
         habilitarBusqueda(2);
         obtenerBanco();
@@ -453,11 +463,17 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             seleccionarComercializdora();
         }
 
+        // Sincronizar terminal y clientes para la pantalla de creacion (busqueda = 2)
+        if (this.terminal != null && this.terminal.getCodigo() != null) {
+            this.codTerminal = this.terminal.getCodigo();
+            seleccionarTerminal(2);
+        }
+
         if (habilitarCli) {
             // Si ya teniamos un cliente en la busqueda, mantenerlo para la creacion
             if (this.codCliente == null || this.codCliente.trim().isEmpty()) {
                 cliente = new Cliente();
-                codTerminal = "";
+                // NO borrar codTerminal aqui, la terminal debe mantenerse intacta
                 codCliente = "";
                 listaProductos = new ArrayList<>();
             } else {
@@ -466,12 +482,9 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         } else {
             seleccionarCliente();
         }
-        // if (habilitarTerminal) {
-        // terminal = new TerminalBean();
-        // }
+
         mostarPrepedido = true;
         mostarPantallaInicial = false;
-
     }
 
     public void reestablecer() {
@@ -670,9 +683,14 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                 listaClientesAux = clienteServicio.obtenerClientesPorComercializadoraActiva(codComer);
                 todosClientes = false;
             }
-            for (int i = 0; i < listaClientesAux.size(); i++) {
-                if (listaClientesAux.get(i).getCodigoterminaldefecto().getCodigo().equals(codTerminal)) {
-                    listaClientes.add(listaClientesAux.get(i));
+            if (listaClientesAux != null) {
+                for (int i = 0; i < listaClientesAux.size(); i++) {
+                    Cliente cAux = listaClientesAux.get(i);
+                    if (cAux != null && cAux.getCodigoterminaldefecto() != null
+                            && cAux.getCodigoterminaldefecto().getCodigo() != null
+                            && cAux.getCodigoterminaldefecto().getCodigo().equals(codTerminal)) {
+                        listaClientes.add(cAux);
+                    }
                 }
             }
         } else {
@@ -912,17 +930,6 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                         }
                     }
                     seleccionarTerminal(busqueda);
-                    // List<Cliente> listaClientesAux = new ArrayList<>();
-                    // listaClientesAux =
-                    // clienteServicio.obtenerClientesPorComercializadora(codComer);
-                    // listaClientes = new ArrayList<>();
-                    // for (int i = 0; i < listaClientesAux.size(); i++) {
-                    // if
-                    // (listaClientesAux.get(i).getCodigoterminaldefecto().getCodigo().equals(codTerminal))
-                    // {
-                    // listaClientes.add(listaClientesAux.get(i));
-                    // }
-                    // }
                     break;
                 default:
                     break;
@@ -932,6 +939,19 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
 
     public void obtenerPrepedidos() throws ParseException {
         try {
+            // Sincronizar terminal y codTerminal si alguno viene nulo o vacio
+            if ((codTerminal == null || codTerminal.trim().isEmpty()) && terminal != null && terminal.getCodigo() != null) {
+                codTerminal = terminal.getCodigo();
+            }
+            if ((terminal == null || terminal.getCodigo() == null) && codTerminal != null && !codTerminal.trim().isEmpty() && listaTermianles != null) {
+                for (Terminal t : listaTermianles) {
+                    if (t != null && codTerminal.equals(t.getCodigo())) {
+                        terminal = t;
+                        break;
+                    }
+                }
+            }
+
             if (fechaInicial == null) {
                 fechaInicial = new Date();
             }
@@ -958,7 +978,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             long diffrence = time.convert(diff, TimeUnit.MILLISECONDS);
             if (diffrence > 7) {
                 this.dialogo(FacesMessage.SEVERITY_ERROR,
-                        "LA FECHA DE FIN NO PUEDE SER MAYOR A 7 DÃƒÆ’Ã‚ÂAS A LA FECHA DE INICIO");
+                        "LA FECHA DE FIN NO PUEDE SER MAYOR A 7 DÃƒÆ’Ã‚Â AS A LA FECHA DE INICIO");
             } else {
                 // String direcc =
                 String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
@@ -971,9 +991,12 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                 while (cal.getTime().compareTo(secondDate) <= 0) {
                     String fechaStr = date.format(cal.getTime());
                     String pClienteStr = (codCliente == null || codCliente.trim().isEmpty()) ? "-1" : codCliente;
+                    String pTerminalStr = (codTerminal == null || codTerminal.trim().isEmpty())
+                            ? ((terminal != null && terminal.getCodigo() != null) ? terminal.getCodigo() : "")
+                            : codTerminal;
                     String baseUrl = direcc + "pcodigocomercializadora=" + codComer
                             + "&pcodigocliente=" + pClienteStr
-                            + "&pcodigoterminal=" + codTerminal
+                            + "&pcodigoterminal=" + pTerminalStr
                             + "&pfechadespacho=" + fechaStr.replace("/", "%2F");
 
                     url = new URL(baseUrl);
@@ -1733,6 +1756,11 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                 if (fechaDespacho != null) {
                     fechaInicial = fechaDespacho;
                 }
+                if (this.terminal != null && this.terminal.getCodigo() != null) {
+                    this.codTerminal = this.terminal.getCodigo();
+                }
+                // Sincronizar clientes y estado para la pantalla principal (modo busqueda 1)
+                seleccionarTerminal(1);
                 obtenerPrepedidos();
             } else {
                 this.dialogo(FacesMessage.SEVERITY_ERROR, "ERROR AL REGISTRAR PREPEDIDO");
@@ -1842,12 +1870,15 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
 
     public void cancelar() {
         restaurarFiltrosBusqueda();
-        this.cliente = null;
-        this.codCliente = "";
         mostarPantallaInicial = true;
         mostarPrepedido = false;
+        if (this.terminal != null && this.terminal.getCodigo() != null) {
+            this.codTerminal = this.terminal.getCodigo();
+        }
+        // Sincronizar clientes y estado para la pantalla principal (modo busqueda 1)
+        seleccionarTerminal(1);
         try {
-            if (listPrepedido != null && !listPrepedido.isEmpty() && codComer != null && !codComer.trim().isEmpty()
+            if (codComer != null && !codComer.trim().isEmpty()
                     && codTerminal != null && !codTerminal.trim().isEmpty()) {
                 obtenerPrepedidos();
             }
@@ -4137,6 +4168,11 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
 
     public void setTerminal(Terminal terminal) {
         this.terminal = terminal;
+        if (terminal != null && terminal.getCodigo() != null) {
+            this.codTerminal = terminal.getCodigo();
+        } else if (terminal == null) {
+            this.codTerminal = "";
+        }
         // El converter JSF reconstruye Terminal sin recibirsolicitud.
         // Sincronizar terminalCerrada desde listaTermianles (fuente de verdad = BD).
         if (terminal != null && listaTermianles != null) {
@@ -4176,11 +4212,26 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     }
 
     public String getCodTerminal() {
+        if ((codTerminal == null || codTerminal.trim().isEmpty()) && terminal != null && terminal.getCodigo() != null) {
+            codTerminal = terminal.getCodigo();
+        }
         return codTerminal;
     }
 
     public void setCodTerminal(String codTerminal) {
         this.codTerminal = codTerminal;
+        if (codTerminal != null && !codTerminal.trim().isEmpty()) {
+            if (this.terminal == null || !codTerminal.equals(this.terminal.getCodigo())) {
+                if (listaTermianles != null) {
+                    for (Terminal t : listaTermianles) {
+                        if (t != null && codTerminal.equals(t.getCodigo())) {
+                            this.terminal = t;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public String getCodCliente() {
