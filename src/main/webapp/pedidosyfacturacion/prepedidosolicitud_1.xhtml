@@ -118,6 +118,70 @@
             .status-abierta {
                 color: #6bcb77 !important;
             }
+
+            /* === Badges de Estado === */
+            .badge-estado {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 3px 6px;
+                border-radius: 4px;
+                font-size: 0.72rem;
+                font-weight: 700;
+                letter-spacing: 0.5px;
+                min-width: 44px;
+                text-align: center;
+                cursor: default;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+                transition: transform 0.15s ease, box-shadow 0.15s ease;
+            }
+
+            .badge-estado:hover {
+                transform: scale(1.06);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+            }
+
+            .badge-nue {
+                background: #334155 !important;
+                color: #f1f5f9 !important;
+                border: 1px solid #64748b;
+            }
+
+            .badge-aut {
+                background: #14532d !important;
+                color: #bbf7d0 !important;
+                border: 1px solid #22c55e;
+            }
+
+            .badge-anu {
+                background: #7f1d1d !important;
+                color: #fecaca !important;
+                border: 1px solid #ef4444;
+            }
+
+            .badge-npi {
+                background: #1e3a8a !important;
+                color: #bfdbfe !important;
+                border: 1px solid #3b82f6;
+            }
+
+            .badge-npb {
+                background: #4c1d95 !important;
+                color: #e9d5ff !important;
+                border: 1px solid #a855f7;
+            }
+
+            .badge-fac {
+                background: #7c2d12 !important;
+                color: #fed7aa !important;
+                border: 1px solid #f97316;
+            }
+
+            .badge-sel {
+                background: #0f766e !important;
+                color: #a7f3d0 !important;
+                border: 1px solid #14b8a6;
+            }
         </style>
 
         <script>
@@ -241,13 +305,20 @@
                                     </p:datePicker>
                                 </div>
                                 <div class="p-field p-col-12 p-md-3">
-                                    <p:outputLabel for="filtroEstado" value="Estado Autorizado" />
+                                    <p:outputLabel for="filtroEstado" value="Estado" />
                                     <p:selectOneMenu id="filtroEstado"
                                         value="#{prepedidoSolicitudBean1.filtroAutorizado}"
                                         disabled="#{empty prepedidoSolicitudBean1.listPrepedidoCompleta}">
-                                        <f:selectItem itemLabel="TODAS" itemValue="" />
-                                        <f:selectItem itemLabel="AUTORIZADAS" itemValue="SI" />
-                                        <f:selectItem itemLabel="NO AUTORIZADAS" itemValue="NO" />
+                                        <f:selectItem itemLabel="TODOS" itemValue="" />
+                                        <f:selectItem itemLabel="NUE - NUEVA" itemValue="NUE" />
+                                        <f:selectItem itemLabel="AUT - AUTORIZADA" itemValue="AUT" />
+                                        <f:selectItem itemLabel="NPI - GENERADA NP-INFINITY" itemValue="NPI" />
+                                        <f:selectItem itemLabel="NPB - GENERADA NP-BANCO" itemValue="NPB" />
+                                        <f:selectItem itemLabel="FAC - FACTURADA INFINITY" itemValue="FAC" />
+                                        <f:selectItem itemLabel="SEL - SELLOS ENTREGADOS" itemValue="SEL" />
+                                        <f:selectItem itemLabel="ANU - ANULADA" itemValue="ANU" />
+                                        <f:selectItem itemLabel="AUTORIZADAS (SI)" itemValue="SI" />
+                                        <f:selectItem itemLabel="NO AUTORIZADAS (NO)" itemValue="NO" />
                                         <p:ajax event="change"
                                             listener="#{prepedidoSolicitudBean1.filtrarAutorizados()}"
                                             update="dt-products" />
@@ -474,9 +545,13 @@
                                 </p:column>
 
                                 <!-- Estado -->
-                                <p:column style="text-align:center; width:65px;">
+                                <p:column style="text-align:center; width:65px;"
+                                    sortBy="#{prepedidoSolicitudBean1.obtenerCodigoEstado(prepedidoItem)}">
                                     <span
-                                        style="display:inline-block; padding:2px 6px; border-radius:4px; background:#6c757d; color:#fff; font-size:0.72rem; font-weight:bold; letter-spacing:1px;">---</span>
+                                        class="badge-estado #{prepedidoSolicitudBean1.obtenerClaseEstado(prepedidoItem)}"
+                                        title="#{prepedidoSolicitudBean1.obtenerDescripcionEstado(prepedidoItem)}">
+                                        #{prepedidoSolicitudBean1.obtenerCodigoEstado(prepedidoItem)}
+                                    </span>
                                 </p:column>
 
                                 <!-- Anular: círculo AMARILLO con X -->

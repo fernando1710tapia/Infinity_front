@@ -2079,12 +2079,106 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     public void filtrarAutorizados() {
         if (listPrepedidoCompleta == null)
             return;
-        if (filtroAutorizado == null || filtroAutorizado.isEmpty()) {
+        if (filtroAutorizado == null || filtroAutorizado.trim().isEmpty()) {
             this.listPrepedido = new java.util.ArrayList<>(listPrepedidoCompleta);
+        } else if ("SI".equalsIgnoreCase(filtroAutorizado) || "NO".equalsIgnoreCase(filtroAutorizado)) {
+            this.listPrepedido = listPrepedidoCompleta.stream()
+                    .filter(p -> filtroAutorizado.equalsIgnoreCase(p.getEstadoAutorizado()))
+                    .collect(java.util.stream.Collectors.toList());
         } else {
             this.listPrepedido = listPrepedidoCompleta.stream()
-                    .filter(p -> filtroAutorizado.equals(p.getEstadoAutorizado()))
+                    .filter(p -> filtroAutorizado.equalsIgnoreCase(obtenerCodigoEstado(p)))
                     .collect(java.util.stream.Collectors.toList());
+        }
+    }
+
+    /**
+     * Retorna el código de 3 letras del estado actual del prepedido según la jerarquía:
+     * - ANU: Anulada (inactiva)
+     * - SEL: Sellos entregados (sellos procesados)
+     * - FAC: Facturada Infinity (factura SRI/Infinity generada)
+     * - NPB: Generada NP-Banco
+     * - NPI: Generada NP-Infinity
+     * - AUT: Autorizada (activa y autorizada)
+     * - NUE: Nueva (activa y no autorizada)
+     */
+    public String obtenerCodigoEstado(PrepedidoSolicitud ps) {
+        if (ps == null) {
+            return "---";
+        }
+        if (!ps.isRegistroActivo()) {
+            return "ANU";
+        }
+        if (ps.isSellosProcesados()) {
+            return "SEL";
+        }
+        if (tieneFacturaGenerada(ps)) {
+            return "FAC";
+        }
+        if (ps.isGeneradaNpBanco()) {
+            return "NPB";
+        }
+        if (ps.isGeneradaNpInfinity()) {
+            return "NPI";
+        }
+        if ("SI".equalsIgnoreCase(ps.getEstadoAutorizado()) || ps.isTodosProductosAutorizados()) {
+            return "AUT";
+        }
+        return "NUE";
+    }
+
+    /**
+     * Retorna la descripción larga legible del estado para el tooltip (title).
+     */
+    public String obtenerDescripcionEstado(PrepedidoSolicitud ps) {
+        if (ps == null) {
+            return "";
+        }
+        String cod = obtenerCodigoEstado(ps);
+        switch (cod) {
+            case "ANU":
+                return "ANULADA";
+            case "SEL":
+                return "SELLOS ENTREGADOS";
+            case "FAC":
+                return "FACTURADA INFINITY";
+            case "NPB":
+                return "GENERADA NP-BANCO";
+            case "NPI":
+                return "GENERADA NP-INFITNY";
+            case "AUT":
+                return "AUTORIZADA (ACTIVA Y AUTORIZADA)";
+            case "NUE":
+                return "NUEVA (ACTIVA Y NO AUTORIZADA)";
+            default:
+                return "---";
+        }
+    }
+
+    /**
+     * Retorna la clase CSS correspondiente al badge del estado.
+     */
+    public String obtenerClaseEstado(PrepedidoSolicitud ps) {
+        if (ps == null) {
+            return "badge-nue";
+        }
+        String cod = obtenerCodigoEstado(ps);
+        switch (cod) {
+            case "ANU":
+                return "badge-anu";
+            case "SEL":
+                return "badge-sel";
+            case "FAC":
+                return "badge-fac";
+            case "NPB":
+                return "badge-npb";
+            case "NPI":
+                return "badge-npi";
+            case "AUT":
+                return "badge-aut";
+            case "NUE":
+            default:
+                return "badge-nue";
         }
     }
 
