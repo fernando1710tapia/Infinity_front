@@ -671,6 +671,58 @@
                                     -ms-overflow-style: none;
                                     scrollbar-width: none;
                                 }
+
+                                .btn-modern-sync.ui-button {
+                                    background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%) !important;
+                                    border: 1px solid #38bdf8 !important;
+                                    color: #ffffff !important;
+                                    font-weight: 600 !important;
+                                    font-size: 0.95rem !important;
+                                    border-radius: 8px !important;
+                                    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4) !important;
+                                    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                                    padding: 8px 20px !important;
+                                    outline: none !important;
+                                }
+
+                                .btn-modern-sync.ui-button:hover {
+                                    background: linear-gradient(135deg, #0369a1 0%, #1d4ed8 100%) !important;
+                                    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6) !important;
+                                    transform: translateY(-2px) !important;
+                                }
+
+                                .btn-modern-sync.ui-button:active {
+                                    transform: translateY(0) !important;
+                                    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4) !important;
+                                }
+
+                                .btn-modern-sync.ui-button .ui-button-icon-left {
+                                    font-size: 1rem !important;
+                                    margin-right: 8px !important;
+                                    color: #ffffff !important;
+                                    transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                                }
+
+                                .btn-modern-sync.ui-button:hover .ui-button-icon-left {
+                                    transform: rotate(180deg) !important;
+                                }
+
+                                .btn-modern-sync.ui-button .ui-button-text {
+                                    padding: 0 !important;
+                                    display: inline-block !important;
+                                    letter-spacing: 0.3px !important;
+                                }
+
+                                .sum-col-sticky {
+                                    overflow: hidden !important;
+                                }
+
+                                .sum-col-sticky span {
+                                    white-space: nowrap !important;
+                                    overflow: hidden !important;
+                                    text-overflow: ellipsis !important;
+                                    display: block !important;
+                                }
                             </style>
 
                             <p:outputPanel id="totalesPanel">
@@ -756,12 +808,12 @@
                                                     style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 5px 0; box-sizing: border-box;">
                                                     -</div>
                                                 <div class="sum-val sum-col-5"
-                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 3px 0; box-sizing: border-box;">
+                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 3px 0; box-sizing: border-box; overflow: hidden;">
                                                     <p:inputNumber
                                                         value="#{prepedidoSolicitudBean1.asignacionPetroTerminal.eppasiginicialautorizadoext}"
                                                         decimalPlaces="0" thousandSeparator="" emptyValue="zero"
-                                                        inputStyle="width:70px; text-align:center; padding:2px 2px; font-size:0.85rem; font-weight:bold; background:#0d1b2a; color:#fff; border:1px solid #2a5f8f; border-radius:4px;"
-                                                        style="width:70px;">
+                                                        inputStyle="width:100%; max-width:65px; text-align:center; padding:2px 2px; font-size:0.85rem; font-weight:bold; background:#0d1b2a; color:#fff; border:1px solid #2a5f8f; border-radius:4px; box-sizing:border-box;"
+                                                        style="width:85%; max-width:65px;">
                                                         <p:ajax event="keyup"
                                                             listener="#{prepedidoSolicitudBean1.recalcularAsignacionTotales()}"
                                                             process="@this" update=":form:totalesFilasCalculadas"
@@ -775,12 +827,12 @@
                                                     style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 5px 0; box-sizing: border-box;">
                                                     -</div>
                                                 <div class="sum-val sum-col-7"
-                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 3px 0; box-sizing: border-box;">
+                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 3px 0; box-sizing: border-box; overflow: hidden;">
                                                     <p:inputNumber
                                                         value="#{prepedidoSolicitudBean1.asignacionPetroTerminal.eppasiginicialautorizadodie}"
                                                         decimalPlaces="0" thousandSeparator="" emptyValue="zero"
-                                                        inputStyle="width:70px; text-align:center; padding:2px 2px; font-size:0.85rem; font-weight:bold; background:#0d1b2a; color:#fff; border:1px solid #2a5f8f; border-radius:4px;"
-                                                        style="width:70px;">
+                                                        inputStyle="width:100%; max-width:65px; text-align:center; padding:2px 2px; font-size:0.85rem; font-weight:bold; background:#0d1b2a; color:#fff; border:1px solid #2a5f8f; border-radius:4px; box-sizing:border-box;"
+                                                        style="width:85%; max-width:65px;">
                                                         <p:ajax event="keyup"
                                                             listener="#{prepedidoSolicitudBean1.recalcularAsignacionTotales()}"
                                                             process="@this" update=":form:totalesFilasCalculadas"
@@ -794,12 +846,12 @@
                                                     style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 5px 0; box-sizing: border-box;">
                                                     -</div>
                                                 <div class="sum-val sum-col-9"
-                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 3px 0; box-sizing: border-box;">
+                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 3px 0; box-sizing: border-box; overflow: hidden;">
                                                     <p:inputNumber
                                                         value="#{prepedidoSolicitudBean1.asignacionPetroTerminal.eppasiginicialautorizadosup}"
                                                         decimalPlaces="0" thousandSeparator="" emptyValue="zero"
-                                                        inputStyle="width:70px; text-align:center; padding:2px 2px; font-size:0.85rem; font-weight:bold; background:#0d1b2a; color:#fff; border:1px solid #2a5f8f; border-radius:4px;"
-                                                        style="width:70px;">
+                                                        inputStyle="width:100%; max-width:65px; text-align:center; padding:2px 2px; font-size:0.85rem; font-weight:bold; background:#0d1b2a; color:#fff; border:1px solid #2a5f8f; border-radius:4px; box-sizing:border-box;"
+                                                        style="width:85%; max-width:65px;">
                                                         <p:ajax event="keyup"
                                                             listener="#{prepedidoSolicitudBean1.recalcularAsignacionTotales()}"
                                                             process="@this" update=":form:totalesFilasCalculadas"
@@ -828,12 +880,12 @@
                                                     style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 5px 0; box-sizing: border-box;">
                                                     -</div>
                                                 <div class="sum-val sum-col-5"
-                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 3px 0; box-sizing: border-box;">
+                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 3px 0; box-sizing: border-box; overflow: hidden;">
                                                     <p:inputNumber
                                                         value="#{prepedidoSolicitudBean1.asignacionPetroTerminal.eppasigadicionalautorizadoext}"
                                                         decimalPlaces="0" thousandSeparator="" emptyValue="zero"
-                                                        inputStyle="width:70px; text-align:center; padding:2px 2px; font-size:0.85rem; font-weight:bold; background:#0d1b2a; color:#fff; border:1px solid #2a5f8f; border-radius:4px;"
-                                                        style="width:70px;">
+                                                        inputStyle="width:100%; max-width:65px; text-align:center; padding:2px 2px; font-size:0.85rem; font-weight:bold; background:#0d1b2a; color:#fff; border:1px solid #2a5f8f; border-radius:4px; box-sizing:border-box;"
+                                                        style="width:85%; max-width:65px;">
                                                         <p:ajax event="keyup"
                                                             listener="#{prepedidoSolicitudBean1.recalcularAsignacionTotales()}"
                                                             process="@this" update=":form:totalesFilasCalculadas"
@@ -847,12 +899,12 @@
                                                     style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 5px 0; box-sizing: border-box;">
                                                     -</div>
                                                 <div class="sum-val sum-col-7"
-                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 3px 0; box-sizing: border-box;">
+                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 3px 0; box-sizing: border-box; overflow: hidden;">
                                                     <p:inputNumber
                                                         value="#{prepedidoSolicitudBean1.asignacionPetroTerminal.eppasigadicionalautorizadodie}"
                                                         decimalPlaces="0" thousandSeparator="" emptyValue="zero"
-                                                        inputStyle="width:70px; text-align:center; padding:2px 2px; font-size:0.85rem; font-weight:bold; background:#0d1b2a; color:#fff; border:1px solid #2a5f8f; border-radius:4px;"
-                                                        style="width:70px;">
+                                                        inputStyle="width:100%; max-width:65px; text-align:center; padding:2px 2px; font-size:0.85rem; font-weight:bold; background:#0d1b2a; color:#fff; border:1px solid #2a5f8f; border-radius:4px; box-sizing:border-box;"
+                                                        style="width:85%; max-width:65px;">
                                                         <p:ajax event="keyup"
                                                             listener="#{prepedidoSolicitudBean1.recalcularAsignacionTotales()}"
                                                             process="@this" update=":form:totalesFilasCalculadas"
@@ -866,12 +918,12 @@
                                                     style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #8ab4d8; padding: 5px 0; box-sizing: border-box;">
                                                     -</div>
                                                 <div class="sum-val sum-col-9"
-                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 3px 0; box-sizing: border-box;">
+                                                    style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 3px 0; box-sizing: border-box; overflow: hidden;">
                                                     <p:inputNumber
                                                         value="#{prepedidoSolicitudBean1.asignacionPetroTerminal.eppasigadicionalautorizadosup}"
                                                         decimalPlaces="0" thousandSeparator="" emptyValue="zero"
-                                                        inputStyle="width:70px; text-align:center; padding:2px 2px; font-size:0.85rem; font-weight:bold; background:#0d1b2a; color:#fff; border:1px solid #2a5f8f; border-radius:4px;"
-                                                        style="width:70px;">
+                                                        inputStyle="width:100%; max-width:65px; text-align:center; padding:2px 2px; font-size:0.85rem; font-weight:bold; background:#0d1b2a; color:#fff; border:1px solid #2a5f8f; border-radius:4px; box-sizing:border-box;"
+                                                        style="width:85%; max-width:65px;">
                                                         <p:ajax event="keyup"
                                                             listener="#{prepedidoSolicitudBean1.recalcularAsignacionTotales()}"
                                                             process="@this" update=":form:totalesFilasCalculadas"
@@ -980,12 +1032,15 @@
 
                                         <!-- Bloque derecho con el botón Actualizar -->
                                         <div
-                                            style="flex-grow: 1; min-width: 450px; background: #162840; border-top: 2px solid #2a5f8f; border-bottom: 2px solid #2a5080; display: flex; align-items: center; justify-content: flex-start; padding-left: 35px; box-sizing: border-box;">
-                                            <p:commandButton id="btnActualizarAsig" value="Actualizar"
+                                            style="display: flex; align-items: center; justify-content: flex-start; padding-left: 28px; padding-right: 28px; background: #162840; border-top: 2px solid #2a5f8f; border-bottom: 2px solid #2a5080; border-left: 1px solid rgba(42, 95, 143, 0.45); box-sizing: border-box;">
+                                            <p:commandButton id="btnActualizarAsig" value="Actualizar" icon="pi pi-sync"
                                                 actionListener="#{prepedidoSolicitudBean1.actualizarAsignacionPetroTerminal()}"
                                                 process=":form:totalesPanel" update=":form:totalesPanel :form:messages"
-                                                styleClass="ui-button-info"
-                                                style="font-weight: bold; font-size: 1rem; padding: 8px 24px; border-radius: 6px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);" />
+                                                styleClass="btn-modern-sync"
+                                                title="Guardar asignaciones y recalcular saldos" />
+                                        </div>
+                                        <div
+                                            style="flex-grow: 1; background: #162840; border-top: 2px solid #2a5f8f; border-bottom: 2px solid #2a5080;">
                                         </div>
 
                                     </div>
@@ -1000,15 +1055,14 @@
             </p:outputPanel>
         </h:form>
 
-        <h:outputScript>
-            //
-            <![CDATA[
-            window.syncSummaryScrollAndWidths = function() {
-                var topTable = document.querySelector('#form\\:dt-products');
+        <script type="text/javascript">
+            /* <![CDATA[ */
+            window.syncSummaryScrollAndWidths = function () {
+                var topTable = document.getElementById('form:dt-products') || document.querySelector('[id$="dt-products"]');
                 if (!topTable) return;
                 var topScroll = topTable.querySelector('.ui-datatable-scrollable-body');
                 var bottomScroll = document.querySelector('.summary-wrapper');
-                
+
                 if (topScroll && bottomScroll) {
                     var w0 = 0, w1 = 0, w2 = 0, w3 = 0;
                     var wCols = [0, 0, 0, 0, 0, 0];
@@ -1030,7 +1084,7 @@
                         wCols[5] = c[10].getBoundingClientRect().width; // SUPER Vol.Auto
                     }
 
-                    // 2) Fallback si no hay filas en el body: leer del thead
+                    // 2) Fallback si no hay filas en el body o anchos invalidos: leer del thead
                     if (!wCols[0] || wCols[0] <= 0) {
                         var theadRows = topTable.querySelectorAll('.ui-datatable-scrollable-header-box table thead tr');
                         if (theadRows && theadRows.length >= 2) {
@@ -1056,13 +1110,13 @@
                         var stickyWidth = Math.round(w0 + w1);
                         var scrollableWidth = Math.round(w2 + w3);
 
-                        document.querySelectorAll('.sum-col-sticky').forEach(function(el) {
+                        document.querySelectorAll('.sum-col-sticky').forEach(function (el) {
                             el.style.minWidth = stickyWidth + 'px';
                             el.style.width = stickyWidth + 'px';
                             el.style.maxWidth = stickyWidth + 'px';
                         });
 
-                        document.querySelectorAll('.sum-col-scrollable').forEach(function(el) {
+                        document.querySelectorAll('.sum-col-scrollable').forEach(function (el) {
                             el.style.minWidth = scrollableWidth + 'px';
                             el.style.width = scrollableWidth + 'px';
                             el.style.maxWidth = scrollableWidth + 'px';
@@ -1072,7 +1126,7 @@
                             var colIdx = i + 4; // sum-col-4 a sum-col-9
                             var widthPx = Math.round(wCols[i]);
                             if (widthPx > 0) {
-                                document.querySelectorAll('.sum-col-' + colIdx).forEach(function(el) {
+                                document.querySelectorAll('.sum-col-' + colIdx).forEach(function (el) {
                                     el.style.minWidth = widthPx + 'px';
                                     el.style.width = widthPx + 'px';
                                     el.style.maxWidth = widthPx + 'px';
@@ -1083,7 +1137,7 @@
 
                     // 4) Sincronizar Scroll sin Glitch usando flags
                     if (!topScroll.dataset.scrollSynced) {
-                        topScroll.addEventListener('scroll', function() { 
+                        topScroll.addEventListener('scroll', function () {
                             if (topScroll.dataset.ignoreScroll === 'true') {
                                 topScroll.dataset.ignoreScroll = 'false';
                                 return;
@@ -1091,14 +1145,14 @@
                             var currentBottom = document.querySelector('.summary-wrapper');
                             if (currentBottom && currentBottom.scrollLeft !== topScroll.scrollLeft) {
                                 currentBottom.dataset.ignoreScroll = 'true';
-                                currentBottom.scrollLeft = topScroll.scrollLeft; 
+                                currentBottom.scrollLeft = topScroll.scrollLeft;
                             }
                         }, { passive: true });
                         topScroll.dataset.scrollSynced = 'true';
                     }
 
                     if (!bottomScroll.dataset.scrollSynced) {
-                        bottomScroll.addEventListener('scroll', function() { 
+                        bottomScroll.addEventListener('scroll', function () {
                             if (bottomScroll.dataset.ignoreScroll === 'true') {
                                 bottomScroll.dataset.ignoreScroll = 'false';
                                 return;
@@ -1106,7 +1160,7 @@
                             var currentTop = topTable.querySelector('.ui-datatable-scrollable-body');
                             if (currentTop && currentTop.scrollLeft !== bottomScroll.scrollLeft) {
                                 currentTop.dataset.ignoreScroll = 'true';
-                                currentTop.scrollLeft = bottomScroll.scrollLeft; 
+                                currentTop.scrollLeft = bottomScroll.scrollLeft;
                             }
                         }, { passive: true });
                         bottomScroll.dataset.scrollSynced = 'true';
@@ -1121,26 +1175,32 @@
             };
 
             window.addEventListener('resize', window.syncSummaryScrollAndWidths);
-            
-            $(document).off('pfAjaxComplete.syncPrepedido').on('pfAjaxComplete.syncPrepedido', function(e, xhr, settings) {
-                setTimeout(function() {
+            window.addEventListener('load', window.syncSummaryScrollAndWidths);
+            if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                setTimeout(window.syncSummaryScrollAndWidths, 50);
+            }
+
+            $(document).off('pfAjaxComplete.syncPrepedido').on('pfAjaxComplete.syncPrepedido', function (e, xhr, settings) {
+                setTimeout(function () {
                     window.syncSummaryScrollAndWidths();
-                    
+
                     // Restaurar estado de la cortina si estaba abierta
                     if (typeof acExpanded !== 'undefined' && acExpanded) {
-                        document.querySelectorAll('.action-col').forEach(function(c) {
+                        document.querySelectorAll('.action-col').forEach(function (c) {
                             c.classList.add('ac-expanded');
                         });
                     }
-                }, 200);
-                
-                setTimeout(window.syncSummaryScrollAndWidths, 800);
+                }, 100);
+
+                setTimeout(window.syncSummaryScrollAndWidths, 500);
             });
 
             // Ejecutar al inicio/carga
+            setTimeout(window.syncSummaryScrollAndWidths, 100);
             setTimeout(window.syncSummaryScrollAndWidths, 300);
-            //]]>
-        </h:outputScript>
+            setTimeout(window.syncSummaryScrollAndWidths, 800);
+            /* ]]> */
+        </script>
 
 
         <!--        <p:dialog header="Nota Pedido" width="50%" showEffect="fade" modal="true" widgetVar="manageProductDialog" responsive="true">-->
