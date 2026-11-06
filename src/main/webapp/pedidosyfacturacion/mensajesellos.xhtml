@@ -1,0 +1,122 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Mensaje de Sellos</ui:define>
+
+	<ui:define name="viewname">
+		<li></li>
+	</ui:define>
+
+	<ui:define name="content">
+		<style type="text/css">
+			@media screen and (max-width: 768px) {
+
+				/* Dialogo */
+				.dialog-ms {
+					width: 92vw !important;
+					max-width: 92vw !important;
+				}
+
+				/* Contenido */
+				.dialog-ms .ui-dialog-content {
+					padding: 12px !important;
+				}
+
+				/* Título */
+				.dialog-ms .ui-dialog-title {
+					font-size: 1.1rem !important;
+					white-space: normal !important;
+				}
+
+				/* Selects */
+				.dialog-ms .ui-selectonemenu {
+					width: 100% !important;
+				}
+			}
+		</style>
+
+		<h:form id="form">
+			<p:outputPanel id="manage-product-content1">
+				<p:growl id="messages" showDetail="true"/>
+			</p:outputPanel>
+		</h:form>
+
+		<!-- Mensaje de Sellos -->
+		<p:dialog header="Mensaje de Sellos"
+			visible="true" width="650px" styleClass="dialog-ms" showEffect="fade" modal="true"
+			widgetVar="mensajeSellos" responsive="true" resizable="false">
+			<h:form id="formMensajeSellos">
+				<p:outputPanel>
+					<div class="ui-fluid p-formgrid p-grid">
+						<div class="p-field p-col-12 p-md-12"></div>
+
+						<!-- Autotanque -->
+						<div class="p-field p-col-12 p-md-6">
+							<div class="ui-inputgroup">
+								<span class="ui-inputgroup-addon">
+									<i class="pi pi-car"></i>
+								</span>
+								<p:selectOneMenu id="autotanque" value="#{mensajeSellosBean.placaAutotanque}"
+									title="Autotanque" panelStyle="width:175px" style="width: 90%;"
+									autoWidth="false" filter="true" filterMatchMode="contains">
+									<f:selectItem noSelectionOption="true" itemLabel="Autotanque" itemValue="#{null}"/>
+									<f:selectItems value="#{mensajeSellosBean.listaAutotanques}" var="at"
+										itemLabel="#{at.placa}" itemValue="#{at.placa}"/>
+								</p:selectOneMenu>
+							</div>
+						</div>
+
+						<!-- Solicitud / Nota de pedido -->
+						<div class="p-field p-col-12 p-md-6">
+							<div class="ui-inputgroup">
+								<span class="ui-inputgroup-addon">
+									<i class="pi pi-file"></i>
+								</span>
+								<p:selectOneMenu id="solicitud" value="#{mensajeSellosBean.codigoSolicitud}"
+									title="Solicitud / Nota de pedido" panelStyle="width:175px" style="width: 90%;"
+									autoWidth="false" filter="true" filterMatchMode="contains">
+									<f:selectItem noSelectionOption="true" itemLabel="Solicitud / Nota de pedido" itemValue="#{null}"/>
+									<f:selectItems value="#{mensajeSellosBean.listaSolicitudes}" var="sol"
+										itemLabel="#{sol.descripcion}" itemValue="#{sol.codigo}"/>
+								</p:selectOneMenu>
+							</div>
+						</div>
+
+						<!-- Link del rastreo satelital -->
+						<div class="p-field p-col-12 p-md-12 p-mt-3">
+							<div class="ui-inputgroup">
+								<span class="ui-inputgroup-addon">
+									<i class="pi pi-link"></i>
+								</span>
+								<span class="ui-float-label">
+									<p:inputText id="linkRastreo" value="#{mensajeSellosBean.linkRastreo}"
+										style="width:100%;" maxlength="500"/>
+									<p:outputLabel for="linkRastreo" value="Ingresa el link del rastreo satelital"/>
+								</span>
+							</div>
+						</div>
+					</div>
+				</p:outputPanel>
+
+				<div class="p-grid p-justify-start p-mt-2">
+					<p:commandButton id="enviar" value="Enviar" icon="pi pi-send"
+						actionListener="#{mensajeSellosBean.enviar}"
+						process="@form" update=":form formMensajeSellos" styleClass="p-mr-2"/>
+
+					<p:commandButton value="Cancelar" icon="pi pi-times"
+						actionListener="#{mensajeSellosBean.cancelar}"
+						process="@this" update="formMensajeSellos"
+						oncomplete="PF('mensajeSellos').hide()" class="ui-button-secondary" />
+				</div>
+			</h:form>
+		</p:dialog>
+
+		<p:confirmDialog global="true" showEffect="fade" width="300">
+			<p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check"/>
+			<p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times"/>
+		</p:confirmDialog>
+	</ui:define>
+</ui:composition>

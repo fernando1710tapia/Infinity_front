@@ -142,6 +142,9 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     private ec.com.infinityone.servicio.catalogo.UsuarioServicio usuarioServicioPush;
 
     private Asignacionpetroterminal asignacionPetroTerminal;
+    private BigDecimal adicionalNuevoExt = BigDecimal.ZERO;
+    private BigDecimal adicionalNuevoDie = BigDecimal.ZERO;
+    private BigDecimal adicionalNuevoSup = BigDecimal.ZERO;
     /*
      * Variable Comercializadora
      */
@@ -423,9 +426,10 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         codCliente = snapCodCliente;
         cliente = snapCliente;
         terminal = snapTerminal;
-        codTerminal = (snapTerminal != null && snapTerminal.getCodigo() != null && !snapTerminal.getCodigo().trim().isEmpty())
-                ? snapTerminal.getCodigo()
-                : snapCodTerminal;
+        codTerminal = (snapTerminal != null && snapTerminal.getCodigo() != null
+                && !snapTerminal.getCodigo().trim().isEmpty())
+                        ? snapTerminal.getCodigo()
+                        : snapCodTerminal;
         listaClientes = snapListaClientes;
         todosClientes = snapTodosClientes;
         terminalCerrada = snapTerminalCerrada;
@@ -438,9 +442,10 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         String lastComer = this.codComer;
         String lastCliente = this.codCliente;
         Terminal lastTerminal = this.terminal;
-        String lastCodTerminal = (lastTerminal != null && lastTerminal.getCodigo() != null && !lastTerminal.getCodigo().trim().isEmpty())
-                ? lastTerminal.getCodigo()
-                : this.codTerminal;
+        String lastCodTerminal = (lastTerminal != null && lastTerminal.getCodigo() != null
+                && !lastTerminal.getCodigo().trim().isEmpty())
+                        ? lastTerminal.getCodigo()
+                        : this.codTerminal;
 
         reestablecer();
 
@@ -488,6 +493,9 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     }
 
     public void reestablecer() {
+        this.adicionalNuevoExt = BigDecimal.ZERO;
+        this.adicionalNuevoDie = BigDecimal.ZERO;
+        this.adicionalNuevoSup = BigDecimal.ZERO;
         editarPrepedido = false;
         // codComer = "";
         // codTerminal = "";
@@ -940,10 +948,12 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     public void obtenerPrepedidos() throws ParseException {
         try {
             // Sincronizar terminal y codTerminal si alguno viene nulo o vacio
-            if ((codTerminal == null || codTerminal.trim().isEmpty()) && terminal != null && terminal.getCodigo() != null) {
+            if ((codTerminal == null || codTerminal.trim().isEmpty()) && terminal != null
+                    && terminal.getCodigo() != null) {
                 codTerminal = terminal.getCodigo();
             }
-            if ((terminal == null || terminal.getCodigo() == null) && codTerminal != null && !codTerminal.trim().isEmpty() && listaTermianles != null) {
+            if ((terminal == null || terminal.getCodigo() == null) && codTerminal != null
+                    && !codTerminal.trim().isEmpty() && listaTermianles != null) {
                 for (Terminal t : listaTermianles) {
                     if (t != null && codTerminal.equals(t.getCodigo())) {
                         terminal = t;
@@ -1383,15 +1393,36 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     }
 
     /**
-     * Recalcula la sumatoria de totales de la asignación (Inicial + Adicional)
+     * Recalcula la sumatoria de totales de la asignación (Inicial + Adicional
+     * acumulado + Adicional nuevo digitado)
      */
     public void recalcularAsignacionTotales() {
         if (this.asignacionPetroTerminal != null) {
             this.asignacionPetroTerminal.calcularTotales();
+
+            BigDecimal deltaExt = this.adicionalNuevoExt != null ? this.adicionalNuevoExt : BigDecimal.ZERO;
+            BigDecimal deltaDie = this.adicionalNuevoDie != null ? this.adicionalNuevoDie : BigDecimal.ZERO;
+            BigDecimal deltaSup = this.adicionalNuevoSup != null ? this.adicionalNuevoSup : BigDecimal.ZERO;
+
+            if (this.asignacionPetroTerminal.getEppasigtotalautorizadoext() != null) {
+                this.asignacionPetroTerminal.setEppasigtotalautorizadoext(
+                        this.asignacionPetroTerminal.getEppasigtotalautorizadoext().add(deltaExt));
+            }
+            if (this.asignacionPetroTerminal.getEppasigtotalautorizadodie() != null) {
+                this.asignacionPetroTerminal.setEppasigtotalautorizadodie(
+                        this.asignacionPetroTerminal.getEppasigtotalautorizadodie().add(deltaDie));
+            }
+            if (this.asignacionPetroTerminal.getEppasigtotalautorizadosup() != null) {
+                this.asignacionPetroTerminal.setEppasigtotalautorizadosup(
+                        this.asignacionPetroTerminal.getEppasigtotalautorizadosup().add(deltaSup));
+            }
         }
     }
 
     public void cargarAsignacionPetroTerminal() {
+        this.adicionalNuevoExt = BigDecimal.ZERO;
+        this.adicionalNuevoDie = BigDecimal.ZERO;
+        this.adicionalNuevoSup = BigDecimal.ZERO;
         try {
             String codComerc = (this.comercializadora != null && this.comercializadora.getCodigo() != null)
                     ? this.comercializadora.getCodigo()
@@ -1425,7 +1456,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
 
     /**
      * Actualiza o registra la asignación de Petro Terminal llamando al servicio
-     * REST gestionarasignacion
+     * REST gestionarasignacion, sumando el valor adicional digitado al acumulado
      */
     public void actualizarAsignacionPetroTerminal() {
         try {
@@ -1461,6 +1492,47 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                     : "FT";
             this.asignacionPetroTerminal.setUsuarioactual(user);
 
+            // Consultar el registro guardado actualmente en el servidor para obtener el
+            // acumulado base real
+            Asignacionpetroterminal asigGuardada = null;
+            try {
+                asigGuardada = asignacionPetroTerminalServicio.obtenerAsignacion(
+                        this.comercializadora.getCodigo(),
+                        this.terminal.getCodigo(),
+                        this.fechaInicial);
+            } catch (Exception ex) {
+                LOG.log(Level.WARNING, "No se pudo obtener asignacion guardada del servidor, usando instancia local",
+                        ex);
+            }
+
+            BigDecimal baseExt = (asigGuardada != null && asigGuardada.getEppasigadicionalautorizadoext() != null)
+                    ? asigGuardada.getEppasigadicionalautorizadoext()
+                    : (this.asignacionPetroTerminal.getEppasigadicionalautorizadoext() != null
+                            ? this.asignacionPetroTerminal.getEppasigadicionalautorizadoext()
+                            : BigDecimal.ZERO);
+
+            BigDecimal baseDie = (asigGuardada != null && asigGuardada.getEppasigadicionalautorizadodie() != null)
+                    ? asigGuardada.getEppasigadicionalautorizadodie()
+                    : (this.asignacionPetroTerminal.getEppasigadicionalautorizadodie() != null
+                            ? this.asignacionPetroTerminal.getEppasigadicionalautorizadodie()
+                            : BigDecimal.ZERO);
+
+            BigDecimal baseSup = (asigGuardada != null && asigGuardada.getEppasigadicionalautorizadosup() != null)
+                    ? asigGuardada.getEppasigadicionalautorizadosup()
+                    : (this.asignacionPetroTerminal.getEppasigadicionalautorizadosup() != null
+                            ? this.asignacionPetroTerminal.getEppasigadicionalautorizadosup()
+                            : BigDecimal.ZERO);
+
+            BigDecimal deltaExt = this.adicionalNuevoExt != null ? this.adicionalNuevoExt : BigDecimal.ZERO;
+            BigDecimal deltaDie = this.adicionalNuevoDie != null ? this.adicionalNuevoDie : BigDecimal.ZERO;
+            BigDecimal deltaSup = this.adicionalNuevoSup != null ? this.adicionalNuevoSup : BigDecimal.ZERO;
+
+            // Se suma el nuevo adicional al acumulado previo
+            this.asignacionPetroTerminal.setEppasigadicionalautorizadoext(baseExt.add(deltaExt));
+            this.asignacionPetroTerminal.setEppasigadicionalautorizadodie(baseDie.add(deltaDie));
+            this.asignacionPetroTerminal.setEppasigadicionalautorizadosup(baseSup.add(deltaSup));
+
+            // Recalcula los totales (Inicial + Adicional acumulado)
             this.asignacionPetroTerminal.calcularTotales();
 
             int codigo = asignacionPetroTerminalServicio.gestionarAsignacion(this.asignacionPetroTerminal);
@@ -1471,6 +1543,30 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
             LOG.log(Level.SEVERE, "Error al actualizar asignacion de petro terminal", e);
             this.dialogo(FacesMessage.SEVERITY_ERROR, "Error al actualizar asignación: " + e.getMessage());
         }
+    }
+
+    public BigDecimal getAdicionalNuevoExt() {
+        return adicionalNuevoExt;
+    }
+
+    public void setAdicionalNuevoExt(BigDecimal adicionalNuevoExt) {
+        this.adicionalNuevoExt = adicionalNuevoExt;
+    }
+
+    public BigDecimal getAdicionalNuevoDie() {
+        return adicionalNuevoDie;
+    }
+
+    public void setAdicionalNuevoDie(BigDecimal adicionalNuevoDie) {
+        this.adicionalNuevoDie = adicionalNuevoDie;
+    }
+
+    public BigDecimal getAdicionalNuevoSup() {
+        return adicionalNuevoSup;
+    }
+
+    public void setAdicionalNuevoSup(BigDecimal adicionalNuevoSup) {
+        this.adicionalNuevoSup = adicionalNuevoSup;
     }
 
     public Asignacionpetroterminal getAsignacionPetroTerminal() {
@@ -2093,7 +2189,8 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     }
 
     /**
-     * Retorna el código de 3 letras del estado actual del prepedido según la jerarquía:
+     * Retorna el código de 3 letras del estado actual del prepedido según la
+     * jerarquía:
      * - ANU: Anulada (inactiva)
      * - SEL: Sellos entregados (sellos procesados)
      * - FAC: Facturada Infinity (factura SRI/Infinity generada)
