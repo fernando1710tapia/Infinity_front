@@ -154,23 +154,23 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
      */
     private Terminal terminal;
     /*
-     * Variable que almacena el cÃƒÆ’Ã‚Â³digo de la comercializadora
+     * Variable que almacena el codigo de la comercializadora
      */
     private String codComer;
     /*
-     * Variable que almacena el cÃƒÆ’Ã‚Â³digo del terminal
+     * Variable que almacena el codigo del terminal
      */
     private String codTerminal;
     /*
-     * Variable que almacena el cÃƒÆ’Ã‚Â³digo del cliente
+     * Variable que almacena el codigo del cliente
      */
     private String codCliente;
     /*
-     * Variable que almacena el cÃƒÆ’Ã‚Â³digo de la abastecedora
+     * Variable que almacena el codigo de la abastecedora
      */
     private String codAbas;
     /*
-     * Varaible para guardar la selecciÃƒÆ’Ã‚Â³n del radio button
+     * Varaible para guardar la codigo del radio button
      */
     private String tipoFecha;
     /**
