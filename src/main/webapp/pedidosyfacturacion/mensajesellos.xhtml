@@ -12,6 +12,19 @@
 
 	<ui:define name="content">
 		<style type="text/css">
+			.dialog-ms .ui-inputgroup {
+				width: 100% !important;
+			}
+
+			.dialog-ms .ui-inputgroup .ui-float-label {
+				flex: 1 1 auto !important;
+				width: 100% !important;
+			}
+
+			.dialog-ms .ui-inputgroup .ui-float-label input {
+				width: 100% !important;
+			}
+
 			@media screen and (max-width: 768px) {
 
 				/* Dialogo */
@@ -87,21 +100,21 @@
 
 						<!-- Link del rastreo satelital -->
 						<div class="p-field p-col-12 p-md-12 p-mt-3">
-							<div class="ui-inputgroup">
+							<div class="ui-inputgroup" style="width: 100%;">
 								<span class="ui-inputgroup-addon">
 									<i class="pi pi-link"></i>
 								</span>
-								<span class="ui-float-label">
+								<span class="ui-float-label" style="flex: 1 1 auto; width: 100%; display: inline-block;">
 									<p:inputText id="linkRastreo" value="#{mensajeSellosBean.linkRastreo}"
-										style="width:100%;" maxlength="500"/>
-									<p:outputLabel for="linkRastreo" value="Ingresa el link del rastreo satelital"/>
+										style="width: 100%;" maxlength="500"/>
+									<p:outputLabel for="linkRastreo" value="Ingresa el link del rastreo satelital" style="white-space: nowrap;"/>
 								</span>
 							</div>
 						</div>
 					</div>
 				</p:outputPanel>
 
-				<div class="p-grid p-justify-start p-mt-2">
+				<div class="p-grid p-justify-end p-mt-3" style="display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-right: 0;">
 					<p:commandButton id="enviar" value="Enviar" icon="pi pi-send"
 						actionListener="#{mensajeSellosBean.enviar}"
 						process="@form" update=":form formMensajeSellos" styleClass="p-mr-2"/>
