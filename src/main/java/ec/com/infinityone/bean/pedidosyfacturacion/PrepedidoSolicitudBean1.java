@@ -1368,6 +1368,162 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         return total;
     }
 
+    // ===================== ADMINISTRAR CUPOS (solo front) =====================
+
+    private static final String SESSION_KEY_CUPOS = "prepedido1.volumenControlado";
+    private static final String[] MESES_ABREV = { "ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep",
+            "oct", "nov", "dic" };
+
+    /** Cupo que se está editando en el modal "Administrar cupos". */
+    private ec.com.infinityone.modelo.Volumencontrolado cupoEdicion;
+
+    /** Filas (Extra, Súper, Diésel) que muestra la tabla del modal. */
+    private List<ec.com.infinityone.modelo.CupoFila> filasCupo = new ArrayList<>();
+
+    /**
+     * Almacén temporal en sesión (clave: codigoCliente|yyyy-MM) mientras no
+     * exista backend para la tabla volumencontrolado.
+     */
+    @SuppressWarnings("unchecked")
+    private Map<String, ec.com.infinityone.modelo.Volumencontrolado> obtenerAlmacenCupos() {
+        Map<String, Object> session = FacesContext.getCurrentInstance().getExternalContext().getSessionMap();
+        Object obj = session.get(SESSION_KEY_CUPOS);
+        if (!(obj instanceof Map)) {
+            obj = new HashMap<String, ec.com.infinityone.modelo.Volumencontrolado>();
+            session.put(SESSION_KEY_CUPOS, obj);
+        }
+        return (Map<String, ec.com.infinityone.modelo.Volumencontrolado>) obj;
+    }
+
+    /** Extrae yyyy-MM de una fecha String (yyyy/MM/dd o yyyy-MM-dd). */
+    private String extraerMes(String fecha) {
+        if (fecha != null && fecha.trim().length() >= 7) {
+            return fecha.trim().substring(0, 7).replace('/', '-');
+        }
+        return new SimpleDateFormat("yyyy-MM").format(new Date());
+    }
+
+    /** Abre el modal de cupos para el cliente del prepedido seleccionado. */
+    public void abrirAdministrarCupos(PrepedidoSolicitud ps) {
+        if (ps == null || ps.getPrepedido() == null || ps.getPrepedido().getCodigocliente() == null
+                || ps.getPrepedido().getCodigocliente().getClientePK() == null) {
+            this.dialogo(FacesMessage.SEVERITY_WARN, "El prepedido no tiene un cliente asociado");
+            return;
+        }
+        String codCliente = ps.getPrepedido().getCodigocliente().getClientePK().getCodigo();
+        String nomCliente = ps.getPrepedido().getCodigocliente().getNombrecomercial();
+        String mes = extraerMes(ps.getPrepedido().getFechadespacho());
+
+        ec.com.infinityone.modelo.Volumencontrolado guardado = obtenerAlmacenCupos().get(codCliente + "|" + mes);
+        this.cupoEdicion = (guardado != null)
+                ? guardado.copia()
+                : new ec.com.infinityone.modelo.Volumencontrolado(codCliente, nomCliente, mes);
+
+        this.filasCupo = new ArrayList<>();
+        this.filasCupo.add(new ec.com.infinityone.modelo.CupoFila(cupoEdicion, "EXTRA", "Extra"));
+        this.filasCupo.add(new ec.com.infinityone.modelo.CupoFila(cupoEdicion, "SUPER", "Súper"));
+        this.filasCupo.add(new ec.com.infinityone.modelo.CupoFila(cupoEdicion, "DIESEL", "Diesel"));
+
+        org.primefaces.PrimeFaces.current().executeScript("PF('dlgAdministrarCupos').show()");
+    }
+
+    /** Guarda los cupos editados (temporalmente en sesión). */
+    public void guardarCupos() {
+        if (this.cupoEdicion == null) {
+            return;
+        }
+        if (cupoInvalido(cupoEdicion.getAutorizadoext()) || cupoInvalido(cupoEdicion.getAutorizadosup())
+                || cupoInvalido(cupoEdicion.getAutorizadodie())) {
+            this.dialogo(FacesMessage.SEVERITY_WARN, "El autorizado debe ser -1 (sin límite) o un valor mayor o igual a 0");
+            return;
+        }
+        obtenerAlmacenCupos().put(cupoEdicion.getCodigocliente() + "|" + cupoEdicion.getMes(), cupoEdicion.copia());
+        this.dialogo(FacesMessage.SEVERITY_INFO, "Cupos guardados correctamente");
+        org.primefaces.PrimeFaces.current().executeScript("PF('dlgAdministrarCupos').hide()");
+    }
+
+    private boolean cupoInvalido(BigDecimal v) {
+        return v == null || v.compareTo(ec.com.infinityone.modelo.Volumencontrolado.SIN_LIMITE) < 0;
+    }
+
+    public void cancelarCupos() {
+        this.cupoEdicion = null;
+        this.filasCupo = new ArrayList<>();
+    }
+
+    public List<ec.com.infinityone.modelo.CupoFila> getFilasCupo() {
+        return filasCupo;
+    }
+
+    /** Título del modal: "mes de control 2026-oct , Cliente: 12345678-ftapia". */
+    public String getTituloCupos() {
+        if (cupoEdicion == null) {
+            return "";
+        }
+        String mesTxt = cupoEdicion.getMes();
+        try {
+            int m = Integer.parseInt(mesTxt.substring(5, 7));
+            mesTxt = mesTxt.substring(0, 4) + "-" + MESES_ABREV[m - 1];
+        } catch (Exception e) {
+            // se deja el mes tal cual
+        }
+        return "mes de control " + mesTxt + " , Cliente: " + cupoEdicion.getCodigocliente() + "-"
+                + (cupoEdicion.getNombrecliente() != null ? cupoEdicion.getNombrecliente() : "");
+    }
+
+    /**
+     * Despacho del mes: suma del Vol.Auto de los prepedidos cargados del mismo
+     * cliente y mes. TODO: reemplazar por el dato del backend cuando exista.
+     */
+    public BigDecimal getDespachoCupo(String nombreProducto) {
+        BigDecimal total = BigDecimal.ZERO;
+        if (cupoEdicion == null) {
+            return total;
+        }
+        List<PrepedidoSolicitud> fuente = (listPrepedidoCompleta != null) ? listPrepedidoCompleta : listPrepedido;
+        if (fuente == null) {
+            return total;
+        }
+        for (PrepedidoSolicitud ps : fuente) {
+            if (ps.getPrepedido() == null || ps.getPrepedido().getCodigocliente() == null
+                    || ps.getPrepedido().getCodigocliente().getClientePK() == null) {
+                continue;
+            }
+            if (cupoEdicion.getCodigocliente().equals(ps.getPrepedido().getCodigocliente().getClientePK().getCodigo())
+                    && cupoEdicion.getMes().equals(extraerMes(ps.getPrepedido().getFechadespacho()))) {
+                total = total.add(getVolAuto(ps, nombreProducto));
+            }
+        }
+        return total;
+    }
+
+    /** Saldo = autorizado - despacho; si autorizado es -1 (sin límite) devuelve -1. */
+    public BigDecimal getSaldoCupo(String nombreProducto) {
+        if (cupoEdicion == null) {
+            return BigDecimal.ZERO;
+        }
+        BigDecimal autorizado;
+        if ("EXTRA".equalsIgnoreCase(nombreProducto)) {
+            autorizado = cupoEdicion.getAutorizadoext();
+        } else if ("SUPER".equalsIgnoreCase(nombreProducto)) {
+            autorizado = cupoEdicion.getAutorizadosup();
+        } else {
+            autorizado = cupoEdicion.getAutorizadodie();
+        }
+        if (autorizado == null || autorizado.compareTo(ec.com.infinityone.modelo.Volumencontrolado.SIN_LIMITE) == 0) {
+            return ec.com.infinityone.modelo.Volumencontrolado.SIN_LIMITE;
+        }
+        return autorizado.subtract(getDespachoCupo(nombreProducto));
+    }
+
+    public ec.com.infinityone.modelo.Volumencontrolado getCupoEdicion() {
+        return cupoEdicion;
+    }
+
+    public void setCupoEdicion(ec.com.infinityone.modelo.Volumencontrolado cupoEdicion) {
+        this.cupoEdicion = cupoEdicion;
+    }
+
     /**
      * Calcula el saldo de volumen solicitado: Total Asignado - Programa Despachos
      * PyS

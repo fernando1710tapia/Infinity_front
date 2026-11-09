@@ -380,6 +380,11 @@
                                             style="text-align:center; min-width:55px;" />
                                         <p:column rowspan="2" headerText="Autorizar"
                                             style="text-align:center; min-width:60px;" />
+                                        <p:column rowspan="2" style="text-align:center; min-width:75px;">
+                                            <f:facet name="header">
+                                                <h:outputText value="Administrar&lt;br/&gt;cupos" escape="false" />
+                                            </f:facet>
+                                        </p:column>
                                         <!-- Boton toggle cortina -->
                                         <p:column rowspan="2" style="text-align:center; min-width:30px; padding:2px;">
                                             <f:facet name="header">
@@ -576,6 +581,14 @@
                                             message="¿Está seguro que desea autorizar los volúmenes ingresados?"
                                             icon="pi pi-exclamation-triangle" />
                                     </p:commandButton>
+                                </p:column>
+
+                                <!-- Administrar cupos: control volumétrico mensual del cliente -->
+                                <p:column exportable="false" style="text-align:center; width:75px;">
+                                    <p:commandButton icon="pi pi-sliders-h" styleClass="rounded-button ui-button-info"
+                                        process="@this" update=":formCupos"
+                                        actionListener="#{prepedidoSolicitudBean1.abrirAdministrarCupos(prepedidoItem)}"
+                                        title="Administrar cupos" />
                                 </p:column>
 
                                 <!-- Columna alineación botón toggle (vacía en el cuerpo) -->
@@ -1491,6 +1504,55 @@
                 onclick="PF('autorizarDialog').hide()"
                 actionListener="#{prepedidoSolicitudBean1.cancelarAutorizacion()}" update=":form" />
         </p:confirmDialog>
+
+        <!-- Administrar cupos: control volumétrico mensual (mismo formato que Generar NP Infinity) -->
+        <p:dialog widgetVar="dlgAdministrarCupos" header="Control volumétrico mensual" width="70%" modal="true"
+            showEffect="fade" responsive="true">
+            <h:form id="formCupos">
+                <div style="margin-bottom: 12px; font-weight: bold; font-size: 1rem;">
+                    <h:outputText value="Control volumétrico mensual: #{prepedidoSolicitudBean1.tituloCupos}" />
+                </div>
+
+                <p:dataTable id="dtCupos" value="#{prepedidoSolicitudBean1.filasCupo}" var="cupo"
+                    emptyMessage="No hay información de cupos.">
+
+                    <p:column headerText="Producto" width="25%">
+                        <h:outputText value="#{cupo.producto}" />
+                    </p:column>
+
+                    <p:column headerText="autorizado arch despacho" width="25%" style="text-align: center;">
+                        <p:inputNumber value="#{cupo.autorizado}" decimalPlaces="0" thousandSeparator=""
+                            emptyValue="zero" minValue="-1" style="width: 100%;"
+                            inputStyle="width: 100%; text-align: center;">
+                            <p:ajax event="change" process="@this" update="saldoCupo" />
+                        </p:inputNumber>
+                    </p:column>
+
+                    <p:column headerText="despacho" width="25%" style="text-align: center;">
+                        <h:outputText value="#{prepedidoSolicitudBean1.getDespachoCupo(cupo.codigo)}">
+                            <f:convertNumber pattern="0" />
+                        </h:outputText>
+                    </p:column>
+
+                    <p:column headerText="saldo" width="25%" style="text-align: center;">
+                        <h:outputText id="saldoCupo" value="#{prepedidoSolicitudBean1.getSaldoCupo(cupo.codigo)}">
+                            <f:convertNumber pattern="0" />
+                        </h:outputText>
+                    </p:column>
+
+                </p:dataTable>
+
+                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
+                    <p:commandButton value="Guardar" icon="pi pi-save" styleClass="ui-button-primary"
+                        actionListener="#{prepedidoSolicitudBean1.guardarCupos()}"
+                        process="@form" update="@form :form:messages" />
+                    <p:commandButton value="Cancelar" icon="pi pi-times" styleClass="ui-button-secondary"
+                        actionListener="#{prepedidoSolicitudBean1.cancelarCupos()}"
+                        process="@this" update="@form"
+                        oncomplete="PF('dlgAdministrarCupos').hide()" />
+                </div>
+            </h:form>
+        </p:dialog>
 
         <p:dialog widgetVar="generarDialog" header="Generar Nota Pedido Infinity" width="70%" modal="true"
             showEffect="fade" responsive="true">
