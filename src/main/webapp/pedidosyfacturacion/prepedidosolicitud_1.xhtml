@@ -665,7 +665,7 @@
                                     <p:commandButton icon="pi pi-print"
                                         styleClass="#{prepedidoItem.sellosProcesados ? 'ui-button-info rounded-button' : 'ui-button-secondary rounded-button'}"
                                         disabled="#{not prepedidoItem.sellosProcesados}" title="Impresión sellos"
-                                        process="@this" ajax="false"
+                                        ajax="false"
                                         actionListener="#{usoSellosPrepedidoBean.imprimirSellos(prepedidoItem)}"
                                         style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;">
                                         <p:fileDownload value="#{usoSellosPrepedidoBean.pdfStream}" />
@@ -894,8 +894,7 @@
                                                     -</div>
                                                 <div class="sum-val sum-col-5"
                                                     style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 3px 0; box-sizing: border-box; overflow: hidden;">
-                                                    <p:inputNumber
-                                                        value="#{prepedidoSolicitudBean1.adicionalNuevoExt}"
+                                                    <p:inputNumber value="#{prepedidoSolicitudBean1.adicionalNuevoExt}"
                                                         decimalPlaces="0" thousandSeparator="" emptyValue="zero"
                                                         minValue="-999999999"
                                                         title="Acumulado guardado: #{prepedidoSolicitudBean1.asignacionPetroTerminal.eppasigadicionalautorizadoext}"
@@ -915,8 +914,7 @@
                                                     -</div>
                                                 <div class="sum-val sum-col-7"
                                                     style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 3px 0; box-sizing: border-box; overflow: hidden;">
-                                                    <p:inputNumber
-                                                        value="#{prepedidoSolicitudBean1.adicionalNuevoDie}"
+                                                    <p:inputNumber value="#{prepedidoSolicitudBean1.adicionalNuevoDie}"
                                                         decimalPlaces="0" thousandSeparator="" emptyValue="zero"
                                                         minValue="-999999999"
                                                         title="Acumulado guardado: #{prepedidoSolicitudBean1.asignacionPetroTerminal.eppasigadicionalautorizadodie}"
@@ -936,8 +934,7 @@
                                                     -</div>
                                                 <div class="sum-val sum-col-9"
                                                     style="width: 80px; min-width: 80px; max-width: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 3px 0; box-sizing: border-box; overflow: hidden;">
-                                                    <p:inputNumber
-                                                        value="#{prepedidoSolicitudBean1.adicionalNuevoSup}"
+                                                    <p:inputNumber value="#{prepedidoSolicitudBean1.adicionalNuevoSup}"
                                                         decimalPlaces="0" thousandSeparator="" emptyValue="zero"
                                                         minValue="-999999999"
                                                         title="Acumulado guardado: #{prepedidoSolicitudBean1.asignacionPetroTerminal.eppasigadicionalautorizadosup}"
@@ -1544,11 +1541,10 @@
 
                 <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
                     <p:commandButton value="Guardar" icon="pi pi-save" styleClass="ui-button-primary"
-                        actionListener="#{prepedidoSolicitudBean1.guardarCupos()}"
-                        process="@form" update="@form :form:messages" />
+                        actionListener="#{prepedidoSolicitudBean1.guardarCupos()}" process="@form"
+                        update="@form :form:messages" />
                     <p:commandButton value="Cancelar" icon="pi pi-times" styleClass="ui-button-secondary"
-                        actionListener="#{prepedidoSolicitudBean1.cancelarCupos()}"
-                        process="@this" update="@form"
+                        actionListener="#{prepedidoSolicitudBean1.cancelarCupos()}" process="@this" update="@form"
                         oncomplete="PF('dlgAdministrarCupos').hide()" />
                 </div>
             </h:form>

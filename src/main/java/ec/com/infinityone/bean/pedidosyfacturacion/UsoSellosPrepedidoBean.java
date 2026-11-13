@@ -1202,7 +1202,9 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
         String prefijo = "";
         System.out.println("FT:: metodo.generarReporte PATH:" + path);
         String sellosConcatenadosParaImpresion = "";
-        String[] sellosSeparados = unUsoSello.getSelloconcatenado().split(";");
+        String[] sellosSeparados = (unUsoSello.getSelloconcatenado() != null)
+                ? unUsoSello.getSelloconcatenado().split(";")
+                : new String[0];
 
         switch (unUsoSello.getCodigocomercializadora()) {
             case "0095":
@@ -1216,7 +1218,9 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
         }
         System.out.println("FT::. sellosSeparados" + sellosSeparados);
         for (String sello : sellosSeparados) {
-            sellosConcatenadosParaImpresion = sellosConcatenadosParaImpresion + prefijo + sello.trim() + "\n";
+            if (sello != null && !sello.trim().isEmpty()) {
+                sellosConcatenadosParaImpresion = sellosConcatenadosParaImpresion + prefijo + sello.trim() + "\n";
+            }
         }
 
         InputStream file = null;
@@ -1244,17 +1248,21 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
 
             // File directory = new File("C:\\Archivos");
             File directory = new File(rutaGuardar);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
             String nombreDocumento = "SellosUsados";
-            String fechaArchivo = (new Date().toString());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
+            String fechaArchivo = sdf.format(new Date());
 
-            File pdf = File.createTempFile(nombreDocumento + "_" + fechaArchivo, ".pdf", directory);
+            File pdf = File.createTempFile(nombreDocumento + "_" + fechaArchivo + "_", ".pdf", directory);
             JasperExportManager.exportReportToPdfStream(print, new FileOutputStream(pdf));
             File initialFile = new File(pdf.getAbsolutePath());
             InputStream targetStream = new FileInputStream(initialFile);
             this.rutaPdfGenerado = pdf.getAbsolutePath();
             // pdfStream = new DefaultStreamedContent();
             pdfStream = new DefaultStreamedContent(targetStream, "application/pdf",
-                    nombreDocumento + (new Date()).toString() + ".pdf");
+                    nombreDocumento + "_" + fechaArchivo + ".pdf");
             // DefaultStreamedContent.builder().contentType("application/pdf").name(nombreDocumento
             // + ".pdf").stream(() -> new FileInputStream(targetStream)).build();
             System.out.println("FT::. CREANDO ARCHIVO. " + pdf.getAbsolutePath());
@@ -1519,6 +1527,20 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
     }
 
     public StreamedContent getPdfStream() {
+        if (rutaPdfGenerado != null) {
+            try {
+                File f = new File(rutaPdfGenerado);
+                if (f.exists()) {
+                    String nombreArchivo = f.getName();
+                    if (nombreArchivo == null || !nombreArchivo.toLowerCase().endsWith(".pdf")) {
+                        nombreArchivo = "SellosUsados.pdf";
+                    }
+                    return new DefaultStreamedContent(new FileInputStream(f), "application/pdf", nombreArchivo);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         return pdfStream;
     }
 
@@ -1796,11 +1818,19 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
                 java.io.File f = new java.io.File(ps.getRutaPdfSellos());
                 if (f.exists()) {
                     this.rutaPdfGenerado = ps.getRutaPdfSellos();
+                    String nombreArchivo = f.getName();
+                    if (nombreArchivo == null || !nombreArchivo.toLowerCase().endsWith(".pdf")) {
+                        nombreArchivo = "SellosUsados.pdf";
+                    }
+                    this.pdfStream = new DefaultStreamedContent(new FileInputStream(f), "application/pdf", nombreArchivo);
                     return;
                 }
             }
             if (ps.getEnvioUsoSello() != null) {
                 generarReporteAux(ps.getEnvioUsoSello());
+                if (this.rutaPdfGenerado != null) {
+                    ps.setRutaPdfSellos(this.rutaPdfGenerado);
+                }
                 return;
             }
             if (ps.getPrepedido() != null) {
@@ -1817,6 +1847,9 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
                 fallback.setNombreconductor(ps.getPrepedido().getCedulaconductor() != null ? ps.getPrepedido().getCedulaconductor() : "");
                 fallback.setSelloconcatenado("");
                 generarReporteAux(fallback);
+                if (this.rutaPdfGenerado != null) {
+                    ps.setRutaPdfSellos(this.rutaPdfGenerado);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
