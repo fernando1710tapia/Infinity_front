@@ -2078,6 +2078,156 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         }
     }
 
+    // ===================== VALIDACION CUPO MENSUAL AL AUTORIZAR =====================
+
+    /** Mensaje unificado (una linea por producto) para el dialogo de cupo. */
+    private String mensajeValidacionCupo;
+
+    public String getMensajeValidacionCupo() {
+        return mensajeValidacionCupo;
+    }
+
+    /** Muestra el dialogo con los errores de cupo (bloquea la autorizacion). */
+    private void mostrarErrorCupo(String mensajeHtml) {
+        this.mensajeValidacionCupo = mensajeHtml;
+        PrimeFaces.current().ajax().update("formValCupo");
+        PrimeFaces.current().executeScript("PF('dlgValidacionCupo').show();");
+    }
+
+    private BigDecimal sumarVolumenAutorizadoProducto(PrepedidoSolicitud ps, String codigoProducto) {
+        BigDecimal total = BigDecimal.ZERO;
+        if (ps.getDetalle() != null) {
+            for (ec.com.infinityone.modelo.Detalleprepedido det : ps.getDetalle()) {
+                if (det.getProducto() != null && codigoProducto.equals(det.getProducto().getCodigo())
+                        && det.getVolumennaturalautorizado() != null) {
+                    total = total.add(det.getVolumennaturalautorizado());
+                }
+            }
+        }
+        return total;
+    }
+
+    private BigDecimal leerDecimalJson(JSONObject o, String clave) {
+        if (o == null || o.isNull(clave)) {
+            return null;
+        }
+        return new BigDecimal(o.get(clave).toString());
+    }
+
+    /**
+     * Consulta controlvolumencliente y valida por producto que el cupo mensual
+     * (volumenX) cubra el despacho (despachovolumenX). Cupo -1 = sin limite.
+     *
+     * @return null si es valido; mensaje HTML (una linea por error) si no.
+     */
+    private String validarCupoMensual(PrepedidoSolicitud ps) {
+        try {
+            PrepedidoPK pk = ps.getPrepedido().getPrepedidoPK();
+            String codCliente = ps.getPrepedido().getCodigocliente().getClientePK().getCodigo();
+            String mes = extraerMes(ps.getPrepedido().getFechadespacho()); // yyyy-MM
+            int anio = Integer.parseInt(mes.substring(0, 4));
+            int mesNum = Integer.parseInt(mes.substring(5, 7));
+
+            BigDecimal vExtra = sumarVolumenAutorizadoProducto(ps, "9901");
+            BigDecimal vSuper = sumarVolumenAutorizadoProducto(ps, "9903");
+            BigDecimal vDiesel = sumarVolumenAutorizadoProducto(ps, "9904");
+
+            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
+                    + "ec.com.infinity.modelo.clientevolumenmensual/controlvolumencliente?"
+                    + "pcodigocomercializadora=" + java.net.URLEncoder.encode(pk.getCodigocomercializadora().trim(), "UTF-8")
+                    + "&pcodigocliente=" + java.net.URLEncoder.encode(codCliente.trim(), "UTF-8")
+                    + "&panio=" + anio
+                    + "&pmes=" + mesNum
+                    + "&pvolumenextra=" + vExtra.toPlainString()
+                    + "&pvolumensuper=" + vSuper.toPlainString()
+                    + "&pvolumendiesel=" + vDiesel.toPlainString();
+            HttpURLConnection connection = (HttpURLConnection) new URL(direcc).openConnection();
+            connection.setDoInput(true);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setConnectTimeout(30000);
+            connection.setReadTimeout(30000);
+            if (connection.getResponseCode() != 200) {
+                LOG.warning("controlvolumencliente HTTP " + connection.getResponseCode());
+                return "No se pudo validar el cupo mensual del cliente (HTTP " + connection.getResponseCode() + ").";
+            }
+            StringBuilder sb = new StringBuilder();
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"))) {
+                String tmp;
+                while ((tmp = br.readLine()) != null) {
+                    sb.append(tmp);
+                }
+            }
+            JSONObject resp = new JSONObject(sb.toString());
+            if (!resp.isNull("statusCode") && resp.getInt("statusCode") != 200) {
+                return "No se pudo validar el cupo mensual del cliente: "
+                        + (resp.isNull("errorMessage") ? "error en el servicio" : resp.getString("errorMessage"));
+            }
+            JSONArray retorno = resp.isNull("retorno") ? null : resp.getJSONArray("retorno");
+            if (retorno == null || retorno.length() == 0 || retorno.isNull(0)) {
+                return "No se pudo validar el cupo mensual del cliente: el servicio no devolvio informacion.";
+            }
+            JSONObject r = retorno.getJSONObject(0);
+
+            StringBuilder errores = new StringBuilder();
+            agregarErrorCupo(errores, "Extra", vExtra, leerDecimalJson(r, "volumenextra"),
+                    leerDecimalJson(r, "despachovolumenextra"));
+            agregarErrorCupo(errores, "Súper", vSuper, leerDecimalJson(r, "volumensuper"),
+                    leerDecimalJson(r, "despachovolumensuper"));
+            agregarErrorCupo(errores, "Diesel", vDiesel, leerDecimalJson(r, "volumendiesel"),
+                    leerDecimalJson(r, "despachovolumendiesel"));
+            return errores.length() == 0 ? null : errores.toString();
+        } catch (Exception e) {
+            LOG.log(Level.WARNING, "Error al validar cupo mensual: " + e.getMessage(), e);
+            return "No se pudo validar el cupo mensual del cliente: " + e.getMessage();
+        }
+    }
+
+    private void agregarErrorCupo(StringBuilder errores, String producto, BigDecimal solicitado, BigDecimal cupo,
+            BigDecimal despacho) {
+        if (solicitado.compareTo(BigDecimal.ZERO) <= 0 || cupo == null || despacho == null) {
+            return; // producto sin volumen a autorizar o sin control definido
+        }
+        boolean ok = cupo.compareTo(new BigDecimal("-1")) == 0 || cupo.compareTo(despacho) >= 0;
+        if (!ok) {
+            if (errores.length() > 0) {
+                errores.append("<br/>");
+            }
+            errores.append("Volumen de ").append(producto)
+                    .append(" solicitado excede el límite aprobado por la Arch!. DEBE MODIFICARLO");
+        }
+    }
+
+    /**
+     * Paso previo del boton Autorizar de la fila: valida cupo mensual y solo si
+     * es correcto abre la confirmacion.
+     */
+    public void validarAutorizacionDirecta(PrepedidoSolicitud ps) {
+        if (ps == null || ps.getDetalle() == null) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "No hay prepedido seleccionado o detalles vacíos.");
+            return;
+        }
+        boolean hayVolumen = false;
+        for (ec.com.infinityone.modelo.Detalleprepedido det : ps.getDetalle()) {
+            if (det.getVolumennaturalautorizado() != null
+                    && det.getVolumennaturalautorizado().compareTo(BigDecimal.ZERO) > 0) {
+                hayVolumen = true;
+                break;
+            }
+        }
+        if (!hayVolumen) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "Debe ingresar al menos un volumen mayor a cero para autorizar.");
+            return;
+        }
+        String error = validarCupoMensual(ps);
+        if (error != null) {
+            mostrarErrorCupo(error);
+            return;
+        }
+        this.envNP = ps;
+        PrimeFaces.current().executeScript("PF('autorizarDirectoDialog').show();");
+    }
+
     public void dialogoAutorizacionPrepedido(PrepedidoSolicitud envNP) {
         if (!envNP.getPrepedido().isActiva()) {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "No se puede autorizar porque el prepedido está anulado.");
@@ -2099,6 +2249,12 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         if (!hayVolumenAutorizado) {
             this.dialogo(FacesMessage.SEVERITY_ERROR,
                     "Debe ingresar un volumen autorizado mayor a 0 en al menos un producto antes de autorizar.");
+            return;
+        }
+
+        String errorCupo = validarCupoMensual(envNP);
+        if (errorCupo != null) {
+            mostrarErrorCupo(errorCupo);
             return;
         }
 

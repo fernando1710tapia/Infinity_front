@@ -574,13 +574,9 @@
                                 <p:column exportable="false" style="text-align:center; width:60px;">
                                     <p:commandButton icon="pi pi-check" styleClass="rounded-button ui-button-success"
                                         process="@form" update="form"
-                                        actionListener="#{prepedidoSolicitudBean1.autorizarPrepedidoDirecto(prepedidoItem)}"
+                                        actionListener="#{prepedidoSolicitudBean1.validarAutorizacionDirecta(prepedidoItem)}"
                                         disabled="#{prepedidoItem.todosProductosAutorizados or not prepedidoItem.registroActivo}"
-                                        title="Autorizar">
-                                        <p:confirm header="Confirmación"
-                                            message="¿Está seguro que desea autorizar los volúmenes ingresados?"
-                                            icon="pi pi-exclamation-triangle" />
-                                    </p:commandButton>
+                                        title="Autorizar" />
                                 </p:column>
 
                                 <!-- Administrar cupos: control volumétrico mensual del cliente -->
@@ -1490,6 +1486,29 @@
                 process="@this" oncomplete="PF('deleteProductDialog').hide()" update=":form" />
             <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
                 onclick="PF('deleteProductDialog').hide()" />
+        </p:confirmDialog>
+
+        <!-- Errores de cupo mensual: un solo mensaje, una linea por producto -->
+        <h:form id="formValCupo">
+            <p:dialog widgetVar="dlgValidacionCupo" header="Validación de cupo mensual" modal="true" width="450"
+                resizable="false" draggable="false">
+                <h:outputText value="#{prepedidoSolicitudBean1.mensajeValidacionCupo}" escape="false" />
+                <f:facet name="footer">
+                    <p:commandButton value="Aceptar" type="button" icon="pi pi-check"
+                        onclick="PF('dlgValidacionCupo').hide()" />
+                </f:facet>
+            </p:dialog>
+        </h:form>
+
+        <!-- Confirmación de autorización directa: se abre solo si pasa la validación de cupo mensual -->
+        <p:confirmDialog widgetVar="autorizarDirectoDialog" showEffect="fade" width="320"
+            message="¿Está seguro que desea autorizar los volúmenes ingresados?" header="Confirmación" severity="info"
+            closable="false">
+            <p:commandButton value="Si" icon="pi pi-check"
+                actionListener="#{prepedidoSolicitudBean1.autorizarPrepedidoDirecto(prepedidoSolicitudBean1.envNP)}"
+                process="@this" oncomplete="PF('autorizarDirectoDialog').hide()" update=":form" />
+            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
+                onclick="PF('autorizarDirectoDialog').hide()" />
         </p:confirmDialog>
 
         <p:confirmDialog widgetVar="autorizarDialog" showEffect="fade" width="300"
