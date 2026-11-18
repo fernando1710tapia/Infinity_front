@@ -6,8 +6,12 @@ import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -16,6 +20,7 @@ import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.primefaces.shaded.json.JSONArray;
@@ -23,13 +28,20 @@ import org.primefaces.shaded.json.JSONObject;
 
 import ec.com.infinityone.configuration.Fichero;
 import ec.com.infinityone.modelo.Autotanque;
+import ec.com.infinityone.modelo.Terminal;
 import ec.com.infinityone.reusable.ReusableBean;
+import ec.com.infinityone.servicio.catalogo.TerminalServicio;
+import ec.com.infinityone.servicio.catalogo.UsuarioServicio;
+import ec.com.infinityone.servicio.notificacion.ExpoPushService;
+import ec.com.infinityone.servicio.pedidosyfacturacion.UsoSellosServicio;
 
 /**
  * Pantalla "Mensaje de Sellos" (pedidosyfacturacion/mensajesellos.xhtml).
  *
- * Permite elegir un autotanque y una solicitud / nota de pedido e ingresar el
- * link del rastreo satelital. La accion de "Enviar" aun esta por definir.
+ * Se elige fecha de traslado, terminal de partida y autotanque; con eso se
+ * consulta buscarselloscliente y se llena el combo de clientes destinatarios
+ * (sin repetir). "Enviar" manda un push al cliente seleccionado con el link de
+ * seguimiento del pedido.
  */
 @Named
 @ViewScoped
@@ -42,29 +54,61 @@ public class MensajeSellosBean extends ReusableBean implements Serializable {
     private static final Pattern PATRON_URL = Pattern.compile("^(https?://)[^\\s/$.?#].[^\\s]*$",
             Pattern.CASE_INSENSITIVE);
 
+    @Inject
+    private TerminalServicio terminalServicio;
+
+    @Inject
+    private UsoSellosServicio usoSellosServicio;
+
+    @Inject
+    private UsuarioServicio usuarioServicio;
+
+    @Inject
+    private ExpoPushService expoPushService;
+
     /** Autotanques activos (se cargan desde el servicio REST de autotanques). */
     private List<Autotanque> listaAutotanques;
 
-    /** Solicitudes / notas de pedido. Pendiente de definir su origen. */
-    private List<SolicitudNotaPedidoItem> listaSolicitudes;
+    /** Terminales de partida. */
+    private List<Terminal> listaTerminales;
+
+    /** Clientes destinatarios (sin repetir) del autotanque/fecha/terminal. */
+    private List<ClienteDestino> listaClientes;
+
+    /** Fecha de traslado (por defecto la actual). */
+    private Date fechaTraslado;
+
+    /** Codigo del terminal de partida. */
+    private String codigoTerminal;
 
     /** Placa del autotanque seleccionado. */
     private String placaAutotanque;
 
-    /** Codigo de la solicitud / nota de pedido seleccionada. */
-    private String codigoSolicitud;
+    /** Codigo del cliente destinatario seleccionado. */
+    private String codigoCliente;
 
-    /** Link del rastreo satelital. */
+    /** Link de seguimiento del pedido. */
     private String linkRastreo;
 
     @PostConstruct
     public void init() {
         direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.autotanque";
         listaAutotanques = new ArrayList<>();
-        listaSolicitudes = new ArrayList<>();
+        listaTerminales = new ArrayList<>();
+        listaClientes = new ArrayList<>();
         limpiar();
+        obtenerTerminales();
         obtenerAutotanques();
-        obtenerSolicitudes();
+    }
+
+    public void obtenerTerminales() {
+        try {
+            List<Terminal> terminales = terminalServicio.obtenerTerminalesActivos();
+            listaTerminales = terminales != null ? terminales : new ArrayList<Terminal>();
+        } catch (RuntimeException e) {
+            LOG.log(Level.SEVERE, "Error al cargar terminales", e);
+            mensaje(FacesMessage.SEVERITY_ERROR, "No se pudo cargar la lista de terminales");
+        }
     }
 
     /**
@@ -117,27 +161,64 @@ public class MensajeSellosBean extends ReusableBean implements Serializable {
     }
 
     /**
-     * Carga las solicitudes / notas de pedido. Por ahora queda vacio: el origen
-     * de la informacion aun no esta definido.
+     * Llena el combo de clientes con buscarselloscliente (comercializadora del
+     * usuario conectado + terminal + placa + fecha de traslado). Cada cliente
+     * aparece una sola vez.
      */
-    public void obtenerSolicitudes() {
-        listaSolicitudes = new ArrayList<>();
+    public void cargarClientes() {
+        listaClientes = new ArrayList<>();
+        codigoCliente = null;
+        if (isVacio(codigoTerminal) || isVacio(placaAutotanque) || fechaTraslado == null) {
+            return;
+        }
+        try {
+            String codComer = dataUser.getUser().getCodigocomercializadora();
+            String fecha = new SimpleDateFormat("yyyy/MM/dd").format(fechaTraslado);
+            JSONArray items = usoSellosServicio.buscarSellosCliente(codComer, codigoTerminal, placaAutotanque, fecha);
+            if (items == null) {
+                mensaje(FacesMessage.SEVERITY_ERROR, "No se pudo consultar los clientes del autotanque");
+                return;
+            }
+            Map<String, ClienteDestino> unicos = new LinkedHashMap<>();
+            for (int i = 0; i < items.length(); i++) {
+                if (items.isNull(i)) {
+                    continue;
+                }
+                JSONObject it = items.getJSONObject(i);
+                String cod = it.optString("codigocliente", "").trim();
+                if (!cod.isEmpty() && !unicos.containsKey(cod)) {
+                    unicos.put(cod, new ClienteDestino(cod, it.optString("nombrecliente", "").trim()));
+                }
+            }
+            listaClientes = new ArrayList<>(unicos.values());
+            if (listaClientes.isEmpty()) {
+                mensaje(FacesMessage.SEVERITY_INFO, "No hay clientes para el autotanque, terminal y fecha indicados");
+            }
+        } catch (RuntimeException e) {
+            LOG.log(Level.SEVERE, "Error al cargar clientes destinatarios", e);
+            mensaje(FacesMessage.SEVERITY_ERROR, "No se pudo consultar los clientes del autotanque");
+        }
     }
 
-    /**
-     * Accion del boton "Enviar". El comportamiento real aun no esta definido; por
-     * ahora solo valida los datos.
-     */
+    /** Accion del boton "Enviar": push al cliente destinatario seleccionado. */
     public void enviar() {
-        if (placaAutotanque == null || placaAutotanque.trim().isEmpty()) {
+        if (fechaTraslado == null) {
+            mensaje(FacesMessage.SEVERITY_WARN, "Seleccione la fecha de traslado");
+            return;
+        }
+        if (isVacio(codigoTerminal)) {
+            mensaje(FacesMessage.SEVERITY_WARN, "Seleccione el terminal de partida");
+            return;
+        }
+        if (isVacio(placaAutotanque)) {
             mensaje(FacesMessage.SEVERITY_WARN, "Seleccione un autotanque");
             return;
         }
-        if (codigoSolicitud == null || codigoSolicitud.trim().isEmpty()) {
-            mensaje(FacesMessage.SEVERITY_WARN, "Seleccione una solicitud / nota de pedido");
+        if (isVacio(codigoCliente)) {
+            mensaje(FacesMessage.SEVERITY_WARN, "Seleccione el cliente destinatario");
             return;
         }
-        if (linkRastreo == null || linkRastreo.trim().isEmpty()) {
+        if (isVacio(linkRastreo)) {
             mensaje(FacesMessage.SEVERITY_WARN, "Ingrese el link del rastreo satelital");
             return;
         }
@@ -146,10 +227,20 @@ public class MensajeSellosBean extends ReusableBean implements Serializable {
             return;
         }
 
-        // TODO: definir la accion de envio.
-        LOG.info("MensajeSellos: autotanque=" + placaAutotanque + ", solicitud=" + codigoSolicitud + ", link="
-                + linkRastreo.trim());
-        mensaje(FacesMessage.SEVERITY_INFO, "Datos validados. La accion de envio aun no esta definida");
+        String token = usuarioServicio.obtenerPushTokenActivo(codigoCliente);
+        if (token == null) {
+            mensaje(FacesMessage.SEVERITY_WARN,
+                    "El cliente " + codigoCliente + " no tiene la app registrada (sin token activo). No se envi\u00f3 el mensaje");
+            return;
+        }
+
+        String link = linkRastreo.trim();
+        // \u00ed = i con tilde
+        String cuerpo = "seguimiento de tu pedido en l\u00ednea:\n" + link;
+        expoPushService.enviarMensajeCliente(token, codigoCliente, "Seguimiento de tu pedido", cuerpo, link);
+        LOG.info("MensajeSellos: push enviado a cliente " + codigoCliente + ", autotanque=" + placaAutotanque
+                + ", terminal=" + codigoTerminal + ", link=" + link);
+        mensaje(FacesMessage.SEVERITY_INFO, "Mensaje enviado al cliente " + codigoCliente);
     }
 
     /** Accion del boton "Cancelar". */
@@ -158,29 +249,36 @@ public class MensajeSellosBean extends ReusableBean implements Serializable {
     }
 
     private void limpiar() {
+        fechaTraslado = new Date();
+        codigoTerminal = null;
         placaAutotanque = null;
-        codigoSolicitud = null;
+        codigoCliente = null;
         linkRastreo = null;
+        listaClientes = new ArrayList<>();
+    }
+
+    private boolean isVacio(String s) {
+        return s == null || s.trim().isEmpty();
     }
 
     private void mensaje(FacesMessage.Severity severidad, String texto) {
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(severidad, texto, null));
     }
 
-    /** Elemento del combo "Solicitud / Nota de pedido". */
-    public static class SolicitudNotaPedidoItem implements Serializable {
+    /** Elemento del combo "Cliente destinatario": codigo - nombre. */
+    public static class ClienteDestino implements Serializable {
 
         private static final long serialVersionUID = 1L;
 
         private String codigo;
-        private String descripcion;
+        private String nombre;
 
-        public SolicitudNotaPedidoItem() {
+        public ClienteDestino() {
         }
 
-        public SolicitudNotaPedidoItem(String codigo, String descripcion) {
+        public ClienteDestino(String codigo, String nombre) {
             this.codigo = codigo;
-            this.descripcion = descripcion;
+            this.nombre = nombre;
         }
 
         public String getCodigo() {
@@ -191,12 +289,16 @@ public class MensajeSellosBean extends ReusableBean implements Serializable {
             this.codigo = codigo;
         }
 
-        public String getDescripcion() {
-            return descripcion;
+        public String getNombre() {
+            return nombre;
         }
 
-        public void setDescripcion(String descripcion) {
-            this.descripcion = descripcion;
+        public void setNombre(String nombre) {
+            this.nombre = nombre;
+        }
+
+        public String getDescripcion() {
+            return codigo + " - " + nombre;
         }
     }
 
@@ -204,8 +306,12 @@ public class MensajeSellosBean extends ReusableBean implements Serializable {
         return listaAutotanques;
     }
 
-    public List<SolicitudNotaPedidoItem> getListaSolicitudes() {
-        return listaSolicitudes;
+    public List<Terminal> getListaTerminales() {
+        return listaTerminales;
+    }
+
+    public List<ClienteDestino> getListaClientes() {
+        return listaClientes;
     }
 
     public String getPlacaAutotanque() {
@@ -216,12 +322,20 @@ public class MensajeSellosBean extends ReusableBean implements Serializable {
         this.placaAutotanque = placaAutotanque;
     }
 
-    public String getCodigoSolicitud() {
-        return codigoSolicitud;
+    public String getCodigoTerminal() {
+        return codigoTerminal;
     }
 
-    public void setCodigoSolicitud(String codigoSolicitud) {
-        this.codigoSolicitud = codigoSolicitud;
+    public void setCodigoTerminal(String codigoTerminal) {
+        this.codigoTerminal = codigoTerminal;
+    }
+
+    public String getCodigoCliente() {
+        return codigoCliente;
+    }
+
+    public void setCodigoCliente(String codigoCliente) {
+        this.codigoCliente = codigoCliente;
     }
 
     public String getLinkRastreo() {
@@ -230,5 +344,13 @@ public class MensajeSellosBean extends ReusableBean implements Serializable {
 
     public void setLinkRastreo(String linkRastreo) {
         this.linkRastreo = linkRastreo;
+    }
+
+    public Date getFechaTraslado() {
+        return fechaTraslado;
+    }
+
+    public void setFechaTraslado(Date fechaTraslado) {
+        this.fechaTraslado = fechaTraslado;
     }
 }

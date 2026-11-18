@@ -25,6 +25,44 @@ import org.primefaces.shaded.json.JSONObject;
 @Stateless
 public class UsoSellosServicio extends ReusableBean {
 
+    /**
+     * Consulta los pedidos (cliente + producto) asociados a una placa y fecha.
+     * GET ec.com.infinity.modelo.usosello/buscarsellosclientes. Devuelve null si
+     * falla la consulta (para diferenciarlo de "sin resultados").
+     */
+    public JSONArray buscarSellosCliente(String codComer, String codTerminal, String placa, String fecha) {
+        try {
+            String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
+                    + "ec.com.infinity.modelo.usosello/buscarselloscliente?"
+                    + "codigocomercializadora=" + java.net.URLEncoder.encode(codComer, "UTF-8")
+                    + "&codigoterminal=" + java.net.URLEncoder.encode(codTerminal, "UTF-8")
+                    + "&placa=" + java.net.URLEncoder.encode(placa, "UTF-8")
+                    + "&fecha=" + fecha;
+            HttpURLConnection connection = (HttpURLConnection) URI.create(direcc).toURL().openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setConnectTimeout(10000);
+            connection.setReadTimeout(10000);
+            if (connection.getResponseCode() != 200) {
+                System.out.println("[ExpoPush] buscarsellosclientes HTTP " + connection.getResponseCode()
+                        + " URL: " + direcc);
+                return null;
+            }
+            StringBuilder sb = new StringBuilder();
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"))) {
+                String tmp;
+                while ((tmp = br.readLine()) != null) {
+                    sb.append(tmp);
+                }
+            }
+            JSONObject json = new JSONObject(sb.toString());
+            return json.isNull("retorno") ? new JSONArray() : json.getJSONArray("retorno");
+        } catch (Exception e) {
+            System.out.println("[ExpoPush] Error consultando buscarsellosclientes: " + e.getMessage());
+            return null;
+        }
+    }
+
     public JSONArray buscarUsoSellos(String codComer, String codTerminal, String fechaInicio, String fechaFin) {
         //String urlPath = "http://www.supertech.ec:8080/infinityone1/resources/ec.com.infinity.modelo.usosello/buscarusosellofechas?codigocomercializadora=0095&codigoterminal=07&fechainicio=2025/03/01&fechafin=2025/03/20";
 

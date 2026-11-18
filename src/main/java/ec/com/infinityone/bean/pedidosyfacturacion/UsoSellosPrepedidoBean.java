@@ -92,6 +92,10 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
      */
     @Inject
     private UsoSellosServicio usoSellosServicio;
+    @Inject
+    private ec.com.infinityone.servicio.catalogo.UsuarioServicio usuarioServicioPush;
+    @Inject
+    private ec.com.infinityone.servicio.notificacion.ExpoPushService expoPushService;
     /*
      * Variable Comercializadora
      */
@@ -666,6 +670,72 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
         }
     }
 
+    /**
+     * Push a cada cliente de los pedidos que lleva el tanquero (solo PYS). Un
+     * mensaje por cliente, con todos sus productos. Nunca interrumpe el guardado.
+     */
+    private void notificarSellosClientes() {
+        try {
+            if (codComer == null || !"2".equals(codComer.trim().replaceFirst("^0+(?!$)", ""))) {
+                return; // solo comercializadora PYS
+            }
+            String fecha = new SimpleDateFormat("yyyy/MM/dd").format(fechaUso);
+            String placa = autotanque.getPlaca();
+            JSONArray items = usoSellosServicio.buscarSellosCliente(codComer, codTerminal, placa, fecha);
+            if (items == null || items.length() == 0) {
+                System.out.println("[ExpoPush] Sellos: sin pedidos para placa " + placa + " fecha " + fecha);
+                return;
+            }
+
+            // cliente -> nombre ; cliente -> (producto -> volumen)
+            Map<String, String> nombres = new java.util.LinkedHashMap<>();
+            Map<String, Map<String, BigDecimal>> productos = new java.util.LinkedHashMap<>();
+            for (int i = 0; i < items.length(); i++) {
+                if (items.isNull(i)) {
+                    continue;
+                }
+                JSONObject it = items.getJSONObject(i);
+                String cli = it.optString("codigocliente", "").trim();
+                if (cli.isEmpty()) {
+                    continue;
+                }
+                nombres.putIfAbsent(cli, it.optString("nombrecliente", "").trim());
+                String prod = it.optString("nombreproducto", "").trim();
+                if (prod.endsWith(".")) {
+                    prod = prod.substring(0, prod.length() - 1).trim();
+                }
+                BigDecimal vol;
+                try {
+                    vol = new BigDecimal(it.optString("volumennaturalautorizado", "0").trim());
+                } catch (NumberFormatException nfe) {
+                    vol = BigDecimal.ZERO;
+                }
+                productos.computeIfAbsent(cli, k -> new java.util.LinkedHashMap<>()).merge(prod, vol,
+                        BigDecimal::add);
+            }
+
+            for (Map.Entry<String, Map<String, BigDecimal>> e : productos.entrySet()) {
+                String cli = e.getKey();
+                StringBuilder detalle = new StringBuilder();
+                for (Map.Entry<String, BigDecimal> p : e.getValue().entrySet()) {
+                    if (detalle.length() > 0) {
+                        detalle.append(" ; ");
+                    }
+                    detalle.append(p.getKey()).append(" ")
+                            .append(p.getValue().stripTrailingZeros().toPlainString()).append(" galones");
+                }
+                String token = usuarioServicioPush.obtenerPushTokenActivo(cli);
+                if (token == null) {
+                    System.out.println("[ExpoPush] Sellos: cliente " + cli + " sin token activo, se omite.");
+                    continue;
+                }
+                expoPushService.enviarSellosEntregados(token, cli, nombres.get(cli), placa, detalle.toString());
+            }
+        } catch (Exception ex) {
+            System.out.println("[ExpoPush] Error notificando sellos: " + ex.getMessage());
+        }
+    }
+
     public void adquirirUsoSello(boolean esInsert) {
         int SUCCESS_CODE = -1;
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
@@ -867,6 +937,7 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
                     this.prepedidoActual.setRutaPdfSellos(this.rutaPdfGenerado);
                 }
                 this.dialogo(FacesMessage.SEVERITY_INFO, "Sellos procesados exitosamente");
+                notificarSellosClientes();
                 org.primefaces.PrimeFaces.current().executeScript("PF('sellosDialog').hide();");
                 org.primefaces.PrimeFaces.current().ajax().update(":form:dt-products", ":form:messages");
 
