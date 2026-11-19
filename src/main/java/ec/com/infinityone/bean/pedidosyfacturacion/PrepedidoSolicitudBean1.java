@@ -50,6 +50,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -1368,9 +1369,8 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         return total;
     }
 
-    // ===================== ADMINISTRAR CUPOS (solo front) =====================
+    // ===================== ADMINISTRAR CUPOS =====================
 
-    private static final String SESSION_KEY_CUPOS = "prepedido1.volumenControlado";
     private static final String[] MESES_ABREV = { "ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep",
             "oct", "nov", "dic" };
 
@@ -1380,20 +1380,11 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     /** Filas (Extra, Súper, Diésel) que muestra la tabla del modal. */
     private List<ec.com.infinityone.modelo.CupoFila> filasCupo = new ArrayList<>();
 
-    /**
-     * Almacén temporal en sesión (clave: codigoCliente|yyyy-MM) mientras no
-     * exista backend para la tabla volumencontrolado.
-     */
-    @SuppressWarnings("unchecked")
-    private Map<String, ec.com.infinityone.modelo.Volumencontrolado> obtenerAlmacenCupos() {
-        Map<String, Object> session = FacesContext.getCurrentInstance().getExternalContext().getSessionMap();
-        Object obj = session.get(SESSION_KEY_CUPOS);
-        if (!(obj instanceof Map)) {
-            obj = new HashMap<String, ec.com.infinityone.modelo.Volumencontrolado>();
-            session.put(SESSION_KEY_CUPOS, obj);
-        }
-        return (Map<String, ec.com.infinityone.modelo.Volumencontrolado>) obj;
-    }
+    private BigDecimal despachoCupoExtra = BigDecimal.ZERO;
+    private BigDecimal despachoCupoSuper = BigDecimal.ZERO;
+    private BigDecimal despachoCupoDiesel = BigDecimal.ZERO;
+    private String codigoComercializadoraCupo;
+    private Object fechaCupoServicio;
 
     /** Extrae yyyy-MM de una fecha String (yyyy/MM/dd o yyyy-MM-dd). */
     private String extraerMes(String fecha) {
@@ -1406,40 +1397,252 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     /** Abre el modal de cupos para el cliente del prepedido seleccionado. */
     public void abrirAdministrarCupos(PrepedidoSolicitud ps) {
         if (ps == null || ps.getPrepedido() == null || ps.getPrepedido().getCodigocliente() == null
-                || ps.getPrepedido().getCodigocliente().getClientePK() == null) {
+                || ps.getPrepedido().getCodigocliente().getClientePK() == null
+                || ps.getPrepedido().getPrepedidoPK() == null
+                || ps.getPrepedido().getPrepedidoPK().getCodigocomercializadora() == null) {
             this.dialogo(FacesMessage.SEVERITY_WARN, "El prepedido no tiene un cliente asociado");
             return;
         }
         String codCliente = ps.getPrepedido().getCodigocliente().getClientePK().getCodigo();
+        String codComercializadora = ps.getPrepedido().getPrepedidoPK().getCodigocomercializadora();
         String nomCliente = ps.getPrepedido().getCodigocliente().getNombrecomercial();
         String mes = extraerMes(ps.getPrepedido().getFechadespacho());
 
-        ec.com.infinityone.modelo.Volumencontrolado guardado = obtenerAlmacenCupos().get(codCliente + "|" + mes);
-        this.cupoEdicion = (guardado != null)
-                ? guardado.copia()
-                : new ec.com.infinityone.modelo.Volumencontrolado(codCliente, nomCliente, mes);
-
+        this.cupoEdicion = new ec.com.infinityone.modelo.Volumencontrolado(codCliente, nomCliente, mes);
         this.filasCupo = new ArrayList<>();
-        this.filasCupo.add(new ec.com.infinityone.modelo.CupoFila(cupoEdicion, "EXTRA", "Extra"));
-        this.filasCupo.add(new ec.com.infinityone.modelo.CupoFila(cupoEdicion, "SUPER", "Súper"));
-        this.filasCupo.add(new ec.com.infinityone.modelo.CupoFila(cupoEdicion, "DIESEL", "Diesel"));
+        this.codigoComercializadoraCupo = codComercializadora;
+        this.fechaCupoServicio = null;
+        this.despachoCupoExtra = BigDecimal.ZERO;
+        this.despachoCupoSuper = BigDecimal.ZERO;
+        this.despachoCupoDiesel = BigDecimal.ZERO;
+
+        try {
+            JSONObject volumen = consultarUltimoVolumenCliente(codComercializadora, codCliente);
+            if (volumen != null) {
+                JSONObject clave = volumen.optJSONObject("clientevolumenmensualPK");
+                if (clave != null) {
+                    String codComServicio = clave.optString("codigocomercializadora", "");
+                    if (!codComServicio.isEmpty()) {
+                        this.codigoComercializadoraCupo = codComServicio;
+                    }
+                    this.fechaCupoServicio = obtenerFechaClaveVolumen(clave);
+                }
+                String mesServicio = obtenerMesVolumen(volumen);
+                if (mesServicio != null) {
+                    this.cupoEdicion.setMes(mesServicio);
+                }
+
+                this.cupoEdicion.setAutorizadoext(obtenerVolumen(volumen, "volumenextra"));
+                this.cupoEdicion.setAutorizadosup(obtenerVolumen(volumen, "volumensuper"));
+                this.cupoEdicion.setAutorizadodie(obtenerVolumen(volumen, "volumendiesel"));
+
+                this.despachoCupoExtra = obtenerVolumen(volumen, "despachovolumenextra");
+                this.despachoCupoSuper = obtenerVolumen(volumen, "despachovolumensuper");
+                this.despachoCupoDiesel = obtenerVolumen(volumen, "despachovolumendiesel");
+                inicializarFilasCupo();
+            }
+        } catch (Exception e) {
+            LOG.log(Level.WARNING, "Error al consultar el volumen mensual del cliente " + codCliente, e);
+        }
 
         org.primefaces.PrimeFaces.current().executeScript("PF('dlgAdministrarCupos').show()");
     }
 
-    /** Guarda los cupos editados (temporalmente en sesión). */
+    private JSONObject consultarUltimoVolumenCliente(String codComercializadora, String codCliente)
+            throws IOException {
+        String endpoint = Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
+                + "ec.com.infinity.modelo.clientevolumenmensual/obtenerultimovolumencliente?pcodigocomercializadora="
+                + java.net.URLEncoder.encode(codComercializadora, "UTF-8")
+                + "&pcodigocliente=" + java.net.URLEncoder.encode(codCliente, "UTF-8");
+        HttpURLConnection connection = null;
+        try {
+            LOG.info("HTTP GET " + endpoint);
+            connection = (HttpURLConnection) new URL(endpoint).openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setConnectTimeout(30000);
+            connection.setReadTimeout(30000);
+
+            int httpStatus = connection.getResponseCode();
+            InputStream responseStream = httpStatus >= 400 ? connection.getErrorStream() : connection.getInputStream();
+            if (responseStream == null) {
+                LOG.info("HTTP GET " + endpoint + " -> status=" + httpStatus + ", response=<empty>");
+                throw new IOException("El servicio no devolvió contenido (HTTP " + httpStatus + ")");
+            }
+
+            StringBuilder contenido = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(responseStream, StandardCharsets.UTF_8))) {
+                String linea;
+                while ((linea = reader.readLine()) != null) {
+                    contenido.append(linea);
+                }
+            }
+            LOG.info("HTTP GET " + endpoint + " -> status=" + httpStatus + ", response=" + contenido);
+
+            JSONObject respuesta = new JSONObject(contenido.toString());
+            if (httpStatus < 200 || httpStatus >= 300 || respuesta.optInt("statusCode", httpStatus) != 200) {
+                throw new IOException("El servicio de volumen mensual respondió con error: "
+                        + respuesta.optString("errorMessage", "HTTP " + httpStatus));
+            }
+
+            org.primefaces.shaded.json.JSONArray retorno = respuesta.optJSONArray("retorno");
+            return retorno != null && retorno.length() > 0 ? retorno.getJSONObject(0) : null;
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+    private BigDecimal obtenerVolumen(JSONObject volumen, String propiedad) {
+        Object valor = volumen.opt(propiedad);
+        if (valor == null || JSONObject.NULL.equals(valor)) {
+            return BigDecimal.ZERO;
+        }
+        return new BigDecimal(valor.toString());
+    }
+
+    private String obtenerFechaVolumen(JSONObject clave) {
+        Object fecha = clave.opt("fecha");
+        if (fecha == null || JSONObject.NULL.equals(fecha)) {
+            return null;
+        }
+        String valor = fecha.toString();
+        try {
+            return new SimpleDateFormat("yyyy-MM-dd").format(new Date(Long.parseLong(valor)));
+        } catch (NumberFormatException e) {
+            return valor.length() >= 10 ? valor.substring(0, 10) : null;
+        }
+    }
+
+    private Object obtenerFechaClaveVolumen(JSONObject clave) {
+        Object fecha = clave.opt("fecha");
+        return fecha == null || JSONObject.NULL.equals(fecha) ? null : fecha;
+    }
+
+    private String obtenerMesVolumen(JSONObject volumen) {
+        JSONObject clave = volumen.optJSONObject("clientevolumenmensualPK");
+        String fecha = clave != null ? obtenerFechaVolumen(clave) : null;
+        if (fecha == null) {
+            return null;
+        }
+        return fecha.substring(0, 7);
+    }
+
+    private void inicializarFilasCupo() {
+        this.filasCupo = new ArrayList<>();
+        this.filasCupo.add(new ec.com.infinityone.modelo.CupoFila(cupoEdicion, "EXTRA", "Extra"));
+        this.filasCupo.add(new ec.com.infinityone.modelo.CupoFila(cupoEdicion, "SUPER", "Súper"));
+        this.filasCupo.add(new ec.com.infinityone.modelo.CupoFila(cupoEdicion, "DIESEL", "Diesel"));
+    }
+
+    /** Guarda los cupos editados en el servicio de volumen mensual. */
     public void guardarCupos() {
         if (this.cupoEdicion == null) {
             return;
         }
         if (cupoInvalido(cupoEdicion.getAutorizadoext()) || cupoInvalido(cupoEdicion.getAutorizadosup())
                 || cupoInvalido(cupoEdicion.getAutorizadodie())) {
-            this.dialogo(FacesMessage.SEVERITY_WARN, "El autorizado debe ser -1 (sin límite) o un valor mayor o igual a 0");
+            this.dialogo(FacesMessage.SEVERITY_WARN,
+                    "El autorizado debe ser -1 (sin límite) o un valor mayor o igual a 0");
             return;
         }
-        obtenerAlmacenCupos().put(cupoEdicion.getCodigocliente() + "|" + cupoEdicion.getMes(), cupoEdicion.copia());
-        this.dialogo(FacesMessage.SEVERITY_INFO, "Cupos guardados correctamente");
-        org.primefaces.PrimeFaces.current().executeScript("PF('dlgAdministrarCupos').hide()");
+        if (codigoComercializadoraCupo == null || fechaCupoServicio == null) {
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "No se encontró la clave del volumen mensual para guardar");
+            return;
+        }
+
+        try {
+            actualizarVolumenClienteMensual();
+            JSONObject volumenActualizado = consultarUltimoVolumenCliente(codigoComercializadoraCupo,
+                    cupoEdicion.getCodigocliente());
+            if (volumenActualizado == null
+                    || obtenerVolumen(volumenActualizado, "volumenextra").compareTo(cupoEdicion.getAutorizadoext()) != 0
+                    || obtenerVolumen(volumenActualizado, "volumensuper").compareTo(cupoEdicion.getAutorizadosup()) != 0
+                    || obtenerVolumen(volumenActualizado, "volumendiesel")
+                            .compareTo(cupoEdicion.getAutorizadodie()) != 0) {
+                throw new IOException(
+                        "El servicio respondió correctamente, pero el GET posterior devolvió valores distintos");
+            }
+            this.dialogo(FacesMessage.SEVERITY_INFO, "Cupos guardados correctamente");
+            org.primefaces.PrimeFaces.current().executeScript("PF('dlgAdministrarCupos').hide()");
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE, "Error al guardar el volumen mensual del cliente " + cupoEdicion.getCodigocliente(),
+                    e);
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "No se pudieron guardar los cupos en el servicio");
+        }
+    }
+
+    private void actualizarVolumenClienteMensual() throws IOException {
+        JSONObject clave = new JSONObject();
+        clave.put("codigocomercializadora", codigoComercializadoraCupo);
+        clave.put("codigocliente", cupoEdicion.getCodigocliente());
+        clave.put("fecha", fechaCupoServicio);
+
+        JSONObject payload = new JSONObject();
+        payload.put("clientevolumenmensualPK", clave);
+        payload.put("volumenextra", cupoEdicion.getAutorizadoext());
+        payload.put("volumensuper", cupoEdicion.getAutorizadosup());
+        payload.put("volumendiesel", cupoEdicion.getAutorizadodie());
+        payload.put("usuarioactual", dataUser != null && dataUser.getUser() != null
+                ? dataUser.getUser().getNombrever()
+                : JSONObject.NULL);
+        payload.put("despachovolumenextra", despachoCupoExtra);
+        payload.put("despachovolumensuper", despachoCupoSuper);
+        payload.put("despachovolumendiesel", despachoCupoDiesel);
+
+        String endpoint = Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
+                + "ec.com.infinity.modelo.clientevolumenmensual/porId";
+        HttpURLConnection connection = null;
+        try {
+            LOG.info("HTTP PUT request key={comercializadora=" + codigoComercializadoraCupo + ", cliente="
+                    + cupoEdicion.getCodigocliente() + ", fecha=" + fechaCupoServicio + "}, authorized={extra="
+                    + cupoEdicion.getAutorizadoext() + ", super=" + cupoEdicion.getAutorizadosup() + ", diesel="
+                    + cupoEdicion.getAutorizadodie() + "}");
+            LOG.info("HTTP PUT " + endpoint);
+            connection = (HttpURLConnection) new URL(endpoint).openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("PUT");
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            connection.setConnectTimeout(30000);
+            connection.setReadTimeout(30000);
+
+            try (OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream(),
+                    StandardCharsets.UTF_8)) {
+                writer.write(payload.toString());
+            }
+
+            int httpStatus = connection.getResponseCode();
+            InputStream responseStream = httpStatus >= 400 ? connection.getErrorStream() : connection.getInputStream();
+            StringBuilder contenido = new StringBuilder();
+            if (responseStream != null) {
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(responseStream, StandardCharsets.UTF_8))) {
+                    String linea;
+                    while ((linea = reader.readLine()) != null) {
+                        contenido.append(linea);
+                    }
+                }
+            }
+            LOG.info("HTTP PUT " + endpoint + " -> status=" + httpStatus + ", response="
+                    + (contenido.length() > 0 ? contenido : "<empty>"));
+
+            if (httpStatus < 200 || httpStatus >= 300) {
+                throw new IOException("HTTP " + httpStatus + ": " + contenido);
+            }
+            if (contenido.length() > 0) {
+                JSONObject respuesta = new JSONObject(contenido.toString());
+                if (respuesta.has("statusCode") && respuesta.optInt("statusCode") != 200) {
+                    throw new IOException(respuesta.optString("errorMessage", "Error del servicio"));
+                }
+            }
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
     }
 
     private boolean cupoInvalido(BigDecimal v) {
@@ -1471,33 +1674,17 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
                 + (cupoEdicion.getNombrecliente() != null ? cupoEdicion.getNombrecliente() : "");
     }
 
-    /**
-     * Despacho del mes: suma del Vol.Auto de los prepedidos cargados del mismo
-     * cliente y mes. TODO: reemplazar por el dato del backend cuando exista.
-     */
+    /** Despacho mensual devuelto por el servicio de volumen del cliente. */
     public BigDecimal getDespachoCupo(String nombreProducto) {
-        BigDecimal total = BigDecimal.ZERO;
-        if (cupoEdicion == null) {
-            return total;
+        if ("EXTRA".equalsIgnoreCase(nombreProducto)) {
+            return despachoCupoExtra;
+        } else if ("SUPER".equalsIgnoreCase(nombreProducto)) {
+            return despachoCupoSuper;
         }
-        List<PrepedidoSolicitud> fuente = (listPrepedidoCompleta != null) ? listPrepedidoCompleta : listPrepedido;
-        if (fuente == null) {
-            return total;
-        }
-        for (PrepedidoSolicitud ps : fuente) {
-            if (ps.getPrepedido() == null || ps.getPrepedido().getCodigocliente() == null
-                    || ps.getPrepedido().getCodigocliente().getClientePK() == null) {
-                continue;
-            }
-            if (cupoEdicion.getCodigocliente().equals(ps.getPrepedido().getCodigocliente().getClientePK().getCodigo())
-                    && cupoEdicion.getMes().equals(extraerMes(ps.getPrepedido().getFechadespacho()))) {
-                total = total.add(getVolAuto(ps, nombreProducto));
-            }
-        }
-        return total;
+        return despachoCupoDiesel;
     }
 
-    /** Saldo = autorizado - despacho; si autorizado es -1 (sin límite) devuelve -1. */
+    /** Saldo = volumen autorizado del servicio - despacho del servicio. */
     public BigDecimal getSaldoCupo(String nombreProducto) {
         if (cupoEdicion == null) {
             return BigDecimal.ZERO;
@@ -1510,10 +1697,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         } else {
             autorizado = cupoEdicion.getAutorizadodie();
         }
-        if (autorizado == null || autorizado.compareTo(ec.com.infinityone.modelo.Volumencontrolado.SIN_LIMITE) == 0) {
-            return ec.com.infinityone.modelo.Volumencontrolado.SIN_LIMITE;
-        }
-        return autorizado.subtract(getDespachoCupo(nombreProducto));
+        return (autorizado != null ? autorizado : BigDecimal.ZERO).subtract(getDespachoCupo(nombreProducto));
     }
 
     public ec.com.infinityone.modelo.Volumencontrolado getCupoEdicion() {
@@ -2078,7 +2262,8 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         }
     }
 
-    // ===================== VALIDACION CUPO MENSUAL AL AUTORIZAR =====================
+    // ===================== VALIDACION CUPO MENSUAL AL AUTORIZAR
+    // =====================
 
     /** Mensaje unificado (una linea por producto) para el dialogo de cupo. */
     private String mensajeValidacionCupo;
@@ -2134,7 +2319,8 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
 
             String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
                     + "ec.com.infinity.modelo.clientevolumenmensual/controlvolumencliente?"
-                    + "pcodigocomercializadora=" + java.net.URLEncoder.encode(pk.getCodigocomercializadora().trim(), "UTF-8")
+                    + "pcodigocomercializadora="
+                    + java.net.URLEncoder.encode(pk.getCodigocomercializadora().trim(), "UTF-8")
                     + "&pcodigocliente=" + java.net.URLEncoder.encode(codCliente.trim(), "UTF-8")
                     + "&panio=" + anio
                     + "&pmes=" + mesNum

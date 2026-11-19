@@ -687,6 +687,27 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
                 return;
             }
 
+            // Solo las notas de pedido de ESTE guardado (np1..np6); la consulta devuelve
+            // todo lo de la placa en la fecha, incluidos despachos anteriores.
+            java.util.Set<String> npsGuardado = new java.util.HashSet<>();
+            Object[] nps = { usoSello.getNp1(), usoSello.getNp2(), usoSello.getNp3(), usoSello.getNp4(),
+                    usoSello.getNp5(), usoSello.getNp6() };
+            for (Object np : nps) {
+                if (np != null && !np.toString().trim().isEmpty() && !"0".equals(np.toString().trim())) {
+                    npsGuardado.add(np.toString().trim());
+                }
+            }
+            System.out.println("[ExpoPush] Sellos: NP del guardado=" + npsGuardado + ", items recibidos="
+                    + items.length());
+            for (int i = 0; i < items.length(); i++) {
+                if (!items.isNull(i)) {
+                    JSONObject d = items.getJSONObject(i);
+                    System.out.println("[ExpoPush]   item numero=" + d.optString("numero") + " cliente="
+                            + d.optString("codigocliente") + " producto=" + d.optString("nombreproducto")
+                            + " vol=" + d.optString("volumennaturalautorizado") + " np1=" + d.optString("np1"));
+                }
+            }
+
             // cliente -> nombre ; cliente -> (producto -> volumen)
             Map<String, String> nombres = new java.util.LinkedHashMap<>();
             Map<String, Map<String, BigDecimal>> productos = new java.util.LinkedHashMap<>();
@@ -695,6 +716,9 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
                     continue;
                 }
                 JSONObject it = items.getJSONObject(i);
+                if (!npsGuardado.isEmpty() && !npsGuardado.contains(it.optString("numero", "").trim())) {
+                    continue; // nota de pedido de otro despacho
+                }
                 String cli = it.optString("codigocliente", "").trim();
                 if (cli.isEmpty()) {
                     continue;
