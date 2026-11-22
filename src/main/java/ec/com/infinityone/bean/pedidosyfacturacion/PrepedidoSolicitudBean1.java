@@ -1684,7 +1684,7 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         return despachoCupoDiesel;
     }
 
-    /** Saldo = volumen autorizado del servicio - despacho del servicio. */
+    /** Saldo = autorizado - despacho, salvo cuando alguno sea -1. */
     public BigDecimal getSaldoCupo(String nombreProducto) {
         if (cupoEdicion == null) {
             return BigDecimal.ZERO;
@@ -1697,7 +1697,13 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
         } else {
             autorizado = cupoEdicion.getAutorizadodie();
         }
-        return (autorizado != null ? autorizado : BigDecimal.ZERO).subtract(getDespachoCupo(nombreProducto));
+        BigDecimal despacho = getDespachoCupo(nombreProducto);
+        if ((autorizado != null && autorizado.compareTo(BigDecimal.valueOf(-1)) == 0)
+                || (despacho != null && despacho.compareTo(BigDecimal.valueOf(-1)) == 0)) {
+            return BigDecimal.valueOf(-1);
+        }
+        return (autorizado != null ? autorizado : BigDecimal.ZERO)
+                .subtract(despacho != null ? despacho : BigDecimal.ZERO);
     }
 
     public ec.com.infinityone.modelo.Volumencontrolado getCupoEdicion() {
