@@ -68,8 +68,8 @@
 							<p:outputLabel for="fechaTraslado" value="Fecha de traslado" />
 							<p:datePicker id="fechaTraslado" value="#{mensajeSellosBean.fechaTraslado}" showIcon="true"
 								pattern="dd/MM/yyyy" style="width: 100%;">
-								<p:ajax event="dateSelect" listener="#{mensajeSellosBean.cargarClientes}"
-									update="cliente :form" />
+								<p:ajax event="dateSelect" process="fechaTraslado terminal autotanque"
+									listener="#{mensajeSellosBean.cargarClientes}" update="cliente :form" />
 							</p:datePicker>
 						</div>
 
@@ -82,7 +82,8 @@
 								<f:selectItem noSelectionOption="true" itemLabel="Terminal" itemValue="#{null}" />
 								<f:selectItems value="#{mensajeSellosBean.listaTerminales}" var="t"
 									itemLabel="#{t.codigo} - #{t.nombre}" itemValue="#{t.codigo}" />
-								<p:ajax event="change" listener="#{mensajeSellosBean.cargarClientes}" update="cliente :form" />
+								<p:ajax event="change" process="fechaTraslado terminal autotanque"
+									listener="#{mensajeSellosBean.cargarClientes}" update="cliente :form" />
 							</p:selectOneMenu>
 						</div>
 
@@ -95,7 +96,8 @@
 								<f:selectItem noSelectionOption="true" itemLabel="Autotanque" itemValue="#{null}" />
 								<f:selectItems value="#{mensajeSellosBean.listaAutotanques}" var="at"
 									itemLabel="#{at.placa}" itemValue="#{at.placa}" />
-								<p:ajax event="change" listener="#{mensajeSellosBean.cargarClientes}" update="cliente :form" />
+								<p:ajax event="change" process="fechaTraslado terminal autotanque"
+									listener="#{mensajeSellosBean.cargarClientes}" update="cliente :form" />
 							</p:selectOneMenu>
 						</div>
 
@@ -103,8 +105,8 @@
 						<div class="p-field p-col-12 p-md-6">
 							<p:outputLabel for="cliente" value="Cliente destinatario" />
 							<p:selectOneMenu id="cliente" value="#{mensajeSellosBean.codigoCliente}"
-								title="Cliente destinatario" style="width: 100%;" autoWidth="false" filter="true"
-								filterMatchMode="contains">
+								title="Cliente destinatario" style="width: 100%;" panelStyle="max-width: 450px;"
+								autoWidth="false" filter="true" filterMatchMode="contains">
 								<f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}" />
 								<f:selectItems value="#{mensajeSellosBean.listaClientes}" var="cl"
 									itemLabel="#{cl.descripcion}" itemValue="#{cl.codigo}" />

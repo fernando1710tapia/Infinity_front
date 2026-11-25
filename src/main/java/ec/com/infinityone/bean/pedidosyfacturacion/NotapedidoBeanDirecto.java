@@ -311,6 +311,9 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
      * variable para realizar la anulación de notapedido
      */
     private Notapedido notaPedidoAuxiliar;
+
+    /** Texto de justificacion ingresado en el dialogo de anulacion. */
+    private String observacionAnulacion;
     /*
      * variable para realizar la anulación de notapedidoPK
      */
@@ -1349,6 +1352,7 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
 
     public void dialogoAnulacionNotaPedido(EnvioPedido envNP) {
         this.notaPedidoAuxiliar = envNP.getNotapedido();
+        this.observacionAnulacion = "";
         if (!this.notaPedidoAuxiliar.isActiva()) {
             this.dialogo(FacesMessage.SEVERITY_ERROR,
                     "NO SE PUEDE ANULAR ESTA NOTA DE PEDIDO, PORQUE YA SE ENCUENTRA ANULADA");
@@ -1356,6 +1360,7 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
             this.dialogo(FacesMessage.SEVERITY_ERROR,
                     "NO SE PUEDE ANULAR ESTA NOTA DE PEDIDO, PORQUE YA SE ENCUENTRA FACTURADA");
         } else {
+            PrimeFaces.current().ajax().update("formAnular");
             PrimeFaces.current().executeScript("PF('deleteProductDialog').show()");
         }
     }
@@ -1532,6 +1537,8 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
                 }
             }
             if (connection.getResponseCode() >= 200 || connection.getResponseCode() <= 200) {
+                this.observacionAnulacion = "";
+                PrimeFaces.current().ajax().update("formAnular");
                 PrimeFaces.current().executeScript("PF('deleteProductDialog').show()");
             } else {
                 System.out.println(connection.getResponseCode());
@@ -1541,6 +1548,14 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public String getObservacionAnulacion() {
+        return observacionAnulacion;
+    }
+
+    public void setObservacionAnulacion(String observacionAnulacion) {
+        this.observacionAnulacion = observacionAnulacion;
     }
 
     public void anularNotaPedido() {
@@ -1562,22 +1577,33 @@ public class NotapedidoBeanDirecto extends ReusableBean implements Serializable 
                     notaPedidoAuxiliar.setActiva(Boolean.FALSE);
                     notaPedidoAuxiliar.setUsuarioactual(dataUser.getUser().getNombrever());
 
+                    if (observacionAnulacion != null && !observacionAnulacion.trim().isEmpty()) {
+                        String obsActual = notaPedidoAuxiliar.getObservacion();
+                        String justificacion = "Just. Anulaci\u00f3n: " + observacionAnulacion.trim();
+                        if (obsActual == null || obsActual.trim().isEmpty()) {
+                            notaPedidoAuxiliar.setObservacion(justificacion);
+                        } else {
+                            notaPedidoAuxiliar.setObservacion(obsActual.trim() + " " + justificacion);
+                        }
+                    }
+
                     String direcc = Fichero.getRUTASERVICIOSPERSISTENCIA().trim()
                             + "ec.com.infinity.modelo.notapedido/porId";
                     url = new URL(direcc);
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setDoOutput(true);
                     connection.setRequestMethod("PUT");
-                    connection.setRequestProperty("Content-type", "application/json");
+                    connection.setRequestProperty("Content-type", "application/json; charset=UTF-8");
 
                     ObjectMapper mapper = new ObjectMapper();
                     String jsonStr = mapper.writeValueAsString(notaPedidoAuxiliar);
                     DataOutputStream out = new DataOutputStream(connection.getOutputStream());
-                    out.write(jsonStr.getBytes());
+                    out.write(jsonStr.getBytes(java.nio.charset.StandardCharsets.UTF_8));
                     out.flush();
                     out.close();
 
                     if (connection.getResponseCode() == 200) {
+                        this.observacionAnulacion = "";
                         this.dialogo(FacesMessage.SEVERITY_INFO, "NOTA DE PEDIDO ANULADA EXITOSAMENTE");
                         obtenerNotasPedido(); // Actualizar lista
                     } else {

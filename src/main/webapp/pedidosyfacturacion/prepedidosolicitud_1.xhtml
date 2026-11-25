@@ -645,14 +645,15 @@
                                         style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
                                 </p:column>
 
-                                <!-- Sellos: circulo gris "Si" -->
+                                <!-- Sellos: circulo gris "Si" (azul si ya procesados -> abre en solo lectura) -->
                                 <p:column exportable="false" styleClass="action-col" style="text-align:center;">
-                                    <p:commandButton icon="pi pi-tag" styleClass="ui-button-secondary rounded-button"
+                                    <p:commandButton icon="pi pi-tag"
+                                        styleClass="#{prepedidoItem.sellosProcesados ? 'ui-button-info rounded-button' : 'ui-button-secondary rounded-button'}"
                                         process="@this" update="formSellos"
                                         actionListener="#{usoSellosPrepedidoBean.abrirDesdePrepedido(prepedidoItem)}"
                                         oncomplete="PF('sellosDialog').show()"
                                         disabled="#{not (prepedidoItem.generadaNpInfinity or prepedidoItem.generadaNpBanco)}"
-                                        title="Sellos"
+                                        title="#{prepedidoItem.sellosProcesados ? 'Ver sellos procesados (solo lectura)' : 'Sellos'}"
                                         style="width:2rem;height:2rem;border-radius:50%;padding:0;font-size:0.8rem;" />
                                 </p:column>
 
@@ -1684,7 +1685,8 @@
                                     <div style="width: 140px; flex-shrink: 0;">
                                         <span class="ui-float-label">
                                             <p:inputText id="ultimoSello" value="#{usoSellosPrepedidoBean.ultimoSello}"
-                                                maxlength="8" style="width: 100%;">
+                                                maxlength="8" style="width: 100%;"
+                                                disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}">
                                                 <p:ajax event="blur" process="@this" update="@none" />
                                             </p:inputText>
                                             <p:outputLabel for="ultimoSello">Último Sello</p:outputLabel>
@@ -1696,6 +1698,7 @@
                                         <p:commandButton id="btnBuscar2" value="Buscar" icon="pi pi-search"
                                             actionListener="#{usoSellosPrepedidoBean.obtenerUltimoUsoSello()}"
                                             process="@this" update="messages ultimoSello"
+                                            disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}"
                                             style="width: auto; white-space: nowrap; padding: 0 16px;" />
                                     </div>
 
@@ -1709,7 +1712,8 @@
                                                 title="Placa" panelStyle="width:175px" style="width: 100%;"
                                                 autoWidth="false" filter="true" filterMatchMode="startsWith"
                                                 converter="converterg" required="true"
-                                                requiredMessage="Seleccione placa">
+                                                requiredMessage="Seleccione placa"
+                                                disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}">
                                                 <f:selectItem noSelectionOption="true" itemLabel="Placa"
                                                     itemValue="#{null}" />
                                                 <f:selectItems value="#{usoSellosPrepedidoBean.listaAutotanque}"
@@ -1724,8 +1728,10 @@
                                     <div style="width: 300px; flex-shrink: 0;">
                                         <span class="ui-float-label">
                                             <p:inputText id="cond"
-                                                value="#{usoSellosPrepedidoBean.autotanque.cedularuc.cedularuc} - #{usoSellosPrepedidoBean.autotanque.cedularuc.nombre}"
-                                                readonly="true" style="width: 100%;" />
+                                                value="#{usoSellosPrepedidoBean.conductorDisplay}"
+                                                readonly="true"
+                                                disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}"
+                                                style="width: 100%;" />
                                             <p:outputLabel for="cond">Conductor</p:outputLabel>
                                         </span>
                                     </div>
@@ -1736,7 +1742,10 @@
                                         <p:outputLabel for="fechauso" value="Fecha de uso"
                                             style="white-space: nowrap;" />
                                         <p:datePicker id="fechauso" value="#{usoSellosPrepedidoBean.fechaUso}"
-                                            showIcon="true" style="width: 160px;" inputStyle="width: 115px;" />
+                                            showIcon="true" style="width: 160px;" inputStyle="width: 115px;"
+                                            disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}">
+                                            <p:ajax event="dateSelect" process="@this" update="@none" />
+                                        </p:datePicker>
                                     </div>
 
                                 </div>
@@ -1754,27 +1763,27 @@
 
 
                                         <p:inputText id="np1" value="#{usoSellosPrepedidoBean.usoSello.np1}"
-                                            maxlength="8">
+                                            maxlength="8" disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}">
                                             <p:ajax event="blur" process="@this" update="@none" />
                                         </p:inputText>
                                         <p:inputText id="np2" value="#{usoSellosPrepedidoBean.usoSello.np2}"
-                                            maxlength="8">
+                                            maxlength="8" disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}">
                                             <p:ajax event="blur" process="@this" update="@none" />
                                         </p:inputText>
                                         <p:inputText id="np3" value="#{usoSellosPrepedidoBean.usoSello.np3}"
-                                            maxlength="8">
+                                            maxlength="8" disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}">
                                             <p:ajax event="blur" process="@this" update="@none" />
                                         </p:inputText>
                                         <p:inputText id="np4" value="#{usoSellosPrepedidoBean.usoSello.np4}"
-                                            maxlength="8">
+                                            maxlength="8" disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}">
                                             <p:ajax event="blur" process="@this" update="@none" />
                                         </p:inputText>
                                         <p:inputText id="np5" value="#{usoSellosPrepedidoBean.usoSello.np5}"
-                                            maxlength="8">
+                                            maxlength="8" disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}">
                                             <p:ajax event="blur" process="@this" update="@none" />
                                         </p:inputText>
                                         <p:inputText id="np6" value="#{usoSellosPrepedidoBean.usoSello.np6}"
-                                            maxlength="8">
+                                            maxlength="8" disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}">
                                             <p:ajax event="blur" process="@this" update="@none" />
                                         </p:inputText>
 
@@ -1797,35 +1806,35 @@
                                         <p:outputLabel for="selloU8" value="8" />
 
                                         <p:inputText id="selloU1" value="#{usoSellosPrepedidoBean.usoSello.sello1}"
-                                            maxlength="20">
+                                            maxlength="20" disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}">
                                             <p:ajax event="blur" process="@this" update="@none" />
                                         </p:inputText>
                                         <p:inputText id="selloU2" value="#{usoSellosPrepedidoBean.usoSello.sello2}"
-                                            maxlength="20">
+                                            maxlength="20" disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}">
                                             <p:ajax event="blur" process="@this" update="@none" />
                                         </p:inputText>
                                         <p:inputText id="selloU3" value="#{usoSellosPrepedidoBean.usoSello.sello3}"
-                                            maxlength="20">
+                                            maxlength="20" disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}">
                                             <p:ajax event="blur" process="@this" update="@none" />
                                         </p:inputText>
                                         <p:inputText id="selloU4" value="#{usoSellosPrepedidoBean.usoSello.sello4}"
-                                            maxlength="20">
+                                            maxlength="20" disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}">
                                             <p:ajax event="blur" process="@this" update="@none" />
                                         </p:inputText>
                                         <p:inputText id="selloU5" value="#{usoSellosPrepedidoBean.usoSello.sello5}"
-                                            maxlength="20">
+                                            maxlength="20" disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}">
                                             <p:ajax event="blur" process="@this" update="@none" />
                                         </p:inputText>
                                         <p:inputText id="selloU6" value="#{usoSellosPrepedidoBean.usoSello.sello6}"
-                                            maxlength="20">
+                                            maxlength="20" disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}">
                                             <p:ajax event="blur" process="@this" update="@none" />
                                         </p:inputText>
                                         <p:inputText id="selloU7" value="#{usoSellosPrepedidoBean.usoSello.sello7}"
-                                            maxlength="20">
+                                            maxlength="20" disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}">
                                             <p:ajax event="blur" process="@this" update="@none" />
                                         </p:inputText>
                                         <p:inputText id="selloU8" value="#{usoSellosPrepedidoBean.usoSello.sello8}"
-                                            maxlength="20">
+                                            maxlength="20" disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}">
                                             <p:ajax event="blur" process="@this" update="@none" />
                                         </p:inputText>
                                     </h:panelGrid>
@@ -1843,35 +1852,35 @@
                                         <p:outputLabel for="sello2U8" value="16" />
 
                                         <p:inputText id="sello2U1" value="#{usoSellosPrepedidoBean.usoSello.sello9}"
-                                            maxlength="20">
+                                            maxlength="20" disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}">
                                             <p:ajax event="blur" process="@this" update="@none" />
                                         </p:inputText>
                                         <p:inputText id="sello2U2" value="#{usoSellosPrepedidoBean.usoSello.sello10}"
-                                            maxlength="20">
+                                            maxlength="20" disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}">
                                             <p:ajax event="blur" process="@this" update="@none" />
                                         </p:inputText>
                                         <p:inputText id="sello2U3" value="#{usoSellosPrepedidoBean.usoSello.sello11}"
-                                            maxlength="20">
+                                            maxlength="20" disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}">
                                             <p:ajax event="blur" process="@this" update="@none" />
                                         </p:inputText>
                                         <p:inputText id="sello2U4" value="#{usoSellosPrepedidoBean.usoSello.sello12}"
-                                            maxlength="20">
+                                            maxlength="20" disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}">
                                             <p:ajax event="blur" process="@this" update="@none" />
                                         </p:inputText>
                                         <p:inputText id="sello2U5" value="#{usoSellosPrepedidoBean.usoSello.sello13}"
-                                            maxlength="20">
+                                            maxlength="20" disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}">
                                             <p:ajax event="blur" process="@this" update="@none" />
                                         </p:inputText>
                                         <p:inputText id="sello2U6" value="#{usoSellosPrepedidoBean.usoSello.sello14}"
-                                            maxlength="20">
+                                            maxlength="20" disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}">
                                             <p:ajax event="blur" process="@this" update="@none" />
                                         </p:inputText>
                                         <p:inputText id="sello2U7" value="#{usoSellosPrepedidoBean.usoSello.sello15}"
-                                            maxlength="20">
+                                            maxlength="20" disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}">
                                             <p:ajax event="blur" process="@this" update="@none" />
                                         </p:inputText>
                                         <p:inputText id="sello2U8" value="#{usoSellosPrepedidoBean.usoSello.sello16}"
-                                            maxlength="20">
+                                            maxlength="20" disabled="#{usoSellosPrepedidoBean.soloLecturaSellos}">
                                             <p:ajax event="blur" process="@this" update="@none" />
                                         </p:inputText>
                                     </h:panelGrid>
@@ -1891,17 +1900,88 @@
                         <div class="p-field p-col-12 p-md-6">
 
                             <p:commandButton value="Procesar" icon="pi pi-check"
+                                rendered="#{not usoSellosPrepedidoBean.soloLecturaSellos}"
                                 actionListener="#{usoSellosPrepedidoBean.adquirirUsoSello(true)}"
-                                update=":form:messages :form:dt-products" styleClass="p-mr-2" process="@this"
-                                onstart="PF('blockUIWidget').block()" oncomplete="PF('blockUIWidget').unblock();" />
+                                update=":form:messages :formSellos:messages :form:dt-products :formPdfSellos"
+                                styleClass="p-mr-2" process="@form"
+                                onstart="if(PF('blockUIWidget')){PF('blockUIWidget').block();}"
+                                oncomplete="if(PF('blockUIWidget')){PF('blockUIWidget').unblock();}" />
 
-                            <p:commandButton value="Cancelar" icon="pi pi-times" type="button"
+                            <p:commandButton value="Ver PDF" icon="pi pi-file-pdf"
+                                rendered="#{usoSellosPrepedidoBean.soloLecturaSellos}"
+                                actionListener="#{usoSellosPrepedidoBean.abrirVisorPdfDesdeDialogo()}"
+                                process="@this" update=":form:messages :formPdfSellos"
+                                styleClass="ui-button-info p-mr-2" />
+
+                            <p:commandButton value="#{usoSellosPrepedidoBean.soloLecturaSellos ? 'Cerrar' : 'Cancelar'}"
+                                icon="pi pi-times" type="button"
                                 styleClass="ui-button-secondary" onclick="PF('sellosDialog').hide()" />
                         </div>
                     </div>
                 </p:outputPanel>
             </h:form>
         </p:dialog>
+
+        <!-- Visor PDF de sellos: se abre automaticamente al procesar con 200 (sin bloqueo de pop-ups) -->
+        <p:dialog widgetVar="pdfSellosDialog" header="Comprobante de Sellos" width="80%" modal="true"
+            showEffect="fade" responsive="true" draggable="false" resizable="false"
+            onHide="limpiarVisorPdfSellos()">
+            <h:form id="formPdfSellos">
+                <h:outputText id="pdfSellosBase64Data" value="#{usoSellosPrepedidoBean.pdfBase64}"
+                    style="display:none;" />
+                <div style="width:100%; height:72vh;">
+                    <iframe id="iframePdfSellos" style="width:100%; height:100%; border:none;"></iframe>
+                </div>
+                <div class="p-mt-2" style="display:flex; justify-content:flex-end; gap:8px;">
+                    <p:commandButton value="Descargar PDF" icon="pi pi-download" ajax="false"
+                        styleClass="ui-button-info">
+                        <p:fileDownload value="#{usoSellosPrepedidoBean.pdfStream}" />
+                    </p:commandButton>
+                    <p:commandButton value="Cerrar" icon="pi pi-times" type="button"
+                        styleClass="ui-button-secondary" onclick="PF('pdfSellosDialog').hide()" />
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <script type="text/javascript">
+        /* <![CDATA[ */
+            var _pdfSellosBlobUrl = null;
+            function abrirVisorPdfSellos() {
+                var el = document.getElementById('formPdfSellos:pdfSellosBase64Data');
+                if (!el) {
+                    return;
+                }
+                var b64 = (el.textContent || el.innerText || '').replace(/\s+/g, '');
+                if (!b64) {
+                    return;
+                }
+                limpiarVisorPdfSellos();
+                var bin = window.atob(b64);
+                var len = bin.length;
+                var bytes = new Uint8Array(len);
+                for (var i = 0; i < len; i++) {
+                    bytes[i] = bin.charCodeAt(i);
+                }
+                var blob = new Blob([bytes], { type: 'application/pdf' });
+                _pdfSellosBlobUrl = URL.createObjectURL(blob);
+                PF('pdfSellosDialog').show();
+                var iframe = document.getElementById('iframePdfSellos');
+                if (iframe) {
+                    iframe.src = _pdfSellosBlobUrl;
+                }
+            }
+            function limpiarVisorPdfSellos() {
+                var iframe = document.getElementById('iframePdfSellos');
+                if (iframe) {
+                    iframe.src = 'about:blank';
+                }
+                if (_pdfSellosBlobUrl) {
+                    URL.revokeObjectURL(_pdfSellosBlobUrl);
+                    _pdfSellosBlobUrl = null;
+                }
+            }
+        /* ]]> */
+        </script>
 
 
         <p:dialog widgetVar="modalNpBanco" header="Aviso" width="400" modal="true" closable="false" showEffect="fade"

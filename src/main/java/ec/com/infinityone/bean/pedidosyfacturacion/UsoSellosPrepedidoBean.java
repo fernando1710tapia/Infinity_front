@@ -209,6 +209,12 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
     private boolean archivoListo;
     private String rutaPdfGenerado;
 
+    /** true cuando el prepedido ya tiene entrega de sellos guardada (modal bloqueado). */
+    private boolean soloLecturaSellos;
+
+    /** PDF de sellos codificado en Base64 para mostrarlo en el visor modal. */
+    private String pdfBase64;
+
     /**
      * Constructor por defecto
      */
@@ -268,6 +274,10 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
         sellosConcatenadosEnEdicion = new String[16];
         Arrays.fill(sellosConcatenadosEnEdicion, "");
         fechaUso = new Date();
+        soloLecturaSellos = false;
+        pdfBase64 = null;
+        archivoListo = false;
+        rutaPdfGenerado = null;
     }
 
     public void obtenerComercializadora() {
@@ -594,12 +604,33 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
     }
 
     public void calcularSellosUsados() {
-        if (!ultimoSello.isEmpty() && !autotanque.getPlaca().isEmpty()) {
-            int sello = Integer.parseInt(ultimoSello);
+        if (ultimoSello != null && !ultimoSello.trim().isEmpty()
+                && autotanque != null && autotanque.getPlaca() != null && !autotanque.getPlaca().isEmpty()) {
+            int sello = Integer.parseInt(ultimoSello.trim());
             int numeroSellos = 0;
             BigDecimal menosUno = BigDecimal.valueOf(-1.0);
             int contador = 0;
-            usoSello = new UsoSello();
+            // Preservar np1..np6 ya precargadas o digitadas; solo reiniciar los sellos calculados
+            if (usoSello == null) {
+                usoSello = new UsoSello();
+            } else {
+                usoSello.setSello1(null);
+                usoSello.setSello2(null);
+                usoSello.setSello3(null);
+                usoSello.setSello4(null);
+                usoSello.setSello5(null);
+                usoSello.setSello6(null);
+                usoSello.setSello7(null);
+                usoSello.setSello8(null);
+                usoSello.setSello9(null);
+                usoSello.setSello10(null);
+                usoSello.setSello11(null);
+                usoSello.setSello12(null);
+                usoSello.setSello13(null);
+                usoSello.setSello14(null);
+                usoSello.setSello15(null);
+                usoSello.setSello16(null);
+            }
             if (!autotanque.getCompartimento1().equals(menosUno)) {
                 contador++;
             }
@@ -761,6 +792,16 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
     }
 
     public void adquirirUsoSello(boolean esInsert) {
+        if (soloLecturaSellos || (this.prepedidoActual != null && this.prepedidoActual.isSellosProcesados())) {
+            this.dialogo(FacesMessage.SEVERITY_WARN,
+                    "Los sellos de este prepedido ya fueron procesados y no se pueden modificar.");
+            return;
+        }
+        if (usoSello == null || usoSello.getNp1() == null || usoSello.getNp1().trim().isEmpty()) {
+            this.dialogo(FacesMessage.SEVERITY_WARN,
+                    "Debe ingresar al menos la Nota de pedido 1 antes de procesar los sellos.");
+            return;
+        }
         int SUCCESS_CODE = -1;
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         String dateI = sdf.format(new Date());
@@ -796,11 +837,28 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
             LocalDateTime fechaActual = LocalDateTime.now().withHour(12);
             long timestamp = fechaActual.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
-            // ft completar objeto usoSello para impresion
+            // ft completar objeto usoSello para impresion (y para reabrir en solo lectura)
             usoSelloImpresion.setCodigocomercializadora(codComer);
+            usoSelloImpresion.setCodigoterminal(codTerminal);
+            usoSelloImpresion.setCodigocliente(codCliente);
             usoSelloImpresion.setNombrecliente(clienteAux.getNombrecomercial());
             usoSelloImpresion.setPlaca(autotanque.getPlaca());
-            usoSelloImpresion.setNombreconductor(autotanque.getCedularuc().getNombre());
+            usoSelloImpresion.setNombreconductor(
+                    autotanque.getCedularuc() != null ? autotanque.getCedularuc().getNombre() : "");
+            usoSelloImpresion.setFecha(new SimpleDateFormat("yyyy/MM/dd").format(fechaUso != null ? fechaUso : new Date()));
+            usoSelloImpresion.setNp1(usoSello.getNp1() != null ? usoSello.getNp1().trim() : "");
+            StringBuilder npConcat = new StringBuilder();
+            String[] npsGuardar = { usoSello.getNp1(), usoSello.getNp2(), usoSello.getNp3(),
+                    usoSello.getNp4(), usoSello.getNp5(), usoSello.getNp6() };
+            for (String npVal : npsGuardar) {
+                if (npVal != null && !npVal.trim().isEmpty()) {
+                    if (npConcat.length() > 0) {
+                        npConcat.append(";");
+                    }
+                    npConcat.append(npVal.trim());
+                }
+            }
+            usoSelloImpresion.setNpconcatenada(npConcat.toString());
 
             if (usoSello.getSello1() != null) {
 
@@ -908,7 +966,7 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
             usoSelloPK.put("codigoterminal", codTerminal);
             usoSelloPK.put("codigocliente", codCliente);
             usoSelloPK.put("placa", autotanque.getPlaca());
-            usoSelloPK.put("np1", usoSello.getNp1());
+            usoSelloPK.put("np1", usoSello.getNp1() != null ? usoSello.getNp1().trim() : "");
 
             usoSelloPost.put("usoselloPK", usoSelloPK);
 
@@ -921,11 +979,11 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
             usoSelloPost.put("fecha", fechaUsoStr);
             usoSelloPost.put("nombreconductor", autotanque.getCedularuc().getNombre());
             usoSelloPost.put("nombrecliente", clienteAux.getNombrecomercial());
-            usoSelloPost.put("np6", usoSello.getNp6());
-            usoSelloPost.put("np5", usoSello.getNp5());
-            usoSelloPost.put("np4", usoSello.getNp4());
-            usoSelloPost.put("np3", usoSello.getNp3());
-            usoSelloPost.put("np2", usoSello.getNp2());
+            usoSelloPost.put("np6", usoSello.getNp6() != null ? usoSello.getNp6().trim() : "");
+            usoSelloPost.put("np5", usoSello.getNp5() != null ? usoSello.getNp5().trim() : "");
+            usoSelloPost.put("np4", usoSello.getNp4() != null ? usoSello.getNp4().trim() : "");
+            usoSelloPost.put("np3", usoSello.getNp3() != null ? usoSello.getNp3().trim() : "");
+            usoSelloPost.put("np2", usoSello.getNp2() != null ? usoSello.getNp2().trim() : "");
             usoSelloPost.put("sello16", usoSello.getSello16());
             usoSelloPost.put("sello15", usoSello.getSello15());
             usoSelloPost.put("sello14", usoSello.getSello14());
@@ -960,10 +1018,20 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
                     this.prepedidoActual.setEnvioUsoSello(usoSelloImpresion);
                     this.prepedidoActual.setRutaPdfSellos(this.rutaPdfGenerado);
                 }
-                this.dialogo(FacesMessage.SEVERITY_INFO, "Sellos procesados exitosamente");
+                this.soloLecturaSellos = true;
+                if (this.archivoListo && this.pdfBase64 != null && !this.pdfBase64.isEmpty()) {
+                    this.dialogo(FacesMessage.SEVERITY_INFO, "Sellos procesados exitosamente");
+                } else {
+                    this.dialogo(FacesMessage.SEVERITY_WARN,
+                            "Sellos procesados exitosamente, pero no se pudo generar el PDF de sellos");
+                }
                 notificarSellosClientes();
+                org.primefaces.PrimeFaces.current().ajax().update("form:dt-products", "form:messages");
                 org.primefaces.PrimeFaces.current().executeScript("PF('sellosDialog').hide();");
-                org.primefaces.PrimeFaces.current().ajax().update(":form:dt-products", ":form:messages");
+                if (this.archivoListo && this.pdfBase64 != null && !this.pdfBase64.isEmpty()) {
+                    org.primefaces.PrimeFaces.current().ajax().update("formPdfSellos");
+                    org.primefaces.PrimeFaces.current().executeScript("abrirVisorPdfSellos();");
+                }
 
             } else {
                 archivoListo = false;
@@ -1291,9 +1359,22 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
 
     // CODIGO PARA LA IMPRESION DE USOSELLOS EN JASPER
     public void generarReporteAux(EnvioUsoSello unUsoSello) {
+        this.rutaPdfGenerado = null;
+        this.pdfStream = null;
+        this.pdfBase64 = null;
+        this.archivoListo = false;
+
         // String path = "C:\\archivos\\Template\\notapedido.jrxml";
         String rutaGuardar = Fichero.getCARPETAREPORTES();
-        String path = Fichero.getCARPETAREPORTES() + "/usosellosinbdd.jrxml";
+        File archivoJrxml = new File(rutaGuardar, "usosellosinbdd.jrxml");
+        if (!archivoJrxml.exists() && Fichero.getRUTAREPORTE() != null && !Fichero.getRUTAREPORTE().trim().isEmpty()) {
+            File alternativo = new File(Fichero.getRUTAREPORTE().trim(), "usosellosinbdd.jrxml");
+            if (alternativo.exists()) {
+                rutaGuardar = Fichero.getRUTAREPORTE().trim();
+                archivoJrxml = alternativo;
+            }
+        }
+        String path = archivoJrxml.getAbsolutePath();
         String prefijo = "";
         System.out.println("FT:: metodo.generarReporte PATH:" + path);
         String sellosConcatenadosParaImpresion = "";
@@ -1301,7 +1382,10 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
                 ? unUsoSello.getSelloconcatenado().split(";")
                 : new String[0];
 
-        switch (unUsoSello.getCodigocomercializadora()) {
+        String codComerPdf = unUsoSello.getCodigocomercializadora() != null
+                ? unUsoSello.getCodigocomercializadora()
+                : "";
+        switch (codComerPdf) {
             case "0095":
                 prefijo = "PR";
                 break;
@@ -1318,15 +1402,10 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
             }
         }
 
-        InputStream file = null;
-        try {
-            file = new FileInputStream(new File(path));
-
+        try (InputStream file = new FileInputStream(archivoJrxml)) {
             JasperReport reporte = JasperCompileManager.compileReport(file);
-            BufferedImage image = ImageIO.read(new File(
-                    Fichero.getCARPETAREPORTES() + "/logo" + unUsoSello.getCodigocomercializadora() + ".jpeg"));
-            // BufferedImage image = ImageIO.read(new
-            // File("C:\\archivos\\Template\\logo.jpg"));
+            File archivoLogo = new File(rutaGuardar, "logo" + codComerPdf + ".jpeg");
+            BufferedImage image = archivoLogo.exists() ? ImageIO.read(archivoLogo) : null;
             Map parametro = new HashMap();
 
             parametro.put("sellos", sellosConcatenadosParaImpresion);
@@ -1334,14 +1413,9 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
                     + unUsoSello.getNombreconductor());
             parametro.put("logo", image);
 
-            // System.out.println("PARAMETROS: " + parametro);
-            ////////// ftftftft Connection conexion = conexionJasperBD();
             JRDataSource conexion = new JREmptyDataSource();
-
-            // System.out.println("CONEXIÓN: " + conexion);
             JasperPrint print = JasperFillManager.fillReport(reporte, parametro, conexion);
 
-            // File directory = new File("C:\\Archivos");
             File directory = new File(rutaGuardar);
             if (!directory.exists()) {
                 directory.mkdirs();
@@ -1351,19 +1425,20 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
             String fechaArchivo = sdf.format(new Date());
 
             File pdf = File.createTempFile(nombreDocumento + "_" + fechaArchivo + "_", ".pdf", directory);
-            JasperExportManager.exportReportToPdfStream(print, new FileOutputStream(pdf));
-            File initialFile = new File(pdf.getAbsolutePath());
-            InputStream targetStream = new FileInputStream(initialFile);
+            try (FileOutputStream fos = new FileOutputStream(pdf)) {
+                JasperExportManager.exportReportToPdfStream(print, fos);
+            }
+            byte[] pdfBytes = java.nio.file.Files.readAllBytes(pdf.toPath());
             this.rutaPdfGenerado = pdf.getAbsolutePath();
-            // pdfStream = new DefaultStreamedContent();
-            pdfStream = new DefaultStreamedContent(targetStream, "application/pdf",
+            this.pdfBase64 = java.util.Base64.getEncoder().encodeToString(pdfBytes);
+            this.archivoListo = true;
+            pdfStream = new DefaultStreamedContent(new java.io.ByteArrayInputStream(pdfBytes), "application/pdf",
                     nombreDocumento + "_" + fechaArchivo + ".pdf");
-            // DefaultStreamedContent.builder().contentType("application/pdf").name(nombreDocumento
-            // + ".pdf").stream(() -> new FileInputStream(targetStream)).build();
             System.out.println("FT::. CREANDO ARCHIVO. " + pdf.getAbsolutePath());
 
         } catch (Exception ex) {
-            // ex.printStackTrace();
+            this.archivoListo = false;
+            this.pdfBase64 = null;
             System.out.println("Excepcion: " + ex);
         }
     }
@@ -1954,12 +2029,17 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
 
     /**
      * Abre el panel de asignacion de sellos (identico a usosellos.xhtml) para un
-     * prepedido de la pantalla prepedidosolicitud_1.
+     * prepedido de la pantalla prepedidosolicitud_1. Si los sellos ya fueron
+     * procesados, carga exactamente la informacion enviada en modo solo lectura.
      */
     public void abrirDesdePrepedido(ec.com.infinityone.modelo.PrepedidoSolicitud ps) {
         this.prepedidoActual = ps;
         asignacion();
-        StringBuilder sb = new StringBuilder("Entrega de Sellos");
+        boolean yaProcesado = (ps != null && ps.isSellosProcesados());
+        this.soloLecturaSellos = yaProcesado;
+
+        StringBuilder sb = new StringBuilder(
+                yaProcesado ? "Entrega de Sellos (Procesado - Solo lectura)" : "Entrega de Sellos");
         if (ps != null && ps.getPrepedido() != null) {
             ec.com.infinityone.modelo.Prepedido pp = ps.getPrepedido();
             if (pp.getPrepedidoPK() != null && pp.getPrepedidoPK().getNumero() != null) {
@@ -1981,6 +2061,12 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
         tituloDialogo = sb.toString();
         precargarDatosPrepedido(ps);
 
+        if (yaProcesado) {
+            obtenerAutotanque();
+            cargarDatosSoloLectura(ps);
+            return;
+        }
+
         // Al abrir la pantalla de sellos se cargan:
         // 1) ULTIMO SELLO (por comercializadora y terminal del prepedido)
         obtenerUltimoUsoSello();
@@ -1990,35 +2076,7 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
 
         // 3) Precargar números de Nota de Pedido en Solicitudes (np1 .. np6)
         if (ps != null) {
-            java.util.List<String> nps = new java.util.ArrayList<>();
-            if (ps.getDetalle() != null) {
-                for (ec.com.infinityone.modelo.Detalleprepedido d : ps.getDetalle()) {
-                    if (d != null && d.getNumeronp() != null) {
-                        String num = d.getNumeronp().trim();
-                        if (!num.isEmpty() && !num.equals("0") && !num.equals("00")
-                                && !num.equalsIgnoreCase("null") && !nps.contains(num)) {
-                            nps.add(num);
-                        }
-                    }
-                }
-            }
-            if (ps.getNumeroNotaPedidoGenerada() != null) {
-                String numGen = ps.getNumeroNotaPedidoGenerada().trim();
-                if (!numGen.isEmpty() && !numGen.equals("0") && !numGen.equals("00")
-                        && !numGen.equalsIgnoreCase("null") && !nps.contains(numGen)) {
-                    nps.add(numGen);
-                }
-            }
-
-            if (usoSello == null) {
-                usoSello = new ec.com.infinityone.modelo.UsoSello();
-            }
-            usoSello.setNp1(nps.size() > 0 ? nps.get(0) : "");
-            usoSello.setNp2(nps.size() > 1 ? nps.get(1) : "");
-            usoSello.setNp3(nps.size() > 2 ? nps.get(2) : "");
-            usoSello.setNp4(nps.size() > 3 ? nps.get(3) : "");
-            usoSello.setNp5(nps.size() > 4 ? nps.get(4) : "");
-            usoSello.setNp6(nps.size() > 5 ? nps.get(5) : "");
+            precargarNotasPedidoEnUsoSello(ps);
 
             // 4) Si el prepedido ya tiene autotanque asignado, autoseleccionar y calcular
             // sellos
@@ -2034,6 +2092,216 @@ public class UsoSellosPrepedidoBean extends ReusableBean implements Serializable
                 }
             }
         }
+    }
+
+    private void precargarNotasPedidoEnUsoSello(ec.com.infinityone.modelo.PrepedidoSolicitud ps) {
+        java.util.List<String> nps = new java.util.ArrayList<>();
+        if (ps.getDetalle() != null) {
+            for (ec.com.infinityone.modelo.Detalleprepedido d : ps.getDetalle()) {
+                if (d != null && d.getNumeronp() != null) {
+                    String num = d.getNumeronp().trim();
+                    if (!num.isEmpty() && !num.equals("0") && !num.equals("00")
+                            && !num.equalsIgnoreCase("null") && !nps.contains(num)) {
+                        nps.add(num);
+                    }
+                }
+            }
+        }
+        if (ps.getNumeroNotaPedidoGenerada() != null) {
+            String numGen = ps.getNumeroNotaPedidoGenerada().trim();
+            if (!numGen.isEmpty() && !numGen.equals("0") && !numGen.equals("00")
+                    && !numGen.equalsIgnoreCase("null") && !nps.contains(numGen)) {
+                nps.add(numGen);
+            }
+        }
+
+        if (usoSello == null) {
+            usoSello = new ec.com.infinityone.modelo.UsoSello();
+        }
+        usoSello.setNp1(nps.size() > 0 ? nps.get(0) : "");
+        usoSello.setNp2(nps.size() > 1 ? nps.get(1) : "");
+        usoSello.setNp3(nps.size() > 2 ? nps.get(2) : "");
+        usoSello.setNp4(nps.size() > 3 ? nps.get(3) : "");
+        usoSello.setNp5(nps.size() > 4 ? nps.get(4) : "");
+        usoSello.setNp6(nps.size() > 5 ? nps.get(5) : "");
+    }
+
+    /**
+     * Pobla el dialogo con los datos ya guardados del EnvioUsoSello sin recalcular
+     * sellos ni permitir edicion.
+     */
+    private void cargarDatosSoloLectura(ec.com.infinityone.modelo.PrepedidoSolicitud ps) {
+        this.usoSello = new ec.com.infinityone.modelo.UsoSello();
+        this.ultimoSello = "";
+        EnvioUsoSello envio = ps != null ? ps.getEnvioUsoSello() : null;
+        if (envio == null) {
+            if (ps != null) {
+                precargarNotasPedidoEnUsoSello(ps);
+            }
+            return;
+        }
+
+        // 1) Fecha de uso
+        if (envio.getFecha() != null && !envio.getFecha().trim().isEmpty()) {
+            String fTxt = envio.getFecha().trim();
+            if (fTxt.length() >= 10) {
+                fTxt = fTxt.substring(0, 10).replace('-', '/');
+            }
+            try {
+                this.fechaUso = new SimpleDateFormat("yyyy/MM/dd").parse(fTxt);
+            } catch (Exception ex) {
+                // mantiene la fecha por defecto si no es parseable
+            }
+        }
+
+        // 2) Placa y conductor
+        String placaGuardada = envio.getPlaca() != null ? envio.getPlaca().trim() : "";
+        Autotanque encontrado = null;
+        if (!placaGuardada.isEmpty() && listaAutotanque != null) {
+            for (Autotanque at : listaAutotanque) {
+                if (at != null && at.getPlaca() != null && at.getPlaca().trim().equalsIgnoreCase(placaGuardada)) {
+                    encontrado = at;
+                    break;
+                }
+            }
+        }
+        if (encontrado != null) {
+            this.autotanque = encontrado;
+        } else if (!placaGuardada.isEmpty()) {
+            Autotanque atTemp = new Autotanque();
+            atTemp.setPlaca(placaGuardada);
+            Conductor condTemp = new Conductor();
+            condTemp.setCedularuc("");
+            condTemp.setNombre(envio.getNombreconductor() != null ? envio.getNombreconductor().trim() : "");
+            atTemp.setCedularuc(condTemp);
+            if (listaAutotanque == null) {
+                listaAutotanque = new ArrayList<>();
+            }
+            listaAutotanque.add(atTemp);
+            this.autotanque = atTemp;
+        }
+
+        // 3) Notas de pedido (np1..np6)
+        List<String> nps = new ArrayList<>();
+        if (envio.getNp1() != null && !envio.getNp1().trim().isEmpty()
+                && !"null".equalsIgnoreCase(envio.getNp1().trim())) {
+            nps.add(envio.getNp1().trim());
+        }
+        if (envio.getNpconcatenada() != null && !envio.getNpconcatenada().trim().isEmpty()) {
+            for (String part : envio.getNpconcatenada().split(";")) {
+                String p = part.trim();
+                if (!p.isEmpty() && !"null".equalsIgnoreCase(p) && !nps.contains(p)) {
+                    nps.add(p);
+                }
+            }
+        }
+        usoSello.setNp1(nps.size() > 0 ? nps.get(0) : "");
+        usoSello.setNp2(nps.size() > 1 ? nps.get(1) : "");
+        usoSello.setNp3(nps.size() > 2 ? nps.get(2) : "");
+        usoSello.setNp4(nps.size() > 3 ? nps.get(3) : "");
+        usoSello.setNp5(nps.size() > 4 ? nps.get(4) : "");
+        usoSello.setNp6(nps.size() > 5 ? nps.get(5) : "");
+
+        // 4) Sellos usados (sello1..sello16)
+        if (envio.getSelloconcatenado() != null && !envio.getSelloconcatenado().trim().isEmpty()) {
+            int idx = 0;
+            for (String part : envio.getSelloconcatenado().split(";")) {
+                if (idx >= 16) {
+                    break;
+                }
+                String s = part.trim();
+                if (!s.isEmpty() && !"null".equalsIgnoreCase(s)) {
+                    try {
+                        asignarSelloEnIndice(usoSello, idx, new BigInteger(s));
+                        idx++;
+                    } catch (NumberFormatException nfe) {
+                        // ignorar valor no numerico
+                    }
+                }
+            }
+        }
+    }
+
+    private void asignarSelloEnIndice(UsoSello target, int indice, BigInteger valor) {
+        switch (indice) {
+            case 0: target.setSello1(valor); break;
+            case 1: target.setSello2(valor); break;
+            case 2: target.setSello3(valor); break;
+            case 3: target.setSello4(valor); break;
+            case 4: target.setSello5(valor); break;
+            case 5: target.setSello6(valor); break;
+            case 6: target.setSello7(valor); break;
+            case 7: target.setSello8(valor); break;
+            case 8: target.setSello9(valor); break;
+            case 9: target.setSello10(valor); break;
+            case 10: target.setSello11(valor); break;
+            case 11: target.setSello12(valor); break;
+            case 12: target.setSello13(valor); break;
+            case 13: target.setSello14(valor); break;
+            case 14: target.setSello15(valor); break;
+            case 15: target.setSello16(valor); break;
+            default: break;
+        }
+    }
+
+    /** Abre el visor modal de PDF usando exactamente la misma logica de imprimirSellos. */
+    public void abrirVisorPdfDesdeDialogo() {
+        if (this.prepedidoActual == null) {
+            return;
+        }
+        try {
+            this.rutaPdfGenerado = null;
+            this.pdfBase64 = null;
+            this.archivoListo = false;
+            imprimirSellos(this.prepedidoActual);
+            if ((this.pdfBase64 == null || this.pdfBase64.isEmpty())
+                    && this.rutaPdfGenerado != null && !this.rutaPdfGenerado.isEmpty()) {
+                File f = new File(this.rutaPdfGenerado);
+                if (f.exists()) {
+                    byte[] pdfBytes = java.nio.file.Files.readAllBytes(f.toPath());
+                    this.pdfBase64 = java.util.Base64.getEncoder().encodeToString(pdfBytes);
+                    this.archivoListo = true;
+                }
+            }
+            if (this.archivoListo && this.pdfBase64 != null && !this.pdfBase64.isEmpty()) {
+                org.primefaces.PrimeFaces.current().ajax().update("formPdfSellos");
+                org.primefaces.PrimeFaces.current().executeScript("abrirVisorPdfSellos();");
+            } else {
+                this.dialogo(FacesMessage.SEVERITY_WARN, "No se pudo generar el PDF de sellos.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            this.dialogo(FacesMessage.SEVERITY_ERROR, "Error al abrir el PDF de sellos: " + e.getMessage());
+        }
+    }
+
+    public String getConductorDisplay() {
+        if (autotanque == null || autotanque.getCedularuc() == null) {
+            return "";
+        }
+        String ced = autotanque.getCedularuc().getCedularuc();
+        String nom = autotanque.getCedularuc().getNombre();
+        boolean tieneCed = ced != null && !ced.trim().isEmpty();
+        boolean tieneNom = nom != null && !nom.trim().isEmpty();
+        if (tieneCed && tieneNom) {
+            return ced.trim() + " - " + nom.trim();
+        }
+        if (tieneNom) {
+            return nom.trim();
+        }
+        return tieneCed ? ced.trim() : "";
+    }
+
+    public void setConductorDisplay(String ignored) {
+        // solo lectura en pantalla
+    }
+
+    public boolean isSoloLecturaSellos() {
+        return soloLecturaSellos;
+    }
+
+    public String getPdfBase64() {
+        return pdfBase64;
     }
 
     /**

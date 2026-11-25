@@ -28,8 +28,10 @@ import org.primefaces.shaded.json.JSONObject;
 
 import ec.com.infinityone.configuration.Fichero;
 import ec.com.infinityone.modelo.Autotanque;
+import ec.com.infinityone.modelo.Cliente;
 import ec.com.infinityone.modelo.Terminal;
 import ec.com.infinityone.reusable.ReusableBean;
+import ec.com.infinityone.serivicio.actorcomercial.ClienteServicio;
 import ec.com.infinityone.servicio.catalogo.TerminalServicio;
 import ec.com.infinityone.servicio.catalogo.UsuarioServicio;
 import ec.com.infinityone.servicio.notificacion.ExpoPushService;
@@ -58,6 +60,9 @@ public class MensajeSellosBean extends ReusableBean implements Serializable {
     private TerminalServicio terminalServicio;
 
     @Inject
+    private ClienteServicio clienteServicio;
+
+    @Inject
     private UsoSellosServicio usoSellosServicio;
 
     @Inject
@@ -72,7 +77,10 @@ public class MensajeSellosBean extends ReusableBean implements Serializable {
     /** Terminales de partida. */
     private List<Terminal> listaTerminales;
 
-    /** Clientes destinatarios (sin repetir) del autotanque/fecha/terminal. */
+    /** Catálogo completo de clientes disponibles para el combo. */
+    private List<ClienteDestino> listaTodosClientes;
+
+    /** Clientes mostrados en el combo (siempre todos; primero los del autotanque si aplica). */
     private List<ClienteDestino> listaClientes;
 
     /** Fecha de traslado (por defecto la actual). */
@@ -95,10 +103,51 @@ public class MensajeSellosBean extends ReusableBean implements Serializable {
         direccion = Fichero.getRUTASERVICIOSPERSISTENCIA().trim() + "ec.com.infinity.modelo.autotanque";
         listaAutotanques = new ArrayList<>();
         listaTerminales = new ArrayList<>();
+        listaTodosClientes = new ArrayList<>();
         listaClientes = new ArrayList<>();
         limpiar();
         obtenerTerminales();
         obtenerAutotanques();
+        obtenerTodosLosClientes();
+    }
+
+    /**
+     * Carga todos los clientes (activos de la comercializadora del usuario, o todos
+     * si no tiene comercializadora fija) para que siempre estén disponibles en el
+     * combo con búsqueda por texto.
+     */
+    public void obtenerTodosLosClientes() {
+        Map<String, ClienteDestino> unicos = new LinkedHashMap<>();
+        try {
+            String codComer = (dataUser != null && dataUser.getUser() != null)
+                    ? dataUser.getUser().getCodigocomercializadora()
+                    : null;
+            List<Cliente> clientes;
+            if (!isVacio(codComer)) {
+                clientes = clienteServicio.obtenerClientesPorComercializadoraActiva(codComer.trim());
+                if (clientes == null || clientes.isEmpty()) {
+                    clientes = clienteServicio.obtenerClientesActivosPorComercializadora(codComer.trim());
+                }
+            } else {
+                clientes = clienteServicio.obtenerClientes();
+            }
+            if (clientes != null) {
+                for (Cliente c : clientes) {
+                    if (c == null || c.getClientePK() == null || isVacio(c.getClientePK().getCodigo())) {
+                        continue;
+                    }
+                    String cod = c.getClientePK().getCodigo().trim();
+                    String nom = !isVacio(c.getNombrecomercial()) ? c.getNombrecomercial().trim()
+                            : (!isVacio(c.getNombre()) ? c.getNombre().trim() : "");
+                    unicos.putIfAbsent(cod, new ClienteDestino(cod, nom));
+                }
+            }
+        } catch (RuntimeException e) {
+            LOG.log(Level.SEVERE, "Error al cargar la lista completa de clientes", e);
+            mensaje(FacesMessage.SEVERITY_ERROR, "No se pudo cargar la lista de clientes");
+        }
+        listaTodosClientes = new ArrayList<>(unicos.values());
+        listaClientes = new ArrayList<>(listaTodosClientes);
     }
 
     public void obtenerTerminales() {
@@ -161,41 +210,71 @@ public class MensajeSellosBean extends ReusableBean implements Serializable {
     }
 
     /**
-     * Llena el combo de clientes con buscarselloscliente (comercializadora del
-     * usuario conectado + terminal + placa + fecha de traslado). Cada cliente
-     * aparece una sola vez.
+     * Consulta buscarselloscliente para prefijar el cliente destinatario del
+     * autotanque/terminal/fecha seleccionados, manteniendo siempre todos los
+     * clientes disponibles en el combo (con los del autotanque al inicio y sin
+     * repetir).
      */
     public void cargarClientes() {
-        listaClientes = new ArrayList<>();
-        codigoCliente = null;
+        if (listaTodosClientes == null) {
+            listaTodosClientes = new ArrayList<>();
+        }
         if (isVacio(codigoTerminal) || isVacio(placaAutotanque) || fechaTraslado == null) {
+            listaClientes = new ArrayList<>(listaTodosClientes);
+            if (isVacio(placaAutotanque)) {
+                codigoCliente = null;
+            }
             return;
         }
         try {
-            String codComer = dataUser.getUser().getCodigocomercializadora();
+            String codComer = (dataUser != null && dataUser.getUser() != null)
+                    ? dataUser.getUser().getCodigocomercializadora()
+                    : null;
+            if (isVacio(codComer)) {
+                listaClientes = new ArrayList<>(listaTodosClientes);
+                return;
+            }
             String fecha = new SimpleDateFormat("yyyy/MM/dd").format(fechaTraslado);
-            JSONArray items = usoSellosServicio.buscarSellosCliente(codComer, codigoTerminal, placaAutotanque, fecha);
+            JSONArray items = usoSellosServicio.buscarSellosCliente(codComer.trim(), codigoTerminal, placaAutotanque,
+                    fecha);
             if (items == null) {
+                listaClientes = new ArrayList<>(listaTodosClientes);
+                codigoCliente = null;
                 mensaje(FacesMessage.SEVERITY_ERROR, "No se pudo consultar los clientes del autotanque");
                 return;
             }
-            Map<String, ClienteDestino> unicos = new LinkedHashMap<>();
+
+            Map<String, ClienteDestino> combinados = new LinkedHashMap<>();
+            String primerClienteAutotanque = null;
             for (int i = 0; i < items.length(); i++) {
                 if (items.isNull(i)) {
                     continue;
                 }
                 JSONObject it = items.getJSONObject(i);
                 String cod = it.optString("codigocliente", "").trim();
-                if (!cod.isEmpty() && !unicos.containsKey(cod)) {
-                    unicos.put(cod, new ClienteDestino(cod, it.optString("nombrecliente", "").trim()));
+                if (!cod.isEmpty()) {
+                    if (primerClienteAutotanque == null) {
+                        primerClienteAutotanque = cod;
+                    }
+                    combinados.putIfAbsent(cod, new ClienteDestino(cod, it.optString("nombrecliente", "").trim()));
                 }
             }
-            listaClientes = new ArrayList<>(unicos.values());
-            if (listaClientes.isEmpty()) {
-                mensaje(FacesMessage.SEVERITY_INFO, "No hay clientes para el autotanque, terminal y fecha indicados");
+            for (ClienteDestino c : listaTodosClientes) {
+                if (c != null && !isVacio(c.getCodigo())) {
+                    combinados.putIfAbsent(c.getCodigo(), c);
+                }
+            }
+            listaClientes = new ArrayList<>(combinados.values());
+            if (primerClienteAutotanque != null) {
+                codigoCliente = primerClienteAutotanque;
+            } else {
+                codigoCliente = null;
+                mensaje(FacesMessage.SEVERITY_INFO,
+                        "No se encontr\u00f3 cliente asignado al autotanque para esa fecha/terminal; puede elegir uno de la lista");
             }
         } catch (RuntimeException e) {
             LOG.log(Level.SEVERE, "Error al cargar clientes destinatarios", e);
+            listaClientes = new ArrayList<>(listaTodosClientes);
             mensaje(FacesMessage.SEVERITY_ERROR, "No se pudo consultar los clientes del autotanque");
         }
     }
@@ -254,7 +333,7 @@ public class MensajeSellosBean extends ReusableBean implements Serializable {
         placaAutotanque = null;
         codigoCliente = null;
         linkRastreo = null;
-        listaClientes = new ArrayList<>();
+        listaClientes = (listaTodosClientes != null) ? new ArrayList<>(listaTodosClientes) : new ArrayList<>();
     }
 
     private boolean isVacio(String s) {

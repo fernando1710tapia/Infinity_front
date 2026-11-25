@@ -204,7 +204,7 @@
                                     <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-times"
                                         process="@this"
                                         actionListener="#{notapedidoBeanDirecto.dialogoAnulacionNotaPedido(notap)}"
-                                        update="form">
+                                        update="form :formAnular">
                                         <f:setPropertyActionListener value="#{notap}"
                                             target="#{notapedidoBeanDirecto.envNP}" />
                                     </p:commandButton>
@@ -294,7 +294,7 @@
                             <p:selectOneMenu id="cliente" value="#{notapedidoBeanDirecto.cliente}" title="Cliente"
                                 panelStyle="width:175px" style="min-width: 80%;" autoWidth="false"
                                 converter="converterg" disabled="#{!notapedidoBeanDirecto.habilitarCli}" required="true"
-                                requiredMessage="Seleccione Cliente" filter="true" filterMatchMode="startsWith">
+                                requiredMessage="Seleccione Cliente" filter="true" filterMatchMode="contains">
                                 <f:selectItem noSelectionOption="true" itemLabel="Cliente" itemValue="#{null}" />
                                 <f:selectItems value="#{notapedidoBeanDirecto.listaClientes}" var="cli"
                                     itemLabel="#{cli.clientePK.codigo}-#{cli.nombrecomercial}" itemValue="#{cli}" />
@@ -476,13 +476,29 @@
         </h:form>
         <!--</p:dialog>-->
 
-        <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300" message="Anular Nota Pedido?"
-            header="Confirm" severity="warn">
-            <p:commandButton value="Si" icon="pi pi-check" actionListener="#{notapedidoBeanDirecto.anularNotaPedido()}"
-                process="@this" oncomplete="PF('deleteProductDialog').hide()" update=":form" />
-            <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
-                onclick="PF('deleteProductDialog').hide()" />
-        </p:confirmDialog>
+        <p:dialog widgetVar="deleteProductDialog" header="Confirm" modal="true" showEffect="fade" width="420"
+            resizable="false" responsive="true">
+            <h:form id="formAnular">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+                    <i class="pi pi-exclamation-triangle" style="font-size:1.8rem;" />
+                    <span>Anular Nota Pedido?</span>
+                </div>
+                <div class="p-field">
+                    <p:outputLabel for="obsAnulacion" value="Observación"
+                        style="display:block; margin-bottom:6px; font-weight:600;" />
+                    <p:inputTextarea id="obsAnulacion" value="#{notapedidoBeanDirecto.observacionAnulacion}"
+                        rows="3" autoResize="false" maxlength="250" style="width:100%;"
+                        placeholder="Ingrese la justificación de anulación" />
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:14px;">
+                    <p:commandButton value="Si" icon="pi pi-check"
+                        actionListener="#{notapedidoBeanDirecto.anularNotaPedido()}" process="@form"
+                        oncomplete="PF('deleteProductDialog').hide()" update=":form :formAnular" />
+                    <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
+                        onclick="PF('deleteProductDialog').hide()" />
+                </div>
+            </h:form>
+        </p:dialog>
 
         <p:confirmDialog global="true" showEffect="fade" width="300">
             <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
