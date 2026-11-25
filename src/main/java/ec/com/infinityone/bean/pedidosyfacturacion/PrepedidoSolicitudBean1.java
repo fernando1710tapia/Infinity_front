@@ -2249,12 +2249,14 @@ public class PrepedidoSolicitudBean1 extends ReusableBean implements Serializabl
     }
 
     public void dialogoAnulacionPrepedido(PrepedidoSolicitud envNP) {
-        if ("SI".equals(envNP.getEstadoAutorizado())) {
+        boolean esNpb = "NPB".equals(obtenerCodigoEstado(envNP));
+        if ("SI".equals(envNP.getEstadoAutorizado()) && !esNpb) {
             this.dialogo(FacesMessage.SEVERITY_ERROR, "No se puede anular un prepedido que ya está autorizado.");
             return;
         }
+        this.envNP = envNP;
         this.prepedidoAuxiliar = envNP.getPrepedido();
-        if (!this.prepedidoAuxiliar.isActiva()) {
+        if (!envNP.isRegistroActivo() || !this.prepedidoAuxiliar.isActiva()) {
             this.dialogo(FacesMessage.SEVERITY_ERROR,
                     "NO SE PUEDE ANULAR ESTA NOTA DE PEDIDO, PORQUE YA SE ENCUENTRA ANULADA");
         } /*
